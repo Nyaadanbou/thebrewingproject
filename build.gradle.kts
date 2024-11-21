@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = "dev.jsinco.brewery"
@@ -7,6 +8,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://jitpack.io")
     maven("https://repo.oraxen.com/releases")
@@ -20,7 +22,8 @@ dependencies {
     compileOnly("io.th0rgal:oraxen:1.163.0")
 
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-    implementation("org.jetbrains:annotations:24.0.0")
+    implementation("dev.thorinwasher.schem:schem-reader:dev")
+    compileOnly("org.jetbrains:annotations:24.0.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
@@ -29,7 +32,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 tasks.test {

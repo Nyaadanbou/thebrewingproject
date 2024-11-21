@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.objects;
 
+import dev.jsinco.brewery.structure.BreweryStructure;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,20 +21,20 @@ import java.util.UUID;
 public class Barrel implements Tickable, InventoryHolder {
 
     private final UUID objectId;
-    private final BoundingBox boundingBox;
+    private final BreweryStructure structure;
     private final Location barrelSign;
     private final Inventory inventory;
 
-    public Barrel(BoundingBox boundingBox, Location barrelSign) {
+    public Barrel(BreweryStructure boundingBox, Location barrelSign) {
         this.objectId = UUID.randomUUID();
-        this.boundingBox = boundingBox;
+        this.structure = boundingBox;
         this.barrelSign = barrelSign;
         this.inventory = Bukkit.createInventory(this, 27, "Barrel");
     }
 
-    public Barrel(UUID objectId, BoundingBox boundingBox, Location barrelSign, Inventory inventory) {
+    public Barrel(UUID objectId, BreweryStructure structure, Location barrelSign, Inventory inventory) {
         this.objectId = objectId;
-        this.boundingBox = boundingBox;
+        this.structure = structure;
         this.barrelSign = barrelSign;
         this.inventory = inventory;
     }
