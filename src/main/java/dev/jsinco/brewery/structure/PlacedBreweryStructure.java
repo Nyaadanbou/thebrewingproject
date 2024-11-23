@@ -5,8 +5,8 @@ import org.joml.Matrix3d;
 
 import java.util.List;
 
-public record PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
-                                     Location structureOrigin) {
+public record PlacedBreweryStructure<T>(BreweryStructure structure, Matrix3d transformation,
+                                     Location structureOrigin, T holder) {
 
     public boolean isValid() {
         return structure.isValid(transformation, structureOrigin);
