@@ -21,4 +21,6 @@ public class StructureRegistry {
         Preconditions.checkNotNull(key);
         structures.put(key, structure);
     }
+
+
 }

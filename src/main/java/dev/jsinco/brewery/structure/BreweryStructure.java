@@ -11,7 +11,9 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BreweryStructure {
@@ -54,5 +56,9 @@ public class BreweryStructure {
             output.put(new Location(world, worldCoordinates.x, worldCoordinates.y, worldCoordinates.z), blockData);
         });
         return output;
+    }
+
+    public List<BlockData> getPalette() {
+        return Arrays.asList(schem.palette());
     }
 }

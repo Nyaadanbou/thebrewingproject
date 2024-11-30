@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StructureReader {
-    private static final Pattern SCHEM_PATTERN = Pattern.compile("\\.schem", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SCHEM_PATTERN = Pattern.compile("\\.json", Pattern.CASE_INSENSITIVE);
     private static final Pattern TAG_PATTERN = Pattern.compile("^#");
 
     public static Map<String, BreweryStructure> fromJson(Path path) throws IOException, StructureReadException {
@@ -64,9 +64,10 @@ public class StructureReader {
         for (String arg : split) {
             Matcher tagMatcher = TAG_PATTERN.matcher(arg);
             if (tagMatcher.find()) {
-                Tag<Material> materialsTag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, NamespacedKey.minecraft(arg.toLowerCase(Locale.ROOT)), Material.class);
+                String tagName = tagMatcher.replaceAll("").toLowerCase(Locale.ROOT);
+                Tag<Material> materialsTag = Bukkit.getTag(Tag.REGISTRY_BLOCKS, NamespacedKey.minecraft(tagName), Material.class);
                 if (materialsTag == null) {
-                    throw new StructureReadException("Could not find tag matching name: " + NamespacedKey.minecraft(arg.toLowerCase(Locale.ROOT)));
+                    throw new StructureReadException("Unknown material tag: " + NamespacedKey.minecraft(tagName));
                 }
                 output.addAll(materialsTag.getValues());
                 continue;
