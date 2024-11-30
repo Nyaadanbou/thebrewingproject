@@ -104,7 +104,7 @@ public class Cauldron implements Tickable {
             return; // Don't check if already determined and ingredients haven't changed
         }
 
-        for (ReducedRecipe reducedRecipe : TheBrewingProject.getRecipeFactory().getReducedRecipes()) {
+        for (ReducedRecipe reducedRecipe : TheBrewingProject.getInstance().getRecipeFactory().getReducedRecipes()) {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
 

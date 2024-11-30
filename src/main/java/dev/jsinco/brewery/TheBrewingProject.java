@@ -11,6 +11,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Getter
     private static TheBrewingProject instance;
+    @Getter
     private RecipeFactory recipeFactory;
     private StructureRegistry structureRegistry;
 

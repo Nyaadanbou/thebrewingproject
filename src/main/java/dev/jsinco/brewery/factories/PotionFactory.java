@@ -20,7 +20,7 @@ public class PotionFactory {
 
     private static final NamespacedKey RECIPE_NAME_KEY = new NamespacedKey(TheBrewingProject.getInstance(), "recipe");
 
-    private final RecipeFactory recipeFactory = TheBrewingProject.getRecipeFactory();
+    private final RecipeFactory recipeFactory = TheBrewingProject.getInstance().getRecipeFactory();
     private final PotionQuality quality;
     private final ReducedRecipe reducedRecipe;
 
@@ -54,6 +54,7 @@ public class PotionFactory {
     /**
      * Set the meta for a complete potion. This means that the cauldron found a recipe and that recipe does not require
      * aging or distilling
+     *
      * @param meta The potion meta to modify
      */
     private void setCompletePotionMeta(PotionMeta meta) {
@@ -74,6 +75,7 @@ public class PotionFactory {
 
     /**
      * Set the meta for an incomplete potion. This means that the cauldron found a recipe, but it requires aging or distilling
+     *
      * @param meta The potion meta to modify
      */
     private void setIncompletePotionMeta(PotionMeta meta) {
@@ -83,9 +85,9 @@ public class PotionFactory {
     }
 
 
-
     /**
      * Sets the meta for a random default potion. This means the cauldron did not find a recipe.
+     *
      * @param meta The potion meta to modify
      */
     private void setRandomDefaultPotionMeta(PotionMeta meta) {
