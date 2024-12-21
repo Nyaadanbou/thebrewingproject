@@ -1,0 +1,8 @@
+{
+  "schemFile": "small_barrel.schem",
+  "origin": [0, 1, 0],
+  "materialReplacements" : {
+    "excludedPattern": "_planks$",
+    "materials": "#planks"
+  }
+}
