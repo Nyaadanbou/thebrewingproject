@@ -29,7 +29,7 @@ public class BlockEventListener implements Listener {
         if (possibleStructure.isEmpty()) {
             return;
         }
-        Logging.log("Hello world!");
+        Logging.log("Hello world!"); //TODO: Obviously remove this
     }
 
     private Optional<PlacedBreweryStructure> getStructure(Block block) {
