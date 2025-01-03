@@ -57,8 +57,8 @@ class PlacedBreweryStructureTest {
         }
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertTrue(PlacedBreweryStructure.findValid(breweryStructure,
-                new Location(worldMock, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ()),
-                Object::new).isPresent());
+                new Location(worldMock, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ())
+        ).isPresent());
     }
 
     @ParameterizedTest
@@ -74,7 +74,7 @@ class PlacedBreweryStructureTest {
             }
         }
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
-        assertFalse(PlacedBreweryStructure.findValid(breweryStructure, new Location(worldMock, pos.getX(), pos.getY(), pos.getZ()), Object::new).isPresent());
+        assertFalse(PlacedBreweryStructure.findValid(breweryStructure, new Location(worldMock, pos.getX(), pos.getY(), pos.getZ())).isPresent());
     }
 
     @Test

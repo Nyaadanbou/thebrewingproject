@@ -6,18 +6,17 @@ import org.joml.Vector3i;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
-public record PlacedBreweryStructure<T>(BreweryStructure structure, Matrix3d transformation,
-                                        Location worldOrigin, T holder, Vector3i structureOrigin) {
+public record PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
+                                     Location worldOrigin, Vector3i structureOrigin) {
 
-    public static <T> Optional<PlacedBreweryStructure<T>> findValid(BreweryStructure structure, Location worldOrigin, Supplier<T> holderSupplier) {
+    public static Optional<PlacedBreweryStructure> findValid(BreweryStructure structure, Location worldOrigin) {
         Matrix3d transformation = new Matrix3d();
         for (int i = 0; i < 4; i++) {
             transformation.rotate(Math.PI / 2, 0, 1, 0);
             Optional<Vector3i> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin);
             if (possibleOrigin.isPresent()) {
-                return possibleOrigin.map(origin -> new PlacedBreweryStructure<>(structure, transformation, worldOrigin, holderSupplier.get(), origin));
+                return possibleOrigin.map(origin -> new PlacedBreweryStructure(structure, transformation, worldOrigin, origin));
             }
         }
         transformation.reflect(1, 0, 0);
@@ -25,7 +24,7 @@ public record PlacedBreweryStructure<T>(BreweryStructure structure, Matrix3d tra
             transformation.rotate(Math.PI / 2, 0, 1, 0);
             Optional<Vector3i> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin);
             if (possibleOrigin.isPresent()) {
-                return possibleOrigin.map(origin -> new PlacedBreweryStructure<>(structure, transformation, worldOrigin, holderSupplier.get(), origin));
+                return possibleOrigin.map(origin -> new PlacedBreweryStructure(structure, transformation, worldOrigin, origin));
             }
         }
         return Optional.empty();

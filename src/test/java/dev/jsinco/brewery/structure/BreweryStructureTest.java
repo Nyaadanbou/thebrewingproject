@@ -35,7 +35,7 @@ class BreweryStructureTest {
     void findValidOrigin() throws URISyntaxException, IOException {
         BreweryStructure oakStructure = getOakStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
-        assertTrue(PlacedBreweryStructure.findValid(oakStructure, new Location(worldMock, -3, 1, 1), Object::new).isPresent());
+        assertTrue(PlacedBreweryStructure.findValid(oakStructure, new Location(worldMock, -3, 1, 1)).isPresent());
     }
 
     private BreweryStructure getOakStructure() throws URISyntaxException, IOException {

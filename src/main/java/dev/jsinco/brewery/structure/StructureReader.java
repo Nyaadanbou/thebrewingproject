@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.structure;
 
 import com.google.gson.*;
+import dev.jsinco.brewery.TheBrewingProject;
 import dev.thorinwasher.schem.Schematic;
 import dev.thorinwasher.schem.SchematicReader;
 import dev.thorinwasher.schem.blockpalette.BlockPaletteParser;
@@ -11,6 +12,11 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -20,6 +26,19 @@ import java.util.regex.Pattern;
 public class StructureReader {
     private static final Pattern SCHEM_PATTERN = Pattern.compile("\\.json", Pattern.CASE_INSENSITIVE);
     private static final Pattern TAG_PATTERN = Pattern.compile("^#");
+
+    public static Map<String, BreweryStructure> fromInternalResourceJson(String string) throws IOException, StructureReadException {
+        URL url = TheBrewingProject.class.getResource(string);
+        URI uri = null;
+        try {
+            uri = url.toURI();
+        } catch (URISyntaxException e) {
+            throw new StructureReadException(e);
+        }
+        try (FileSystem fileSystem = FileSystems.newFileSystem(uri, new HashMap<>())) {
+            return fromJson(fileSystem.getPath(uri.toString().split("!")[1]));
+        }
+    }
 
     public static Map<String, BreweryStructure> fromJson(Path path) throws IOException, StructureReadException {
         try (Reader reader = new InputStreamReader(new BufferedInputStream(Files.newInputStream(path)))) {
