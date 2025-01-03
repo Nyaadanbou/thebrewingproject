@@ -1,6 +1,8 @@
 plugins {
     id("java")
     id("io.github.goooler.shadow") version "8.1.7"
+    id("xyz.jpenilla.run-paper") version "2.3.0"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 group = "dev.jsinco.brewery"
@@ -37,6 +39,20 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+
+
+    runServer {
+        minecraftVersion("1.21.4")
+    }
+}
+
+bukkit {
+    main = "dev.jsinco.brewery.TheBrewingProject"
+    foliaSupported = false
+    apiVersion = "1.21"
+    authors = listOf("Jsinco", "Mitality", "Thorinwasher")
 }
