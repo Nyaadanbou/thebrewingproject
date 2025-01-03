@@ -40,7 +40,12 @@ public class BreweryStructure {
 
     private static List<Vector3i> computeOrigins(Schematic schem) {
         List<Vector3i> vector3iList = new ArrayList<>();
-        schem.apply(new Matrix3d(), (position, ignored) -> vector3iList.add(position));
+        schem.apply(new Matrix3d(), (position, blockData) -> {
+            if (blockData.getMaterial().isAir()) {
+                return;
+            }
+            vector3iList.add(position);
+        });
         return List.copyOf(vector3iList);
     }
 
@@ -70,7 +75,7 @@ public class BreweryStructure {
         return true;
     }
 
-    public Vector3d transform(Matrix3d transformation, Location structureWorldOrigin, Vector3i schematicSpacePosition, Vector3i origin) {
+    private Vector3d transform(Matrix3d transformation, Location structureWorldOrigin, Vector3i schematicSpacePosition, Vector3i origin) {
         Vector3i vector = schematicSpacePosition.sub(origin, new Vector3i());
         return transformation.transform(new Vector3d(vector)).add(structureWorldOrigin.getX(), structureWorldOrigin.getY(), structureWorldOrigin.getZ());
     }
@@ -81,7 +86,7 @@ public class BreweryStructure {
         World world = structureWorldOrigin.getWorld();
 
         schem.apply(new Matrix3d(), (schematicSpacePosition, blockData) -> {
-            if(blockData.getMaterial().isAir()){
+            if (blockData.getMaterial().isAir()) {
                 return;
             }
             Vector3d transformedVector = transform(transformation, structureWorldOrigin, schematicSpacePosition, origin);
