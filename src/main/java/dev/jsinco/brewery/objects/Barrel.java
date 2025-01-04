@@ -18,7 +18,7 @@ import java.util.UUID;
  *
  */
 @Getter
-public class Barrel implements Tickable, InventoryHolder {
+public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
     private final UUID objectId;
     private final BreweryStructure structure;
@@ -57,5 +57,10 @@ public class Barrel implements Tickable, InventoryHolder {
         for (ItemStack item : inventory.getContents()) {
             // code for aging potions once implemented
         }
+    }
+
+    @Override
+    public void destroy() {
+        //TODO: What should be done when this barrel is destroyed?
     }
 }

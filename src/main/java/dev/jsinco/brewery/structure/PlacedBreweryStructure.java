@@ -1,6 +1,10 @@
 package dev.jsinco.brewery.structure;
 
+import dev.jsinco.brewery.objects.Destroyable;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3d;
 import org.joml.Vector3i;
 
@@ -8,9 +12,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public record PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
-                                     Location worldOrigin, Vector3i structureOrigin) {
+public class PlacedBreweryStructure {
     private static final List<Matrix3d> ALLOWED_TRANSFORMATIONS = compileAllowedTransformations();
+    private final BreweryStructure structure;
+    private final Matrix3d transformation;
+    private final Location worldOrigin;
+    private final Vector3i structureOrigin;
+    @Setter
+    @Getter
+    private @Nullable Destroyable holder;
+
+    public PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
+                                  Location worldOrigin, Vector3i structureOrigin) {
+        this.structure = structure;
+        this.transformation = transformation;
+        this.worldOrigin = worldOrigin;
+        this.structureOrigin = structureOrigin;
+    }
 
     public static Optional<PlacedBreweryStructure> findValid(BreweryStructure structure, Location worldOrigin) {
         for (Matrix3d transformation : ALLOWED_TRANSFORMATIONS) {

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.listeners;
 
+import dev.jsinco.brewery.objects.Destroyable;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -59,7 +60,7 @@ public class BlockEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
-        placedBreweryStructure.ifPresent(placedStructureRegistry::removeStructure);
+        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -101,18 +102,26 @@ public class BlockEventListener implements Listener {
             Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(location);
             placedBreweryStructure.ifPresent(placedBreweryStructures::add);
         }
-        placedBreweryStructures.forEach(placedStructureRegistry::removeStructure);
+        placedBreweryStructures.forEach(this::destroyBreweryStructure);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
         Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
-        placedBreweryStructure.ifPresent(placedStructureRegistry::removeStructure);
+        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
         Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
-        placedBreweryStructure.ifPresent(placedStructureRegistry::removeStructure);
+        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
+    }
+
+    private void destroyBreweryStructure(PlacedBreweryStructure structure) {
+        placedStructureRegistry.removeStructure(structure);
+        Destroyable destroyable = structure.getHolder();
+        if (destroyable != null) {
+            destroyable.destroy();
+        }
     }
 }
