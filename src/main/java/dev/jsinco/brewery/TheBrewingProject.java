@@ -4,9 +4,7 @@ import dev.jsinco.brewery.factories.RecipeFactory;
 import dev.jsinco.brewery.listeners.BlockEventListener;
 import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.external.OraxenPluginIngredient;
-import dev.jsinco.brewery.structure.BreweryStructure;
-import dev.jsinco.brewery.structure.StructureReader;
-import dev.jsinco.brewery.structure.StructureRegistry;
+import dev.jsinco.brewery.structure.*;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,12 +20,14 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private RecipeFactory recipeFactory;
     private StructureRegistry structureRegistry;
+    private PlacedStructureRegistry placedStructureRegistry;
 
     @Override
     public void onLoad() {
         instance = this;
         this.recipeFactory = new RecipeFactory();
         this.structureRegistry = new StructureRegistry();
+        this.placedStructureRegistry = new PlacedStructureRegistry();
 
         Stream.of("/structures/small_barrel.json", "/structures/large_barrel.json")
                 .map(string -> {
@@ -42,7 +42,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry), this);
+        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry), this);
     }
 
 
