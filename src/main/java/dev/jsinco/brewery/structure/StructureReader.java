@@ -73,8 +73,9 @@ public class StructureReader {
         for (String materialSubstitutionPattern : includedMaterialSubstitutionsPatterns) {
             BlockPaletteParser blockPaletteParser = new SubtitutedBlockPaletteParser(includedMaterialSubstitutionsPatterns, materialSubstitutionPattern);
             Schematic schem = new SchematicReader().withBlockPaletteParser(blockPaletteParser).read(schemFile);
-            BreweryStructure struct = origin.map(vector3i -> new BreweryStructure(schem, vector3i)).orElse(new BreweryStructure(schem));
-            output.put(schemName + "$" + materialSubstitutionPattern, struct);
+            String name = schemName + "$" + materialSubstitutionPattern;
+            BreweryStructure struct = origin.map(vector3i -> new BreweryStructure(schem, vector3i, name)).orElse(new BreweryStructure(schem, name));
+            output.put(name, struct);
         }
         return output;
     }

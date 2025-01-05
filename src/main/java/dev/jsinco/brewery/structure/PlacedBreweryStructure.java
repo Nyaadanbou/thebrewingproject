@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public class PlacedBreweryStructure {
     private static final List<Matrix3d> ALLOWED_TRANSFORMATIONS = compileAllowedTransformations();
+    @Getter
     private final BreweryStructure structure;
     private final Matrix3d transformation;
     private final Location worldOrigin;

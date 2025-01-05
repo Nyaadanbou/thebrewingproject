@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.objects;
 
-import dev.jsinco.brewery.structure.BreweryStructure;
+import dev.jsinco.brewery.structure.PlacedBreweryStructure;
+import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,40 +16,43 @@ import java.util.UUID;
 
 /**
  * Class for traditional barrels which use BoundingBoxes to determine the area of the barrel.
- *
  */
 @Getter
 public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
     private final UUID objectId;
-    private final BreweryStructure structure;
-    private final Location barrelSign;
+    private final PlacedBreweryStructure structure;
     private final Inventory inventory;
+    private final int size;
+    private final BarrelType barrelType;
 
-    public Barrel(BreweryStructure boundingBox, Location barrelSign) {
+    public Barrel(PlacedBreweryStructure boundingBox, int size, BarrelType barrelType) {
         this.objectId = UUID.randomUUID();
         this.structure = boundingBox;
-        this.barrelSign = barrelSign;
-        this.inventory = Bukkit.createInventory(this, 27, "Barrel");
+        this.inventory = Bukkit.createInventory(this, size, "Barrel");
+        this.size = size;
+        this.barrelType = barrelType;
+        Logging.log(String.format("Created a new barrel: %s %s", size, barrelType));
     }
 
-    public Barrel(UUID objectId, BreweryStructure structure, Location barrelSign, Inventory inventory) {
+    public Barrel(UUID objectId, PlacedBreweryStructure structure, Inventory inventory, int size, BarrelType barrelType) {
         this.objectId = objectId;
         this.structure = structure;
-        this.barrelSign = barrelSign;
         this.inventory = inventory;
+        this.size = size;
+        this.barrelType = barrelType;
     }
 
 
-    public void open(Player player) {
+    public void open(Player player, Location clickedLocation) {
         float randPitch = (float) (Math.random() * 0.1);
-        barrelSign.getWorld().playSound(barrelSign, Sound.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
+        clickedLocation.getWorld().playSound(clickedLocation, Sound.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
         player.openInventory(inventory);
     }
 
-    public void close(Player player) {
+    public void close(Player player, Location clickedLocation) {
         float randPitch = (float) (Math.random() * 0.1);
-        barrelSign.getWorld().playSound(barrelSign, Sound.BLOCK_BARREL_CLOSE, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
+        clickedLocation.getWorld().playSound(clickedLocation, Sound.BLOCK_BARREL_CLOSE, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
         player.closeInventory();
     }
 
@@ -61,6 +65,7 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
     @Override
     public void destroy() {
-        //TODO: What should be done when this barrel is destroyed?
+        // TODO: What should be done when this barrel is destroyed? Probably drop all the brews, right?
+        Logging.log("Destroyed a barrel");
     }
 }

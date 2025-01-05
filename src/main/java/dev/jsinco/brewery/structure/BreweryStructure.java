@@ -3,9 +3,11 @@ package dev.jsinco.brewery.structure;
 import com.google.common.base.Preconditions;
 import dev.thorinwasher.schem.BlockUtil;
 import dev.thorinwasher.schem.Schematic;
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3d;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -16,15 +18,18 @@ public class BreweryStructure {
 
     private final Schematic schem;
     private final List<Vector3i> origins;
+    @Getter
+    private final String name;
 
     /**
      * Construct a schem structure where all blocks can finalize the structure (less performant)
      *
      * @param schem
      */
-    public BreweryStructure(Schematic schem) {
-        this.schem = schem;
+    public BreweryStructure(@NotNull Schematic schem, @NotNull String name) {
+        this.schem = Objects.requireNonNull(schem);
         this.origins = computeOrigins(schem);
+        this.name = Objects.requireNonNull(name);
     }
 
     /**
@@ -33,9 +38,10 @@ public class BreweryStructure {
      * @param schem
      * @param origin
      */
-    public BreweryStructure(Schematic schem, Vector3i origin) {
-        this.schem = schem;
+    public BreweryStructure(@NotNull Schematic schem, @NotNull Vector3i origin, @NotNull String name) {
+        this.schem = Objects.requireNonNull(schem);
         this.origins = List.of(origin);
+        this.name = Objects.requireNonNull(name);
     }
 
     private static List<Vector3i> computeOrigins(Schematic schem) {

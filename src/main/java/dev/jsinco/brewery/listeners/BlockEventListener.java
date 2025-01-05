@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.listeners;
 
 import dev.jsinco.brewery.objects.Destroyable;
+import dev.jsinco.brewery.objects.ObjectFactory;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -41,7 +42,9 @@ public class BlockEventListener implements Listener {
             // Exit if there's an overlapping structure
             return;
         }
-        placedStructureRegistry.addStructure(possibleStructure.get());
+        placedStructureRegistry.addStructure(placedBreweryStructure);
+        Destroyable destroyable = ObjectFactory.newObjectFromStructure(placedBreweryStructure);
+        placedBreweryStructure.setHolder(destroyable);
     }
 
     private Optional<PlacedBreweryStructure> getStructure(Block block) {

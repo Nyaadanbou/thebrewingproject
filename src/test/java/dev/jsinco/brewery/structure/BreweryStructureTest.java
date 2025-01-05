@@ -41,6 +41,6 @@ class BreweryStructureTest {
     private BreweryStructure getOakStructure() throws URISyntaxException, IOException {
         URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.schem");
         Schematic schematic = new SchematicReader().read(Paths.get(url.toURI()));
-        return new BreweryStructure(schematic, new Vector3i(0, 0, 1));
+        return new BreweryStructure(schematic, new Vector3i(0, 0, 1), "test_barrel");
     }
 }
