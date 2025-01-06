@@ -47,7 +47,7 @@ public class Cauldron implements Tickable {
         this.ingredients = new ArrayList<>();
         this.block = block;
 
-        ObjectManager.getActiveCauldrons().add(this);
+        ObjectRegistry.getActiveCauldrons().add(this);
     }
 
     // Generally for loading from persistent storage
@@ -59,7 +59,7 @@ public class Cauldron implements Tickable {
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
 
-        ObjectManager.getActiveCauldrons().add(this);
+        ObjectRegistry.getActiveCauldrons().add(this);
     }
 
 
@@ -81,7 +81,7 @@ public class Cauldron implements Tickable {
 
 
     public void remove() {
-        ObjectManager.getActiveCauldrons().remove(this);
+        ObjectRegistry.getActiveCauldrons().remove(this);
     }
 
 
