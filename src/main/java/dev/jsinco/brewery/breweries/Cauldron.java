@@ -1,12 +1,12 @@
-package dev.jsinco.brewery.objects;
+package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.TheBrewingProject;
-import dev.jsinco.brewery.enums.PotionQuality;
+import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BlockUtil;
-import dev.jsinco.brewery.recipes.ReducedRecipe;
+import dev.jsinco.brewery.util.Interval;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Color;
@@ -14,8 +14,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -26,16 +28,16 @@ public class Cauldron implements Tickable {
     private static final Random RANDOM = new Random();
 
     private final UUID uid;
-    private final List<Ingredient> ingredients;
+    private final Map<Ingredient, Integer> ingredients;
     private final Block block;
 
 
-    private int brewTime = 0;
+    private long brewStart;
 
     // To determine the closest recipe:
     // Every time @tick is run, check all reducedrecipes/recipes list and see if the ingredients match
     // if they do, set the closest recipe to that recipe
-    private ReducedRecipe closestRecipe = null;
+    private @Nullable Recipe closestRecipe = null;
     // To determine particle effect color:
     // Every time @tick is run and if closest recipe is NOT null, get color from the closest recipe
     // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
@@ -44,29 +46,28 @@ public class Cauldron implements Tickable {
 
     public Cauldron(Block block) {
         this.uid = UUID.randomUUID();
-        this.ingredients = new ArrayList<>();
+        this.ingredients = new HashMap<>();
         this.block = block;
 
-        ObjectRegistry.getActiveCauldrons().add(this);
+        BreweryRegistry.getActiveCauldrons().add(this);
     }
 
     // Generally for loading from persistent storage
-    public Cauldron(UUID uid, List<Ingredient> ingredients, Block block, int brewTime, ReducedRecipe closestRecipe, Color particleColor) {
+    public Cauldron(UUID uid, Map<Ingredient, Integer> ingredients, Block block, int brewStart, @Nullable Recipe closestRecipe, Color particleColor) {
         this.uid = uid;
         this.ingredients = ingredients;
         this.block = block;
-        this.brewTime = brewTime;
+        this.brewStart = brewStart;
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
 
-        ObjectRegistry.getActiveCauldrons().add(this);
+        BreweryRegistry.getActiveCauldrons().add(this);
     }
 
 
     @Override
     public void tick() {
         if (!BlockUtil.isChunkLoaded(block)) {
-            this.brewTime++;
             return;
         }
 
@@ -74,57 +75,34 @@ public class Cauldron implements Tickable {
             this.remove();
             return;
         }
-        this.determineClosestRecipe();
+        getBrew().flatMap(Brew::closestRecipe).ifPresent(reducedRecipe -> this.closestRecipe = reducedRecipe);
         this.updateParticleColor();
-        this.brewTime++;
     }
 
 
     public void remove() {
-        ObjectRegistry.getActiveCauldrons().remove(this);
+        BreweryRegistry.getActiveCauldrons().remove(this);
     }
 
 
-    public boolean addIngredient(ItemStack item, Player player) {
-        // Todo: Add API event
-        // Todo: Add permission check
-
-        for (Ingredient ingredient : ingredients) {
-            if (ingredient.matches(item)) {
-                ingredient.setAmount(ingredient.getAmount() + 1);
-                return true;
-            }
+    public boolean addIngredient(@NotNull ItemStack item, Player player) {
+        // TODO: Add API event
+        // TODO: Add permission check
+        if (ingredients.isEmpty()) {
+            this.brewStart = block.getWorld().getGameTime();
         }
-        return this.ingredients.add(IngredientManager.getIngredient(item));
+        Ingredient ingredient = IngredientManager.getIngredient(item);
+        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
+        ingredients.put(ingredient, amount + item.getAmount());
+        return true;
     }
 
-
-    public void determineClosestRecipe() {
-        if (this.closestRecipe != null && this.closestRecipe.getIngredients().equals(this.ingredients)) {
-            return; // Don't check if already determined and ingredients haven't changed
-        }
-
-        for (ReducedRecipe reducedRecipe : TheBrewingProject.getInstance().getRecipeFactory().getReducedRecipes()) {
-            // Don't even bother checking recipes that don't have the same amount of ingredients
-            if (this.ingredients.size() != reducedRecipe.getIngredients().size()) continue;
-
-            boolean match = new HashSet<>(reducedRecipe.getIngredients()).containsAll(this.ingredients)
-                    && this.cauldronTypeMatchesRecipe();
-
-
-            if (match) {
-                this.closestRecipe = reducedRecipe;
-                return; // Found a match
-            }
-        }
-        this.closestRecipe = null; // Couldn't find a match
-    }
 
     public void updateParticleColor() {
         if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
             this.particleColor = Color.AQUA;
         } else if (this.closestRecipe != null) {
-            this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getColor(), brewTime, this.closestRecipe.getBrewTime());
+            this.particleColor = Util.getNextColor(particleColor, this.closestRecipe.getRecipeResult().getColor(), block.getWorld().getGameTime() - brewStart, this.closestRecipe.getBrewTime());
         }
     }
 
@@ -146,7 +124,10 @@ public class Cauldron implements Tickable {
 
 
     public boolean cauldronTypeMatchesRecipe() {
-        return closestRecipe.getCauldronType().getMaterial() == block.getType();
+        if (closestRecipe == null) {
+            return false;
+        }
+        return closestRecipe.getCauldronType().material() == block.getType();
     }
 
 
@@ -176,31 +157,33 @@ public class Cauldron implements Tickable {
         }
     }
 
-    @Nullable // FIXME - this needs to scale/descale based on difficulty
-    public PotionQuality getPotionQuality() {
-        if (this.closestRecipe == null) {
-            return null;
+    public Optional<Brew> getBrew() {
+        if (((Levelled) block.getBlockData()).getLevel() == 0 || ingredients.isEmpty()) {
+            return Optional.empty();
         }
-
-        // Todo: Implement potion quality calculation
-        int timeOffset = Math.abs(this.brewTime - closestRecipe.getBrewTime());
-
-        return switch (timeOffset) {
-            case 0,1 -> PotionQuality.EXCELLENT;
-            case 2,3,4,5 -> PotionQuality.GOOD;
-            default -> PotionQuality.BAD;
-        };
+        return Optional.of(
+                new Brew(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), new Interval(0, 0), 0, CauldronType.from(block.getType()), null)
+        );
     }
 
-
-    public ItemStack createPotion() {
-        // Todo - What needs to happen here:
-        // this should be called after a player clicks the cauldron with a glass bottle
-        // this should check if the closest recipe is not null
-        // if it's not null, we get the Recipe from our ReducedRecipe and create the potion
-        // Then, lower the cauldron by 1 level. If it's empty, remove it
-        // Finally, return the potion
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Optional<ItemStack> retrievePotion() {
+        Levelled cauldron = (Levelled) block.getBlockData();
+        int currentLevel = cauldron.getLevel();
+        if (currentLevel <= 0) {
+            ingredients.clear();
+            return Optional.empty();
+        }
+        cauldron.setLevel(cauldron.getLevel() - 1);
+        if (ingredients.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<ItemStack> output = getBrew()
+                .map(Brew::toItem);
+        if (currentLevel == 1) {
+            ingredients.clear();
+            closestRecipe = null;
+        }
+        return output;
     }
 
 

@@ -1,8 +1,8 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.objects.Barrel;
-import dev.jsinco.brewery.objects.Destroyable;
-import dev.jsinco.brewery.objects.ObjectRegistry;
+import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.breweries.Destroyable;
+import dev.jsinco.brewery.breweries.BreweryRegistry;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public class PlayerEventListener implements Listener {
             return;
         }
         barrel.open(playerInteractEvent.getPlayer());
-        ObjectRegistry.getOpenedBarrels().put(playerInteractEvent.getPlayer().getUniqueId(), barrel);
+        BreweryRegistry.getOpenedBarrels().put(playerInteractEvent.getPlayer().getUniqueId(), barrel);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -48,11 +48,11 @@ public class PlayerEventListener implements Listener {
             return;
         }
         UUID playerUuid = player.getUniqueId();
-        Barrel barrel = ObjectRegistry.getOpenedBarrels().get(playerUuid);
+        Barrel barrel = BreweryRegistry.getOpenedBarrels().get(playerUuid);
         if (barrel == null) {
             return;
         }
         barrel.close(player);
-        ObjectRegistry.getOpenedBarrels().remove(playerUuid);
+        BreweryRegistry.getOpenedBarrels().remove(playerUuid);
     }
 }

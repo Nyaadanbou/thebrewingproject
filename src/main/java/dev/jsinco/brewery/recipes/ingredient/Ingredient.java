@@ -1,39 +1,62 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataAdapterContext;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents an ingredient in a recipe.
  */
-@Setter @Getter
-public abstract class Ingredient {
+public interface Ingredient {
 
-    protected int amount = 1;
+    PdcType PDC_TYPE = new PdcType();
 
     /**
      * Check if the itemStack matches the ingredient.
+     *
      * @param itemStack The itemStack to check.
      * @return True if the itemStack matches the ingredient, false otherwise.
      */
-    public abstract boolean matches(ItemStack itemStack);
+    boolean matches(ItemStack itemStack);
 
+    NamespacedKey getKey();
 
-    /**
-     * Overriden equals implementation to ensure ingredients properly match each other when compared
-     * @param o The Ingredient class we're comparing this class to
-     * @return if the objects equal each other or not
-     */
-    @Override
-    public abstract boolean equals(Object o);
+    class PdcType implements PersistentDataType<String[], Map<Ingredient, Integer>> {
 
-    /**
-     * Check if the itemStack matches the ingredient amount and ItemStack.
-     * @param itemStack The itemStack to check.
-     * @return True if the itemStack matches the ingredient exactly, false otherwise.
-     */
-    public boolean matchesExact(ItemStack itemStack) {
-        return itemStack.getAmount() == amount && matches(itemStack);
+        @NotNull
+        @Override
+        public Class<String[]> getPrimitiveType() {
+            return String[].class;
+        }
+
+        @NotNull
+        @Override
+        public Class<Map<Ingredient, Integer>> getComplexType() {
+            return (Class<Map<Ingredient, Integer>>) Map.of().getClass();
+        }
+
+        @NotNull
+        @Override
+        public String @NotNull [] toPrimitive(@NotNull Map<Ingredient, Integer> complex, @NotNull PersistentDataAdapterContext context) {
+            return complex.entrySet().stream()
+                    .map(entry -> entry.getKey().getKey().toString() + "/" + entry.getValue())
+                    .toArray(String[]::new);
+        }
+
+        @NotNull
+        @Override
+        public Map<Ingredient, Integer> fromPrimitive(@NotNull String @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
+            Map<Ingredient, Integer> ingredients = new HashMap<>();
+            Arrays.stream(primitive)
+                    .map(IngredientManager::getIngredientWithAmount)
+                    .forEach(ingredientAmountPair -> IngredientManager.insertIngredientIntoMap(ingredients, ingredientAmountPair));
+            return ingredients;
+        }
     }
 }

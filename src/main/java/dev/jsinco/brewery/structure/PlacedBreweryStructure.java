@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.structure;
 
-import dev.jsinco.brewery.objects.Destroyable;
+import dev.jsinco.brewery.breweries.Destroyable;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;

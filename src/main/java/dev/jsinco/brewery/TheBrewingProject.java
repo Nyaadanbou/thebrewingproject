@@ -1,10 +1,11 @@
 package dev.jsinco.brewery;
 
-import dev.jsinco.brewery.factories.RecipeFactory;
+import dev.jsinco.brewery.recipes.RecipeFactory;
 import dev.jsinco.brewery.listeners.BlockEventListener;
 import dev.jsinco.brewery.listeners.PlayerEventListener;
-import dev.jsinco.brewery.objects.Barrel;
-import dev.jsinco.brewery.objects.ObjectRegistry;
+import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -21,15 +22,14 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Getter
     private static TheBrewingProject instance;
-    @Getter
-    private RecipeFactory recipeFactory;
     private StructureRegistry structureRegistry;
     private PlacedStructureRegistry placedStructureRegistry;
+    @Getter
+    private RecipeRegistry recipeRegistry;
 
     @Override
     public void onLoad() {
         instance = this;
-        this.recipeFactory = new RecipeFactory();
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistry();
 
@@ -49,10 +49,13 @@ public class TheBrewingProject extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry), this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
+
+        this.recipeRegistry.registerRecipes(RecipeFactory.readRecipes());
+        this.recipeRegistry.registerDefaultRecipes(RecipeFactory.readDefaultRecipes());
     }
 
     private void updateBarrels() {
-        ObjectRegistry.getOpenedBarrels().values().forEach(Barrel::tick);
+        BreweryRegistry.getOpenedBarrels().values().forEach(Barrel::tick);
     }
 
     public void registerPluginIngredients() {

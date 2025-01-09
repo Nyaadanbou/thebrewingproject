@@ -1,12 +1,12 @@
 package dev.jsinco.brewery.util;
 
-import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public final class Util {
@@ -14,6 +14,7 @@ public final class Util {
 
     private static final String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
     public static final Map<String, Color> NAME_TO_COLOR_MAP = new HashMap<>();
+
     static {
         NAME_TO_COLOR_MAP.put("WHITE", Color.WHITE);
         NAME_TO_COLOR_MAP.put("SILVER", Color.SILVER);
@@ -58,7 +59,7 @@ public final class Util {
 
 
     // Returns a color closer to the destination color based on the interval and totalDuration
-    public static Color getNextColor(Color current, Color destination, int step, int duration) {
+    public static Color getNextColor(Color current, Color destination, long step, int duration) {
         float ratio = (float) step / (duration - 1);
         int red = (int) (current.getRed() + ratio * (destination.getRed() - current.getRed()));
         int green = (int) (current.getGreen() + ratio * (destination.getGreen() - current.getGreen()));
@@ -75,9 +76,9 @@ public final class Util {
         }
 
         return Color.fromRGB(
-                Integer.valueOf(hexOrValue.substring( 1, 3 ), 16),
-                Integer.valueOf(hexOrValue.substring( 3, 5 ), 16),
-                Integer.valueOf(hexOrValue.substring( 5, 7 ), 16));
+                Integer.valueOf(hexOrValue.substring(1, 3), 16),
+                Integer.valueOf(hexOrValue.substring(3, 5), 16),
+                Integer.valueOf(hexOrValue.substring(5, 7), 16));
     }
 
 
@@ -89,10 +90,9 @@ public final class Util {
         }
     }
 
-    @Nullable
-    public static <E extends Enum<E>> E getEnumByName(Class<E> enumClass, String name) {
+    public static <E extends Enum<E>> @Nullable E getEnumByName(Class<E> enumClass, String name) {
         try {
-            return Enum.valueOf(enumClass, name.toUpperCase());
+            return Enum.valueOf(enumClass, name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }

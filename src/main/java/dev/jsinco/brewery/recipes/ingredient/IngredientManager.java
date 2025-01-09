@@ -1,10 +1,13 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
-import dev.jsinco.brewery.util.Util;
+import dev.jsinco.brewery.util.Pair;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Get an instance of an ingredient from an ItemStack or a string.
@@ -13,7 +16,7 @@ import java.util.List;
 public class IngredientManager {
 
 
-    public static Ingredient getIngredient(ItemStack itemStack) {
+    public static Ingredient getIngredient(@NotNull ItemStack itemStack) {
         Ingredient ingredient = PluginIngredient.of(itemStack);
         if (ingredient == null) {
             ingredient = SimpleIngredient.of(itemStack);
@@ -22,31 +25,59 @@ public class IngredientManager {
     }
 
 
-    public static Ingredient getIngredient(String ingredientStr) {
-        Ingredient ingredient = null;
-        String[] p1 = ingredientStr.split("/");
-        String str = p1[0];
-        int amount = Util.getInt(p1[1]);
-
-        if (str.contains(":")) {
-            String[] p2 = str.split(":");
+    public static Optional<Ingredient> getIngredient(@NotNull String ingredientStr) {
+        if (ingredientStr.contains(":")) {
+            String[] p2 = ingredientStr.split(":");
             String type = p2[0];
             String itemId = p2[1];
-
-
-            ingredient = PluginIngredient.of(type, itemId, amount);
+            return PluginIngredient.of(type, itemId)
+                    .map(Ingredient.class::cast);
+        } else {
+            return SimpleIngredient.of(ingredientStr)
+                    .map(Ingredient.class::cast);
         }
-
-        if (ingredient == null) {
-            ingredient = SimpleIngredient.of(str, amount);
-        }
-        return ingredient;
     }
 
-    public static List<Ingredient> getIngredients(List<String> stringList) {
-        if (stringList == null || stringList.isEmpty()) {
-            return Collections.emptyList();
+    /**
+     * @param ingredientStr A string with the format [ingredient-name]/[amount]. Allows not specifying amount, where it will default to 1
+     * @return An ingredient/amount pair
+     * @throws IllegalArgumentException if the ingredients string is invalid
+     */
+    public static Pair<@NotNull Ingredient, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException {
+        String[] ingredientSplit = ingredientStr.split("/");
+        if (ingredientSplit.length > 2) {
+            throw new IllegalArgumentException("To many '/' separators for ingredientString, was: " + ingredientStr);
         }
-        return stringList.stream().map(IngredientManager::getIngredient).toList();
+        int amount;
+        if (ingredientSplit.length == 1) {
+            amount = 1;
+        } else {
+            amount = Integer.parseInt(ingredientStr);
+        }
+        return getIngredient(ingredientSplit[0])
+                .map(ingredient -> new Pair<>(ingredient, amount))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ingredient string '" + ingredientStr + "' could not parse type"));
+    }
+
+    public static void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient) {
+        int amount = mutableIngredientsMap.computeIfAbsent(ingredient.first(), ignored -> 0);
+        mutableIngredientsMap.put(ingredient.first(), amount + ingredient.second());
+    }
+
+    /**
+     * Parse a list of strings into a map of ingredients with amount
+     * @param stringList A list of strings with valid formatting, see {@link IngredientManager#getIngredientWithAmount(String)}
+     * @return A map representing ingredients with amount
+     * @throws IllegalArgumentException if there's any invalid ingredient string
+     */
+    public static Map<Ingredient, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException {
+        if (stringList == null || stringList.isEmpty()) {
+            return new HashMap<>();
+        }
+        Map<Ingredient, Integer> ingredientMap = new HashMap<>();
+        stringList.stream()
+                .map(IngredientManager::getIngredientWithAmount)
+                .forEach(ingredientAmountPair -> insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
+        return ingredientMap;
     }
 }

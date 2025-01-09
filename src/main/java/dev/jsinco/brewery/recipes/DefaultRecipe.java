@@ -2,6 +2,11 @@ package dev.jsinco.brewery.recipes;
 
 import lombok.Getter;
 import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +31,22 @@ public class DefaultRecipe {
         this.glint = glint;
     }
 
+    public ItemStack newBrewItem() {
+        ItemStack potion = new ItemStack(Material.POTION);
+        PotionMeta meta = (PotionMeta) potion.getItemMeta();
+        meta.setDisplayName(name);
+        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        meta.setLore(lore);
+        meta.setColor(color);
+        if (glint) {
+            meta.addEnchant(Enchantment.MENDING, 1, true);
+        }
+        if (customModelData > 0) {
+            meta.setCustomModelData(customModelData);
+        }
+        potion.setItemMeta(meta);
+        return potion;
+    }
 
     public static class Builder {
         private String name = "Cauldron Brew";
