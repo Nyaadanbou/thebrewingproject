@@ -42,6 +42,7 @@ public class TheBrewingProject extends JavaPlugin {
                     }
                 })
                 .forEach(structureRegistry::addStructures);
+        this.recipeRegistry = new RecipeRegistry();
     }
 
     @Override

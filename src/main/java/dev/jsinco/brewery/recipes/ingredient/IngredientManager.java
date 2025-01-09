@@ -52,7 +52,7 @@ public class IngredientManager {
         if (ingredientSplit.length == 1) {
             amount = 1;
         } else {
-            amount = Integer.parseInt(ingredientStr);
+            amount = Integer.parseInt(ingredientSplit[1]);
         }
         return getIngredient(ingredientSplit[0])
                 .map(ingredient -> new Pair<>(ingredient, amount))
