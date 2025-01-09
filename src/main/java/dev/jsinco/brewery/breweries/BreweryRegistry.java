@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.recipes.Recipe;
-import lombok.Getter;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 
 import java.util.*;
 
@@ -9,13 +9,36 @@ import java.util.*;
  * Class which stores lists of all necessary objects
  * AKA. (Reduced)Recipes, Cauldrons, Barrels, BreweryPlayers
  */
-// TODO: change to instantiated rather than static class
 public final class BreweryRegistry {
 
-    @Getter
-    private static final List<Recipe> reducedRecipes = new ArrayList<>();
-    @Getter
-    private static final List<Cauldron> activeCauldrons = new ArrayList<>();
-    @Getter
-    private static final Map<UUID, Barrel> openedBarrels = new HashMap<>();
+    private final Map<Location, Cauldron> activeCauldrons = new HashMap<>();
+    private final Map<UUID, Barrel> openedBarrels = new HashMap<>();
+
+    public Optional<Cauldron> getActiveCauldron(Block block) {
+        return Optional.ofNullable(activeCauldrons.get(block.getLocation()));
+    }
+
+    public void addActiveCauldron(Cauldron cauldron) {
+        activeCauldrons.put(cauldron.getBlock().getLocation(), cauldron);
+    }
+
+    public void registerOpenedBarrel(UUID playerUuid, Barrel barrel) {
+        openedBarrels.put(playerUuid, barrel);
+    }
+
+    public Optional<Barrel> getOpenedBarrel(UUID playerUuid) {
+        return Optional.ofNullable(openedBarrels.get(playerUuid));
+    }
+
+    public Collection<Barrel> getOpenedBarrels() {
+        return openedBarrels.values();
+    }
+
+    public void removeActiveCauldron(Cauldron cauldron) {
+        activeCauldrons.remove(cauldron.getBlock().getLocation());
+    }
+
+    public void removeOpenedBarrel(UUID playerUuid) {
+        openedBarrels.remove(playerUuid);
+    }
 }

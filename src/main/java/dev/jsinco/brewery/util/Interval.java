@@ -9,10 +9,6 @@ public record Interval(long start, long stop) {
 
     public static final PdcType PDC_TYPE = new PdcType();
 
-    public Interval {
-        Preconditions.checkArgument(stop >= start);
-    }
-
     public Interval withStart(long start) {
         return new Interval(start, stop);
     }

@@ -1,10 +1,10 @@
 package dev.jsinco.brewery;
 
-import dev.jsinco.brewery.recipes.RecipeFactory;
-import dev.jsinco.brewery.listeners.BlockEventListener;
-import dev.jsinco.brewery.listeners.PlayerEventListener;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.listeners.BlockEventListener;
+import dev.jsinco.brewery.listeners.PlayerEventListener;
+import dev.jsinco.brewery.recipes.RecipeFactory;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.external.OraxenPluginIngredient;
@@ -26,12 +26,15 @@ public class TheBrewingProject extends JavaPlugin {
     private PlacedStructureRegistry placedStructureRegistry;
     @Getter
     private RecipeRegistry recipeRegistry;
+    @Getter
+    private BreweryRegistry breweryRegistry;
 
     @Override
     public void onLoad() {
         instance = this;
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistry();
+        this.breweryRegistry = new BreweryRegistry();
 
         Stream.of("/structures/small_barrel.json", "/structures/large_barrel.json")
                 .map(string -> {
@@ -48,7 +51,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry), this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
 
         this.recipeRegistry.registerRecipes(RecipeFactory.readRecipes());
@@ -56,7 +59,7 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
     private void updateBarrels() {
-        BreweryRegistry.getOpenedBarrels().values().forEach(Barrel::tick);
+        breweryRegistry.getOpenedBarrels().forEach(Barrel::tick);
     }
 
     public void registerPluginIngredients() {

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.breweries;
 
+import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.recipes.Recipe;
@@ -9,11 +10,9 @@ import dev.jsinco.brewery.util.BlockUtil;
 import dev.jsinco.brewery.util.Interval;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -49,7 +48,7 @@ public class Cauldron implements Tickable {
         this.ingredients = new HashMap<>();
         this.block = block;
 
-        BreweryRegistry.getActiveCauldrons().add(this);
+        TheBrewingProject.getInstance().getBreweryRegistry().addActiveCauldron(this);
     }
 
     // Generally for loading from persistent storage
@@ -61,7 +60,7 @@ public class Cauldron implements Tickable {
         this.closestRecipe = closestRecipe;
         this.particleColor = particleColor;
 
-        BreweryRegistry.getActiveCauldrons().add(this);
+        TheBrewingProject.getInstance().getBreweryRegistry().addActiveCauldron(this);
     }
 
 
@@ -81,7 +80,7 @@ public class Cauldron implements Tickable {
 
 
     public void remove() {
-        BreweryRegistry.getActiveCauldrons().remove(this);
+        TheBrewingProject.getInstance().getBreweryRegistry().removeActiveCauldron(this);
     }
 
 
@@ -93,7 +92,8 @@ public class Cauldron implements Tickable {
         }
         Ingredient ingredient = IngredientManager.getIngredient(item);
         int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
-        ingredients.put(ingredient, amount + item.getAmount());
+        ingredients.put(ingredient, amount + 1);
+        item.setAmount(item.getAmount() - 1);
         return true;
     }
 
@@ -193,5 +193,14 @@ public class Cauldron implements Tickable {
         if (obj == null || getClass() != obj.getClass()) return false;
         Cauldron cauldron = (Cauldron) obj;
         return uid.equals(cauldron.uid);
+    }
+
+    public static boolean isValidStructure(Block cauldronBlock) {
+        return Tag.CAULDRONS.isTagged(cauldronBlock.getType()) && isHeatSource(cauldronBlock.getRelative(BlockFace.DOWN).getType())
+                && cauldronBlock.getBlockData() instanceof Levelled levelled && levelled.getLevel() > 0;
+    }
+
+    private static boolean isHeatSource(Material material) {
+        return Tag.FIRE.isTagged(material) || Tag.CAMPFIRES.isTagged(material) || material == Material.LAVA;
     }
 }

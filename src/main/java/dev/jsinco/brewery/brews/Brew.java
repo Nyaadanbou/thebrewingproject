@@ -125,6 +125,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     public Optional<PotionQuality> quality(Recipe recipe) {
         double score = evaluateRecipe(recipe);
         double scoreWithDifficulty;
+        // Avoid extreme point, log(0) is minus infinity
         if (recipe.getBrewDifficulty() == 0) {
             return Optional.of(PotionQuality.EXCELLENT);
         }
@@ -161,9 +162,6 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     }
 
     public ItemStack toItem() {
-        // Todo - What needs to happen here:
-        // this should check if the closest recipe is not null
-        // if it's not null, we get the Recipe from our ReducedRecipe and create the potion
         Optional<Recipe> recipe = closestRecipe();
         Optional<PotionQuality> quality = recipe.flatMap(this::quality);
         if (quality.isEmpty()) {
