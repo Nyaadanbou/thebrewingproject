@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.objects;
+package dev.jsinco.brewery.breweries;
 
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
@@ -7,12 +7,12 @@ import dev.jsinco.brewery.util.Registry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ObjectFactory {
+public class BreweryFactory {
 
     private static final Pattern LARGE_BARREL_RE = Pattern.compile("^large_barrel\\$(.*)");
     private static final Pattern SMALL_BARREL_RE = Pattern.compile("^small_barrel\\$(.*)");
 
-    private ObjectFactory() {
+    private BreweryFactory() {
         throw new IllegalStateException("Utility class");
     }
 

@@ -1,6 +1,6 @@
-package dev.jsinco.brewery.objects;
+package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.recipes.ReducedRecipe;
+import dev.jsinco.brewery.recipes.Recipe;
 import lombok.Getter;
 
 import java.util.*;
@@ -10,10 +10,10 @@ import java.util.*;
  * AKA. (Reduced)Recipes, Cauldrons, Barrels, BreweryPlayers
  */
 // TODO: change to instantiated rather than static class
-public final class ObjectRegistry {
+public final class BreweryRegistry {
 
     @Getter
-    private static final List<ReducedRecipe> reducedRecipes = new ArrayList<>();
+    private static final List<Recipe> reducedRecipes = new ArrayList<>();
     @Getter
     private static final List<Cauldron> activeCauldrons = new ArrayList<>();
     @Getter

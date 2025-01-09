@@ -1,7 +1,6 @@
-package dev.jsinco.brewery.objects;
+package dev.jsinco.brewery.breweries;
 
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.entity.Player;

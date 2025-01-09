@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.objects.Destroyable;
-import dev.jsinco.brewery.objects.ObjectFactory;
+import dev.jsinco.brewery.breweries.Destroyable;
+import dev.jsinco.brewery.breweries.BreweryFactory;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -43,7 +43,7 @@ public class BlockEventListener implements Listener {
             return;
         }
         placedStructureRegistry.addStructure(placedBreweryStructure);
-        Destroyable destroyable = ObjectFactory.newObjectFromStructure(placedBreweryStructure);
+        Destroyable destroyable = BreweryFactory.newObjectFromStructure(placedBreweryStructure);
         placedBreweryStructure.setHolder(destroyable);
     }
 

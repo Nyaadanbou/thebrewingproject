@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.objects;
+package dev.jsinco.brewery.breweries;
 
 public interface Tickable {
     void tick();
