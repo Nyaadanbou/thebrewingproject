@@ -124,9 +124,17 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
 
     public Optional<PotionQuality> quality(Recipe recipe) {
         double score = evaluateRecipe(recipe);
-        double logBrewDifficulty = Math.log(recipe.getBrewDifficulty());
-        double scoreWithDifficulty = (Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty) - 1D / recipe.getBrewDifficulty()) / (1 - 1D / recipe.getBrewDifficulty());
-
+        double scoreWithDifficulty;
+        if (recipe.getBrewDifficulty() == 0) {
+            return Optional.of(PotionQuality.EXCELLENT);
+        }
+        // Avoid extreme point in calculation (can not divide by 0)
+        if (recipe.getBrewDifficulty() == 1) {
+            scoreWithDifficulty = score;
+        } else {
+            double logBrewDifficulty = Math.log(recipe.getBrewDifficulty());
+            scoreWithDifficulty = (Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty) - 1D / recipe.getBrewDifficulty()) / (1 - 1D / recipe.getBrewDifficulty());
+        }
         if (scoreWithDifficulty > 0.9) {
             return Optional.of(PotionQuality.EXCELLENT);
         }
