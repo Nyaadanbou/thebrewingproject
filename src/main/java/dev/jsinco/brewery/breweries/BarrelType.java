@@ -1,28 +1,31 @@
 package dev.jsinco.brewery.breweries;
 
 import dev.jsinco.brewery.util.Registry;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.regex.Pattern;
+import java.util.Locale;
 
-public record BarrelType(NamespacedKey key, Pattern pattern) {
+public enum BarrelType {
 
-    public static final BarrelType ANY = Registry.BARREL_TYPE.get(Registry.brewerySpacedKey("any"));
+    ANY,
+    OAK,
+    BIRCH,
+    SPRUCE,
+    JUNGLE,
+    ACACIA,
+    DARK_OAK,
+    CRIMSON,
+    WARPED,
+    CHERRY,
+    BAMBOO;
 
     public static final PdcType PDC_TYPE = new PdcType();
 
-    public boolean matches(Material material) {
-        String key = material.getKey().getKey();
-        return pattern.matcher(key).find();
-    }
-
-    @Override
-    public String toString() {
-        return "BarrelType(" + key + ")";
+    public NamespacedKey key() {
+        return Registry.brewerySpacedKey(name().toLowerCase(Locale.ROOT));
     }
 
     public static class PdcType implements PersistentDataType<String, BarrelType> {

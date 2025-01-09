@@ -1,11 +1,14 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
+import dev.jsinco.brewery.util.DecoderEncoder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +30,12 @@ public interface Ingredient {
 
     NamespacedKey getKey();
 
-    class PdcType implements PersistentDataType<String[], Map<Ingredient, Integer>> {
+    class PdcType implements PersistentDataType<byte[], Map<Ingredient, Integer>> {
 
         @NotNull
         @Override
-        public Class<String[]> getPrimitiveType() {
-            return String[].class;
+        public Class<byte[]> getPrimitiveType() {
+            return byte[].class;
         }
 
         @NotNull
@@ -41,19 +44,31 @@ public interface Ingredient {
             return (Class<Map<Ingredient, Integer>>) Map.of().getClass();
         }
 
-        @NotNull
         @Override
-        public String @NotNull [] toPrimitive(@NotNull Map<Ingredient, Integer> complex, @NotNull PersistentDataAdapterContext context) {
-            return complex.entrySet().stream()
+        public byte @NotNull [] toPrimitive(@NotNull Map<Ingredient, Integer> complex, @NotNull PersistentDataAdapterContext context) {
+            byte[][] bytesArray = complex.entrySet().stream()
                     .map(entry -> entry.getKey().getKey().toString() + "/" + entry.getValue())
-                    .toArray(String[]::new);
+                    .map(string -> string.getBytes(StandardCharsets.UTF_8))
+                    .toArray(byte[][]::new);
+            try {
+                return DecoderEncoder.encode(bytesArray);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @NotNull
         @Override
-        public Map<Ingredient, Integer> fromPrimitive(@NotNull String @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
+        public Map<Ingredient, Integer> fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
             Map<Ingredient, Integer> ingredients = new HashMap<>();
-            Arrays.stream(primitive)
+            byte[][] bytesArray;
+            try {
+                bytesArray = DecoderEncoder.decode(primitive);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Arrays.stream(bytesArray)
+                    .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
                     .map(IngredientManager::getIngredientWithAmount)
                     .forEach(ingredientAmountPair -> IngredientManager.insertIngredientIntoMap(ingredients, ingredientAmountPair));
             return ingredients;

@@ -8,15 +8,33 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record CauldronType(NamespacedKey key, Material material) {
+import java.util.Locale;
 
-    public static final CauldronType WATER = Registry.CAULDRON_TYPE.get(Registry.brewerySpacedKey("water"));
+public enum CauldronType {
+
+    WATER(Material.WATER_CAULDRON),
+    LAVA(Material.LAVA_CAULDRON),
+    SNOW(Material.POWDER_SNOW_CAULDRON);
 
     public static final PdcType PDC_TYPE = new PdcType();
+    private Material material;
+
+
+    CauldronType(Material material) {
+        this.material = material;
+    }
+
+    public Material material() {
+        return material;
+    }
+
+    public NamespacedKey key() {
+        return Registry.brewerySpacedKey(name().toLowerCase(Locale.ROOT));
+    }
 
     public static @Nullable CauldronType from(Material type) {
         for (CauldronType cauldronType : Registry.CAULDRON_TYPE.values()) {
-            if ((cauldronType.key().getKey() + "_cauldron").equals(type.getKey().getKey())) {
+            if (cauldronType.material() == type) {
                 return cauldronType;
             }
         }
