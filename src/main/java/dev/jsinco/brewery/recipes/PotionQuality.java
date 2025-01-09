@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.enums;
+package dev.jsinco.brewery.recipes;
 
 public enum PotionQuality {
     EXCELLENT,

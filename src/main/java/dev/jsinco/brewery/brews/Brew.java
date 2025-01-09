@@ -3,8 +3,8 @@ package dev.jsinco.brewery.brews;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.DefaultRecipe;
+import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
@@ -125,7 +125,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     public Optional<PotionQuality> quality(Recipe recipe) {
         double score = evaluateRecipe(recipe);
         double logBrewDifficulty = Math.log(recipe.getBrewDifficulty());
-        double scoreWithDifficulty = Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty);
+        double scoreWithDifficulty = (Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty) - 1D / recipe.getBrewDifficulty()) / (1 - 1D / recipe.getBrewDifficulty());
 
         if (scoreWithDifficulty > 0.9) {
             return Optional.of(PotionQuality.EXCELLENT);

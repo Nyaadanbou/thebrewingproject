@@ -2,7 +2,6 @@ package dev.jsinco.brewery.recipes;
 
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.TheBrewingProject;
-import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Interval;

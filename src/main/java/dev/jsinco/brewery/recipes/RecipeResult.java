@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.recipes;
 
-import dev.jsinco.brewery.enums.PotionQuality;
 import lombok.Getter;
 import org.bukkit.Color;
 import org.bukkit.Material;

@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.recipes;
 
-import dev.jsinco.brewery.enums.PotionQuality;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.pdc.ListPersistentDataType;
 import org.bukkit.NamespacedKey;
