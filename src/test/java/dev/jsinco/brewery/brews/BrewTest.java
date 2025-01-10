@@ -8,7 +8,7 @@ import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.RecipeResult;
 import dev.jsinco.brewery.recipes.ingredient.SimpleIngredient;
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

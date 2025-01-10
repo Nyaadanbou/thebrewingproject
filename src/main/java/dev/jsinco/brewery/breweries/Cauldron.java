@@ -7,7 +7,7 @@ import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BlockUtil;
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.*;

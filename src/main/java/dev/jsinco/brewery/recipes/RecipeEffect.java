@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.recipes;
 
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 

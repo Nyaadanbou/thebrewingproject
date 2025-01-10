@@ -8,9 +8,10 @@ import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.Util;
+import dev.jsinco.brewery.util.moment.Moment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -25,8 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer> ingredients,
-                   @Nullable Interval aging, int distillRuns, @Nullable CauldronType cauldronType,
+public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> ingredients,
+                   @Nullable Moment aging, int distillRuns, @Nullable CauldronType cauldronType,
                    @Nullable BarrelType barrelType) {
 
     private static final NamespacedKey BREW_TIME = Registry.brewerySpacedKey("brew_time");
@@ -238,9 +239,9 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         if (!Objects.equals(dataVersion, DATA_VERSION)) {
             return Optional.empty();
         }
-        Interval cauldronTime = data.get(BREW_TIME, Interval.PDC_TYPE);
+        Moment cauldronTime = data.get(BREW_TIME, Moment.PDC_TYPE);
         Map<Ingredient, Integer> ingredients = data.get(INGREDIENTS, Ingredient.PDC_TYPE);
-        Interval aging = data.get(AGING, Interval.PDC_TYPE);
+        Moment aging = data.get(AGING, Moment.PDC_TYPE);
         Integer distillAmount = data.get(DISTILL_RUNS, PersistentDataType.INTEGER);
         BarrelType barrelType = data.get(BARREL_TYPE, BarrelType.PDC_TYPE);
         CauldronType cauldronType = data.get(CAULDRON_TYPE, CauldronType.PDC_TYPE);

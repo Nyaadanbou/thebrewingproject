@@ -3,7 +3,7 @@ package dev.jsinco.brewery.breweries;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -114,7 +114,13 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
             brewOptional
                     .map(brew -> {
                         long gameTime = getWorld().getGameTime();
-                        return brew.withAging(brew.aging() == null ? new Interval(gameTime, gameTime) : brew.aging().withStop(gameTime)).withBarrelType(barrelType);
+                        Brew out = brew;
+                        if (brew.aging() instanceof Interval interval) {
+                            out = brew.withAging(interval.withStop(gameTime));
+                        } else if (brew.aging() == null) {
+                            out = brew.withAging(new Interval(gameTime, gameTime));
+                        }
+                        return out.withBarrelType(barrelType);
                     })
                     .ifPresent(brew -> {
                         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();

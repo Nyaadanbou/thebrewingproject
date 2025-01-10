@@ -1,1 +1,1 @@
-SELECT * FROM cauldron_brews;
+SELECT * FROM cauldrons;

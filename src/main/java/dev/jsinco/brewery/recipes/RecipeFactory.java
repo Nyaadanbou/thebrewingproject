@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.FileUtil;
-import dev.jsinco.brewery.util.Interval;
+import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.Util;
 import org.bukkit.potion.PotionEffectType;
