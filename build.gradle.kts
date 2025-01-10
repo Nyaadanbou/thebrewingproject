@@ -25,6 +25,7 @@ dependencies {
 
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
+    implementation("com.zaxxer:HikariCP:6.2.1")
     compileOnly("org.jetbrains:annotations:24.0.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")

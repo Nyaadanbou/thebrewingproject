@@ -3,6 +3,8 @@ package dev.jsinco.brewery;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryRegistry;
 import dev.jsinco.brewery.command.TestCommand;
+import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.DatabaseDriver;
 import dev.jsinco.brewery.listeners.BlockEventListener;
 import dev.jsinco.brewery.listeners.PlayerEventListener;
 import dev.jsinco.brewery.recipes.RecipeFactory;
@@ -29,6 +31,8 @@ public class TheBrewingProject extends JavaPlugin {
     private RecipeRegistry recipeRegistry;
     @Getter
     private BreweryRegistry breweryRegistry;
+    @Getter
+    private Database database;
 
     @Override
     public void onLoad() {
@@ -51,6 +55,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.database = new Database(DatabaseDriver.SQLITE);
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry), this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
