@@ -2,6 +2,7 @@ package dev.jsinco.brewery;
 
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.command.TestCommand;
 import dev.jsinco.brewery.listeners.BlockEventListener;
 import dev.jsinco.brewery.listeners.PlayerEventListener;
 import dev.jsinco.brewery.recipes.RecipeFactory;
@@ -56,6 +57,7 @@ public class TheBrewingProject extends JavaPlugin {
 
         this.recipeRegistry.registerRecipes(RecipeFactory.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(RecipeFactory.readDefaultRecipes());
+        getCommand("test").setExecutor(new TestCommand());
     }
 
     private void updateBarrels() {

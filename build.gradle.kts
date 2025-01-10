@@ -55,4 +55,9 @@ bukkit {
     foliaSupported = false
     apiVersion = "1.21"
     authors = listOf("Jsinco", "Mitality", "Thorinwasher")
+    commands {
+        register("test") {
+
+        }
+    }
 }

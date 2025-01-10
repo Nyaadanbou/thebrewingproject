@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer> ingredients,
@@ -34,6 +35,9 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     private static final NamespacedKey DISTILL_RUNS = Registry.brewerySpacedKey("distill_runs");
     private static final NamespacedKey CAULDRON_TYPE = Registry.brewerySpacedKey("cauldron_type");
     private static final NamespacedKey BARREL_TYPE = Registry.brewerySpacedKey("barrel_type");
+    private static final NamespacedKey BREWERY_DATA_VERSION = Registry.brewerySpacedKey("version");
+
+    private static final int DATA_VERSION = 0;
 
     public Brew withCauldronTime(Interval interval) {
         return new Brew(interval, ingredients, aging, distillRuns, cauldronType, barrelType);
@@ -166,7 +170,11 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         Optional<PotionQuality> quality = recipe.flatMap(this::quality);
         if (quality.isEmpty()) {
             DefaultRecipe randomDefault = TheBrewingProject.getInstance().getRecipeRegistry().getRandomDefaultRecipe();
-            return randomDefault.newBrewItem();
+            ItemStack itemStack = randomDefault.newBrewItem();
+            PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
+            fillPersistentData(meta);
+            itemStack.setItemMeta(meta);
+            return itemStack;
         } else if (!hasCompletedRecipe(recipe.get())) {
             return incompletePotion();
         } else {
@@ -183,7 +191,13 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         PotionMeta meta = (PotionMeta) potion.getItemMeta();
         meta.setDisplayName("Unfinished Brew");
         meta.setColor(Util.getRandomElement(Util.NAME_TO_COLOR_MAP.values().stream().toList()));
-        PersistentDataContainer data = meta.getPersistentDataContainer();
+        fillPersistentData(meta);
+        potion.setItemMeta(meta);
+        return potion;
+    }
+
+    private void fillPersistentData(PotionMeta potionMeta) {
+        PersistentDataContainer data = potionMeta.getPersistentDataContainer();
         if (brewTime != null) {
             data.set(BREW_TIME, Interval.PDC_TYPE, brewTime);
         }
@@ -198,8 +212,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         if (cauldronType != null) {
             data.set(CAULDRON_TYPE, CauldronType.PDC_TYPE, cauldronType);
         }
-        potion.setItemMeta(meta);
-        return potion;
+        data.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
     }
 
     public static Optional<Brew> fromItem(ItemStack itemStack) {
@@ -208,6 +221,10 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
             return Optional.empty();
         }
         PersistentDataContainer data = meta.getPersistentDataContainer();
+        Integer dataVersion = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER);
+        if (!Objects.equals(dataVersion, DATA_VERSION)) {
+            return Optional.empty();
+        }
         Interval cauldronTime = data.get(BREW_TIME, Interval.PDC_TYPE);
         Map<Ingredient, Integer> ingredients = data.get(INGREDIENTS, Ingredient.PDC_TYPE);
         Interval aging = data.get(AGING, Interval.PDC_TYPE);

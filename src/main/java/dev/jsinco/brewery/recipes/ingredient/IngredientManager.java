@@ -1,13 +1,11 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
 import dev.jsinco.brewery.util.Pair;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Get an instance of an ingredient from an ItemStack or a string.
@@ -26,7 +24,8 @@ public class IngredientManager {
 
 
     public static Optional<Ingredient> getIngredient(@NotNull String ingredientStr) {
-        if (ingredientStr.contains(":")) {
+        NamespacedKey namespacedKey = NamespacedKey.fromString(ingredientStr.toLowerCase(Locale.ROOT));
+        if (namespacedKey.getNamespace() != null && !NamespacedKey.MINECRAFT.equals(namespacedKey.getNamespace()) && !NamespacedKey.BUKKIT.equals(namespacedKey.getNamespace())) {
             String[] p2 = ingredientStr.split(":");
             String type = p2[0];
             String itemId = p2[1];
@@ -66,6 +65,7 @@ public class IngredientManager {
 
     /**
      * Parse a list of strings into a map of ingredients with amount
+     *
      * @param stringList A list of strings with valid formatting, see {@link IngredientManager#getIngredientWithAmount(String)}
      * @return A map representing ingredients with amount
      * @throws IllegalArgumentException if there's any invalid ingredient string

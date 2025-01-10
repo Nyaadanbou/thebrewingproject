@@ -84,7 +84,6 @@ public class PlayerEventListener implements Listener {
             Cauldron cauldron = cauldronOptional
                     .orElseGet(() -> new Cauldron(block));
             cauldron.addIngredient(itemStack, event.getPlayer());
-            return;
         }
         if (itemStack.getType() == Material.GLASS_BOTTLE) {
             cauldronOptional
@@ -96,6 +95,8 @@ public class PlayerEventListener implements Listener {
                         Levelled cauldron = (Levelled) block.getBlockData();
                         if (cauldron.getLevel() == 1) {
                             breweryRegistry.removeActiveCauldron(cauldronOptional.get());
+                            block.setType(Material.CAULDRON);
+                            return;
                         }
                         cauldron.setLevel(cauldron.getLevel() - 1);
                         block.setBlockData(cauldron);

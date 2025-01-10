@@ -158,32 +158,12 @@ public class Cauldron implements Tickable {
     }
 
     public Optional<Brew> getBrew() {
-        if (((Levelled) block.getBlockData()).getLevel() == 0 || ingredients.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(
-                new Brew(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), new Interval(0, 0), 0, CauldronType.from(block.getType()), null)
-        );
-    }
-
-    public Optional<ItemStack> retrievePotion() {
-        Levelled cauldron = (Levelled) block.getBlockData();
-        int currentLevel = cauldron.getLevel();
-        if (currentLevel <= 0) {
-            ingredients.clear();
-            return Optional.empty();
-        }
-        cauldron.setLevel(cauldron.getLevel() - 1);
         if (ingredients.isEmpty()) {
             return Optional.empty();
         }
-        Optional<ItemStack> output = getBrew()
-                .map(Brew::toItem);
-        if (currentLevel == 1) {
-            ingredients.clear();
-            closestRecipe = null;
-        }
-        return output;
+        return Optional.of(
+                new Brew(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), null, 0, CauldronType.from(block.getType()), null)
+        );
     }
 
 
