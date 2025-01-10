@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.util;
 
-import com.google.common.base.Preconditions;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +7,10 @@ import org.jetbrains.annotations.NotNull;
 public record Interval(long start, long stop) {
 
     public static final PdcType PDC_TYPE = new PdcType();
+
+    private static final int SECOND = 20;
+    private static final int MINUTE = SECOND * 60;
+    private static final int AGING_YEAR = MINUTE * 20; //TODO: make this a setting
 
     public Interval withStart(long start) {
         return new Interval(start, stop);
@@ -19,6 +22,14 @@ public record Interval(long start, long stop) {
 
     public long diff() {
         return stop - start;
+    }
+
+    public int minutes() {
+        return (int) (diff() / MINUTE);
+    }
+
+    public int agingYears() {
+        return (int) (diff() / AGING_YEAR);
     }
 
     public static class PdcType implements PersistentDataType<long[], Interval> {

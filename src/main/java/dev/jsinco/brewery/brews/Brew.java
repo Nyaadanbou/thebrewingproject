@@ -87,17 +87,19 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         double ingredientScore = getIngredientScore(recipe.getIngredients(), this.ingredients);
         double cauldronTimeScore = 1;
         if (brewTime != null) {
-            if (recipe.getBrewTime() == 0 && brewTime.diff() > 0) {
+            if (recipe.getBrewTime() == 0 && brewTime.minutes() > 0) {
                 cauldronTimeScore = 0;
+            } else {
+                cauldronTimeScore = (double) Math.abs(brewTime.minutes() - recipe.getBrewTime()) / recipe.getBrewTime();
             }
-            cauldronTimeScore = (double) Math.abs(brewTime.diff() - recipe.getBrewTime()) / recipe.getBrewTime();
         }
         double agingTimeScore = 1;
         if (aging != null) {
-            if (recipe.getAgingYears() == 0 && aging.diff() > 0) {
+            if (recipe.getAgingYears() == 0 && aging.agingYears() > 0) {
                 agingTimeScore = 0;
+            } else {
+                agingTimeScore = (double) Math.abs(aging.agingYears() - recipe.getAgingYears()) / recipe.getAgingYears();
             }
-            agingTimeScore = (double) Math.abs(aging.diff() - recipe.getAgingYears()) / recipe.getAgingYears();
         }
         double cauldronTypeScore = 1;
         if (cauldronType != null) {
@@ -156,10 +158,10 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         if (!recipe.getIngredients().keySet().equals(ingredients)) {
             return false;
         }
-        if (recipe.getBrewTime() > 0 && (brewTime == null || brewTime.diff() < 1)) {
+        if (recipe.getBrewTime() > 0 && (brewTime == null || brewTime.minutes() < 1)) {
             return false;
         }
-        if (recipe.getAgingYears() > 0 && (aging == null || aging.diff() < 1)) {
+        if (recipe.getAgingYears() > 0 && (aging == null || aging.agingYears() < 1)) {
             return false;
         }
         return recipe.getDistillRuns() <= 0 || distillRuns >= 1;
