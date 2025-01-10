@@ -8,9 +8,9 @@ public record Interval(long start, long stop) {
 
     public static final PdcType PDC_TYPE = new PdcType();
 
-    private static final int SECOND = 20;
-    private static final int MINUTE = SECOND * 60;
-    private static final int AGING_YEAR = MINUTE * 20; //TODO: make this a setting
+    public static final int SECOND = 20;
+    public static final int MINUTE = SECOND * 60;
+    public static final int AGING_YEAR = MINUTE * 20; //TODO: make this a setting
 
     public Interval withStart(long start) {
         return new Interval(start, stop);
