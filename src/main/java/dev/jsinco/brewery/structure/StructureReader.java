@@ -15,10 +15,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,8 +32,12 @@ public class StructureReader {
         } catch (URISyntaxException e) {
             throw new StructureReadException(e);
         }
-        try (FileSystem fileSystem = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            return fromJson(fileSystem.getPath(uri.toString().split("!")[1]));
+        try {
+            return fromJson(Paths.get(uri));
+        } catch (FileSystemNotFoundException e) {
+            try (FileSystem fileSystem = FileSystems.newFileSystem(uri, new HashMap<>())) {
+                return fromJson(fileSystem.getPath(uri.toString().split("!")[1]));
+            }
         }
     }
 

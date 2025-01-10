@@ -15,6 +15,19 @@ import java.util.Objects;
 
 public class RecipeResult {
 
+    public static final RecipeResult GENERIC = new Builder()
+            .names(Map.of(
+                    PotionQuality.EXCELLENT, "excellent",
+                    PotionQuality.GOOD, "good",
+                    PotionQuality.BAD, "bad"
+            ))
+            .lore(Map.of(
+                    PotionQuality.EXCELLENT, List.of(),
+                    PotionQuality.GOOD, List.of(),
+                    PotionQuality.BAD, List.of()
+            ))
+            .recipeEffects(RecipeEffects.GENERIC)
+            .build();
     private final boolean glint;
     private final int customModelData;
     // Potion attributes

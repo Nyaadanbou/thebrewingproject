@@ -20,6 +20,10 @@ public class RecipeEffects {
     public static final NamespacedKey ACTION_BAR = Registry.brewerySpacedKey("action_bar");
     public static final NamespacedKey TITLE = Registry.brewerySpacedKey("titles");
     public static final NamespacedKey ALCOHOL = Registry.brewerySpacedKey("alcohol");
+    public static final RecipeEffects GENERIC = new Builder()
+            .commands(Map.of())
+            .effects(List.of())
+            .build();
 
     // Commands
     private final @NotNull Map<PotionQuality, List<String>> commands;
