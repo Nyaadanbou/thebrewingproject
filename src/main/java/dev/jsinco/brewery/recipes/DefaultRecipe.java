@@ -34,6 +34,12 @@ public class DefaultRecipe {
     public ItemStack newBrewItem() {
         ItemStack potion = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) potion.getItemMeta();
+        applyMeta(meta);
+        potion.setItemMeta(meta);
+        return potion;
+    }
+
+    public void applyMeta(PotionMeta meta) {
         meta.setDisplayName(name);
         meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
         meta.setLore(lore);
@@ -44,8 +50,6 @@ public class DefaultRecipe {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
-        potion.setItemMeta(meta);
-        return potion;
     }
 
     public static class Builder {

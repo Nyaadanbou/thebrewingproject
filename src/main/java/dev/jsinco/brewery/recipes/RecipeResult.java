@@ -50,6 +50,12 @@ public class RecipeResult {
     public ItemStack newBrewItem(@NotNull PotionQuality quality) {
         ItemStack item = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
+        applyMeta(quality, meta);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public void applyMeta(PotionQuality quality, PotionMeta meta) {
         meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
         meta.setDisplayName(names.get(quality));
         meta.setLore(lore.get(quality));
@@ -61,7 +67,6 @@ public class RecipeResult {
             meta.setCustomModelData(customModelData);
         }
         recipeEffects.applyTo(meta, quality);
-        return item;
     }
 
     public static class Builder {

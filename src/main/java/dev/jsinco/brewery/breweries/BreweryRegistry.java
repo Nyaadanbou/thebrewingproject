@@ -12,7 +12,7 @@ import java.util.*;
 public final class BreweryRegistry {
 
     private final Map<Location, Cauldron> activeCauldrons = new HashMap<>();
-    private final Map<UUID, Barrel> openedBarrels = new HashMap<>();
+    private final Set<Barrel> openedBarrels = new HashSet<>();
 
     public Optional<Cauldron> getActiveCauldron(Block block) {
         return Optional.ofNullable(activeCauldrons.get(block.getLocation()));
@@ -22,23 +22,19 @@ public final class BreweryRegistry {
         activeCauldrons.put(cauldron.getBlock().getLocation(), cauldron);
     }
 
-    public void registerOpenedBarrel(UUID playerUuid, Barrel barrel) {
-        openedBarrels.put(playerUuid, barrel);
-    }
-
-    public Optional<Barrel> getOpenedBarrel(UUID playerUuid) {
-        return Optional.ofNullable(openedBarrels.get(playerUuid));
+    public void registerOpenedBarrel(Barrel barrel) {
+        openedBarrels.add(barrel);
     }
 
     public Collection<Barrel> getOpenedBarrels() {
-        return openedBarrels.values();
+        return openedBarrels;
     }
 
     public void removeActiveCauldron(Cauldron cauldron) {
         activeCauldrons.remove(cauldron.getBlock().getLocation());
     }
 
-    public void removeOpenedBarrel(UUID playerUuid) {
-        openedBarrels.remove(playerUuid);
+    public void removeOpenedBarrel(Barrel barrel) {
+        openedBarrels.remove(barrel);
     }
 }

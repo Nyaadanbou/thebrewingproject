@@ -173,41 +173,41 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     }
 
     public ItemStack toItem() {
+        ItemStack itemStack = new ItemStack(Material.POTION);
+        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+        applyMeta(potionMeta);
+        itemStack.setItemMeta(potionMeta);
+        return itemStack;
+    }
+
+    public void applyMeta(PotionMeta meta) {
         Optional<Recipe> recipe = closestRecipe();
         Optional<PotionQuality> quality = recipe.flatMap(this::quality);
+
         if (quality.isEmpty()) {
             DefaultRecipe randomDefault = TheBrewingProject.getInstance().getRecipeRegistry().getRandomDefaultRecipe();
-            ItemStack itemStack = randomDefault.newBrewItem();
-            PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
-            fillPersistentData(meta);
-            itemStack.setItemMeta(meta);
-            return itemStack;
+            boolean hasPreviousData = fillPersistentData(meta);
+            if(hasPreviousData) {
+                return;
+            }
+            randomDefault.applyMeta(meta);
         } else if (!hasCompletedRecipe(recipe.get())) {
-            return incompletePotion();
+            boolean hasPreviousData = fillPersistentData(meta);
+            if(hasPreviousData) {
+                return;
+            }
+            incompletePotion(meta);
         } else {
-            return recipe.get().getRecipeResult().newBrewItem(quality.get());
+            recipe.get().getRecipeResult().applyMeta(quality.get(), meta);
         }
     }
 
-    public void updateUnfinishedPotionMeta(ItemStack itemStack) {
-        PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
+    private void incompletePotion(PotionMeta meta) {
         meta.setDisplayName("Unfinished Brew");
         meta.setColor(Util.getRandomElement(Util.NAME_TO_COLOR_MAP.values().stream().toList()));
-        fillPersistentData(meta);
-        itemStack.setItemMeta(meta);
     }
 
-
-    /**
-     * Set the meta for an incomplete potion. This means that the cauldron found a recipe, but it requires aging or distilling
-     */
-    private ItemStack incompletePotion() {
-        ItemStack potion = new ItemStack(Material.POTION);
-        updateUnfinishedPotionMeta(potion);
-        return potion;
-    }
-
-    private void fillPersistentData(PotionMeta potionMeta) {
+    private boolean fillPersistentData(PotionMeta potionMeta) {
         PersistentDataContainer data = potionMeta.getPersistentDataContainer();
         if (brewTime != null) {
             data.set(BREW_TIME, Interval.PDC_TYPE, brewTime);
@@ -223,7 +223,9 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         if (cauldronType != null) {
             data.set(CAULDRON_TYPE, CauldronType.PDC_TYPE, cauldronType);
         }
+        boolean previouslyStored = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER) != null;
         data.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
+        return previouslyStored;
     }
 
     public static Optional<Brew> fromItem(ItemStack itemStack) {

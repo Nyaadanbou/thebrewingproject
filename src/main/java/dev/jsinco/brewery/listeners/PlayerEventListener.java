@@ -18,6 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -49,19 +50,7 @@ public class PlayerEventListener implements Listener {
             return;
         }
         barrel.open(playerInteractEvent.getPlayer());
-        breweryRegistry.registerOpenedBarrel(playerInteractEvent.getPlayer().getUniqueId(), barrel);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player)) {
-            return;
-        }
-        UUID playerUuid = player.getUniqueId();
-        breweryRegistry.getOpenedBarrel(playerUuid).ifPresent(barrel -> {
-            barrel.close(player);
-            breweryRegistry.removeOpenedBarrel(playerUuid);
-        });
+        breweryRegistry.registerOpenedBarrel(barrel);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

@@ -1,13 +1,16 @@
 package dev.jsinco.brewery.breweries;
 
+import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.util.Interval;
+import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +21,8 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
     private final UUID objectId;
     private final PlacedBreweryStructure structure;
-    private final Inventory inventory;
+    @Getter
+    private final @NotNull Inventory inventory;
     private final int size;
     private final BarrelType barrelType;
     private final Location signLocation;
@@ -55,9 +59,8 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
 
     public void open(Player player) {
-        Inventory inventory = getInventory();
         if (inventory.getViewers().isEmpty()) {
-            tick();
+            populateInventory();
         }
         float randPitch = (float) (Math.random() * 0.1);
         if (signLocation != null) {
@@ -66,14 +69,10 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
         player.openInventory(inventory);
     }
 
-    public void close(Player player) {
+    private void close() {
         float randPitch = (float) (Math.random() * 0.1);
         if (signLocation != null) {
             signLocation.getWorld().playSound(signLocation, Sound.BLOCK_BARREL_CLOSE, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
-        }
-        Inventory inventory = getInventory();
-        if (inventory.getViewers().size() <= 1) {
-            return;
         }
         this.inventory.clear();
     }
@@ -81,20 +80,15 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
     @Override
     public void tick() {
         updateInventory();
+        if (inventory.getViewers().isEmpty()) {
+            close();
+            TheBrewingProject.getInstance().getBreweryRegistry().removeOpenedBarrel(this);
+        }
     }
 
     @Override
     public void destroy() {
         // TODO: What should be done when this barrel is destroyed? Probably drop all the brews, right?
-    }
-
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        if (inventory == null) {
-            populateInventory();
-        }
-        return this.inventory;
     }
 
     private void populateInventory() {
@@ -123,7 +117,9 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
                         return brew.withAging(brew.aging() == null ? new Interval(gameTime, gameTime) : brew.aging().withStop(gameTime)).withBarrelType(barrelType);
                     })
                     .ifPresent(brew -> {
-                        brew.updateUnfinishedPotionMeta(itemStack);
+                        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+                        brew.applyMeta(potionMeta);
+                        itemStack.setItemMeta(potionMeta);
                         brews[iFinal] = brew;
                     });
         }
