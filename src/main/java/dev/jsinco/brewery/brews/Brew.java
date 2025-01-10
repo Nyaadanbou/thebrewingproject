@@ -189,17 +189,21 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         }
     }
 
+    public void updateUnfinishedPotionMeta(ItemStack itemStack) {
+        PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
+        meta.setDisplayName("Unfinished Brew");
+        meta.setColor(Util.getRandomElement(Util.NAME_TO_COLOR_MAP.values().stream().toList()));
+        fillPersistentData(meta);
+        itemStack.setItemMeta(meta);
+    }
+
 
     /**
      * Set the meta for an incomplete potion. This means that the cauldron found a recipe, but it requires aging or distilling
      */
     private ItemStack incompletePotion() {
         ItemStack potion = new ItemStack(Material.POTION);
-        PotionMeta meta = (PotionMeta) potion.getItemMeta();
-        meta.setDisplayName("Unfinished Brew");
-        meta.setColor(Util.getRandomElement(Util.NAME_TO_COLOR_MAP.values().stream().toList()));
-        fillPersistentData(meta);
-        potion.setItemMeta(meta);
+        updateUnfinishedPotionMeta(potion);
         return potion;
     }
 
