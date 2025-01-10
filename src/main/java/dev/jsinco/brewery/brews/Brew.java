@@ -90,7 +90,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
             if (recipe.getBrewTime() == 0 && brewTime.minutes() > 0) {
                 cauldronTimeScore = 0;
             } else {
-                cauldronTimeScore = (double) Math.abs(brewTime.minutes() - recipe.getBrewTime()) / recipe.getBrewTime();
+                cauldronTimeScore = getNearbyValueScore(recipe.getBrewTime(), brewTime.minutes());
             }
         }
         double agingTimeScore = 1;
@@ -98,7 +98,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
             if (recipe.getAgingYears() == 0 && aging.agingYears() > 0) {
                 agingTimeScore = 0;
             } else {
-                agingTimeScore = (double) Math.abs(aging.agingYears() - recipe.getAgingYears()) / recipe.getAgingYears();
+                agingTimeScore = getNearbyValueScore(recipe.getAgingYears(), aging.agingYears());
             }
         }
         double cauldronTypeScore = 1;
@@ -116,6 +116,11 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
         return ingredientScore * cauldronTimeScore * agingTimeScore * cauldronTypeScore * barrelTypeScore;
     }
 
+    private double getNearbyValueScore(long expected, long value) {
+        double sigmoid = 1D / (1D + Math.exp((double) (expected - value) / expected));
+        return sigmoid * (1D - sigmoid) * 4D;
+    }
+
     private double getIngredientScore(Map<Ingredient, Integer> target, Map<Ingredient, Integer> actual) {
         double score = 1;
         for (Map.Entry<Ingredient, Integer> targetEntry : target.entrySet()) {
@@ -123,7 +128,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
             if (actualAmount == null) {
                 return 0;
             }
-            score *= (double) Math.abs(targetEntry.getValue() - actualAmount) / targetEntry.getValue();
+            score *= getNearbyValueScore(targetEntry.getValue(), actualAmount);
         }
         return score;
     }
@@ -155,7 +160,7 @@ public record Brew(@Nullable Interval brewTime, @NotNull Map<Ingredient, Integer
     }
 
     public boolean hasCompletedRecipe(Recipe recipe) {
-        if (!recipe.getIngredients().keySet().equals(ingredients)) {
+        if (!recipe.getIngredients().keySet().equals(ingredients.keySet())) {
             return false;
         }
         if (recipe.getBrewTime() > 0 && (brewTime == null || brewTime.minutes() < 1)) {
