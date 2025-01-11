@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,13 +68,9 @@ class BarrelBrewDataTypeTest {
             preparedStatement.setInt(5, 2);
             preparedStatement.setInt(6, 3);
             preparedStatement.setBytes(7, DecoderEncoder.asBytes(worldUuid));
-            preparedStatement.setDouble(8, 0);
-            preparedStatement.setDouble(9, 0);
-            preparedStatement.setDouble(10, 0);
-            preparedStatement.setDouble(11, 0);
-            preparedStatement.setBoolean(12, false);
-            preparedStatement.setString(13, "test_format");
-            preparedStatement.setString(14, BarrelType.ACACIA.key().toString());
+            preparedStatement.setString(8, "[1,2,3,4,5,6,7,8,9]");
+            preparedStatement.setString(9, "test_format");
+            preparedStatement.setString(10, BarrelType.ACACIA.key().toString());
             preparedStatement.execute();
         }
     }

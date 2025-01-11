@@ -16,12 +16,14 @@ public class PlacedBreweryStructure {
     private static final List<Matrix3d> ALLOWED_TRANSFORMATIONS = compileAllowedTransformations();
     @Getter
     private final BreweryStructure structure;
+    @Getter
     private final Matrix3d transformation;
     private final Location worldOrigin;
+    @Getter
     private final Vector3i structureOrigin;
     @Setter
     @Getter
-    private @Nullable Destroyable holder;
+    private @Nullable Destroyable holder = null;
 
     public PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
                                   Location worldOrigin, Vector3i structureOrigin) {

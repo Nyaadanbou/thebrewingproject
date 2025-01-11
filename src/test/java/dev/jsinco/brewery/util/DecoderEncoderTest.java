@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.util;
 
+import org.joml.Matrix3d;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -29,5 +30,12 @@ class DecoderEncoderTest {
         int expected = 42;
         DecoderEncoder.writeVarInt(expected, outputStream);
         assertEquals(expected, DecoderEncoder.readVarInt(new ByteArrayInputStream(outputStream.toByteArray())));
+    }
+
+    @Test
+    void serializeDeserializeMatrix3d(){
+        Matrix3d initial = new Matrix3d(1d, 4d, 3d, 5d, 6d, 7d, 2d, 3d, 9d);
+        Matrix3d deserialized = DecoderEncoder.deserializeTransformation(DecoderEncoder.serializeTransformation(initial));
+        assertEquals(initial, deserialized);
     }
 }

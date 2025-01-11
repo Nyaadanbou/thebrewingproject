@@ -3,6 +3,8 @@ package dev.jsinco.brewery.breweries;
 import dev.jsinco.brewery.database.InsertableStoredData;
 import dev.jsinco.brewery.database.RemovableStoredData;
 import dev.jsinco.brewery.database.RetrievableStoredData;
+import dev.jsinco.brewery.structure.BreweryStructure;
+import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.util.FileUtil;
 
 import java.sql.Connection;
@@ -13,8 +15,10 @@ import java.util.List;
 public class BarrelDataType implements RetrievableStoredData<Barrel>, RemovableStoredData<Barrel>, InsertableStoredData<Barrel> {
     @Override
     public void insert(Barrel value, Connection connection) throws SQLException {
+        PlacedBreweryStructure placedStructure = value.getStructure();
+        BreweryStructure structure = placedStructure.getStructure();
         try(PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrels_insert.sql"))) {
-
+            
         }
     }
 

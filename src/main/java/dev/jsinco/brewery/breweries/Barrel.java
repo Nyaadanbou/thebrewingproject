@@ -20,6 +20,7 @@ import java.util.UUID;
 public class Barrel implements Tickable, InventoryHolder, Destroyable {
 
     private final UUID objectId;
+    @Getter
     private final PlacedBreweryStructure structure;
     @Getter
     private final @NotNull Inventory inventory;
