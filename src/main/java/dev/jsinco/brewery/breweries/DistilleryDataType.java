@@ -1,14 +1,16 @@
 package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.database.StoredDataType;
+import dev.jsinco.brewery.database.InsertableStoredData;
+import dev.jsinco.brewery.database.RemovableStoredData;
+import dev.jsinco.brewery.database.RetrievableStoredData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class DistilleryDataType implements StoredDataType<Distillery> {
+public class DistilleryDataType implements RetrievableStoredData<Distillery>, InsertableStoredData<Distillery>, RemovableStoredData<Distillery> {
     @Override
-    public void update(Distillery newValue, Connection connection) throws SQLException {
+    public void insert(Distillery value, Connection connection) throws SQLException {
 
     }
 

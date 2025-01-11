@@ -1,6 +1,8 @@
 package dev.jsinco.brewery.util;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
 public class DecoderEncoder {
     private static final int SEGMENT_BITS = 0x7F;
@@ -68,5 +70,19 @@ public class DecoderEncoder {
             // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
             value >>>= 7;
         }
+    }
+
+    public static UUID asUuid(byte[] bytes) {
+        ByteBuffer bb = ByteBuffer.wrap(bytes);
+        long firstLong = bb.getLong();
+        long secondLong = bb.getLong();
+        return new UUID(firstLong, secondLong);
+    }
+
+    public static byte[] asBytes(UUID uuid) {
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        return bb.array();
     }
 }

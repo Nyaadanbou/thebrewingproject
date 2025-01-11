@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
+import dev.jsinco.brewery.util.Logging;
 import dev.jsinco.brewery.util.Pair;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +26,7 @@ public class IngredientManager {
 
     public static Optional<Ingredient> getIngredient(@NotNull String ingredientStr) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(ingredientStr.toLowerCase(Locale.ROOT));
-        if (namespacedKey.getNamespace() != null && !NamespacedKey.MINECRAFT.equals(namespacedKey.getNamespace()) && !NamespacedKey.BUKKIT.equals(namespacedKey.getNamespace())) {
+        if (namespacedKey != null && !NamespacedKey.MINECRAFT.equals(namespacedKey.getNamespace()) && !NamespacedKey.BUKKIT.equals(namespacedKey.getNamespace())) {
             String[] p2 = ingredientStr.split(":");
             String type = p2[0];
             String itemId = p2[1];

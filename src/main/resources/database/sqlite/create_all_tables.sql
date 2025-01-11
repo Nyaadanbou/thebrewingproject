@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS barrels (
     sign_x INTEGER,
     sign_y INTEGER,
     sign_z INTEGER,
+    world_uuid BINARY(16),
     quaternion_a DOUBLE,
     quaternion_b DOUBLE,
     quaternion_c DOUBLE,
@@ -12,43 +13,46 @@ CREATE TABLE IF NOT EXISTS barrels (
     flip INTEGER,
     format TEXT,
     barrel_type TEXT,
-    PRIMARY KEY(sign_x, sign_y, sign_z)
+    PRIMARY KEY(sign_x, sign_y, sign_z, world_uuid)
 );
 
 CREATE TABLE IF NOT EXISTS barrel_brews(
     sign_x INTEGER,
     sign_y INTEGER,
     sign_z INTEGER,
+    world_uuid BINARY(16),
     pos INTEGER,
     barrel_type TEXT,
     cauldron_type TEXT,
     brew_time INTEGER,
     aging_start INTEGER,
     ingredients_json TEXT,
-    FOREIGN KEY (sign_x, sign_y, sign_z)
-        REFERENCES barrel_data(sign_x, sign_y, sign_z)
-        ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (sign_x, sign_y, sign_z, world_uuid)
+        REFERENCES barrels(sign_x, sign_y, sign_z, world_uuid)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cauldrons(
     cauldron_x INTEGER,
     cauldron_y INTEGER,
     cauldron_z INTEGER,
+    world_uuid BINARY(16),
     cauldron_type TEXT,
     brew_start INTEGER,
-    ingredients_json TEXT
-    PRIMARY KEY(cauldron_x, cauldron_y, cauldron_z)
+    ingredients_json TEXT,
+    PRIMARY KEY(cauldron_x, cauldron_y, cauldron_z, world_uuid)
 );
 
 CREATE TABLE IF NOT EXISTS distilleries(
     x INTEGER,
     y INTEGER,
     z INTEGER,
-    PRIMARY KEY(x, y, z)
+    world_uuid BINARY(16),
+    PRIMARY KEY(x, y, z, world_uuid)
 );
 
 CREATE TABLE IF NOT EXISTS version(
     version INTEGER
 );
 
-INSERT INTO AppVersion VALUES(-1);
+INSERT INTO version VALUES(-1);

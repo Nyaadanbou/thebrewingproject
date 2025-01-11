@@ -27,6 +27,8 @@ dependencies {
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
     implementation("com.zaxxer:HikariCP:6.2.1")
     compileOnly("org.jetbrains:annotations:24.0.0")
+    implementation("org.xerial:sqlite-jdbc:3.47.2.0")
+
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")

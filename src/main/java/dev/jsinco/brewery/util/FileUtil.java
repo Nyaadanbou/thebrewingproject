@@ -1,9 +1,11 @@
 package dev.jsinco.brewery.util;
 
+import dev.jsinco.brewery.TheBrewingProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -20,6 +22,14 @@ public final class FileUtil {
                 Files.createDirectories(path.getParent());
                 Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String readInternalResource(String path) {
+        try (InputStream inputStream = TheBrewingProject.class.getResourceAsStream(path)) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

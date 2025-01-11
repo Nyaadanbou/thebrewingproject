@@ -3,12 +3,12 @@ package dev.jsinco.brewery.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.jsinco.brewery.TheBrewingProject;
+import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.Logging;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,6 +38,10 @@ public class Database {
         }
     }
 
+    public Connection getConnection() throws SQLException {
+        return hikariDataSource.getConnection();
+    }
+
     private static @NotNull HikariConfig getHikariConfigForSqlite() throws IOException {
         File databaseFile = new File(TheBrewingProject.getInstance().getDataFolder(), "brewery.db");
         if (!databaseFile.exists() && !databaseFile.getParentFile().mkdirs() && !databaseFile.createNewFile()) {
@@ -51,29 +55,20 @@ public class Database {
     }
 
     private void createTables(Connection connection) throws IOException, SQLException {
-        try (InputStream inputStream = TheBrewingProject.class.getResourceAsStream("/database/" + driver.name().toLowerCase(Locale.ROOT) + "/create_all_tables.sql")) {
-            byte[] bytes = inputStream.readAllBytes();
-            for (String statement : new String(bytes, StandardCharsets.UTF_8).split(";")) {
-                connection.prepareStatement(statement + ";").execute();
-            }
+        for (String statement : FileUtil.readInternalResource("/database/" + driver.name().toLowerCase(Locale.ROOT) + "/create_all_tables.sql").split(";")) {
+            connection.prepareStatement(statement + ";").execute();
         }
-        try (InputStream inputStream = TheBrewingProject.class.getResourceAsStream("/database/generic/get_version.sql")) {
-            byte[] bytes = inputStream.readAllBytes();
-            ResultSet resultSet = connection.prepareStatement(new String(bytes, StandardCharsets.UTF_8)).executeQuery();
-            resultSet.next();
-            if (resultSet.getInt("version") != BREWERY_DATABASE_VERSION) {
-                // Refactor whenever that is needed
-            }
+        ResultSet resultSet = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/get_version.sql")).executeQuery();
+        resultSet.next();
+        if (resultSet.getInt("version") != BREWERY_DATABASE_VERSION) {
+            // Refactor whenever that is needed
         }
-        try (InputStream inputStream = TheBrewingProject.class.getResourceAsStream("/database/generic/set_version.sql")) {
-            byte[] bytes = inputStream.readAllBytes();
-            PreparedStatement preparedStatement = connection.prepareStatement(new String(bytes, StandardCharsets.UTF_8));
-            preparedStatement.setInt(1, BREWERY_DATABASE_VERSION);
-            preparedStatement.execute();
-        }
+        PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/set_version.sql"));
+        preparedStatement.setInt(1, BREWERY_DATABASE_VERSION);
+        preparedStatement.execute();
     }
 
-    public <T> List<T> retrieveAll(StoredDataType<T> dataType) throws SQLException {
+    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType) throws SQLException, IOException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
@@ -82,7 +77,7 @@ public class Database {
         }
     }
 
-    public <T> void remove(StoredDataType<T> dataType, T toRemove) throws SQLException {
+    public <T> void remove(RemovableStoredData<T> dataType, T toRemove) throws SQLException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
@@ -91,7 +86,7 @@ public class Database {
         }
     }
 
-    public <T> void updateValue(StoredDataType<T> dataType, T newValue) throws SQLException {
+    public <T> void updateValue(UpdateableStoredData<T> dataType, T newValue) throws SQLException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
@@ -100,7 +95,7 @@ public class Database {
         }
     }
 
-    public <T> void updateValues(StoredDataType<T> dataType, Collection<T> newValues) throws SQLException {
+    public <T> void updateValues(UpdateableStoredData<T> dataType, Collection<T> newValues) throws SQLException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
@@ -108,6 +103,15 @@ public class Database {
             for (T value : newValues) {
                 dataType.update(value, connection);
             }
+        }
+    }
+
+    public <T> void insertValue(InsertableStoredData<T> dataType, T value) throws IOException, SQLException {
+        if (hikariDataSource == null) {
+            throw new IllegalStateException("Not initialized");
+        }
+        try (Connection connection = hikariDataSource.getConnection()) {
+            dataType.insert(value, connection);
         }
     }
 }
