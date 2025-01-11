@@ -1,1 +1,2 @@
-UPDATE version SET version=?;
+UPDATE version
+SET version=?;

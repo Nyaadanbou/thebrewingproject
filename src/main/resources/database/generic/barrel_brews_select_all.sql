@@ -1,1 +1,2 @@
-SELECT * FROM barrel_brews;
+SELECT *
+FROM barrel_brews;

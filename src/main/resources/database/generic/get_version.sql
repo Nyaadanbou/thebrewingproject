@@ -1,1 +1,2 @@
-SELECT * FROM version;
+SELECT *
+FROM version;

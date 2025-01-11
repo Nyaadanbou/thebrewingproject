@@ -1,3 +1,2 @@
-INSERT INTO distilleries VALUES(
-    ?, ?, ?
-);
+INSERT INTO distilleries
+VALUES (?, ?, ?);

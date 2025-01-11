@@ -1,3 +1,2 @@
-INSERT INTO cauldrons VALUES (
-    ?, ?, ?, ?, ?, ?
-);
+INSERT INTO cauldrons
+VALUES (?, ?, ?, ?, ?, ?);
