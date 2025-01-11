@@ -25,6 +25,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Getter
     private static TheBrewingProject instance;
+    @Getter
     private StructureRegistry structureRegistry;
     private PlacedStructureRegistry placedStructureRegistry;
     @Getter

@@ -9,7 +9,7 @@ public class PlacedStructureRegistry {
 
     private final Map<UUID, Map<BlockVector, PlacedBreweryStructure>> structures = new HashMap<>();
 
-    public void addStructure(PlacedBreweryStructure placedBreweryStructure) {
+    public void registerStructure(PlacedBreweryStructure placedBreweryStructure) {
         for (Location location : placedBreweryStructure.getPositions()) {
             UUID worldUuid = location.getWorld().getUID();
             structures.computeIfAbsent(worldUuid, ignored -> new HashMap<>()).put(location.toVector().toBlockVector(), placedBreweryStructure);

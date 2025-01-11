@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.util.FileUtil;
-import dev.jsinco.brewery.util.Logging;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -68,12 +68,12 @@ public class Database {
         preparedStatement.execute();
     }
 
-    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType) throws SQLException, IOException {
+    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType, World world) throws SQLException, IOException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
-            return dataType.retrieveAll(connection);
+            return dataType.retrieveAll(connection, world);
         }
     }
 
@@ -106,12 +106,21 @@ public class Database {
         }
     }
 
-    public <T> void insertValue(InsertableStoredData<T> dataType, T value) throws IOException, SQLException {
+    public <T> void insertValue(InsertableStoredData<T> dataType, T value) throws SQLException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
             dataType.insert(value, connection);
+        }
+    }
+
+    public <T, U> List<T> find(FindableStoredData<T, U> dataType, U searchObject) throws SQLException {
+        if (hikariDataSource == null) {
+            throw new IllegalStateException("Not initialized");
+        }
+        try (Connection connection = hikariDataSource.getConnection()) {
+            return dataType.find(searchObject, connection);
         }
     }
 }

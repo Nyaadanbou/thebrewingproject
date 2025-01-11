@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS barrels
     transformation TEXT,
     format         TEXT,
     barrel_type    TEXT,
+    size           INTEGER,
     PRIMARY KEY (sign_x, sign_y, sign_z, world_uuid)
 );
 

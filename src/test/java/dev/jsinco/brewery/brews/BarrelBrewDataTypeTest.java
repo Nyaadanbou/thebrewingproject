@@ -12,33 +12,38 @@ import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.MockBukkitExtension;
+import org.mockbukkit.mockbukkit.MockBukkitInject;
+import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockBukkitExtension.class)
 class BarrelBrewDataTypeTest {
+    @MockBukkitInject
+    ServerMock serverMock;
 
     private Database database;
-    UUID worldUuid = UUID.randomUUID();
+    private World world;
 
     @BeforeEach
     void setUp() throws SQLException, IOException {
         MockBukkit.load(TheBrewingProject.class);
         this.database = new Database(DatabaseDriver.SQLITE);
         this.database.init();
+        this.world = serverMock.addSimpleWorld("hello_world!");
     }
 
     @Test
@@ -46,16 +51,16 @@ class BarrelBrewDataTypeTest {
         prepareBarrel();
         Brew brew1 = new Brew(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
         Brew brew2 = new Brew(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
-        BarrelBrewDataType.BarrelContext barrelContext1 = new BarrelBrewDataType.BarrelContext(1, 2, 3, 0, worldUuid);
-        BarrelBrewDataType.BarrelContext barrelContext2 = new BarrelBrewDataType.BarrelContext(1, 2, 3, 1, worldUuid);
+        BarrelBrewDataType.BarrelContext barrelContext1 = new BarrelBrewDataType.BarrelContext(1, 2, 3, 0, world.getUID());
+        BarrelBrewDataType.BarrelContext barrelContext2 = new BarrelBrewDataType.BarrelContext(1, 2, 3, 1, world.getUID());
         Pair<Brew, BarrelBrewDataType.BarrelContext> data1 = new Pair<>(brew1, barrelContext1);
         Pair<Brew, BarrelBrewDataType.BarrelContext> data2 = new Pair<>(brew2, barrelContext2);
         database.insertValue(BarrelBrewDataType.DATA_TYPE, data1);
-        assertTrue(database.retrieveAll(BarrelBrewDataType.DATA_TYPE).contains(data1));
+        assertTrue(database.retrieveAll(BarrelBrewDataType.DATA_TYPE, world).contains(data1));
         database.insertValue(BarrelBrewDataType.DATA_TYPE, data2);
-        assertTrue(database.retrieveAll(BarrelBrewDataType.DATA_TYPE).contains(data2));
+        assertTrue(database.retrieveAll(BarrelBrewDataType.DATA_TYPE, world).contains(data2));
         database.remove(BarrelBrewDataType.DATA_TYPE, data1);
-        assertFalse(database.retrieveAll(BarrelBrewDataType.DATA_TYPE).contains(data1));
+        assertFalse(database.retrieveAll(BarrelBrewDataType.DATA_TYPE, world).contains(data1));
     }
 
     private void prepareBarrel() throws SQLException {
@@ -67,10 +72,11 @@ class BarrelBrewDataTypeTest {
             preparedStatement.setInt(4, 1);
             preparedStatement.setInt(5, 2);
             preparedStatement.setInt(6, 3);
-            preparedStatement.setBytes(7, DecoderEncoder.asBytes(worldUuid));
+            preparedStatement.setBytes(7, DecoderEncoder.asBytes(world.getUID()));
             preparedStatement.setString(8, "[1,2,3,4,5,6,7,8,9]");
             preparedStatement.setString(9, "test_format");
             preparedStatement.setString(10, BarrelType.ACACIA.key().toString());
+            preparedStatement.setInt(11, 9);
             preparedStatement.execute();
         }
     }

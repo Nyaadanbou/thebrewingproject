@@ -1,7 +1,6 @@
 package dev.jsinco.brewery.structure;
 
 import com.google.common.base.Preconditions;
-import dev.thorinwasher.schem.BlockUtil;
 import dev.thorinwasher.schem.Schematic;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -17,7 +16,7 @@ import java.util.*;
 public class BreweryStructure {
 
     private final Schematic schem;
-    private final List<Vector3i> origins;
+    private final List<Vector3i> entryPoints;
     @Getter
     private final String name;
 
@@ -28,7 +27,7 @@ public class BreweryStructure {
      */
     public BreweryStructure(@NotNull Schematic schem, @NotNull String name) {
         this.schem = Objects.requireNonNull(schem);
-        this.origins = computeOrigins(schem);
+        this.entryPoints = computeOrigins(schem);
         this.name = Objects.requireNonNull(name);
     }
 
@@ -40,7 +39,7 @@ public class BreweryStructure {
      */
     public BreweryStructure(@NotNull Schematic schem, @NotNull Vector3i origin, @NotNull String name) {
         this.schem = Objects.requireNonNull(schem);
-        this.origins = List.of(origin);
+        this.entryPoints = List.of(origin);
         this.name = Objects.requireNonNull(name);
     }
 
@@ -55,18 +54,20 @@ public class BreweryStructure {
         return List.copyOf(vector3iList);
     }
 
-    public Optional<Vector3i> findValidOrigin(Matrix3d transformation, Location structureWorldOrigin) {
-        Preconditions.checkNotNull(structureWorldOrigin.getWorld(), "World for world origin can not be null!");
-        for (Vector3i origin : origins) {
-            if (matches(transformation, structureWorldOrigin, origin)) {
-                return Optional.of(origin);
+    public Optional<Location> findValidOrigin(Matrix3d transformation, Location entryPoint) {
+        Preconditions.checkNotNull(entryPoint.getWorld(), "World for entry point can not be null!");
+        for (Vector3i structureEntryPoint : entryPoints) {
+            Vector3d transformedEntryPoint = transformation.transform(new Vector3d(structureEntryPoint));
+            Location worldOrigin = entryPoint.clone().subtract((int) transformedEntryPoint.x(), (int) transformedEntryPoint.y(), (int) transformedEntryPoint.z());
+            if (matches(transformation, worldOrigin)) {
+                return Optional.of(worldOrigin);
             }
         }
         return Optional.empty();
     }
 
-    private boolean matches(Matrix3d transformation, Location structureWorldOrigin, Vector3i origin) {
-        Map<Location, BlockData> expectedBlocks = getExpectedBlocks(transformation, structureWorldOrigin, origin);
+    private boolean matches(Matrix3d transformation, Location structureWorldOrigin) {
+        Map<Location, BlockData> expectedBlocks = getExpectedBlocks(transformation, structureWorldOrigin);
         for (Map.Entry<Location, BlockData> expected : expectedBlocks.entrySet()) {
             World world = expected.getKey().getWorld();
             if (!world.getWorldBorder().isInside(expected.getKey())
@@ -81,32 +82,20 @@ public class BreweryStructure {
         return true;
     }
 
-    private Vector3d transform(Matrix3d transformation, Location structureWorldOrigin, Vector3i schematicSpacePosition, Vector3i origin) {
-        Vector3i vector = schematicSpacePosition.sub(origin, new Vector3i());
-        return transformation.transform(new Vector3d(vector)).add(structureWorldOrigin.getX(), structureWorldOrigin.getY(), structureWorldOrigin.getZ());
-    }
-
-    public Map<Location, BlockData> getExpectedBlocks(Matrix3d transformation, Location structureWorldOrigin, Vector3i origin) {
+    public Map<Location, BlockData> getExpectedBlocks(Matrix3d transformation, Location structureWorldOrigin) {
         Preconditions.checkNotNull(structureWorldOrigin.getWorld(), "World for world origin can not be null!");
         Map<Location, BlockData> output = new HashMap<>();
-        World world = structureWorldOrigin.getWorld();
 
-        schem.apply(new Matrix3d(), (schematicSpacePosition, blockData) -> {
+        schem.apply(transformation, (schematicSpacePosition, blockData) -> {
             if (blockData.getMaterial().isAir()) {
                 return;
             }
-            Vector3d transformedVector = transform(transformation, structureWorldOrigin, schematicSpacePosition, origin);
-            BlockData transformedBlockData = BlockUtil.transformBlockData(blockData, transformation);
-            output.put(new Location(world, transformedVector.x(), transformedVector.y(), transformedVector.z()), transformedBlockData);
+            output.put(structureWorldOrigin.clone().add(schematicSpacePosition.x(), schematicSpacePosition.y(), schematicSpacePosition.z()), blockData);
         });
         return output;
     }
 
     public List<BlockData> getPalette() {
         return Arrays.asList(schem.palette());
-    }
-
-    private Vector3i toVector3i(Vector3d vector3d) {
-        return new Vector3i((int) vector3d.x(), (int) vector3d.y(), (int) vector3d.z());
     }
 }

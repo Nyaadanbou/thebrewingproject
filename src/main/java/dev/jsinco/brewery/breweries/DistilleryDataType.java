@@ -3,6 +3,7 @@ package dev.jsinco.brewery.breweries;
 import dev.jsinco.brewery.database.InsertableStoredData;
 import dev.jsinco.brewery.database.RemovableStoredData;
 import dev.jsinco.brewery.database.RetrievableStoredData;
+import org.bukkit.World;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ public class DistilleryDataType implements RetrievableStoredData<Distillery>, In
     }
 
     @Override
-    public List<Distillery> retrieveAll(Connection connection) throws SQLException {
+    public List<Distillery> retrieveAll(Connection connection, World world) throws SQLException {
         return List.of();
     }
 }

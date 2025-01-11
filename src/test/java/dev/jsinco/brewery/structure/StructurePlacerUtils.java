@@ -8,6 +8,12 @@ import org.mockbukkit.mockbukkit.block.data.StairsDataMock;
 import org.mockbukkit.mockbukkit.block.data.WallSignDataMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.Map;
+
 public class StructurePlacerUtils {
 
     public static void constructSmallOakBarrel(WorldMock worldMock) {
@@ -42,5 +48,16 @@ public class StructurePlacerUtils {
         WallSignDataMock wallSignDataMock = new WallSignDataMock(Material.OAK_WALL_SIGN);
         wallSignDataMock.setFacing(BlockFace.NORTH);
         worldMock.setBlockData(-3, 1, 1, wallSignDataMock);
+    }
+
+    public static BreweryStructure matchingStructure() throws URISyntaxException, IOException {
+        URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.json");
+        Map<String, BreweryStructure> structures = StructureReader.fromJson(Paths.get(url.toURI()));
+        for (Map.Entry<String, BreweryStructure> entry : structures.entrySet()) {
+            if (entry.getKey().contains("oak")) {
+                return entry.getValue();
+            }
+        }
+        throw new IllegalStateException("Could not find structure 'oak'");
     }
 }

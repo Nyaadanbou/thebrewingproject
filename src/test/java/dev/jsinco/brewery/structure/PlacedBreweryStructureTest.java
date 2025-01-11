@@ -46,15 +46,7 @@ class PlacedBreweryStructureTest {
     @ParameterizedTest
     @MethodSource("insideSmallBarrel")
     void findValid_insideMatch(BlockVector blockVector) throws IOException, URISyntaxException {
-        URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.json");
-        Map<String, BreweryStructure> structures = StructureReader.fromJson(Paths.get(url.toURI()));
-        BreweryStructure breweryStructure = null;
-        for (Map.Entry<String, BreweryStructure> entry : structures.entrySet()) {
-            if (entry.getKey().contains("oak")) {
-                breweryStructure = entry.getValue();
-                break;
-            }
-        }
+        BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertTrue(PlacedBreweryStructure.findValid(breweryStructure,
                 new Location(worldMock, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ())
@@ -64,15 +56,7 @@ class PlacedBreweryStructureTest {
     @ParameterizedTest
     @MethodSource("outsideSmallBarrel")
     void findValid_outsideNoMatch(BlockVector pos) throws IOException, URISyntaxException {
-        URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.json");
-        Map<String, BreweryStructure> structures = StructureReader.fromJson(Paths.get(url.toURI()));
-        BreweryStructure breweryStructure = null;
-        for (Map.Entry<String, BreweryStructure> entry : structures.entrySet()) {
-            if (entry.getKey().contains("oak")) {
-                breweryStructure = entry.getValue();
-                break;
-            }
-        }
+        BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertFalse(PlacedBreweryStructure.findValid(breweryStructure, new Location(worldMock, pos.getX(), pos.getY(), pos.getZ())).isPresent());
     }

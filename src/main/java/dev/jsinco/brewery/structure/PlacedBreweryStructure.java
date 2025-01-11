@@ -6,45 +6,40 @@ import lombok.Setter;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3d;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Getter
 public class PlacedBreweryStructure {
     private static final List<Matrix3d> ALLOWED_TRANSFORMATIONS = compileAllowedTransformations();
-    @Getter
     private final BreweryStructure structure;
-    @Getter
     private final Matrix3d transformation;
     private final Location worldOrigin;
-    @Getter
-    private final Vector3i structureOrigin;
     @Setter
-    @Getter
     private @Nullable Destroyable holder = null;
 
     public PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
-                                  Location worldOrigin, Vector3i structureOrigin) {
+                                  Location worldOrigin) {
         this.structure = structure;
         this.transformation = transformation;
         this.worldOrigin = worldOrigin;
-        this.structureOrigin = structureOrigin;
     }
 
     public static Optional<PlacedBreweryStructure> findValid(BreweryStructure structure, Location worldOrigin) {
         for (Matrix3d transformation : ALLOWED_TRANSFORMATIONS) {
-            Optional<Vector3i> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin);
+            Optional<Location> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin);
             if (possibleOrigin.isPresent()) {
-                return possibleOrigin.map(origin -> new PlacedBreweryStructure(structure, transformation, worldOrigin, origin));
+                return possibleOrigin
+                        .map(origin -> new PlacedBreweryStructure(structure, transformation, origin));
             }
         }
         return Optional.empty();
     }
 
     public List<Location> getPositions() {
-        return List.copyOf(structure.getExpectedBlocks(transformation, worldOrigin, structureOrigin)
+        return List.copyOf(structure.getExpectedBlocks(transformation, worldOrigin)
                 .keySet());
     }
 

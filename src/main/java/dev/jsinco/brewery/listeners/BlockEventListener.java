@@ -1,7 +1,8 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.breweries.Destroyable;
+import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryFactory;
+import dev.jsinco.brewery.breweries.Destroyable;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -9,6 +10,7 @@ import dev.jsinco.brewery.structure.StructureRegistry;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,10 +18,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class BlockEventListener implements Listener {
 
@@ -32,8 +31,15 @@ public class BlockEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        Optional<PlacedBreweryStructure> possibleStructure = getStructure(event.getBlock());
+    public void onSignChangeEvent(SignChangeEvent event) {
+        String[] lines = event.getLines();
+        if (!Objects.equals(lines[0], "Barrel") || !lines[1].isEmpty() || !lines[2].isEmpty() || !lines[3].isEmpty()) {
+            return;
+        }
+        if (!(event.getBlock().getBlockData() instanceof WallSign wallSign)) {
+            return;
+        }
+        Optional<PlacedBreweryStructure> possibleStructure = getStructure(event.getBlock().getRelative(wallSign.getFacing().getOppositeFace()));
         if (possibleStructure.isEmpty()) {
             return;
         }
@@ -42,8 +48,8 @@ public class BlockEventListener implements Listener {
             // Exit if there's an overlapping structure
             return;
         }
-        placedStructureRegistry.addStructure(placedBreweryStructure);
-        Destroyable destroyable = BreweryFactory.newObjectFromStructure(placedBreweryStructure);
+        placedStructureRegistry.registerStructure(placedBreweryStructure);
+        Barrel destroyable = BreweryFactory.newBarrel(placedBreweryStructure, event.getBlock().getLocation());
         placedBreweryStructure.setHolder(destroyable);
     }
 

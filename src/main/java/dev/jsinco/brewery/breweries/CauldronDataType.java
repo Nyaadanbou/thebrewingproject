@@ -4,6 +4,7 @@ import dev.jsinco.brewery.database.InsertableStoredData;
 import dev.jsinco.brewery.database.RemovableStoredData;
 import dev.jsinco.brewery.database.RetrievableStoredData;
 import dev.jsinco.brewery.database.UpdateableStoredData;
+import org.bukkit.World;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,7 +27,7 @@ public class CauldronDataType implements RetrievableStoredData<Cauldron>, Insert
     }
 
     @Override
-    public List<Cauldron> retrieveAll(Connection connection) throws SQLException {
+    public List<Cauldron> retrieveAll(Connection connection, World world) throws SQLException {
         return List.of();
     }
 }

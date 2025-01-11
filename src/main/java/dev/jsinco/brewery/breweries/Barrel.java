@@ -3,6 +3,7 @@ package dev.jsinco.brewery.breweries;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
+import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
 import lombok.Getter;
 import org.bukkit.*;
@@ -14,39 +15,29 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class Barrel implements Tickable, InventoryHolder, Destroyable {
-
-    private final UUID objectId;
     @Getter
     private final PlacedBreweryStructure structure;
     @Getter
     private final @NotNull Inventory inventory;
     private final int size;
-    private final BarrelType barrelType;
+    @Getter
+    private final BarrelType type;
+    @Getter
     private final Location signLocation;
     private Brew[] brews;
 
-    public Barrel(PlacedBreweryStructure structure, int size, BarrelType barrelType) {
-        this.objectId = UUID.randomUUID();
+    public Barrel(Location signLocation, PlacedBreweryStructure structure, int size, BarrelType type) {
         this.structure = structure;
         this.size = size;
         this.inventory = Bukkit.createInventory(this, size, "Barrel");
-        this.barrelType = barrelType;
-        this.signLocation = findSignLocation(structure);
+        this.type = type;
         this.brews = new Brew[size];
-    }
-
-    public Barrel(UUID objectId, PlacedBreweryStructure structure, Inventory inventory, int size, BarrelType barrelType) {
-        this.objectId = objectId;
-        this.structure = structure;
-        this.inventory = inventory;
-        ;
-        this.size = size;
-        this.barrelType = barrelType;
-        this.signLocation = findSignLocation(structure);
+        this.signLocation = signLocation;
     }
 
     private static @Nullable Location findSignLocation(PlacedBreweryStructure structure) {
@@ -121,7 +112,7 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
                         } else if (brew.aging() == null) {
                             out = brew.withAging(new Interval(gameTime, gameTime));
                         }
-                        return out.withBarrelType(barrelType);
+                        return out.withBarrelType(type);
                     })
                     .ifPresent(brew -> {
                         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
@@ -132,7 +123,25 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
         }
     }
 
-    private World getWorld() {
+    World getWorld() {
         return signLocation.getWorld();
+    }
+
+    public void setBrews(List<Pair<Brew, Integer>> brews) {
+        this.brews = new Brew[9];
+        for (Pair<Brew, Integer> brew : brews) {
+            this.brews[brew.second()] = brew.first();
+        }
+    }
+
+    public List<Pair<Brew, Integer>> getBrews() {
+        List<Pair<Brew, Integer>> brewList = new ArrayList<>();
+        for (int i = 0; i < brews.length; i++) {
+            if (brews[i] == null) {
+                continue;
+            }
+            brewList.add(new Pair<>(brews[i], i));
+        }
+        return brewList;
     }
 }
