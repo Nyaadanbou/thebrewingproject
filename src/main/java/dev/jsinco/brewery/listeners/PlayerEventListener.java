@@ -1,10 +1,8 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.breweries.Barrel;
-import dev.jsinco.brewery.breweries.BreweryRegistry;
-import dev.jsinco.brewery.breweries.Cauldron;
-import dev.jsinco.brewery.breweries.BehaviorHolder;
+import dev.jsinco.brewery.breweries.*;
 import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.Material;
@@ -19,16 +17,19 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class PlayerEventListener implements Listener {
 
     private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
+    private final Database database;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
+        this.database = database;
     }
 
 
@@ -60,15 +61,20 @@ public class PlayerEventListener implements Listener {
         }
         if (!Cauldron.isValidStructure(block)) {
             breweryRegistry.getActiveCauldron(block)
-                    .ifPresent(breweryRegistry::removeActiveCauldron);
+                    .ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
             return;
         }
         Optional<Cauldron> cauldronOptional = breweryRegistry.getActiveCauldron(block);
         ItemStack itemStack = event.getItem();
         if (isIngredient(itemStack)) {
             Cauldron cauldron = cauldronOptional
-                    .orElseGet(() -> new Cauldron(block));
+                    .orElseGet(() -> this.initCauldron(block));
             cauldron.addIngredient(itemStack, event.getPlayer());
+            try {
+                database.updateValue(CauldronDataType.DATA_TYPE, cauldron);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         if (itemStack.getType() == Material.GLASS_BOTTLE) {
             cauldronOptional
@@ -79,7 +85,7 @@ public class PlayerEventListener implements Listener {
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);
                         Levelled cauldron = (Levelled) block.getBlockData();
                         if (cauldron.getLevel() == 1) {
-                            breweryRegistry.removeActiveCauldron(cauldronOptional.get());
+                            ListenerUtil.removeCauldron(cauldronOptional.get(), breweryRegistry, database);
                             block.setType(Material.CAULDRON);
                             return;
                         }
@@ -92,6 +98,17 @@ public class PlayerEventListener implements Listener {
             event.setUseItemInHand(Event.Result.DENY);
         });
     }
+
+    private Cauldron initCauldron(Block block) {
+        Cauldron newCauldron = new Cauldron(block);
+        try {
+            database.insertValue(CauldronDataType.DATA_TYPE, newCauldron);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return newCauldron;
+    }
+
 
     private boolean isIngredient(ItemStack itemStack) {
         if (1 == itemStack.getMaxStackSize()) {

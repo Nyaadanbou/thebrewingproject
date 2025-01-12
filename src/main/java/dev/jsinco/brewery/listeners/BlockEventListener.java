@@ -1,9 +1,6 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.breweries.Barrel;
-import dev.jsinco.brewery.breweries.BarrelDataType;
-import dev.jsinco.brewery.breweries.BehaviorHolder;
-import dev.jsinco.brewery.breweries.BreweryFactory;
+import dev.jsinco.brewery.breweries.*;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
@@ -28,11 +25,13 @@ public class BlockEventListener implements Listener {
     private final StructureRegistry structureRegistry;
     private final PlacedStructureRegistry placedStructureRegistry;
     private final Database database;
+    private final BreweryRegistry breweryRegistry;
 
-    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry, Database database) {
+    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
         this.database = database;
+        this.breweryRegistry = breweryRegistry;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -126,6 +125,7 @@ public class BlockEventListener implements Listener {
                 structurePositions.add(location);
                 behaviorHolders.add(destroyable);
             });
+            breweryRegistry.getActiveCauldron(location.getBlock()).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
         }
         placedBreweryStructures.forEach(placedStructureRegistry::removeStructure);
         placedBreweryStructures.stream()
@@ -176,6 +176,6 @@ public class BlockEventListener implements Listener {
                 }
             }
         });
-
+        breweryRegistry.getActiveCauldron(block).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
     }
 }

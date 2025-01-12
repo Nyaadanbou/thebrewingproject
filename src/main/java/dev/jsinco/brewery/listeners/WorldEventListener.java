@@ -1,7 +1,6 @@
 package dev.jsinco.brewery.listeners;
 
-import dev.jsinco.brewery.breweries.Barrel;
-import dev.jsinco.brewery.breweries.BarrelDataType;
+import dev.jsinco.brewery.breweries.*;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.Bukkit;
@@ -21,10 +20,12 @@ public class WorldEventListener implements Listener {
 
     private final Database database;
     private final PlacedStructureRegistry placedStructureRegistry;
+    private final BreweryRegistry breweryRegistry;
 
-    public WorldEventListener(Database database, PlacedStructureRegistry placedStructureRegistry) {
+    public WorldEventListener(Database database, PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry) {
         this.database = database;
         this.placedStructureRegistry = placedStructureRegistry;
+        this.breweryRegistry = breweryRegistry;
     }
 
     public void init() {
@@ -48,6 +49,7 @@ public class WorldEventListener implements Listener {
                 placedStructureRegistry.registerPosition(signLocation, barrel);
                 placedStructureRegistry.registerStructure(barrel.getStructure().get());
             }
+            database.retrieveAll(CauldronDataType.DATA_TYPE, world);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }

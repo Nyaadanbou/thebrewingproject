@@ -64,9 +64,9 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry), this);
-        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry);
+        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database), this);
+        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
