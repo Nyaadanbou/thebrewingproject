@@ -7,6 +7,7 @@ import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.database.DatabaseDriver;
 import dev.jsinco.brewery.listeners.BlockEventListener;
 import dev.jsinco.brewery.listeners.PlayerEventListener;
+import dev.jsinco.brewery.listeners.WorldEventListener;
 import dev.jsinco.brewery.recipes.RecipeFactory;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.PluginIngredient;
@@ -19,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.stream.Stream;
 
 public class TheBrewingProject extends JavaPlugin {
@@ -57,8 +59,16 @@ public class TheBrewingProject extends JavaPlugin {
     @Override
     public void onEnable() {
         this.database = new Database(DatabaseDriver.SQLITE);
-        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry), this);
+        try {
+            database.init();
+        } catch (IOException | SQLException e) {
+            throw new RuntimeException(e); // Hard exit if any issues here
+        }
+        Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry), this);
+        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry);
+        worldEventListener.init();
+        Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
 
         this.recipeRegistry.registerRecipes(RecipeFactory.readRecipes());

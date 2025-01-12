@@ -1,8 +1,10 @@
 package dev.jsinco.brewery.listeners;
 
 import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.breweries.BarrelDataType;
 import dev.jsinco.brewery.breweries.BehaviorHolder;
 import dev.jsinco.brewery.breweries.BreweryFactory;
+import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -18,16 +20,19 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class BlockEventListener implements Listener {
 
     private final StructureRegistry structureRegistry;
     private final PlacedStructureRegistry placedStructureRegistry;
+    private final Database database;
 
-    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry) {
+    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry, Database database) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
+        this.database = database;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -49,9 +54,14 @@ public class BlockEventListener implements Listener {
             return;
         }
         placedStructureRegistry.registerStructure(placedBreweryStructure);
-        Barrel destroyable = BreweryFactory.newBarrel(placedBreweryStructure, event.getBlock().getLocation());
-        placedBreweryStructure.setHolder(destroyable);
-        placedStructureRegistry.registerPosition(event.getBlock().getLocation(), destroyable);
+        Barrel barrel = BreweryFactory.newBarrel(placedBreweryStructure, event.getBlock().getLocation());
+        placedBreweryStructure.setHolder(barrel);
+        placedStructureRegistry.registerPosition(event.getBlock().getLocation(), barrel);
+        try {
+            database.insertValue(BarrelDataType.DATA_TYPE, barrel);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private Optional<PlacedBreweryStructure> getStructure(Block block) {
@@ -126,6 +136,13 @@ public class BlockEventListener implements Listener {
         for (BehaviorHolder behaviorHolder : behaviorHolders) {
             behaviorHolder.destroy();
             behaviorHolder.getStructure().ifPresent(placedStructureRegistry::removeStructure);
+            if (behaviorHolder instanceof Barrel barrel) {
+                try {
+                    database.remove(BarrelDataType.DATA_TYPE, barrel);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -146,20 +163,19 @@ public class BlockEventListener implements Listener {
      */
     private void destroyFromBlock(Block block) {
         Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(block.getLocation());
-        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
-        placedStructureRegistry.getHolder(block.getLocation()).ifPresent(destroyable -> {
+        placedBreweryStructure.ifPresent(placedStructureRegistry::removeStructure);
+        placedStructureRegistry.getHolder(block.getLocation()).ifPresent(behaviorHolder -> {
             placedStructureRegistry.removePosition(block.getLocation());
-            destroyable.destroy();
-            destroyable.getStructure().ifPresent(placedStructureRegistry::removeStructure);
+            behaviorHolder.destroy();
+            behaviorHolder.getStructure().ifPresent(placedStructureRegistry::removeStructure);
+            if (behaviorHolder instanceof Barrel barrel) {
+                try {
+                    database.remove(BarrelDataType.DATA_TYPE, barrel);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
-    }
-
-    private void destroyBreweryStructure(PlacedBreweryStructure structure) {
-        placedStructureRegistry.removeStructure(structure);
-        BehaviorHolder behaviorHolder = structure.getHolder();
-        if (behaviorHolder != null) {
-            behaviorHolder.destroy();
-        }
     }
 }

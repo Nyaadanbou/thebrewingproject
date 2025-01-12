@@ -2,6 +2,7 @@ package dev.jsinco.brewery.structure;
 
 import dev.jsinco.brewery.breweries.BehaviorHolder;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.util.BlockVector;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,7 @@ import java.util.*;
 public class PlacedStructureRegistry {
 
     private final Map<UUID, Map<BlockVector, PlacedBreweryStructure>> structures = new HashMap<>();
-    private final Map<Location, BehaviorHolder> holders = new HashMap<>();
+    private final Map<UUID, Map<BlockVector, BehaviorHolder>> holders = new HashMap<>();
 
     public void registerStructure(PlacedBreweryStructure placedBreweryStructure) {
         for (Location location : placedBreweryStructure.getPositions()) {
@@ -46,14 +47,19 @@ public class PlacedStructureRegistry {
     }
 
     public void registerPosition(@NotNull Location location, @NotNull BehaviorHolder behaviorHolder) {
-        holders.put(location.clone(), behaviorHolder);
+        holders.computeIfAbsent(location.getWorld().getUID(), ignored -> new HashMap<>()).put(location.toVector().toBlockVector(), behaviorHolder);
     }
 
     public Optional<BehaviorHolder> getHolder(@NotNull Location location) {
-        return Optional.ofNullable(holders.get(location));
+        return Optional.ofNullable(holders.getOrDefault(location.getWorld().getUID(), new HashMap<>()).get(location.toVector().toBlockVector()));
     }
 
     public void removePosition(Location location) {
-        holders.remove(location);
+        holders.getOrDefault(location.getWorld().getUID(), new HashMap<>()).remove(location.toVector().toBlockVector());
+    }
+
+    public void unloadWorld(World world) {
+        holders.remove(world.getUID());
+        structures.remove(world.getUID());
     }
 }

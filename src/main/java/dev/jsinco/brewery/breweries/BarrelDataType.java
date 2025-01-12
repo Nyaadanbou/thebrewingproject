@@ -44,6 +44,7 @@ public class BarrelDataType implements RetrievableStoredData<Barrel>, RemovableS
             preparedStatement.setString(8, DecoderEncoder.serializeTransformation(placedStructure.getTransformation()));
             preparedStatement.setString(9, structure.getName());
             preparedStatement.setString(10, value.getType().key().toString());
+            preparedStatement.setInt(11, value.getSize());
             preparedStatement.execute();
         }
         for (Pair<Brew, Integer> brew : value.getBrews()) {
@@ -86,12 +87,13 @@ public class BarrelDataType implements RetrievableStoredData<Barrel>, RemovableS
                     continue;
                 }
                 PlacedBreweryStructure structure = new PlacedBreweryStructure(breweryStructureOptional.get(), transform, worldOrigin);
-
-                output.add(new Barrel(signLocation, structure, size, type));
+                Barrel barrel = new Barrel(signLocation, structure, size, type);
+                structure.setHolder(barrel);
+                output.add(barrel);
             }
         }
         for (Barrel barrel : output) {
-            barrel.setBrews(TheBrewingProject.getInstance().getDatabase().find(BarrelBrewDataType.DATA_TYPE, barrel.getSignLocation()));
+            barrel.setBrews(BarrelBrewDataType.DATA_TYPE.find(barrel.getSignLocation(), connection));
         }
         return output;
     }

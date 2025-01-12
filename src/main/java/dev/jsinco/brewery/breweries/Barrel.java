@@ -23,6 +23,7 @@ public class Barrel implements Tickable, InventoryHolder, BehaviorHolder {
     private final PlacedBreweryStructure structure;
     @Getter
     private final @NotNull Inventory inventory;
+    @Getter
     private final int size;
     @Getter
     private final BarrelType type;
