@@ -8,9 +8,9 @@ import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.Util;
+import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.Moment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -39,6 +39,25 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
     private static final NamespacedKey BREWERY_DATA_VERSION = Registry.brewerySpacedKey("version");
 
     private static final int DATA_VERSION = 0;
+
+    public static boolean sameValuesForAging(@NotNull Brew brew1, Brew brew2) {
+        if (brew2 == null) {
+            return false;
+        }
+        if (((Interval) brew1.aging).start() != ((Interval) brew2.aging).start()) {
+            return false;
+        }
+        if (brew1.brewTime.moment() != brew2.brewTime.moment()) {
+            return false;
+        }
+        if (!brew1.ingredients.equals(brew2.ingredients)) {
+            return false;
+        }
+        if (brew1.distillRuns != brew2.distillRuns) {
+            return false;
+        }
+        return brew1.cauldronType == brew2.cauldronType && brew1.barrelType == brew2.barrelType;
+    }
 
     public Brew withCauldronTime(Interval interval) {
         return new Brew(interval, ingredients, aging, distillRuns, cauldronType, barrelType);
@@ -188,13 +207,13 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         if (quality.isEmpty()) {
             DefaultRecipe randomDefault = TheBrewingProject.getInstance().getRecipeRegistry().getRandomDefaultRecipe();
             boolean hasPreviousData = fillPersistentData(meta);
-            if(hasPreviousData) {
+            if (hasPreviousData) {
                 return;
             }
             randomDefault.applyMeta(meta);
         } else if (!hasCompletedRecipe(recipe.get())) {
             boolean hasPreviousData = fillPersistentData(meta);
-            if(hasPreviousData) {
+            if (hasPreviousData) {
                 return;
             }
             incompletePotion(meta);

@@ -1,7 +1,9 @@
 package dev.jsinco.brewery.breweries;
 
 import dev.jsinco.brewery.TheBrewingProject;
+import dev.jsinco.brewery.brews.BarrelBrewDataType;
 import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
@@ -15,6 +17,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -103,6 +106,13 @@ public class Barrel implements Tickable, InventoryHolder, BehaviorHolder {
         for (int i = 0; i < inventoryContents.length; i++) {
             ItemStack itemStack = inventoryContents[i];
             if (itemStack == null) {
+                if (brews[i] != null) {
+                    try {
+                        TheBrewingProject.getInstance().getDatabase().remove(BarrelBrewDataType.DATA_TYPE, new Pair<>(brews[i], getContext(i)));
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
                 brews[i] = null;
                 continue;
             }
@@ -123,9 +133,28 @@ public class Barrel implements Tickable, InventoryHolder, BehaviorHolder {
                         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                         brew.applyMeta(potionMeta);
                         itemStack.setItemMeta(potionMeta);
+                        if (Brew.sameValuesForAging(brew, brews[iFinal])) {
+                            brews[iFinal] = brew;
+                            return;
+                        }
+                        Database database = TheBrewingProject.getInstance().getDatabase();
+                        BarrelBrewDataType.BarrelContext context = getContext(iFinal);
+                        try {
+                            if (brews[iFinal] == null) {
+                                database.insertValue(BarrelBrewDataType.DATA_TYPE, new Pair<>(brew, context));
+                            } else {
+                                database.updateValue(BarrelBrewDataType.DATA_TYPE, new Pair<>(brew, context));
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                         brews[iFinal] = brew;
                     });
         }
+    }
+
+    private BarrelBrewDataType.BarrelContext getContext(int inventoryPos) {
+        return new BarrelBrewDataType.BarrelContext(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ(), inventoryPos, signLocation.getWorld().getUID());
     }
 
     World getWorld() {

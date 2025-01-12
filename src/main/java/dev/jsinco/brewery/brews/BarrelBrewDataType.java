@@ -5,10 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import dev.jsinco.brewery.database.FindableStoredData;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.RetrievableStoredData;
+import dev.jsinco.brewery.database.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.*;
@@ -29,7 +26,7 @@ import java.util.UUID;
 
 public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
         InsertableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>, RemovableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
-        FindableStoredData<Pair<Brew, Integer>, Location> {
+        FindableStoredData<Pair<Brew, Integer>, Location>, UpdateableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>> {
     public static final BarrelBrewDataType DATA_TYPE = new BarrelBrewDataType();
 
     private BarrelBrewDataType() {
@@ -124,6 +121,26 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
                 output.add(new Pair<>(brewFromResultSet(resultSet), resultSet.getInt("pos")));
             }
             return output;
+        }
+    }
+
+    @Override
+    public void update(Pair<Brew, BarrelContext> newValue, Connection connection) throws SQLException {
+        String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_update.sql");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
+            BarrelContext context = newValue.second();
+            Brew brew = newValue.first();
+            preparedStatement.setString(1, brew.barrelType().key().toString());
+            preparedStatement.setString(2, brew.cauldronType().key().toString());
+            preparedStatement.setLong(3, brew.brewTime().moment());
+            preparedStatement.setLong(4, ((Interval) brew.aging()).start());
+            preparedStatement.setString(5, ingredientsToJson(brew.ingredients()));
+            preparedStatement.setInt(6, context.signX);
+            preparedStatement.setInt(7, context.signY);
+            preparedStatement.setInt(8, context.signZ);
+            preparedStatement.setBytes(9, DecoderEncoder.asBytes(context.worldUuid));
+            preparedStatement.setInt(10, context.inventoryPos);
+            preparedStatement.execute();
         }
     }
 
