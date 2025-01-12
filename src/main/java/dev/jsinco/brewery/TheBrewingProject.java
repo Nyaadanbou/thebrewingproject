@@ -2,6 +2,7 @@ package dev.jsinco.brewery;
 
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.breweries.Cauldron;
 import dev.jsinco.brewery.command.TestCommand;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.database.DatabaseDriver;
@@ -78,6 +79,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     private void updateBarrels() {
         breweryRegistry.getOpenedBarrels().forEach(Barrel::tick);
+        breweryRegistry.getActiveCauldrons().forEach(Cauldron::tick);
     }
 
     public void registerPluginIngredients() {

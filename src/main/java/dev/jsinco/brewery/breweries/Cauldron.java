@@ -3,6 +3,7 @@ package dev.jsinco.brewery.breweries;
 import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.listeners.ListenerUtil;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
@@ -74,11 +75,12 @@ public class Cauldron implements Tickable {
         }
         getBrew().flatMap(Brew::closestRecipe).ifPresent(reducedRecipe -> this.closestRecipe = reducedRecipe);
         this.updateParticleColor();
+        this.playBrewingEffects();
     }
 
 
     public void remove() {
-        TheBrewingProject.getInstance().getBreweryRegistry().removeActiveCauldron(this);
+        ListenerUtil.removeCauldron(this, TheBrewingProject.getInstance().getBreweryRegistry(), TheBrewingProject.getInstance().getDatabase());
     }
 
 

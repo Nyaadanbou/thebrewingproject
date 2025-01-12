@@ -37,4 +37,8 @@ public final class BreweryRegistry {
     public void removeOpenedBarrel(Barrel barrel) {
         openedBarrels.remove(barrel);
     }
+
+    public Collection<Cauldron> getActiveCauldrons() {
+        return activeCauldrons.values();
+    }
 }
