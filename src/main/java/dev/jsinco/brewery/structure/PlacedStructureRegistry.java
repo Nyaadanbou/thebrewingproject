@@ -1,13 +1,16 @@
 package dev.jsinco.brewery.structure;
 
+import dev.jsinco.brewery.breweries.BehaviorHolder;
 import org.bukkit.Location;
 import org.bukkit.util.BlockVector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class PlacedStructureRegistry {
 
     private final Map<UUID, Map<BlockVector, PlacedBreweryStructure>> structures = new HashMap<>();
+    private final Map<Location, BehaviorHolder> holders = new HashMap<>();
 
     public void registerStructure(PlacedBreweryStructure placedBreweryStructure) {
         for (Location location : placedBreweryStructure.getPositions()) {
@@ -40,5 +43,17 @@ public class PlacedStructureRegistry {
             getStructure(location).ifPresent(breweryStructures::add);
         }
         return breweryStructures;
+    }
+
+    public void registerPosition(@NotNull Location location, @NotNull BehaviorHolder behaviorHolder) {
+        holders.put(location.clone(), behaviorHolder);
+    }
+
+    public Optional<BehaviorHolder> getHolder(@NotNull Location location) {
+        return Optional.ofNullable(holders.get(location));
+    }
+
+    public void removePosition(Location location) {
+        holders.remove(location);
     }
 }

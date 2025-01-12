@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Barrel implements Tickable, InventoryHolder, Destroyable {
-    @Getter
+public class Barrel implements Tickable, InventoryHolder, BehaviorHolder {
     private final PlacedBreweryStructure structure;
     @Getter
     private final @NotNull Inventory inventory;
@@ -81,6 +80,11 @@ public class Barrel implements Tickable, InventoryHolder, Destroyable {
     @Override
     public void destroy() {
         // TODO: What should be done when this barrel is destroyed? Probably drop all the brews, right?
+    }
+
+    @Override
+    public Optional<PlacedBreweryStructure> getStructure() {
+        return Optional.of(structure);
     }
 
     private void populateInventory() {

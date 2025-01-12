@@ -28,7 +28,7 @@ public class BarrelDataType implements RetrievableStoredData<Barrel>, RemovableS
 
     @Override
     public void insert(Barrel value, Connection connection) throws SQLException {
-        PlacedBreweryStructure placedStructure = value.getStructure();
+        PlacedBreweryStructure placedStructure = value.getStructure().get();
         BreweryStructure structure = placedStructure.getStructure();
         Location origin = placedStructure.getWorldOrigin();
         UUID worldUuid = value.getWorld().getUID();

@@ -1,8 +1,8 @@
 package dev.jsinco.brewery.listeners;
 
 import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.breweries.BehaviorHolder;
 import dev.jsinco.brewery.breweries.BreweryFactory;
-import dev.jsinco.brewery.breweries.Destroyable;
 import dev.jsinco.brewery.structure.BreweryStructure;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -51,6 +51,7 @@ public class BlockEventListener implements Listener {
         placedStructureRegistry.registerStructure(placedBreweryStructure);
         Barrel destroyable = BreweryFactory.newBarrel(placedBreweryStructure, event.getBlock().getLocation());
         placedBreweryStructure.setHolder(destroyable);
+        placedStructureRegistry.registerPosition(event.getBlock().getLocation(), destroyable);
     }
 
     private Optional<PlacedBreweryStructure> getStructure(Block block) {
@@ -68,8 +69,7 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
-        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
+        destroyFromBlock(event.getBlock());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -107,30 +107,59 @@ public class BlockEventListener implements Listener {
 
     private void onMultiBlockRemove(List<Location> locationList) {
         Set<PlacedBreweryStructure> placedBreweryStructures = new HashSet<>();
+        Set<Location> structurePositions = new HashSet<>();
+        Set<BehaviorHolder> behaviorHolders = new HashSet<>();
         for (Location location : locationList) {
             Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(location);
             placedBreweryStructure.ifPresent(placedBreweryStructures::add);
+            placedStructureRegistry.getHolder(location).ifPresent(destroyable -> {
+                structurePositions.add(location);
+                behaviorHolders.add(destroyable);
+            });
         }
-        placedBreweryStructures.forEach(this::destroyBreweryStructure);
+        placedBreweryStructures.forEach(placedStructureRegistry::removeStructure);
+        placedBreweryStructures.stream()
+                .map(PlacedBreweryStructure::getHolder)
+                .filter(Objects::nonNull)
+                .forEach(behaviorHolders::add);
+        structurePositions.forEach(placedStructureRegistry::removePosition);
+        for (BehaviorHolder behaviorHolder : behaviorHolders) {
+            behaviorHolder.destroy();
+            behaviorHolder.getStructure().ifPresent(placedStructureRegistry::removeStructure);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
-        Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
-        placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
+        destroyFromBlock(event.getBlock());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(event.getBlock().getLocation());
+        destroyFromBlock(event.getBlock());
+    }
+
+    /**
+     * Assumes only one block has changed in the event, is not safe to use in multi-block changes
+     *
+     * @param block
+     */
+    private void destroyFromBlock(Block block) {
+        Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(block.getLocation());
         placedBreweryStructure.ifPresent(this::destroyBreweryStructure);
+        placedStructureRegistry.getHolder(block.getLocation()).ifPresent(destroyable -> {
+            placedStructureRegistry.removePosition(block.getLocation());
+            destroyable.destroy();
+            destroyable.getStructure().ifPresent(placedStructureRegistry::removeStructure);
+        });
+
     }
 
     private void destroyBreweryStructure(PlacedBreweryStructure structure) {
         placedStructureRegistry.removeStructure(structure);
-        Destroyable destroyable = structure.getHolder();
-        if (destroyable != null) {
-            destroyable.destroy();
+        BehaviorHolder behaviorHolder = structure.getHolder();
+        if (behaviorHolder != null) {
+            behaviorHolder.destroy();
         }
     }
 }

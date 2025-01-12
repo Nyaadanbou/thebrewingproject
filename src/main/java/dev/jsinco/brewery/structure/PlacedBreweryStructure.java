@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.structure;
 
-import dev.jsinco.brewery.breweries.Destroyable;
+import dev.jsinco.brewery.breweries.BehaviorHolder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -18,7 +18,7 @@ public class PlacedBreweryStructure {
     private final Matrix3d transformation;
     private final Location worldOrigin;
     @Setter
-    private @Nullable Destroyable holder = null;
+    private @Nullable BehaviorHolder holder = null;
 
     public PlacedBreweryStructure(BreweryStructure structure, Matrix3d transformation,
                                   Location worldOrigin) {

@@ -3,7 +3,7 @@ package dev.jsinco.brewery.listeners;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BreweryRegistry;
 import dev.jsinco.brewery.breweries.Cauldron;
-import dev.jsinco.brewery.breweries.Destroyable;
+import dev.jsinco.brewery.breweries.BehaviorHolder;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -11,19 +11,15 @@ import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public class PlayerEventListener implements Listener {
 
@@ -45,7 +41,7 @@ public class PlayerEventListener implements Listener {
         if (possiblePlacedBreweryStructure.isEmpty()) {
             return;
         }
-        Destroyable holder = possiblePlacedBreweryStructure.get().getHolder();
+        BehaviorHolder holder = possiblePlacedBreweryStructure.get().getHolder();
         if (!(holder instanceof Barrel barrel)) {
             return;
         }
