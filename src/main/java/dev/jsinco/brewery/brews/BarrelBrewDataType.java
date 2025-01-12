@@ -1,14 +1,11 @@
 package dev.jsinco.brewery.brews;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import dev.jsinco.brewery.database.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
-import dev.jsinco.brewery.util.*;
+import dev.jsinco.brewery.util.DecoderEncoder;
+import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.Pair;
+import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.Location;
@@ -21,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
@@ -47,7 +43,7 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
             preparedStatement.setString(7, brew.cauldronType().key().toString());
             preparedStatement.setLong(8, brew.brewTime().moment());
             preparedStatement.setLong(9, ((Interval) brew.aging()).start());
-            preparedStatement.setString(10, ingredientsToJson(brew.ingredients()));
+            preparedStatement.setString(10, Ingredient.ingredientsToJson(brew.ingredients()));
             preparedStatement.execute();
         }
     }
@@ -80,28 +76,9 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
 
     private Brew brewFromResultSet(ResultSet resultSet) throws SQLException {
         long agingStart = resultSet.getLong("aging_start");
-        return new Brew(new PassedMoment(resultSet.getLong("brew_time")), ingredientsFromJson(resultSet.getString("ingredients_json")),
+        return new Brew(new PassedMoment(resultSet.getLong("brew_time")), Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json")),
                 new Interval(agingStart, agingStart), 0, Registry.CAULDRON_TYPE.get(NamespacedKey.fromString(resultSet.getString("cauldron_type"))),
                 Registry.BARREL_TYPE.get(NamespacedKey.fromString(resultSet.getString("barrel_type"))));
-    }
-
-    private Map<Ingredient, Integer> ingredientsFromJson(String json) {
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-        ImmutableMap.Builder<Ingredient, Integer> output = new ImmutableMap.Builder<>();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            IngredientManager.getIngredient(entry.getKey())
-                    .ifPresentOrElse(ingredient -> output.put(ingredient, entry.getValue().getAsInt()),
-                            () -> Logging.warning("Could not find ingredient for stored brew: " + entry.getKey()));
-        }
-        return output.build();
-    }
-
-    private String ingredientsToJson(Map<Ingredient, Integer> ingredients) {
-        JsonObject output = new JsonObject();
-        for (Map.Entry<Ingredient, Integer> entry : ingredients.entrySet()) {
-            output.add(entry.getKey().getKey().toString(), new JsonPrimitive(entry.getValue()));
-        }
-        return output.toString();
     }
 
     private BarrelContext contextFromResultSet(ResultSet resultSet) throws SQLException {
@@ -134,7 +111,7 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
             preparedStatement.setString(2, brew.cauldronType().key().toString());
             preparedStatement.setLong(3, brew.brewTime().moment());
             preparedStatement.setLong(4, ((Interval) brew.aging()).start());
-            preparedStatement.setString(5, ingredientsToJson(brew.ingredients()));
+            preparedStatement.setString(5, Ingredient.ingredientsToJson(brew.ingredients()));
             preparedStatement.setInt(6, context.signX);
             preparedStatement.setInt(7, context.signY);
             preparedStatement.setInt(8, context.signZ);

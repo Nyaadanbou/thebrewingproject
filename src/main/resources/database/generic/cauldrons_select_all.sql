@@ -1,2 +1,3 @@
 SELECT *
-FROM cauldrons;
+FROM cauldrons
+WHERE world_uuid = ?;

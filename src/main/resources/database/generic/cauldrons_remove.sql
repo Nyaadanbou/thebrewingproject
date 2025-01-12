@@ -1,5 +1,6 @@
 DELETE
-FROM cauldron_brews
+FROM cauldrons
 WHERE cauldron_x = ?
   AND cauldron_y = ?
-  AND cauldron_z = ?;
+  AND cauldron_z = ?
+  AND world_uuid = ?;

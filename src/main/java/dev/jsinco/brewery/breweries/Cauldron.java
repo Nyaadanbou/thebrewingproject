@@ -7,8 +7,8 @@ import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BlockUtil;
-import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.Util;
+import dev.jsinco.brewery.util.moment.Interval;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -19,14 +19,16 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 
 @Getter
 public class Cauldron implements Tickable {
 
     private static final Random RANDOM = new Random();
 
-    private final UUID uid;
     private final Map<Ingredient, Integer> ingredients;
     private final Block block;
 
@@ -44,7 +46,6 @@ public class Cauldron implements Tickable {
 
 
     public Cauldron(Block block) {
-        this.uid = UUID.randomUUID();
         this.ingredients = new HashMap<>();
         this.block = block;
 
@@ -52,13 +53,10 @@ public class Cauldron implements Tickable {
     }
 
     // Generally for loading from persistent storage
-    public Cauldron(UUID uid, Map<Ingredient, Integer> ingredients, Block block, int brewStart, @Nullable Recipe closestRecipe, Color particleColor) {
-        this.uid = uid;
+    public Cauldron(Map<Ingredient, Integer> ingredients, Block block, long brewStart) {
         this.ingredients = ingredients;
         this.block = block;
         this.brewStart = brewStart;
-        this.closestRecipe = closestRecipe;
-        this.particleColor = particleColor;
 
         TheBrewingProject.getInstance().getBreweryRegistry().addActiveCauldron(this);
     }
@@ -130,7 +128,6 @@ public class Cauldron implements Tickable {
         return closestRecipe.getCauldronType().material() == block.getType();
     }
 
-
     public void playBrewingEffects() {
         Location particleLoc = // Complex particle location based off BreweryX
                 block.getLocation().add(0.5 + (RANDOM.nextDouble() * 0.8 - 0.4), 0.9, 0.5 + (RANDOM.nextDouble() * 0.8 - 0.4));
@@ -164,15 +161,6 @@ public class Cauldron implements Tickable {
         return Optional.of(
                 new Brew(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), null, 0, CauldronType.from(block.getType()), null)
         );
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Cauldron cauldron = (Cauldron) obj;
-        return uid.equals(cauldron.uid);
     }
 
     public static boolean isValidStructure(Block cauldronBlock) {

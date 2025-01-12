@@ -1,6 +1,12 @@
 package dev.jsinco.brewery.recipes.ingredient;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import dev.jsinco.brewery.util.DecoderEncoder;
+import dev.jsinco.brewery.util.Logging;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
@@ -29,6 +35,27 @@ public interface Ingredient {
     boolean matches(ItemStack itemStack);
 
     NamespacedKey getKey();
+
+
+
+    static Map<Ingredient, Integer> ingredientsFromJson(String json) {
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        ImmutableMap.Builder<Ingredient, Integer> output = new ImmutableMap.Builder<>();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            IngredientManager.getIngredient(entry.getKey())
+                    .ifPresentOrElse(ingredient -> output.put(ingredient, entry.getValue().getAsInt()),
+                            () -> Logging.warning("Could not find ingredient for stored brew: " + entry.getKey()));
+        }
+        return output.build();
+    }
+
+    static String ingredientsToJson(Map<Ingredient, Integer> ingredients) {
+        JsonObject output = new JsonObject();
+        for (Map.Entry<Ingredient, Integer> entry : ingredients.entrySet()) {
+            output.add(entry.getKey().getKey().toString(), new JsonPrimitive(entry.getValue()));
+        }
+        return output.toString();
+    }
 
     class PdcType implements PersistentDataType<byte[], Map<Ingredient, Integer>> {
 
