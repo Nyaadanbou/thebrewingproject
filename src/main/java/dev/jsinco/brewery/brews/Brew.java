@@ -1,46 +1,24 @@
 package dev.jsinco.brewery.brews;
 
-import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.recipes.DefaultRecipe;
 import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.Util;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.Moment;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
-public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> ingredients,
-                   @Nullable Moment aging, int distillRuns, @Nullable CauldronType cauldronType,
-                   @Nullable BarrelType barrelType) {
+public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Integer> ingredients,
+                      @Nullable Moment aging, int distillRuns, @Nullable CauldronType cauldronType,
+                      @Nullable BarrelType barrelType) {
 
-    private static final NamespacedKey BREW_TIME = Registry.brewerySpacedKey("brew_time");
-    private static final NamespacedKey INGREDIENTS = Registry.brewerySpacedKey("ingredients");
-    private static final NamespacedKey AGING = Registry.brewerySpacedKey("aging_time");
-    private static final NamespacedKey DISTILL_RUNS = Registry.brewerySpacedKey("distill_runs");
-    private static final NamespacedKey CAULDRON_TYPE = Registry.brewerySpacedKey("cauldron_type");
-    private static final NamespacedKey BARREL_TYPE = Registry.brewerySpacedKey("barrel_type");
-    private static final NamespacedKey BREWERY_DATA_VERSION = Registry.brewerySpacedKey("version");
-
-    private static final int DATA_VERSION = 0;
-
-    public static boolean sameValuesForAging(@NotNull Brew brew1, Brew brew2) {
+    public static <I> boolean sameValuesForAging(@NotNull Brew<I> brew1, Brew<I> brew2) {
         if (brew2 == null) {
             return false;
         }
@@ -59,36 +37,35 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         return brew1.cauldronType == brew2.cauldronType && brew1.barrelType == brew2.barrelType;
     }
 
-    public Brew withCauldronTime(Interval interval) {
-        return new Brew(interval, ingredients, aging, distillRuns, cauldronType, barrelType);
+    public Brew<I> withCauldronTime(Interval interval) {
+        return new Brew<>(interval, ingredients, aging, distillRuns, cauldronType, barrelType);
     }
 
-    public Brew withIngredients(Map<Ingredient, Integer> ingredients) {
-        return new Brew(brewTime, Map.copyOf(ingredients), aging, distillRuns, cauldronType, barrelType);
+    public Brew<I> withIngredients(Map<Ingredient<I>, Integer> ingredients) {
+        return new Brew<>(brewTime, Map.copyOf(ingredients), aging, distillRuns, cauldronType, barrelType);
     }
 
-    public Brew withAging(Interval interval) {
-        return new Brew(brewTime, ingredients, interval, distillRuns, cauldronType, barrelType);
+    public Brew<I> withAging(Interval interval) {
+        return new Brew<>(brewTime, ingredients, interval, distillRuns, cauldronType, barrelType);
     }
 
-    public Brew withDistillAmount(int amount) {
-        return new Brew(brewTime, ingredients, aging, amount, cauldronType, barrelType);
+    public Brew<I> withDistillAmount(int amount) {
+        return new Brew<>(brewTime, ingredients, aging, amount, cauldronType, barrelType);
     }
 
-    public Brew withCauldronType(CauldronType type) {
-        return new Brew(brewTime, ingredients, aging, distillRuns, type, barrelType);
+    public Brew<I> withCauldronType(CauldronType type) {
+        return new Brew<>(brewTime, ingredients, aging, distillRuns, type, barrelType);
     }
 
-    public Brew withBarrelType(BarrelType type) {
-        return new Brew(brewTime, ingredients, aging, distillRuns, cauldronType, type);
+    public Brew<I> withBarrelType(BarrelType type) {
+        return new Brew<>(brewTime, ingredients, aging, distillRuns, cauldronType, type);
     }
 
 
-    public Optional<Recipe> closestRecipe() {
-        RecipeRegistry registry = TheBrewingProject.getInstance().getRecipeRegistry();
+    public <R> Optional<Recipe<R, I>> closestRecipe(RecipeRegistry<R, I, ?> registry) {
         double bestScore = 0;
-        Recipe bestMatch = null;
-        for (Recipe recipe : registry.getRecipes()) {
+        Recipe<R,I> bestMatch = null;
+        for (Recipe<R, I> recipe : registry.getRecipes()) {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != recipe.getIngredients().size()
                     || !this.ingredients.keySet().equals(recipe.getIngredients().keySet())) {
@@ -103,7 +80,7 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         return Optional.ofNullable(bestMatch);
     }
 
-    private double evaluateRecipe(Recipe recipe) {
+    private double evaluateRecipe(Recipe<?, I> recipe) {
         double ingredientScore = getIngredientScore(recipe.getIngredients(), this.ingredients);
         double cauldronTimeScore = 1;
         if (brewTime != null) {
@@ -141,9 +118,9 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         return sigmoid * (1D - sigmoid) * 4D;
     }
 
-    private double getIngredientScore(Map<Ingredient, Integer> target, Map<Ingredient, Integer> actual) {
+    private double getIngredientScore(Map<Ingredient<I>, Integer> target, Map<Ingredient<I>, Integer> actual) {
         double score = 1;
-        for (Map.Entry<Ingredient, Integer> targetEntry : target.entrySet()) {
+        for (Map.Entry<Ingredient<I>, Integer> targetEntry : target.entrySet()) {
             Integer actualAmount = actual.get(targetEntry.getKey());
             if (actualAmount == null) {
                 return 0;
@@ -153,7 +130,7 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         return score;
     }
 
-    public Optional<PotionQuality> quality(Recipe recipe) {
+    public Optional<PotionQuality> quality(Recipe<?, I> recipe) {
         double score = evaluateRecipe(recipe);
         double scoreWithDifficulty;
         // Avoid extreme point, log(0) is minus infinity
@@ -179,7 +156,7 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
         return Optional.empty();
     }
 
-    public boolean hasCompletedRecipe(Recipe recipe) {
+    public boolean hasCompletedRecipe(Recipe<?, I> recipe) {
         if (!recipe.getIngredients().keySet().equals(ingredients.keySet())) {
             return false;
         }
@@ -190,83 +167,5 @@ public record Brew(@Nullable Moment brewTime, @NotNull Map<Ingredient, Integer> 
             return false;
         }
         return recipe.getDistillRuns() <= 0 || distillRuns >= 1;
-    }
-
-    public ItemStack toItem() {
-        ItemStack itemStack = new ItemStack(Material.POTION);
-        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-        applyMeta(potionMeta);
-        itemStack.setItemMeta(potionMeta);
-        return itemStack;
-    }
-
-    public void applyMeta(PotionMeta meta) {
-        Optional<Recipe> recipe = closestRecipe();
-        Optional<PotionQuality> quality = recipe.flatMap(this::quality);
-
-        if (quality.isEmpty()) {
-            DefaultRecipe randomDefault = TheBrewingProject.getInstance().getRecipeRegistry().getRandomDefaultRecipe();
-            boolean hasPreviousData = fillPersistentData(meta);
-            if (hasPreviousData) {
-                return;
-            }
-            randomDefault.applyMeta(meta);
-        } else if (!hasCompletedRecipe(recipe.get())) {
-            boolean hasPreviousData = fillPersistentData(meta);
-            if (hasPreviousData) {
-                return;
-            }
-            incompletePotion(meta);
-        } else {
-            recipe.get().getRecipeResult().applyMeta(quality.get(), meta);
-        }
-    }
-
-    private void incompletePotion(PotionMeta meta) {
-        meta.setDisplayName("Unfinished Brew");
-        meta.setColor(Util.getRandomElement(Util.NAME_TO_COLOR_MAP.values().stream().toList()));
-    }
-
-    private boolean fillPersistentData(PotionMeta potionMeta) {
-        PersistentDataContainer data = potionMeta.getPersistentDataContainer();
-        if (brewTime != null) {
-            data.set(BREW_TIME, Interval.PDC_TYPE, brewTime);
-        }
-        data.set(INGREDIENTS, Ingredient.PDC_TYPE, ingredients);
-        if (aging != null) {
-            data.set(AGING, Interval.PDC_TYPE, aging);
-        }
-        data.set(DISTILL_RUNS, PersistentDataType.INTEGER, distillRuns);
-        if (barrelType != null) {
-            data.set(BARREL_TYPE, BarrelType.PDC_TYPE, barrelType);
-        }
-        if (cauldronType != null) {
-            data.set(CAULDRON_TYPE, CauldronType.PDC_TYPE, cauldronType);
-        }
-        boolean previouslyStored = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER) != null;
-        data.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
-        return previouslyStored;
-    }
-
-    public static Optional<Brew> fromItem(ItemStack itemStack) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return Optional.empty();
-        }
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        Integer dataVersion = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER);
-        if (!Objects.equals(dataVersion, DATA_VERSION)) {
-            return Optional.empty();
-        }
-        Moment cauldronTime = data.get(BREW_TIME, Moment.PDC_TYPE);
-        Map<Ingredient, Integer> ingredients = data.get(INGREDIENTS, Ingredient.PDC_TYPE);
-        Moment aging = data.get(AGING, Moment.PDC_TYPE);
-        Integer distillAmount = data.get(DISTILL_RUNS, PersistentDataType.INTEGER);
-        BarrelType barrelType = data.get(BARREL_TYPE, BarrelType.PDC_TYPE);
-        CauldronType cauldronType = data.get(CAULDRON_TYPE, CauldronType.PDC_TYPE);
-        if (ingredients == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new Brew(cauldronTime, ingredients, aging, distillAmount == null ? 0 : distillAmount, cauldronType, barrelType));
     }
 }

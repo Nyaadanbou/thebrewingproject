@@ -2,9 +2,7 @@ package dev.jsinco.brewery.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.util.FileUtil;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -16,6 +14,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class Database {
 
@@ -27,9 +26,9 @@ public class Database {
         this.driver = databaseDriver;
     }
 
-    public void init() throws IOException, SQLException {
+    public void init(File dataFolder) throws IOException, SQLException {
         HikariConfig config = switch (driver) {
-            case SQLITE -> getHikariConfigForSqlite();
+            case SQLITE -> getHikariConfigForSqlite(dataFolder);
             default -> throw new UnsupportedOperationException("Currently not implemented");
         };
         this.hikariDataSource = new HikariDataSource(config);
@@ -42,8 +41,8 @@ public class Database {
         return hikariDataSource.getConnection();
     }
 
-    private static @NotNull HikariConfig getHikariConfigForSqlite() throws IOException {
-        File databaseFile = new File(TheBrewingProject.getInstance().getDataFolder(), "brewery.db");
+    private static @NotNull HikariConfig getHikariConfigForSqlite(File dataFolder) throws IOException {
+        File databaseFile = new File(dataFolder, "brewery.db");
         if (!databaseFile.exists() && !databaseFile.getParentFile().mkdirs() && !databaseFile.createNewFile()) {
             throw new IOException("Could not create file or dirs");
         }
@@ -68,7 +67,7 @@ public class Database {
         preparedStatement.execute();
     }
 
-    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType, World world) throws SQLException, IOException {
+    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType, UUID world) throws SQLException, IOException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }

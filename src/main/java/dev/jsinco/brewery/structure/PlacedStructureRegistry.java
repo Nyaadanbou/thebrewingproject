@@ -1,65 +1,64 @@
 package dev.jsinco.brewery.structure;
 
-import dev.jsinco.brewery.breweries.BehaviorHolder;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.util.BlockVector;
+import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.util.vector.BreweryVector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class PlacedStructureRegistry {
+public class PlacedStructureRegistry<S extends MultiBlockStructure> {
 
-    private final Map<UUID, Map<BlockVector, PlacedBreweryStructure>> structures = new HashMap<>();
-    private final Map<UUID, Map<BlockVector, BehaviorHolder>> holders = new HashMap<>();
+    private final Map<UUID, Map<BreweryVector, S>> structures = new HashMap<>();
+    private final Map<UUID, Map<BreweryVector, Barrel>> holders = new HashMap<>();
 
-    public void registerStructure(PlacedBreweryStructure placedBreweryStructure) {
-        for (Location location : placedBreweryStructure.getPositions()) {
-            UUID worldUuid = location.getWorld().getUID();
-            structures.computeIfAbsent(worldUuid, ignored -> new HashMap<>()).put(location.toVector().toBlockVector(), placedBreweryStructure);
+    public void registerStructure(S placedBreweryStructure) {
+        for (BreweryLocation location : placedBreweryStructure.positions()) {
+            UUID worldUuid = location.worldUuid();
+            structures.computeIfAbsent(worldUuid, ignored -> new HashMap<>()).put(location.toVector(), placedBreweryStructure);
         }
     }
 
-    public void removeStructure(PlacedBreweryStructure placedBreweryStructure) {
-        for (Location location : placedBreweryStructure.getPositions()) {
-            UUID worldUuid = location.getWorld().getUID();
-            Map<BlockVector, PlacedBreweryStructure> placedBreweryStructureMap = structures.get(worldUuid);
+    public void removeStructure(S placedBreweryStructure) {
+        for (BreweryLocation location : placedBreweryStructure.positions()) {
+            UUID worldUuid = location.worldUuid();
+            Map<BreweryVector, S> placedBreweryStructureMap = structures.get(worldUuid);
             if (placedBreweryStructureMap == null) {
                 // Assume single world structures
                 return;
             }
-            placedBreweryStructureMap.remove(location.toVector().toBlockVector());
+            placedBreweryStructureMap.remove(location.toVector());
         }
     }
 
-    public Optional<PlacedBreweryStructure> getStructure(Location location) {
-        UUID worldUuid = location.getWorld().getUID();
-        Map<BlockVector, PlacedBreweryStructure> placedBreweryStructureMap = structures.getOrDefault(worldUuid, new HashMap<>());
-        return Optional.ofNullable(placedBreweryStructureMap.get(location.toVector().toBlockVector()));
+    public Optional<S> getStructure(BreweryLocation location) {
+        UUID worldUuid = location.worldUuid();
+        Map<BreweryVector, S> placedBreweryStructureMap = structures.getOrDefault(worldUuid, new HashMap<>());
+        return Optional.ofNullable(placedBreweryStructureMap.get(location.toVector()));
     }
 
-    public Set<PlacedBreweryStructure> getStructures(Collection<Location> locations) {
-        Set<PlacedBreweryStructure> breweryStructures = new HashSet<>();
-        for (Location location : locations) {
+    public Set<S> getStructures(Collection<BreweryLocation> locations) {
+        Set<S> breweryStructures = new HashSet<>();
+        for (BreweryLocation location : locations) {
             getStructure(location).ifPresent(breweryStructures::add);
         }
         return breweryStructures;
     }
 
-    public void registerPosition(@NotNull Location location, @NotNull BehaviorHolder behaviorHolder) {
-        holders.computeIfAbsent(location.getWorld().getUID(), ignored -> new HashMap<>()).put(location.toVector().toBlockVector(), behaviorHolder);
+    public void registerPosition(@NotNull BreweryLocation location, @NotNull Barrel behaviorHolder) {
+        holders.computeIfAbsent(location.worldUuid(), ignored -> new HashMap<>()).put(location.toVector(), behaviorHolder);
     }
 
-    public Optional<BehaviorHolder> getHolder(@NotNull Location location) {
-        return Optional.ofNullable(holders.getOrDefault(location.getWorld().getUID(), new HashMap<>()).get(location.toVector().toBlockVector()));
+    public Optional<Barrel> getHolder(@NotNull BreweryLocation location) {
+        return Optional.ofNullable(holders.getOrDefault(location.worldUuid(), new HashMap<>()).get(location.toVector()));
     }
 
-    public void removePosition(Location location) {
-        holders.getOrDefault(location.getWorld().getUID(), new HashMap<>()).remove(location.toVector().toBlockVector());
+    public void removePosition(BreweryLocation location) {
+        holders.getOrDefault(location.worldUuid(), new HashMap<>()).remove(location.toVector());
     }
 
-    public void unloadWorld(World world) {
-        holders.remove(world.getUID());
-        structures.remove(world.getUID());
+    public void unloadWorld(UUID worldUuid) {
+        holders.remove(worldUuid);
+        structures.remove(worldUuid);
     }
 }

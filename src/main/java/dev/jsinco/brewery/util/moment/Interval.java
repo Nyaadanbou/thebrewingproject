@@ -1,8 +1,6 @@
 package dev.jsinco.brewery.util.moment;
 
-import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
+import dev.jsinco.brewery.util.Util;
 
 public record Interval(long start, long stop) implements Moment {
 
@@ -16,5 +14,14 @@ public record Interval(long start, long stop) implements Moment {
 
     public long moment() {
         return stop - start;
+    }
+
+    public static Interval parse(String string) {
+        if (!string.contains("-")) {
+            int i = Util.getIntDefaultZero(string);
+            return new Interval(i, i);
+        }
+        String[] split = string.split("-");
+        return new Interval(Util.getIntDefaultZero(split[0]), Util.getIntDefaultZero(split[1]));
     }
 }

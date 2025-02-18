@@ -35,7 +35,7 @@ public abstract class AbstractConfig {
         try {
             getConfig().createOrLoadWithComments();
         } catch (InvalidConfigurationException e) {
-            Logging.error("Could not load " + path.getFileName() + ", please correct your syntax errors", e);
+            Logging.error("Could not load " + path.getFileName() + ", please correct your syntax errors");
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -56,7 +56,8 @@ public abstract class AbstractConfig {
                     setComment(key.value(), comment.value());
                 }
             } catch (Throwable e) {
-                Logging.error("Failed to load " + key.value() + " from " + path.getFileName().toString(), e);
+                Logging.error("Failed to load " + key.value() + " from " + path.getFileName().toString());
+                e.printStackTrace();
             }
         });
 

@@ -2,15 +2,14 @@ package dev.jsinco.brewery.brews;
 
 import dev.jsinco.brewery.database.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.PassedMoment;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import dev.jsinco.brewery.util.vector.BreweryLocation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,16 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
-        InsertableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>, RemovableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
-        FindableStoredData<Pair<Brew, Integer>, Location>, UpdateableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>> {
-    public static final BarrelBrewDataType DATA_TYPE = new BarrelBrewDataType();
-
-    private BarrelBrewDataType() {
+public abstract class BarrelBrewDataType<I> implements RetrievableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>,
+        InsertableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>, RemovableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>,
+        FindableStoredData<Pair<Brew<I>, Integer>, BreweryLocation>, UpdateableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>> {
+    protected BarrelBrewDataType() {
     }
 
     @Override
-    public void insert(Pair<Brew, BarrelContext> value, Connection connection) throws SQLException {
+    public void insert(Pair<Brew<I>, BarrelContext> value, Connection connection) throws SQLException {
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_insert.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = value.second();
@@ -49,7 +46,7 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
     }
 
     @Override
-    public void remove(Pair<Brew, BarrelContext> toRemove, Connection connection) throws SQLException {
+    public void remove(Pair<Brew<I>, BarrelContext> toRemove, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrel_brews_remove.sql"))) {
             BarrelContext context = toRemove.second();
             preparedStatement.setInt(1, context.signX);
@@ -62,8 +59,8 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
     }
 
     @Override
-    public List<Pair<Brew, BarrelContext>> retrieveAll(Connection connection, World world) throws SQLException {
-        List<Pair<Brew, BarrelContext>> output = new ArrayList<>();
+    public List<Pair<Brew<I>, BarrelContext>> retrieveAll(Connection connection, UUID world) throws SQLException {
+        List<Pair<Brew<I>, BarrelContext>> output = new ArrayList<>();
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_select_all.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -74,26 +71,28 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
         return output;
     }
 
-    private Brew brewFromResultSet(ResultSet resultSet) throws SQLException {
+    private Brew<I> brewFromResultSet(ResultSet resultSet) throws SQLException {
         long agingStart = resultSet.getLong("aging_start");
-        return new Brew(new PassedMoment(resultSet.getLong("brew_time")), Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json")),
-                new Interval(agingStart, agingStart), 0, Registry.CAULDRON_TYPE.get(NamespacedKey.fromString(resultSet.getString("cauldron_type"))),
-                Registry.BARREL_TYPE.get(NamespacedKey.fromString(resultSet.getString("barrel_type"))));
+        return new Brew<I>(new PassedMoment(resultSet.getLong("brew_time")), Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json"), getIngredientManager()),
+                new Interval(agingStart, agingStart), 0, Registry.CAULDRON_TYPE.get(resultSet.getString("cauldron_type")),
+                Registry.BARREL_TYPE.get(resultSet.getString("barrel_type")));
     }
+
+    protected abstract IngredientManager<I> getIngredientManager();
 
     private BarrelContext contextFromResultSet(ResultSet resultSet) throws SQLException {
         return new BarrelContext(resultSet.getInt("sign_x"), resultSet.getInt("sign_y"), resultSet.getInt("sign_z"), resultSet.getInt("pos"), DecoderEncoder.asUuid(resultSet.getBytes("world_uuid")));
     }
 
     @Override
-    public List<Pair<Brew, Integer>> find(Location signLocation, Connection connection) throws SQLException {
+    public List<Pair<Brew<I>, Integer>> find(BreweryLocation signLocation, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrel_brews_find.sql"))) {
-            preparedStatement.setInt(1, signLocation.getBlockX());
-            preparedStatement.setInt(2, signLocation.getBlockY());
-            preparedStatement.setInt(3, signLocation.getBlockZ());
-            preparedStatement.setBytes(4, DecoderEncoder.asBytes(signLocation.getWorld().getUID()));
+            preparedStatement.setInt(1, signLocation.x());
+            preparedStatement.setInt(2, signLocation.y());
+            preparedStatement.setInt(3, signLocation.z());
+            preparedStatement.setBytes(4, DecoderEncoder.asBytes(signLocation.worldUuid()));
             ResultSet resultSet = preparedStatement.executeQuery();
-            List<Pair<Brew, Integer>> output = new ArrayList<>();
+            List<Pair<Brew<I>, Integer>> output = new ArrayList<>();
             while (resultSet.next()) {
                 output.add(new Pair<>(brewFromResultSet(resultSet), resultSet.getInt("pos")));
             }
@@ -102,13 +101,13 @@ public class BarrelBrewDataType implements RetrievableStoredData<Pair<Brew, Barr
     }
 
     @Override
-    public void update(Pair<Brew, BarrelContext> newValue, Connection connection) throws SQLException {
+    public void update(Pair<Brew<I>, BarrelContext> newValue, Connection connection) throws SQLException {
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_update.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = newValue.second();
-            Brew brew = newValue.first();
-            preparedStatement.setString(1, brew.barrelType().key().toString());
-            preparedStatement.setString(2, brew.cauldronType().key().toString());
+            Brew<I> brew = newValue.first();
+            preparedStatement.setString(1, brew.barrelType().key());
+            preparedStatement.setString(2, brew.cauldronType().key());
             preparedStatement.setLong(3, brew.brewTime().moment());
             preparedStatement.setLong(4, ((Interval) brew.aging()).start());
             preparedStatement.setString(5, Ingredient.ingredientsToJson(brew.ingredients()));

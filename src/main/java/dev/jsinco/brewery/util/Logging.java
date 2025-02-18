@@ -1,18 +1,18 @@
 package dev.jsinco.brewery.util;
 
-import dev.jsinco.brewery.TheBrewingProject;
+import java.util.logging.Logger;
 
 public final class Logging {
 
     public static void log(String message) {
-        TheBrewingProject.getInstance().getLogger().info(message);
+        Logger.getLogger("TheBrewingProject").info(message);
     }
 
-    public static void error(String message, Throwable throwable) {
-        TheBrewingProject.getInstance().getLogger().severe(message);
+    public static void error(String message) {
+        Logger.getLogger("TheBrewingProject").severe(message);
     }
 
     public static void warning(String message) {
-        TheBrewingProject.getInstance().getLogger().warning(message);
+        Logger.getLogger("TheBrewingProject").warning(message);
     }
 }

@@ -1,10 +1,9 @@
 package dev.jsinco.brewery.configuration;
 
-import dev.jsinco.brewery.TheBrewingProject;
 import dev.jsinco.brewery.util.FileUtil;
-import org.bukkit.Material;
 import org.simpleyaml.configuration.file.YamlFile;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public final class Config extends AbstractConfig {
     @Key("config-version")
     @Comment("""
             Config version. Don't change this""")
-    public static String CONFIG_VERSION = "1.0";
+    public static int CONFIG_VERSION = 0;
 
     @Key("language")
     @Comment("""
@@ -41,7 +40,6 @@ public final class Config extends AbstractConfig {
     // Brewing Settings
 
 
-
     // Storage Settings
 
 
@@ -57,15 +55,13 @@ public final class Config extends AbstractConfig {
             What blocks cauldrons must have below them to be able to brew.
             If this list is empty, cauldrons will brew regardless of the block below them.
             Campfires must be lit and lava must be a source block.""")
-    public static List<Material> HEAT_SOURCES = List.of(Material.CAMPFIRE, Material.SOUL_CAMPFIRE, Material.LAVA, Material.FIRE, Material.SOUL_FIRE, Material.MAGMA_BLOCK);
-
-
+    public static List<String> HEAT_SOURCES = List.of("campfire", "soul_campfire", "lava", "fire", "soul_fire", "magma_block");
 
 
     private static final Config CONFIG = new Config();
 
-    public static void reload() {
-        Path mainDir = TheBrewingProject.getInstance().getDataFolder().toPath();
+    public static void reload(File dataFolder) {
+        Path mainDir = dataFolder.toPath();
 
         // extract default config from jar
         FileUtil.extractFile(Config.class, "config.yml", mainDir, false);

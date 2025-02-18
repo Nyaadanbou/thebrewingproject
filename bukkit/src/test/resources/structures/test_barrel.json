@@ -1,0 +1,7 @@
+{
+  "schemFile": "test_barrel.schem",
+  "materialReplacements" : {
+    "excludedPattern": "_planks$",
+    "materials": "#planks"
+  }
+}

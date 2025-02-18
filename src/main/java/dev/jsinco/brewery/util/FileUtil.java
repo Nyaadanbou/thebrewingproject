@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.util;
 
-import dev.jsinco.brewery.TheBrewingProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public final class FileUtil {
     }
 
     public static String readInternalResource(String path) {
-        try (InputStream inputStream = TheBrewingProject.class.getResourceAsStream(path)) {
+        try (InputStream inputStream = FileUtil.class.getResourceAsStream(path)) {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);

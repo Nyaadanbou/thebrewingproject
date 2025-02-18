@@ -1,7 +1,5 @@
 package dev.jsinco.brewery.structure;
 
-import org.bukkit.Bukkit;
-
 import java.util.Collection;
 
 public class SubstitutionUtils {

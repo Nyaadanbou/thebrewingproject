@@ -10,23 +10,19 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://jitpack.io")
-    maven("https://repo.oraxen.com/releases")
-    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
 
-    //
-    compileOnly("io.th0rgal:oraxen:1.163.0")
-
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
-    implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
     implementation("com.zaxxer:HikariCP:6.2.1")
     compileOnly("org.jetbrains:annotations:24.0.0")
+    compileOnly("com.google.guava:guava:33.4.0-jre")
+    compileOnly("com.google.code.gson:gson:2.12.1")
+    compileOnly("org.joml:joml:1.10.8")
+    testImplementation("org.joml:joml:1.10.8")
     implementation("org.xerial:sqlite-jdbc:3.47.2.0")
 
 
@@ -34,8 +30,6 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.8.0")
-    testImplementation("net.kyori:adventure-nbt:4.17.0")
 }
 
 java {

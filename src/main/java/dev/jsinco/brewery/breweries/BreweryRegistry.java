@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.breweries;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
+import dev.jsinco.brewery.structure.SinglePositionStructure;
+import dev.jsinco.brewery.util.vector.BreweryLocation;
 
 import java.util.*;
 
@@ -9,36 +9,36 @@ import java.util.*;
  * Class which stores lists of all necessary objects
  * AKA. (Reduced)Recipes, Cauldrons, Barrels, BreweryPlayers
  */
-public final class BreweryRegistry {
+public final class BreweryRegistry<C extends SinglePositionStructure, B> {
 
-    private final Map<Location, Cauldron> activeCauldrons = new HashMap<>();
-    private final Set<Barrel> openedBarrels = new HashSet<>();
+    private final Map<BreweryLocation, C> activeCauldrons = new HashMap<>();
+    private final Set<B> openedBarrels = new HashSet<>();
 
-    public Optional<Cauldron> getActiveCauldron(Block block) {
-        return Optional.ofNullable(activeCauldrons.get(block.getLocation()));
+    public Optional<C> getActiveCauldron(BreweryLocation position) {
+        return Optional.ofNullable(activeCauldrons.get(position));
     }
 
-    public void addActiveCauldron(Cauldron cauldron) {
-        activeCauldrons.put(cauldron.getBlock().getLocation(), cauldron);
+    public void addActiveCauldron(C cauldron) {
+        activeCauldrons.put(cauldron.position(), cauldron);
     }
 
-    public void registerOpenedBarrel(Barrel barrel) {
+    public void registerOpenedBarrel(B barrel) {
         openedBarrels.add(barrel);
     }
 
-    public Collection<Barrel> getOpenedBarrels() {
+    public Collection<B> getOpenedBarrels() {
         return openedBarrels;
     }
 
-    public void removeActiveCauldron(Cauldron cauldron) {
-        activeCauldrons.remove(cauldron.getBlock().getLocation());
+    public void removeActiveCauldron(C cauldron) {
+        activeCauldrons.remove(cauldron.position());
     }
 
-    public void removeOpenedBarrel(Barrel barrel) {
+    public void removeOpenedBarrel(B barrel) {
         openedBarrels.remove(barrel);
     }
 
-    public Collection<Cauldron> getActiveCauldrons() {
+    public Collection<C> getActiveCauldrons() {
         return activeCauldrons.values();
     }
 }
