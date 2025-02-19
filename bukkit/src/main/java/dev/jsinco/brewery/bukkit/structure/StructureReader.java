@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.structure;
 
 import com.google.gson.*;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.util.Util;
 import dev.thorinwasher.schem.Schematic;
 import dev.thorinwasher.schem.SchematicReader;
 import dev.thorinwasher.schem.blockpalette.BlockPaletteParser;
@@ -25,8 +26,8 @@ public class StructureReader {
     private static final Pattern TAG_PATTERN = Pattern.compile("^#");
 
     public static Map<String, BreweryStructure> fromInternalResourceJson(String string) throws IOException, StructureReadException {
-        URL url = TheBrewingProject.class.getResource(string);
-        URI uri = null;
+        URL url = Util.class.getResource(string);
+        URI uri;
         try {
             uri = url.toURI();
         } catch (URISyntaxException e) {

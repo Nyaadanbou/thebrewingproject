@@ -43,8 +43,8 @@ class BukkitBarrelBrewDataTypeTest {
 
     @BeforeEach
     void setUp() throws SQLException, IOException {
-        MockBukkit.load(TheBrewingProject.class);
-        this.database = new Database(DatabaseDriver.SQLITE);
+        TheBrewingProject theBrewingProject = MockBukkit.load(TheBrewingProject.class);
+        this.database = theBrewingProject.getDatabase();
         this.world = serverMock.addSimpleWorld("hello_world!");
     }
 

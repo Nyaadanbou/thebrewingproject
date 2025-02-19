@@ -66,6 +66,7 @@ public class TheBrewingProject extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveResources();
         this.database = new Database(DatabaseDriver.SQLITE);
         try {
             database.init(this.getDataFolder());
@@ -83,6 +84,11 @@ public class TheBrewingProject extends JavaPlugin {
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
         getCommand("test").setExecutor(new TestCommand());
+    }
+
+    private void saveResources() {
+        this.saveResource("recipes.yml", false);
+        this.saveResource("ingredients.yml", false);
     }
 
     private void updateBarrels() {

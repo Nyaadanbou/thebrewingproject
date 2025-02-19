@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.structure;
 
+import dev.jsinco.brewery.util.Util;
 import org.bukkit.block.data.BlockData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +14,7 @@ import org.mockbukkit.mockbukkit.world.WorldMock;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,21 +38,21 @@ class StructureReaderTest {
 
     @ParameterizedTest
     @MethodSource("getSchemFormatPaths")
-    void fromJson_names(Path path) throws StructureReadException, IOException {
-        String structureName = path.getFileName().toString().replaceAll(".json", "");
-        Map<String, BreweryStructure> structures = StructureReader.fromJson(path);
+    void fromJson_names(String path) throws StructureReadException, IOException {
+        String structureName = path.replace("/structures/", "").replace(".json", "");
+        Map<String, BreweryStructure> structures = StructureReader.fromInternalResourceJson(path);
         assertTrue(structures.containsKey(structureName + "$oak"));
     }
 
     @ParameterizedTest
     @MethodSource("getSchemFormatPaths")
-    void fromJson_hasAllMaterials(Path path) throws StructureReadException, IOException {
-        Map<String, BreweryStructure> structures = StructureReader.fromJson(path);
+    void fromJson_hasAllMaterials(String path) throws StructureReadException, IOException {
+        Map<String, BreweryStructure> structures = StructureReader.fromInternalResourceJson(path);
         Set<BlockData> uniqueBlockData = new HashSet<>();
         for (BreweryStructure breweryStructure : structures.values()) {
             List<BlockData> palette = breweryStructure.getPalette();
             for (BlockData blockData : palette) {
-                if(blockData.getMaterial().isAir()){
+                if (blockData.getMaterial().isAir()) {
                     continue;
                 }
                 assertFalse(uniqueBlockData.contains(blockData), "Duplicate entry of: " + blockData.getAsString());
@@ -62,16 +62,6 @@ class StructureReaderTest {
     }
 
     static Stream<Arguments> getSchemFormatPaths() {
-        return Stream.of("/structures/large_barrel.json", "/structures/small_barrel.json")
-                .map(StructureReaderTest.class::getResource)
-                .map(url -> {
-                    try {
-                        return url.toURI();
-                    } catch (URISyntaxException uriSyntaxException) {
-                        throw new RuntimeException();
-                    }
-                })
-                .map(Paths::get)
-                .map(Arguments::of);
+        return Stream.of("/structures/large_barrel.json", "/structures/small_barrel.json").map(Arguments::of);
     }
 }
