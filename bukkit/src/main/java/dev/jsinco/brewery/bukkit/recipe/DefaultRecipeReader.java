@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.DefaultRecipe;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;

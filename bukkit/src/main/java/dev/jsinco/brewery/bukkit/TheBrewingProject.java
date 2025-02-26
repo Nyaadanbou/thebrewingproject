@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.stream.Stream;
@@ -87,8 +88,16 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
     private void saveResources() {
-        this.saveResource("recipes.yml", false);
-        this.saveResource("ingredients.yml", false);
+        this.saveResourceIfNotExists("recipes.yml");
+        this.saveResourceIfNotExists("ingredients.yml");
+        this.saveResourceIfNotExists("config.yml");
+    }
+
+    private void saveResourceIfNotExists(String resource) {
+        if (new File(getDataFolder(), resource).exists()) {
+            return;
+        }
+        super.saveResource(resource, false);
     }
 
     private void updateBarrels() {

@@ -164,7 +164,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
             return Optional.empty();
         }
         return Optional.of(
-                new Brew<>(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), null, 0, CauldronType.from(block.getType().name()), null)
+                new Brew<>(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), null, 0, CauldronType.from(block.getType().getKey().toString()), null)
         );
     }
 
