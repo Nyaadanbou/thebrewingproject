@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockBukkitExtension.class)
-class BukkitCauldronDataTypeTest {
+class BukkitBukkitCauldronDataTypeTest {
     @MockBukkitInject
     ServerMock server;
     private @NotNull WorldMock world;
@@ -41,7 +41,7 @@ class BukkitCauldronDataTypeTest {
     void checkPersistence() throws IOException, SQLException {
         BukkitCauldron cauldron = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 10), world.getBlockAt(0, 0, 0), 103);
         database.insertValue(BukkitCauldronDataType.INSTANCE, cauldron);
-        List<Cauldron<ItemStack>> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+        List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, cauldrons.size());
         Cauldron<ItemStack> retrievedCauldron = cauldrons.get(0);
         assertEquals(cauldron.ingredients(), retrievedCauldron.ingredients());
@@ -49,7 +49,7 @@ class BukkitCauldronDataTypeTest {
         assertEquals(cauldron.brewStart(), retrievedCauldron.brewStart());
         BukkitCauldron updatedValue = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 11), world.getBlockAt(0, 0, 0), 104);
         database.updateValue(BukkitCauldronDataType.INSTANCE, updatedValue);
-        List<Cauldron<ItemStack>> updatedCauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+        List<BukkitCauldron> updatedCauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, updatedCauldrons.size());
         assertEquals(104, updatedCauldrons.get(0).brewStart());
         assertEquals(11, updatedCauldrons.get(0).ingredients().get(new SimpleIngredient(Material.OAK_PLANKS)));

@@ -1,10 +1,7 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.breweries.BreweryRegistry;
-import dev.jsinco.brewery.bukkit.breweries.BreweryFactory;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrelDataType;
-import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
+import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
+import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
@@ -31,9 +28,9 @@ public class BlockEventListener implements Listener {
     private final StructureRegistry structureRegistry;
     private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
     private final Database database;
-    private final BreweryRegistry<BukkitCauldron, BukkitBarrel> breweryRegistry;
+    private final BreweryRegistry breweryRegistry;
 
-    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, Database database, BreweryRegistry<BukkitCauldron, BukkitBarrel> breweryRegistry) {
+    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
         this.database = database;

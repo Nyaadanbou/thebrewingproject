@@ -69,6 +69,7 @@ public class BrewAdapter {
             }
             incompletePotion(meta);
         } else {
+            fillPersistentData(meta, brew);
             recipe.get().getRecipeResult().applyMeta(quality.get(), meta);
         }
     }

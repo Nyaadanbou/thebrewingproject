@@ -1,8 +1,8 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
+import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -17,10 +17,10 @@ import java.util.Objects;
 public class RecipeEffects {
 
     public static final NamespacedKey COMMANDS = NamespacedKey.fromString(Registry.brewerySpacedKey("commands"));
-    public static final NamespacedKey MESSAGE =  NamespacedKey.fromString(Registry.brewerySpacedKey("message"));
-    public static final NamespacedKey ACTION_BAR =  NamespacedKey.fromString(Registry.brewerySpacedKey("action_bar"));
-    public static final NamespacedKey TITLE =  NamespacedKey.fromString(Registry.brewerySpacedKey("titles"));
-    public static final NamespacedKey ALCOHOL =  NamespacedKey.fromString(Registry.brewerySpacedKey("alcohol"));
+    public static final NamespacedKey MESSAGE = NamespacedKey.fromString(Registry.brewerySpacedKey("message"));
+    public static final NamespacedKey ACTION_BAR = NamespacedKey.fromString(Registry.brewerySpacedKey("action_bar"));
+    public static final NamespacedKey TITLE = NamespacedKey.fromString(Registry.brewerySpacedKey("titles"));
+    public static final NamespacedKey ALCOHOL = NamespacedKey.fromString(Registry.brewerySpacedKey("alcohol"));
     public static final RecipeEffects GENERIC = new Builder()
             .commands(Map.of())
             .effects(List.of())
@@ -50,7 +50,9 @@ public class RecipeEffects {
             meta.addCustomEffect(recipeEffect.getPotionEffect(quality), true);
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands.get(quality));
+        if (commands.containsKey(quality)) {
+            container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands.get(quality));
+        }
         if (title != null) {
             container.set(TITLE, PersistentDataType.STRING, title);
         }

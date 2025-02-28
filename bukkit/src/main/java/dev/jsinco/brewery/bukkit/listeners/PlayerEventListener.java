@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.breweries.Barrel;
-import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
@@ -29,10 +29,10 @@ import java.util.Optional;
 public class PlayerEventListener implements Listener {
 
     private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
-    private final BreweryRegistry<BukkitCauldron, BukkitBarrel> breweryRegistry;
+    private final BreweryRegistry breweryRegistry;
     private final Database database;
 
-    public PlayerEventListener(PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, BreweryRegistry<BukkitCauldron, BukkitBarrel> breweryRegistry, Database database) {
+    public PlayerEventListener(PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, BreweryRegistry breweryRegistry, Database database) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;

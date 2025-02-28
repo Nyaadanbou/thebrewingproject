@@ -48,13 +48,11 @@ CREATE TABLE IF NOT EXISTS distilleries
     y          INTEGER,
     z          INTEGER,
     world_uuid BINARY(16),
+    start_time INTEGER,
     PRIMARY KEY (x, y, z, world_uuid)
 );
 
 CREATE TABLE IF NOT EXISTS version
 (
-    version INTEGER
+    version INTEGER DEFAULT -1
 );
-
-INSERT INTO version
-VALUES (-1);

@@ -50,17 +50,6 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
         this.signLocation = signLocation;
     }
 
-    private static @Nullable Location findSignLocation(PlacedBreweryStructure structure) {
-        for (BreweryLocation breweryLocation : structure.positions()) {
-            Location location = BukkitAdapter.toLocation(breweryLocation);
-            if (Tag.WALL_SIGNS.isTagged(location.getBlock().getType())) {
-                return location;
-            }
-        }
-        return null;
-    }
-
-
     public void open(Player player) {
         if (inventory.getViewers().isEmpty()) {
             populateInventory();

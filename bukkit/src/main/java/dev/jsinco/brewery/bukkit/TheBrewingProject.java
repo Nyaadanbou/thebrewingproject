@@ -1,13 +1,15 @@
 package dev.jsinco.brewery.bukkit;
 
-import dev.jsinco.brewery.breweries.BreweryRegistry;
+import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
+import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.TestCommand;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
 import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.bukkit.listeners.BlockEventListener;
+import dev.jsinco.brewery.bukkit.listeners.InventoryEventListener;
 import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
 import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
@@ -42,7 +44,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private RecipeRegistry<RecipeResult, ItemStack, PotionMeta> recipeRegistry;
     @Getter
-    private BreweryRegistry<BukkitCauldron, BukkitBarrel> breweryRegistry;
+    private BreweryRegistry breweryRegistry;
     @Getter
     private Database database;
 
@@ -51,7 +53,7 @@ public class TheBrewingProject extends JavaPlugin {
         instance = this;
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistry<>();
-        this.breweryRegistry = new BreweryRegistry<>();
+        this.breweryRegistry = new BreweryRegistry();
 
         Stream.of("/structures/small_barrel.json", "/structures/large_barrel.json")
                 .map(string -> {
@@ -76,10 +78,12 @@ public class TheBrewingProject extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database), this);
-        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry);
+        Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
+        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
+        Bukkit.getScheduler().runTaskTimer(this, () -> BukkitDistillery.distilleryUpdateTask(breweryRegistry), 0, 1);
         RecipeReader<RecipeResult, ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());

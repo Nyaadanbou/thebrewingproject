@@ -1,10 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.breweries.*;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrelDataType;
-import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
-import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
+import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
@@ -26,10 +22,12 @@ public class WorldEventListener implements Listener {
 
     private final Database database;
     private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
+    private final BreweryRegistry registry;
 
-    public WorldEventListener(Database database, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry) {
+    public WorldEventListener(Database database, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, BreweryRegistry registry) {
         this.database = database;
         this.placedStructureRegistry = placedStructureRegistry;
+        this.registry = registry;
     }
 
     public void init() {
@@ -53,7 +51,9 @@ public class WorldEventListener implements Listener {
                 placedStructureRegistry.registerPosition(BukkitAdapter.toBreweryLocation(signLocation), barrel);
                 placedStructureRegistry.registerStructure(barrel.getStructure());
             }
-            database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+            List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+            List<BukkitDistillery> distilleries = database.retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID());
+            distilleries.forEach(registry::addDistillery);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }

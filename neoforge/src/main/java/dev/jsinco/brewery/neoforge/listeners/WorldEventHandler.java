@@ -7,7 +7,7 @@ public class WorldEventHandler {
 
     @SubscribeEvent
     void onLevelLoad(LevelEvent.Load event) {
-        event.getLevel().
+
     }
 
 }

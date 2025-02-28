@@ -2,4 +2,5 @@ DELETE
 FROM distilleries
 WHERE x = ?
   AND y = ?
-  AND z = ?;
+  AND z = ?
+  AND world_uuid = ?;
