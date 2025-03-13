@@ -12,6 +12,7 @@ import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -105,7 +106,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
             this.particleColor = Color.AQUA;
         } else if (this.closestRecipe != null) {
-            this.particleColor = ColorUtil.getNextColor(particleColor, this.closestRecipe.getRecipeResult().getColor(), block.getWorld().getGameTime() - brewStart, this.closestRecipe.getBrewTime());
+            this.particleColor = ColorUtil.getNextColor(Color.AQUA, this.closestRecipe.getRecipeResult().getColor(), Math.max(block.getWorld().getGameTime() - brewStart, 0), this.closestRecipe.getBrewTime() * Moment.MINUTE);
         }
     }
 

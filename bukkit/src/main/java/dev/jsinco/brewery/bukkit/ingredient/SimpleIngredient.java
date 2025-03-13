@@ -45,6 +45,11 @@ public class SimpleIngredient implements Ingredient<ItemStack> {
         return Objects.hashCode(material);
     }
 
+    @Override
+    public String toString() {
+        return "SimpleIngredient(" + getKey() + ")";
+    }
+
     public static SimpleIngredient of(@NotNull ItemStack itemStack) {
         return new SimpleIngredient(itemStack.getType());
     }

@@ -8,15 +8,14 @@ import dev.jsinco.brewery.bukkit.breweries.BarrelPdcType;
 import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
 import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
-import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
 import dev.jsinco.brewery.recipes.DefaultRecipe;
 import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.util.ItemColorUtil;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.Util;
 import dev.jsinco.brewery.util.moment.Moment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -26,6 +25,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,20 +63,32 @@ public class BrewAdapter {
             }
             randomDefault.applyMeta(meta);
         } else if (!brew.hasCompletedRecipe(recipe.get())) {
-            boolean hasPreviousData = fillPersistentData(meta, brew);
-            if (hasPreviousData) {
-                return;
-            }
-            incompletePotion(meta);
+            fillPersistentData(meta, brew);
+            incompletePotion(meta, brew);
         } else {
             fillPersistentData(meta, brew);
             recipe.get().getRecipeResult().applyMeta(quality.get(), meta);
         }
     }
 
-    private static void incompletePotion(PotionMeta meta) {
+    private static void incompletePotion(PotionMeta meta, Brew<ItemStack> brew) {
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        int amount = 0;
+        for (Map.Entry<Ingredient<ItemStack>, Integer> ingredient : brew.ingredients().entrySet()) {
+            String key = ingredient.getKey().getKey();
+            Color color = ItemColorUtil.getItemColor(key);
+            if (color == null) {
+                continue;
+            }
+            r += color.getRed() * ingredient.getValue();
+            g += color.getGreen() * ingredient.getValue();
+            b += color.getBlue() * ingredient.getValue();
+            amount += ingredient.getValue();
+        }
         meta.setDisplayName("Unfinished Brew");
-        meta.setColor(Util.getRandomElement(ColorUtil.NAME_TO_COLOR_MAP.values().stream().toList()));
+        meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
     }
 
     private static boolean fillPersistentData(PotionMeta potionMeta, Brew<ItemStack> brew) {

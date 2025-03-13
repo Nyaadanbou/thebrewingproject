@@ -4,7 +4,6 @@ import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -95,5 +94,10 @@ public abstract class PluginIngredient implements Ingredient<ItemStack> {
     @Override
     public int hashCode() {
         return Objects.hash(plugin, itemId);
+    }
+
+    @Override
+    public String toString() {
+        return "PluginIngredient(" + getKey() + ")";
     }
 }
