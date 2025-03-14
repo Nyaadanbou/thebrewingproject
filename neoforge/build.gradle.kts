@@ -17,6 +17,10 @@ dependencies {
     compileOnly("net.neoforged:neoforge:${properties["neo_version"]}")
 }
 
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
 tasks.test {
     useJUnitPlatform()
 }

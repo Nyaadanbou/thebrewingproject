@@ -1,3 +1,11 @@
+buildscript {
+    configurations.all {
+        resolutionStrategy {
+            force("com.fasterxml.jackson.core:jackson-core:2.18.2")
+        }
+    }
+}
+
 plugins {
     id("java")
     id("net.neoforged.gradle.common") version "7.0.181"
@@ -46,11 +54,5 @@ sourceSets {
     }
 }
 
-configurations {
-    all {
-        resolutionStrategy {
-            force("com.fasterxml.jackson.core:jackson-core:2.18.2")
-        }
-    }
-}
+
 
