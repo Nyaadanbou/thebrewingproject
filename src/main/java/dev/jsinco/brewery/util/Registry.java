@@ -3,13 +3,35 @@ package dev.jsinco.brewery.util;
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
+import dev.jsinco.brewery.structure.StructureMeta;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 public class Registry {
 
     public static final Map<String, BarrelType> BARREL_TYPE = getBarrelTypes();
     public static final Map<String, CauldronType> CAULDRON_TYPE = getEnumValues();
+    public static final Map<String, StructureMeta<?, ?>> STRUCTURE_META = getStructureMeta();
+
+    private static Map<String, StructureMeta<?, ?>> getStructureMeta() {
+        try {
+            ImmutableMap.Builder<String, StructureMeta<?, ?>> outputBuilder = ImmutableMap.builder();
+            for (Field field : StructureMeta.class.getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                Object staticField = field.get(null);
+                if (staticField instanceof StructureMeta<?, ?> structureMeta) {
+                    outputBuilder.put(structureMeta.key(), structureMeta);
+                }
+            }
+            return outputBuilder.build();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static Map<String, CauldronType> getEnumValues() {
         ImmutableMap.Builder<String, CauldronType> outputBuilder = ImmutableMap.builder();

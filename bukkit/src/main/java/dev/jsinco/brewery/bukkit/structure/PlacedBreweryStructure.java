@@ -29,12 +29,14 @@ public class PlacedBreweryStructure implements MultiBlockStructure {
         this.worldOrigin = worldOrigin;
     }
 
-    public static Optional<PlacedBreweryStructure> findValid(BreweryStructure structure, Location worldOrigin) {
+    public static <T> Optional<PlacedBreweryStructure> findValid(BreweryStructure structure, Location worldOrigin, BlockDataMatcher<T> blockDataMatcher, T... types) {
         for (Matrix3d transformation : ALLOWED_TRANSFORMATIONS) {
-            Optional<Location> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin);
-            if (possibleOrigin.isPresent()) {
-                return possibleOrigin
-                        .map(origin -> new PlacedBreweryStructure(structure, transformation, origin));
+            for (T type : types) {
+                Optional<Location> possibleOrigin = structure.findValidOrigin(transformation, worldOrigin, blockDataMatcher, type);
+                if (possibleOrigin.isPresent()) {
+                    return possibleOrigin
+                            .map(origin -> new PlacedBreweryStructure(structure, transformation, origin));
+                }
             }
         }
         return Optional.empty();

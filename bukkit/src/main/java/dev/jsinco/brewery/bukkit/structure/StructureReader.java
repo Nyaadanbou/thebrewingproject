@@ -1,11 +1,15 @@
 package dev.jsinco.brewery.bukkit.structure;
 
-import com.google.gson.*;
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import dev.jsinco.brewery.structure.StructureMeta;
+import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.Util;
 import dev.thorinwasher.schem.Schematic;
 import dev.thorinwasher.schem.SchematicReader;
-import dev.thorinwasher.schem.blockpalette.BlockPaletteParser;
 import org.bukkit.*;
 import org.joml.Vector3i;
 
@@ -20,12 +24,14 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class StructureReader {
     private static final Pattern SCHEM_PATTERN = Pattern.compile("\\.json", Pattern.CASE_INSENSITIVE);
     private static final Pattern TAG_PATTERN = Pattern.compile("^#");
+    private static final Pattern SCHEM_FILE_PATTERN = Pattern.compile("[a-zA-Z_0-9\\-]+");
 
-    public static Map<String, BreweryStructure> fromInternalResourceJson(String string) throws IOException, StructureReadException {
+    public static BreweryStructure fromInternalResourceJson(String string) throws IOException, StructureReadException {
         URL url = Util.class.getResource(string);
         URI uri;
         try {
@@ -42,7 +48,7 @@ public class StructureReader {
         }
     }
 
-    public static Map<String, BreweryStructure> fromJson(Path path) throws IOException, StructureReadException {
+    public static BreweryStructure fromJson(Path path) throws IOException, StructureReadException {
         try (Reader reader = new InputStreamReader(new BufferedInputStream(Files.newInputStream(path)))) {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             String schemFileName = jsonObject.get("schemFile").getAsString();
@@ -51,35 +57,18 @@ public class StructureReader {
                     .map(StructureReader::toVector3i);
             Path schemFile = path.resolveSibling(schemFileName);
             String schemName = SCHEM_PATTERN.matcher(path.getFileName().toString()).replaceAll("");
-            return loadStructures(jsonObject.get("materialReplacements").getAsJsonObject(), schemFile, origin, schemName);
+            Schematic schematic = new SchematicReader().read(schemFile);
+            Map<StructureMeta<?, ?>, Object> structureMeta = jsonObject.get("meta").getAsJsonObject()
+                    .entrySet()
+                    .stream()
+                    .map(entry -> {
+                        StructureMeta<?, ?> meta = dev.jsinco.brewery.util.Registry.STRUCTURE_META.get(entry.getKey());
+                        Object value = meta.deserializer().apply(entry.getValue());
+                        return new Pair<>(meta, value);
+                    })
+                    .collect(Collectors.toMap(Pair::first, Pair::second));
+            return origin.map(vector3i -> new BreweryStructure(schematic, List.of(vector3i), schemName, structureMeta)).orElse(new BreweryStructure(schematic, schemName, structureMeta));
         }
-    }
-
-    private static Map<String, BreweryStructure> loadStructures(JsonObject materialReplacements, Path schemFile, Optional<Vector3i> origin, String schemName) throws StructureReadException {
-        JsonElement excludedPatternJson = materialReplacements.get("excludedPattern");
-        Pattern excludedPattern = null;
-        if (excludedPatternJson instanceof JsonPrimitive) {
-            excludedPattern = Pattern.compile(excludedPatternJson.getAsString());
-        } else if (excludedPatternJson != null) {
-            throw new StructureReadException("Expected json primitive string");
-        }
-        Set<String> includedMaterialSubstitutionsPatterns = new HashSet<>();
-        for (Material taggedMaterial : parseMaterials(materialReplacements.get("materials").getAsString())) {
-            if (excludedPattern != null) {
-                includedMaterialSubstitutionsPatterns.add(excludedPattern.matcher(taggedMaterial.getKey().getKey()).replaceAll(""));
-                continue;
-            }
-            includedMaterialSubstitutionsPatterns.add(taggedMaterial.getKey().getKey());
-        }
-        Map<String, BreweryStructure> output = new HashMap<>();
-        for (String materialSubstitutionPattern : includedMaterialSubstitutionsPatterns) {
-            BlockPaletteParser blockPaletteParser = new SubtitutedBlockPaletteParser(includedMaterialSubstitutionsPatterns, materialSubstitutionPattern);
-            Schematic schem = new SchematicReader().withBlockPaletteParser(blockPaletteParser).read(schemFile);
-            String name = schemName + "$" + materialSubstitutionPattern;
-            BreweryStructure struct = origin.map(vector3i -> new BreweryStructure(schem, vector3i, name)).orElse(new BreweryStructure(schem, name));
-            output.put(name, struct);
-        }
-        return output;
     }
 
     private static Set<Material> parseMaterials(String materialString) throws StructureReadException {

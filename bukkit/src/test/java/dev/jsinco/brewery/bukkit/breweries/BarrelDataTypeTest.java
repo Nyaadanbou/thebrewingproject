@@ -2,11 +2,13 @@ package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.brews.Brew;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
+import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.PassedMoment;
@@ -48,8 +50,8 @@ class BarrelDataTypeTest {
     void checkPersistence() throws IOException, SQLException {
         StructurePlacerUtils.constructSmallOakBarrel(world);
         Location barrelBlock = new Location(world, -3, 1, 2);
-        Optional<PlacedBreweryStructure> breweryStructureOptional = TheBrewingProject.getInstance().getStructureRegistry().getPossibleStructures(barrelBlock.getBlock().getType())
-                .stream().map(breweryStructure -> PlacedBreweryStructure.findValid(breweryStructure, barrelBlock))
+        Optional<PlacedBreweryStructure> breweryStructureOptional = TheBrewingProject.getInstance().getStructureRegistry().getPossibleStructures(barrelBlock.getBlock().getType(), StructureType.BARREL)
+                .stream().map(breweryStructure -> PlacedBreweryStructure.findValid(breweryStructure, barrelBlock, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES))
                 .filter(Optional::isPresent).map(Optional::get).findFirst();
         BukkitBarrel barrel = new BukkitBarrel(new Location(world, 1, 2, 3), breweryStructureOptional.get(), 9, BarrelType.OAK);
         barrel.setBrews(List.of(

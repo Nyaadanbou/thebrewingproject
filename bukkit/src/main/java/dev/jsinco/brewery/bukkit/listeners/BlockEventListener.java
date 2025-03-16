@@ -1,13 +1,18 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.breweries.BarrelType;
+import dev.jsinco.brewery.bukkit.breweries.BreweryFactory;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
-import dev.jsinco.brewery.bukkit.breweries.*;
+import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
+import dev.jsinco.brewery.bukkit.breweries.BukkitBarrelDataType;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -46,7 +51,7 @@ public class BlockEventListener implements Listener {
         if (!(event.getBlock().getBlockData() instanceof WallSign wallSign)) {
             return;
         }
-        Optional<PlacedBreweryStructure> possibleStructure = getStructure(event.getBlock().getRelative(wallSign.getFacing().getOppositeFace()));
+        Optional<PlacedBreweryStructure> possibleStructure = getBarrel(event.getBlock().getRelative(wallSign.getFacing().getOppositeFace()));
         if (possibleStructure.isEmpty()) {
             return;
         }
@@ -66,12 +71,12 @@ public class BlockEventListener implements Listener {
         }
     }
 
-    private Optional<PlacedBreweryStructure> getStructure(Block block) {
+    private Optional<PlacedBreweryStructure> getBarrel(Block block) {
         Location placedLocation = block.getLocation();
         Material material = block.getType();
-        Set<BreweryStructure> possibleStructures = structureRegistry.getPossibleStructures(material);
+        Set<BreweryStructure> possibleStructures = structureRegistry.getPossibleStructures(material, StructureType.BARREL);
         for (BreweryStructure structure : possibleStructures) {
-            Optional<PlacedBreweryStructure> placedBreweryStructure = PlacedBreweryStructure.findValid(structure, placedLocation);
+            Optional<PlacedBreweryStructure> placedBreweryStructure = PlacedBreweryStructure.findValid(structure, placedLocation, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
             if (placedBreweryStructure.isPresent()) {
                 return placedBreweryStructure;
             }

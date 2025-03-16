@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit;
 
+import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
@@ -15,6 +16,7 @@ import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
 import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
@@ -23,6 +25,7 @@ import dev.jsinco.brewery.database.DatabaseDriver;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.StructureMeta;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -54,17 +57,36 @@ public class TheBrewingProject extends JavaPlugin {
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistry<>();
         this.breweryRegistry = new BreweryRegistry();
+        loadStructures();
+        this.recipeRegistry = new RecipeRegistry<>();
+    }
 
-        Stream.of("/structures/small_barrel.json", "/structures/large_barrel.json")
-                .map(string -> {
+    private void loadStructures() {
+        File structureRoot = new File(getDataFolder(), "structures");
+        if (!structureRoot.exists() && !structureRoot.mkdirs()) {
+            throw new RuntimeException("Could not create structure root: " + structureRoot);
+        }
+        Stream.of("small_barrel", "large_barrel")
+                .map(string -> "structures/" + string)
+                .flatMap(name -> Stream.of(name + ".schem", name + ".json"))
+                .forEach(this::saveResourceIfNotExists);
+        Stream.of(structureRoot.listFiles())
+                .filter(file -> file.getName().endsWith(".json"))
+                .map(File::toPath)
+                .map(path -> {
                     try {
-                        return StructureReader.fromInternalResourceJson(string);
+                        return StructureReader.fromJson(path);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 })
-                .forEach(structureRegistry::addStructures);
-        this.recipeRegistry = new RecipeRegistry<>();
+                .forEach(structure -> {
+                    if (structure.getMeta(StructureMeta.USE_BARREL_SUBSTITUTION)) {
+                        structureRegistry.addStructure(structure, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
+                    } else {
+                        structureRegistry.addStructure(structure);
+                    }
+                });
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.structure;
 
+import dev.jsinco.brewery.breweries.BarrelType;
 import org.bukkit.Location;
 import org.bukkit.util.BlockVector;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,9 @@ class PlacedBreweryStructureTest {
         BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertTrue(PlacedBreweryStructure.findValid(breweryStructure,
-                new Location(worldMock, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ())
+                new Location(worldMock, blockVector.getBlockX(), blockVector.getBlockY(), blockVector.getBlockZ()),
+                BarrelBlockDataMatcher.INSTANCE,
+                BarrelType.PLACEABLE_TYPES
         ).isPresent());
     }
 
@@ -50,7 +53,12 @@ class PlacedBreweryStructureTest {
     void findValid_outsideNoMatch(BlockVector pos) throws IOException, URISyntaxException {
         BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
-        assertFalse(PlacedBreweryStructure.findValid(breweryStructure, new Location(worldMock, pos.getX(), pos.getY(), pos.getZ())).isPresent());
+        assertFalse(PlacedBreweryStructure.findValid(
+                breweryStructure,
+                new Location(worldMock, pos.getX(), pos.getY(), pos.getZ()),
+                BarrelBlockDataMatcher.INSTANCE,
+                BarrelType.PLACEABLE_TYPES
+        ).isPresent());
     }
 
     @Test
