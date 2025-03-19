@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Integer> ingredients,
@@ -64,7 +65,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
 
     public <R> Optional<Recipe<R, I>> closestRecipe(RecipeRegistry<R, I, ?> registry) {
         double bestScore = 0;
-        Recipe<R,I> bestMatch = null;
+        Recipe<R, I> bestMatch = null;
         for (Recipe<R, I> recipe : registry.getRecipes()) {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != recipe.getIngredients().size()

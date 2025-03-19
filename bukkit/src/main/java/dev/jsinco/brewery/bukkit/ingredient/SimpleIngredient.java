@@ -34,8 +34,12 @@ public class SimpleIngredient implements Ingredient<ItemStack> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SimpleIngredient that = (SimpleIngredient) o;
         return material == that.material;
     }

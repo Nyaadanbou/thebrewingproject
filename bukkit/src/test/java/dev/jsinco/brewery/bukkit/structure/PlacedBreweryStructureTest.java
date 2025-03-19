@@ -38,7 +38,7 @@ class PlacedBreweryStructureTest {
 
     @ParameterizedTest
     @MethodSource("insideSmallBarrel")
-    void findValid_insideMatch(BlockVector blockVector) throws IOException, URISyntaxException {
+    void findValid_Any_insideMatch(BlockVector blockVector) throws IOException, URISyntaxException {
         BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertTrue(PlacedBreweryStructure.findValid(breweryStructure,
@@ -50,7 +50,7 @@ class PlacedBreweryStructureTest {
 
     @ParameterizedTest
     @MethodSource("outsideSmallBarrel")
-    void findValid_outsideNoMatch(BlockVector pos) throws IOException, URISyntaxException {
+    void findValid_Any_outsideNoMatch(BlockVector pos) throws IOException, URISyntaxException {
         BreweryStructure breweryStructure = StructurePlacerUtils.matchingStructure();
         StructurePlacerUtils.constructSmallOakBarrel(worldMock);
         assertFalse(PlacedBreweryStructure.findValid(

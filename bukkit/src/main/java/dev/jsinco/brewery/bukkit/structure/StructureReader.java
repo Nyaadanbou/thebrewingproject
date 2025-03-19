@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.structure.StructureMeta;
-import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.Util;
 import dev.thorinwasher.schem.Schematic;
@@ -51,18 +50,18 @@ public class StructureReader {
     public static BreweryStructure fromJson(Path path) throws IOException, StructureReadException {
         try (Reader reader = new InputStreamReader(new BufferedInputStream(Files.newInputStream(path)))) {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            String schemFileName = jsonObject.get("schemFile").getAsString();
+            String schemFileName = jsonObject.get("schem_file").getAsString();
             Optional<Vector3i> origin = Optional.ofNullable(jsonObject.get("origin"))
                     .map(JsonElement::getAsJsonArray)
                     .map(StructureReader::toVector3i);
             Path schemFile = path.resolveSibling(schemFileName);
             String schemName = SCHEM_PATTERN.matcher(path.getFileName().toString()).replaceAll("");
             Schematic schematic = new SchematicReader().read(schemFile);
-            Map<StructureMeta<?, ?>, Object> structureMeta = jsonObject.get("meta").getAsJsonObject()
+            Map<StructureMeta<?>, Object> structureMeta = jsonObject.get("meta").getAsJsonObject()
                     .entrySet()
                     .stream()
                     .map(entry -> {
-                        StructureMeta<?, ?> meta = dev.jsinco.brewery.util.Registry.STRUCTURE_META.get(entry.getKey());
+                        StructureMeta<?> meta = dev.jsinco.brewery.util.Registry.STRUCTURE_META.get(entry.getKey());
                         Object value = meta.deserializer().apply(entry.getValue());
                         return new Pair<>(meta, value);
                     })

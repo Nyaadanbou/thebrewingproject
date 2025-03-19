@@ -1,6 +1,5 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistilleryDataType;
@@ -30,60 +29,7 @@ public class InventoryEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onBrew(BrewEvent event) {
-        BreweryLocation location = BukkitAdapter.toBreweryLocation(event.getBlock());
-        Optional<BukkitDistillery> distillery = registry.getDistillery(location);
-        distillery.ifPresent(ignored -> event.setCancelled(true));
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onHopperInventorySearch(HopperInventorySearchEvent event) {
-        if (!(event.getInventory() instanceof BrewerInventory)) {
-            return;
-        }
-        BreweryLocation location = BukkitAdapter.toBreweryLocation(event.getSearchBlock());
-        registry.getDistillery(location).ifPresent(distillery -> ListenerUtil.updateDistillery(distillery, registry, database));
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        if (!(event.getInventory() instanceof BrewerInventory brewerInventory)) {
-            return;
-        }
-        BrewingStand brewingStand = brewerInventory.getHolder();
-        if (brewingStand == null) {
-            return;
-        }
-        BreweryLocation location = BukkitAdapter.toBreweryLocation(brewingStand.getBlock());
-        registry.getDistillery(location).ifPresent(distillery -> {
-            ListenerUtil.updateDistillery(distillery, registry, database);
-            registry.addOpenDistillery(distillery);
-        });
-
-    }
-
-    @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getClickedInventory() instanceof BrewerInventory brewerInventory) {
-            BrewingStand brewingStand = brewerInventory.getHolder();
-            if (brewingStand == null) {
-                return;
-            }
-            BreweryLocation location = BukkitAdapter.toBreweryLocation(brewingStand.getBlock());
-            Optional<BukkitDistillery> distilleryOptional = registry.getDistillery(location);
-            if (distilleryOptional.isEmpty()) {
-                BukkitDistillery distillery = new BukkitDistillery(brewingStand.getBlock());
-                if (distillery.getState() == Distillery.State.INVALID) {
-                    return;
-                }
-                try {
-                    database.insertValue(BukkitDistilleryDataType.INSTANCE, distillery);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                registry.addDistillery(distillery);
-                registry.addOpenDistillery(distillery);
-            }
-        }
+        // TODO prevent illegal items getting into the custom inventories
     }
 }

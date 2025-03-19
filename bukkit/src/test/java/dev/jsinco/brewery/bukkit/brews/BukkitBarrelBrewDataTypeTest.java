@@ -1,17 +1,18 @@
 package dev.jsinco.brewery.bukkit.brews;
 
-import dev.jsinco.brewery.brews.Brew;
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
+import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
-import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
+import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.PassedMoment;
+import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -50,18 +51,19 @@ class BukkitBarrelBrewDataTypeTest {
     @Test
     void checkPersistence() throws SQLException, IOException {
         prepareBarrel();
+        BreweryLocation searchObject = new BreweryLocation(1, 2, 3, world.getUID());
         Brew<ItemStack> brew1 = new Brew<>(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
         Brew<ItemStack> brew2 = new Brew<>(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
         BukkitBarrelBrewDataType.BarrelContext barrelContext1 = new BukkitBarrelBrewDataType.BarrelContext(1, 2, 3, 0, world.getUID());
         BukkitBarrelBrewDataType.BarrelContext barrelContext2 = new BukkitBarrelBrewDataType.BarrelContext(1, 2, 3, 1, world.getUID());
         Pair<Brew<ItemStack>, BukkitBarrelBrewDataType.BarrelContext> data1 = new Pair<>(brew1, barrelContext1);
         Pair<Brew<ItemStack>, BukkitBarrelBrewDataType.BarrelContext> data2 = new Pair<>(brew2, barrelContext2);
-        database.insertValue(BukkitBarrelBrewDataType.DATA_TYPE, data1);
-        assertTrue(database.retrieveAll(BukkitBarrelBrewDataType.DATA_TYPE, world.getUID()).contains(data1));
-        database.insertValue(BukkitBarrelBrewDataType.DATA_TYPE, data2);
-        assertTrue(database.retrieveAll(BukkitBarrelBrewDataType.DATA_TYPE, world.getUID()).contains(data2));
-        database.remove(BukkitBarrelBrewDataType.DATA_TYPE, data1);
-        assertFalse(database.retrieveAll(BukkitBarrelBrewDataType.DATA_TYPE, world.getUID()).contains(data1));
+        database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data1);
+        assertTrue(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
+        database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data2);
+        assertTrue(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew2, 1)));
+        database.remove(BukkitBarrelBrewDataType.INSTANCE, data1);
+        assertFalse(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
     }
 
     private void prepareBarrel() throws SQLException {

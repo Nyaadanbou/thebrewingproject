@@ -1,10 +1,9 @@
 package dev.jsinco.brewery.bukkit;
 
 import dev.jsinco.brewery.breweries.BarrelType;
+import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
-import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.TestCommand;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
@@ -17,7 +16,6 @@ import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
 import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
-import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.database.Database;
@@ -26,6 +24,8 @@ import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
+import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.breweries.Barrel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +43,8 @@ public class TheBrewingProject extends JavaPlugin {
     private static TheBrewingProject instance;
     @Getter
     private StructureRegistry structureRegistry;
-    private PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
+    @Getter
+    private PlacedStructureRegistry placedStructureRegistry;
     @Getter
     private RecipeRegistry<RecipeResult, ItemStack, PotionMeta> recipeRegistry;
     @Getter
@@ -55,7 +56,7 @@ public class TheBrewingProject extends JavaPlugin {
     public void onLoad() {
         instance = this;
         this.structureRegistry = new StructureRegistry();
-        this.placedStructureRegistry = new PlacedStructureRegistry<>();
+        this.placedStructureRegistry = new PlacedStructureRegistry();
         this.breweryRegistry = new BreweryRegistry();
         loadStructures();
         this.recipeRegistry = new RecipeRegistry<>();
@@ -66,7 +67,7 @@ public class TheBrewingProject extends JavaPlugin {
         if (!structureRoot.exists() && !structureRoot.mkdirs()) {
             throw new RuntimeException("Could not create structure root: " + structureRoot);
         }
-        Stream.of("small_barrel", "large_barrel")
+        Stream.of("small_barrel", "large_barrel", "bamboo_distillery")
                 .map(string -> "structures/" + string)
                 .flatMap(name -> Stream.of(name + ".schem", name + ".json"))
                 .forEach(this::saveResourceIfNotExists);
@@ -81,7 +82,7 @@ public class TheBrewingProject extends JavaPlugin {
                     }
                 })
                 .forEach(structure -> {
-                    if (structure.getMeta(StructureMeta.USE_BARREL_SUBSTITUTION)) {
+                    if (structure.getMetaOrDefault(StructureMeta.USE_BARREL_SUBSTITUTION, false)) {
                         structureRegistry.addStructure(structure, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
                     } else {
                         structureRegistry.addStructure(structure);
@@ -104,8 +105,7 @@ public class TheBrewingProject extends JavaPlugin {
         WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
-        Bukkit.getScheduler().runTaskTimer(this, this::updateBarrels, 0, 1);
-        Bukkit.getScheduler().runTaskTimer(this, () -> BukkitDistillery.distilleryUpdateTask(breweryRegistry), 0, 1);
+        Bukkit.getScheduler().runTaskTimer(this, this::updateStructures, 0, 1);
         RecipeReader<RecipeResult, ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
@@ -126,9 +126,10 @@ public class TheBrewingProject extends JavaPlugin {
         super.saveResource(resource, false);
     }
 
-    private void updateBarrels() {
-        breweryRegistry.getOpenedBarrels().forEach(BukkitBarrel::tick);
+    private void updateStructures() {
         breweryRegistry.getActiveCauldrons().forEach(BukkitCauldron::tick);
+        breweryRegistry.getOpened(StructureType.BARREL).forEach(Barrel::tick);
+        breweryRegistry.getOpened(StructureType.DISTILLERY).forEach(Distillery::tick);
     }
 
     public void registerPluginIngredients() {

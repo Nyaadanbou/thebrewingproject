@@ -1,16 +1,10 @@
 package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.structure.MultiBlockStructure;
 
-public interface Distillery {
+public interface Distillery<D extends Distillery<D>> extends StructureHolder<D>, InventoryAccessible {
 
     long getStartTime();
 
-    BreweryLocation getLocation();
-
-    State getState();
-
-    enum State {
-        PAUSED, RUNNING, INVALID
-    }
+    void tick();
 }

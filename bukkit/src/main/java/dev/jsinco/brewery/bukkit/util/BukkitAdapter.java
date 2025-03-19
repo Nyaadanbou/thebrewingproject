@@ -18,4 +18,8 @@ public class BukkitAdapter {
     public static BreweryLocation toBreweryLocation(Block block) {
         return new BreweryLocation(block.getX(), block.getY(), block.getZ(), block.getWorld().getUID());
     }
+
+    public static Block toBlock(BreweryLocation location) {
+        return Bukkit.getWorld(location.worldUuid()).getBlockAt(location.x(), location.y(), location.z());
+    }
 }

@@ -85,8 +85,12 @@ public abstract class PluginIngredient implements Ingredient<ItemStack> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PluginIngredient that = (PluginIngredient) o;
         return Objects.equals(plugin, that.plugin) && Objects.equals(itemId, that.itemId);
     }

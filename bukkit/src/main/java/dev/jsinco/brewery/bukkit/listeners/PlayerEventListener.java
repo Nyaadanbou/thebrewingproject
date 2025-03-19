@@ -1,16 +1,15 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.breweries.Barrel;
-import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
+import dev.jsinco.brewery.breweries.InventoryAccessible;
+import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
+import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
-import dev.jsinco.brewery.util.Logging;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -28,11 +27,11 @@ import java.util.Optional;
 
 public class PlayerEventListener implements Listener {
 
-    private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
+    private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
 
-    public PlayerEventListener(PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, BreweryRegistry breweryRegistry, Database database) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
@@ -44,17 +43,14 @@ public class PlayerEventListener implements Listener {
         if (playerInteractEvent.getAction() != Action.RIGHT_CLICK_BLOCK || playerInteractEvent.getPlayer().isSneaking()) {
             return;
         }
-        Optional<PlacedBreweryStructure> possiblePlacedBreweryStructure = placedStructureRegistry.getStructure(BukkitAdapter.toBreweryLocation(playerInteractEvent.getClickedBlock().getLocation()));
-        if (possiblePlacedBreweryStructure.isEmpty()) {
+        Optional<StructureHolder> possibleStructureHolder = placedStructureRegistry.getHolder(BukkitAdapter.toBreweryLocation(playerInteractEvent.getClickedBlock().getLocation()));
+        if (possibleStructureHolder.isEmpty()) {
             return;
         }
-        Barrel holder = possiblePlacedBreweryStructure.get().getHolder();
-        if (!(holder instanceof BukkitBarrel barrel)) {
-            Logging.error("Unknown Barrel: " + holder);
-            return;
+        if (possibleStructureHolder.get() instanceof InventoryAccessible inventoryAccessible) {
+            inventoryAccessible.open(BukkitAdapter.toBreweryLocation(playerInteractEvent.getClickedBlock()), playerInteractEvent.getPlayer().getUniqueId());
+            breweryRegistry.registerOpened(inventoryAccessible);
         }
-        barrel.open(playerInteractEvent.getPlayer());
-        breweryRegistry.registerOpenedBarrel(barrel);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

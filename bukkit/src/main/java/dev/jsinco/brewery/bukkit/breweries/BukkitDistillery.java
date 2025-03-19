@@ -4,174 +4,255 @@ import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
-import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
-import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
+import dev.jsinco.brewery.bukkit.brew.BukkitDistilleryBrewDataType;
+import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.recipes.Recipe;
+import dev.jsinco.brewery.structure.StructureMeta;
+import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BrewingStand;
-import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-public class BukkitDistillery implements Distillery {
+public class BukkitDistillery implements Distillery<BukkitDistillery> {
 
-    private static final int DISTILL_TIME = 400;
-    private final Block block;
+    @Getter
+    private final PlacedBreweryStructure<BukkitDistillery> structure;
     @Getter
     private long startTime;
+    @Getter
+    private final DistilleryInventory mixture;
+    @Getter
+    private final DistilleryInventory distillate;
+    private boolean dirty = true;
+    private final Set<BreweryLocation> mixtureContainerLocations = new HashSet<>();
+    private final Set<BreweryLocation> distillateContainerLocations = new HashSet<>();
 
-    public BukkitDistillery(Block block) {
-        this.block = block;
-        this.startTime = block.getWorld().getGameTime();
+
+    public BukkitDistillery(@NotNull PlacedBreweryStructure<BukkitDistillery> structure) {
+        this(structure, structure.getWorldOrigin().getWorld().getGameTime());
     }
 
-    public BukkitDistillery(Block block, int startTime) {
-        this.block = block;
+    public BukkitDistillery(@NotNull PlacedBreweryStructure<BukkitDistillery> structure, long startTime) {
+        this.structure = structure;
         this.startTime = startTime;
+        this.mixture = new DistilleryInventory("Distillery Mixture", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), this);
+        this.distillate = new DistilleryInventory("Distillery Distillate", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), this);
+    }
+
+    public void open(BreweryLocation location, UUID playerUuid) {
+        checkDirty();
+        Player player = Bukkit.getPlayer(playerUuid);
+        if (mixtureContainerLocations.contains(location)) {
+            mixture.updateInventoryFromBrews();
+            TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
+            player.openInventory(mixture.getInventory());
+            return;
+        }
+        if (distillateContainerLocations.contains(location)) {
+            distillate.updateInventoryFromBrews();
+            TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
+            player.openInventory(distillate.getInventory());
+        }
+    }
+
+    /**
+     * Made to avoid chunk access on startup
+     */
+    private void checkDirty() {
+        if (!dirty) {
+            return;
+        }
+        dirty = false;
+        Set<BreweryLocation> potLocations = new HashSet<>();
+        Material taggedMaterial = Material.valueOf(structure.getStructure().getMeta(StructureMeta.TAGGED_MATERIAL).toUpperCase(Locale.ROOT));
+        for (BreweryLocation location : structure.positions()) {
+            Block block = BukkitAdapter.toBlock(location);
+            if (taggedMaterial == block.getType()) {
+                potLocations.add(location);
+            }
+        }
+        for (BreweryLocation breweryLocation : potLocations) {
+            if (potLocations.contains(breweryLocation.add(0, 1, 0)) || potLocations.contains(breweryLocation.add(0, -1, 0))) {
+                mixtureContainerLocations.add(breweryLocation);
+            } else {
+                distillateContainerLocations.add(breweryLocation);
+            }
+        }
+    }
+
+    public void tick() {
+        checkDirty();
+        boolean hasChanged;
+        if (mixture.getInventory().getViewers().isEmpty()) {
+            mixture.getInventory().clear(); // Depopulate inventory, save on memory
+            hasChanged = false;
+        } else {
+            hasChanged = mixture.updateBrewsFromInventory();
+        }
+        if (distillate.getInventory().getViewers().isEmpty()) {
+            distillate.getInventory().clear(); // Depopulate inventory, save on memory
+        } else {
+            distillate.updateBrewsFromInventory();
+        }
+        if (hasChanged) {
+            Logging.log("Inventory has changed, resetting start time");
+            resetStartTime();
+        }
+        if (distillate.getInventory().getViewers().isEmpty() && mixture.getInventory().getViewers().isEmpty()) {
+            TheBrewingProject.getInstance().getBreweryRegistry().unregisterOpened(this);
+        }
+        if (structure.getWorldOrigin().getWorld().getGameTime() - startTime < getStructure().getStructure().getMeta(StructureMeta.PROCESS_TIME) || mixture.isEmpty()) {
+            return;
+        }
+        transferItems(mixture, distillate);
+        if (!distillate.getInventory().getViewers().isEmpty()) {
+            distillate.updateInventoryFromBrews();
+        }
+        if (!mixture.getInventory().getViewers().isEmpty()) {
+            mixture.updateInventoryFromBrews();
+        }
+        resetStartTime();
+    }
+
+    private void resetStartTime() {
+        startTime = Bukkit.getWorld(getStructure().getUnique().worldUuid()).getGameTime();
+    }
+
+    private void transferItems(DistilleryInventory inventory1, DistilleryInventory inventory2) {
+        Brew<ItemStack>[] brews = inventory1.getBrews();
+        int i = 0;
+        for (int j = 0; j < inventory2.getBrews().length; j++) {
+            if (inventory2.getBrews()[j] != null) {
+                continue; // Avoid overriding brews
+            }
+            while (i < brews.length) {
+                if (brews[i] != null) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= brews.length) {
+                return;
+            }
+            Brew<ItemStack> mixtureBrew = inventory1.getBrews()[i];
+            inventory1.store(null, i);
+            inventory2.store(mixtureBrew.withDistillAmount(mixtureBrew.distillRuns() + 1), j);
+        }
     }
 
     @Override
-    public BreweryLocation getLocation() {
-        return BukkitAdapter.toBreweryLocation(block);
+    public void destroy() {
+        //TODO
     }
 
-    public State getState() {
-        if (block.getState() instanceof BrewingStand brewingStand) {
-            BrewerInventory inventory = brewingStand.getInventory();
-            State inventoryState = getInventoryState(inventory);
-            if (inventoryState != State.INVALID && brewingStand.getFuelLevel() <= 0) {
-                return State.PAUSED;
-            }
-            return inventoryState;
-        }
-        return State.INVALID;
-    }
+    public static class DistilleryInventory implements InventoryHolder {
 
-    private int getDistillRunTime(BrewerInventory inventory) {
-        List<Brew<ItemStack>> brews = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            ItemStack item = inventory.getItem(i);
-            if (item == null) {
-                continue;
-            }
-            Optional<Brew<ItemStack>> brew = BrewAdapter.fromItem(item);
-            brew.ifPresent(brews::add);
-        }
-        int maxDistillRunTime = -1;
-        for (Brew<ItemStack> brew : brews) {
-            Optional<Recipe<RecipeResult, ItemStack>> recipe = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry());
-            if (recipe.isPresent()) {
-                if (maxDistillRunTime < recipe.get().getDistillTime()) {
-                    maxDistillRunTime = recipe.get().getDistillTime();
-                }
-            }
-        }
-        return maxDistillRunTime == -1 ? DISTILL_TIME : maxDistillRunTime;
-    }
+        private final Inventory inventory;
+        @Getter
+        private final Brew<ItemStack>[] brews;
+        private final BukkitDistillery owner;
 
-    public void applyToBlock(State state) {
-        if (state == State.INVALID || !(block.getState() instanceof BrewingStand brewingStand)) {
-            return;
+        public DistilleryInventory(String title, int size, BukkitDistillery owner) {
+            this.inventory = Bukkit.createInventory(this, size, title);
+            this.brews = new Brew[size];
+            this.owner = owner;
         }
-        int distillRunTime = getDistillRunTime(brewingStand.getSnapshotInventory());
-        int totalBrewTime = (int) (block.getWorld().getGameTime() - getStartTime());
-        int runsCompleted = Math.floorDiv(totalBrewTime, distillRunTime);
-        if (runsCompleted > 0) {
-            modifyBrews(runsCompleted, brewingStand.getSnapshotInventory());
-            startTime = brewingStand.getWorld().getGameTime();
+
+        @NotNull
+        @Override
+        public Inventory getInventory() {
+            return inventory;
+        }
+
+        /**
+         * Set an item in the inventory without changing the database
+         *
+         * @param brew
+         * @param position
+         */
+        public void set(@Nullable Brew<ItemStack> brew, int position) {
+            brews[position] = brew;
+        }
+
+        /**
+         * Set an item in the inventory and store the changes in the database
+         *
+         * @param brew
+         * @param position
+         */
+        public void store(@Nullable Brew<ItemStack> brew, int position) {
+            if (Objects.equals(brews[position], brew)) {
+                return;
+            }
             try {
-                TheBrewingProject.getInstance().getDatabase().updateValue(BukkitDistilleryDataType.INSTANCE, this);
+                Brew<ItemStack> previous = brews[position];
+                set(brew, position);
+                BreweryLocation unique = owner.getStructure().getUnique();
+                BukkitDistilleryBrewDataType.DistilleryContext context = new BukkitDistilleryBrewDataType.DistilleryContext(unique.x(), unique.y(), unique.z(), unique.worldUuid(), position, this == owner.getDistillate());
+                Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext> data = new Pair<>(brew, context);
+                if (previous == null) {
+                    TheBrewingProject.getInstance().getDatabase().insertValue(BukkitDistilleryBrewDataType.INSTANCE, data);
+                    return;
+                }
+                if (brew == null) {
+                    TheBrewingProject.getInstance().getDatabase().remove(BukkitDistilleryBrewDataType.INSTANCE, data);
+                    return;
+                }
+                TheBrewingProject.getInstance().getDatabase().updateValue(BukkitDistilleryBrewDataType.INSTANCE, data);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
-        if (state == State.PAUSED) {
-            brewingStand.setBrewingTime(Short.MAX_VALUE);
-            brewingStand.update();
-            return;
-        }
-        int distillCompletion = totalBrewTime % distillRunTime;
-        brewingStand.setBrewingTime(DISTILL_TIME - distillCompletion * DISTILL_TIME / distillRunTime);
-        brewingStand.update();
-    }
 
-    private void modifyBrews(int runsCompleted, BrewerInventory inventory) {
-        List<Brew<ItemStack>> brews = new ArrayList<>(3);
-        for (int i = 0; i < 3; i++) {
-            ItemStack item = inventory.getItem(i);
-            if (item == null) {
-                brews.add(null);
-                continue;
-            }
-            Optional<Brew<ItemStack>> brew = BrewAdapter.fromItem(item);
-            brews.add(brew.orElse(null));
         }
-        for (int i = 0; i < 3; i++) {
-            Brew<ItemStack> brew = brews.get(i);
-            if (brew == null) {
-                continue;
-            }
-            Brew<ItemStack> newBrew = brew.withDistillAmount(runsCompleted + brew.distillRuns());
-            ItemStack item = inventory.getItem(i);
-            if(!(item.getItemMeta() instanceof PotionMeta potionMeta)) {
-                continue;
-            }
-            BrewAdapter.applyMeta(potionMeta, newBrew);
-            item.setItemMeta(potionMeta);
-            inventory.setItem(i, item);
-        }
-    }
 
-    public static State getInventoryState(BrewerInventory inventory) {
-        boolean invalidBrew = false;
-        boolean hasBrew = false;
-        for (int i = 0; i < 3; i++) {
-            ItemStack item = inventory.getItem(i);
-            if (item == null) {
-                continue;
-            }
-            Optional<Brew<ItemStack>> brewOptional = BrewAdapter.fromItem(item);
-            if (brewOptional.isEmpty()) {
-                invalidBrew = true;
-            } else {
-                hasBrew = true;
+        public void updateInventoryFromBrews() {
+            for (int i = 0; i < brews.length; i++) {
+                Brew<ItemStack> brew = brews[i];
+                if (brew == null) {
+                    inventory.setItem(i, null);
+                    continue;
+                }
+                inventory.setItem(i, BrewAdapter.toItem(brew));
             }
         }
-        if (!hasBrew) {
-            return State.INVALID;
-        }
-        if (inventory.getIngredient() == null || inventory.getIngredient().getType() != Material.GLOWSTONE_DUST) {
-            return State.PAUSED;
-        }
-        return invalidBrew ? State.PAUSED : State.RUNNING;
-    }
 
-    public static void distilleryUpdateTask(BreweryRegistry registry) {
-        List<BukkitDistillery> toClose = new ArrayList<>();
-        List<BukkitDistillery> invalid = new ArrayList<>();
-        for (BukkitDistillery distillery : registry.getOpenedDistilleries()) {
-            State state = distillery.getState();
-            if (state == State.INVALID) {
-                toClose.add(distillery);
-                invalid.add(distillery);
-                continue;
+        public boolean updateBrewsFromInventory() {
+            boolean hasUpdated = false;
+            for (int i = 0; i < inventory.getSize(); i++) {
+                ItemStack itemStack = inventory.getItem(i);
+                Brew<ItemStack> brew;
+                if (itemStack == null) {
+                    brew = null;
+                } else {
+                    brew = BrewAdapter.fromItem(itemStack).orElse(null);
+                }
+                if (!Objects.equals(brew, brews[i])) {
+                    hasUpdated = true;
+                }
+                store(brew, i);
             }
-            distillery.applyToBlock(state);
-            if (BukkitAdapter.toLocation(distillery.getLocation()).getBlock().getState() instanceof BrewingStand brewingStand && brewingStand.getInventory().getViewers().isEmpty()) {
-                toClose.add(distillery);
-            }
+            return hasUpdated;
         }
-        toClose.forEach(registry::removeOpenedDistillery);
-        invalid.forEach(distillery -> ListenerUtil.updateDistillery(distillery, registry, TheBrewingProject.getInstance().getDatabase()));
+
+        public boolean isEmpty() {
+            for (Brew<ItemStack> brew : brews) {
+                if (brew != null) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

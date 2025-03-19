@@ -5,6 +5,7 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -21,10 +22,10 @@ import java.util.List;
 public class WorldEventListener implements Listener {
 
     private final Database database;
-    private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
+    private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry registry;
 
-    public WorldEventListener(Database database, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, BreweryRegistry registry) {
+    public WorldEventListener(Database database, PlacedStructureRegistry placedStructureRegistry, BreweryRegistry registry) {
         this.database = database;
         this.placedStructureRegistry = placedStructureRegistry;
         this.registry = registry;
@@ -48,12 +49,13 @@ public class WorldEventListener implements Listener {
             List<BukkitBarrel> barrelList = database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID());
             for (BukkitBarrel barrel : barrelList) {
                 Location signLocation = barrel.getSignLocation();
-                placedStructureRegistry.registerPosition(BukkitAdapter.toBreweryLocation(signLocation), barrel);
                 placedStructureRegistry.registerStructure(barrel.getStructure());
             }
             List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
             List<BukkitDistillery> distilleries = database.retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID());
-            distilleries.forEach(registry::addDistillery);
+            distilleries.stream()
+                    .map(BukkitDistillery::getStructure)
+                    .forEach(placedStructureRegistry::registerStructure);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }

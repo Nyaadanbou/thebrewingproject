@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.structure;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Fence;
 import org.mockbukkit.mockbukkit.block.data.BlockDataMock;
 import org.mockbukkit.mockbukkit.block.data.StairsDataMock;
 import org.mockbukkit.mockbukkit.block.data.WallSignDataMock;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Map;
 
 public class StructurePlacerUtils {
 
@@ -48,6 +48,19 @@ public class StructurePlacerUtils {
         WallSignDataMock wallSignDataMock = new WallSignDataMock(Material.SPRUCE_WALL_SIGN);
         wallSignDataMock.setFacing(BlockFace.NORTH);
         worldMock.setBlockData(-3, 1, 1, wallSignDataMock);
+    }
+
+    public static void constructBambooDistillery(WorldMock worldMock) {
+        Fence bamboo1 = (Fence) BlockDataMock.mock(Material.BAMBOO_FENCE);
+        bamboo1.setFace(BlockFace.EAST, true);
+        Fence bamboo2 = (Fence) BlockDataMock.mock(Material.BAMBOO_FENCE);
+        bamboo1.setFace(BlockFace.WEST, true);
+        worldMock.setBlockData(0, 1, 0, Material.DECORATED_POT.createBlockData());
+        worldMock.setBlockData(0, 2, 0, Material.DECORATED_POT.createBlockData());
+        worldMock.setBlockData(0, 3, 0, bamboo1);
+        worldMock.setBlockData(1, 3, 0, bamboo2);
+        worldMock.setBlockData(1, 2, 0, Material.BAMBOO_FENCE.createBlockData());
+        worldMock.setBlockData(1, 1, 0, Material.DECORATED_POT.createBlockData());
     }
 
     public static BreweryStructure matchingStructure() throws URISyntaxException, IOException {

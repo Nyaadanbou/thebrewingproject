@@ -11,9 +11,9 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -24,10 +24,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Getter
-public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
-    private final PlacedBreweryStructure structure;
+public class BukkitBarrel implements Barrel<BukkitBarrel>, Tickable, InventoryHolder {
+    private final PlacedBreweryStructure<BukkitBarrel> structure;
     @Getter
     private final @NotNull Inventory inventory;
     @Getter
@@ -38,7 +39,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
     private final Location signLocation;
     private Brew<ItemStack>[] brews;
 
-    public BukkitBarrel(Location signLocation, PlacedBreweryStructure structure, int size, BarrelType type) {
+    public BukkitBarrel(Location signLocation, PlacedBreweryStructure<BukkitBarrel> structure, int size, BarrelType type) {
         this.structure = structure;
         this.size = size;
         this.inventory = Bukkit.createInventory(this, size, "Barrel");
@@ -47,7 +48,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
         this.signLocation = signLocation;
     }
 
-    public void open(Player player) {
+    public void open(BreweryLocation location, UUID playerUuid) {
         if (inventory.getViewers().isEmpty()) {
             populateInventory();
         }
@@ -55,7 +56,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
         if (signLocation != null) {
             signLocation.getWorld().playSound(signLocation, Sound.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
         }
-        player.openInventory(inventory);
+        Bukkit.getPlayer(playerUuid).openInventory(inventory);
     }
 
     private void close() {
@@ -71,7 +72,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
         updateInventory();
         if (inventory.getViewers().isEmpty()) {
             close();
-            TheBrewingProject.getInstance().getBreweryRegistry().removeOpenedBarrel(this);
+            TheBrewingProject.getInstance().getBreweryRegistry().unregisterOpened(this);
         }
     }
 
@@ -81,7 +82,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
     }
 
     @Override
-    public PlacedBreweryStructure getStructure() {
+    public PlacedBreweryStructure<BukkitBarrel> getStructure() {
         return structure;
     }
 
@@ -102,7 +103,7 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
             if (itemStack == null) {
                 if (brews[i] != null) {
                     try {
-                        TheBrewingProject.getInstance().getDatabase().remove(BukkitBarrelBrewDataType.DATA_TYPE, new Pair<>(brews[i], getContext(i)));
+                        TheBrewingProject.getInstance().getDatabase().remove(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brews[i], getContext(i)));
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -135,9 +136,9 @@ public class BukkitBarrel implements Barrel, Tickable, InventoryHolder {
                         BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
                         try {
                             if (brews[iFinal] == null) {
-                                database.insertValue(BukkitBarrelBrewDataType.DATA_TYPE, new Pair<>(brew, context));
+                                database.insertValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
                             } else {
-                                database.updateValue(BukkitBarrelBrewDataType.DATA_TYPE, new Pair<>(brew, context));
+                                database.updateValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();

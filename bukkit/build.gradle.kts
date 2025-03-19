@@ -27,7 +27,7 @@ dependencies {
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.8.0")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.37.0")
     testImplementation("net.kyori:adventure-nbt:4.17.0")
 
     annotationProcessor("org.projectlombok:lombok:1.18.30")

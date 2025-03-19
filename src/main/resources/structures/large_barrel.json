@@ -1,5 +1,5 @@
 {
-  "schemFile": "large_barrel.schem",
+  "schem_file": "large_barrel.schem",
   "meta": {
     "inventory_size": 27,
     "use_barrel_substitution": true,

@@ -1,18 +1,16 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.breweries.BarrelType;
-import dev.jsinco.brewery.bukkit.breweries.BreweryFactory;
-import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
-import dev.jsinco.brewery.bukkit.breweries.BukkitBarrelDataType;
-import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
-import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
-import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
+import dev.jsinco.brewery.breweries.StructureHolder;
+import dev.jsinco.brewery.bukkit.breweries.*;
+import dev.jsinco.brewery.bukkit.structure.*;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.structure.MultiBlockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,19 +25,27 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlockEventListener implements Listener {
 
     private final StructureRegistry structureRegistry;
-    private final PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry;
+    private final PlacedStructureRegistry placedStructureRegistry;
     private final Database database;
     private final BreweryRegistry breweryRegistry;
+    private final Set<Material> trackedDistilleryBlocks;
 
-    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry<PlacedBreweryStructure> placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
+    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
         this.database = database;
         this.breweryRegistry = breweryRegistry;
+        this.trackedDistilleryBlocks = structureRegistry.getStructures(StructureType.DISTILLERY)
+                .stream()
+                .map(structure -> structure.getMeta(StructureMeta.TAGGED_MATERIAL))
+                .map(string -> string.toUpperCase(Locale.ROOT))
+                .map(Material::valueOf)
+                .collect(Collectors.toSet());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -51,19 +57,19 @@ public class BlockEventListener implements Listener {
         if (!(event.getBlock().getBlockData() instanceof WallSign wallSign)) {
             return;
         }
-        Optional<PlacedBreweryStructure> possibleStructure = getBarrel(event.getBlock().getRelative(wallSign.getFacing().getOppositeFace()));
+        Optional<Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType>> possibleStructure = getBarrel(event.getBlock().getRelative(wallSign.getFacing().getOppositeFace()));
         if (possibleStructure.isEmpty()) {
             return;
         }
-        PlacedBreweryStructure placedBreweryStructure = possibleStructure.get();
+        Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType> placedStructurePair = possibleStructure.get();
+        PlacedBreweryStructure<BukkitBarrel> placedBreweryStructure = placedStructurePair.first();
         if (!placedStructureRegistry.getStructures(placedBreweryStructure.positions()).isEmpty()) {
             // Exit if there's an overlapping structure
             return;
         }
         placedStructureRegistry.registerStructure(placedBreweryStructure);
-        BukkitBarrel barrel = BreweryFactory.newBarrel(placedBreweryStructure, event.getBlock().getLocation());
+        BukkitBarrel barrel = new BukkitBarrel(event.getBlock().getLocation(), placedBreweryStructure, placedBreweryStructure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), placedStructurePair.second());
         placedBreweryStructure.setHolder(barrel);
-        placedStructureRegistry.registerPosition(BukkitAdapter.toBreweryLocation(event.getBlock()), barrel);
         try {
             database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
         } catch (SQLException e) {
@@ -71,12 +77,39 @@ public class BlockEventListener implements Listener {
         }
     }
 
-    private Optional<PlacedBreweryStructure> getBarrel(Block block) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onBlockPlace(BlockPlaceEvent placeEvent) {
+        Block placed = placeEvent.getBlockPlaced();
+        if (!trackedDistilleryBlocks.contains(placed.getType())) {
+            return;
+        }
+        for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
+            Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), DistilleryBlockDataMatcher.INSTANCE, new Void[1]);
+            if (placedBreweryStructureOptional.isPresent()) {
+                registerDistillery(placedBreweryStructureOptional.get().first());
+                placeEvent.getPlayer().sendMessage("Created a distillery");
+                return;
+            }
+        }
+    }
+
+    private void registerDistillery(PlacedBreweryStructure<BukkitDistillery> distilleryPlacedBreweryStructure) {
+        BukkitDistillery bukkitDistillery = new BukkitDistillery(distilleryPlacedBreweryStructure);
+        distilleryPlacedBreweryStructure.setHolder(bukkitDistillery);
+        placedStructureRegistry.registerStructure(distilleryPlacedBreweryStructure);
+        try {
+            database.insertValue(BukkitDistilleryDataType.INSTANCE, bukkitDistillery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Optional<Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType>> getBarrel(Block block) {
         Location placedLocation = block.getLocation();
         Material material = block.getType();
         Set<BreweryStructure> possibleStructures = structureRegistry.getPossibleStructures(material, StructureType.BARREL);
         for (BreweryStructure structure : possibleStructures) {
-            Optional<PlacedBreweryStructure> placedBreweryStructure = PlacedBreweryStructure.findValid(structure, placedLocation, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
+            Optional<Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType>> placedBreweryStructure = PlacedBreweryStructure.findValid(structure, placedLocation, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
             if (placedBreweryStructure.isPresent()) {
                 return placedBreweryStructure;
             }
@@ -123,34 +156,20 @@ public class BlockEventListener implements Listener {
     }
 
     private void onMultiBlockRemove(List<Location> locationList) {
-        Set<PlacedBreweryStructure> placedBreweryStructures = new HashSet<>();
-        Set<BreweryLocation> structurePositions = new HashSet<>();
-        Set<BukkitBarrel> barrels = new HashSet<>();
+        Set<MultiBlockStructure<?>> multiBlockStructures = new HashSet<>();
+        Set<StructureHolder<?>> holders = new HashSet<>();
         for (Location location : locationList) {
             BreweryLocation breweryLocation = BukkitAdapter.toBreweryLocation(location);
-            Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(breweryLocation);
-            placedBreweryStructure.ifPresent(placedBreweryStructures::add);
-            placedStructureRegistry.getHolder(breweryLocation).ifPresent(barrel -> {
-                structurePositions.add(breweryLocation);
-                barrels.add((BukkitBarrel) barrel);
+            placedStructureRegistry.getHolder(breweryLocation).ifPresent(holder -> {
+                holders.add(holder);
+                multiBlockStructures.add(holder.getStructure());
             });
             breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
         }
-        placedBreweryStructures.forEach(placedStructureRegistry::removeStructure);
-        placedBreweryStructures.stream()
-                .map(PlacedBreweryStructure::getHolder)
-                .filter(Objects::nonNull)
-                .map(BukkitBarrel.class::cast)
-                .forEach(barrels::add);
-        structurePositions.forEach(placedStructureRegistry::removePosition);
-        for (BukkitBarrel barrel : barrels) {
-            barrel.destroy();
-            placedStructureRegistry.removeStructure(barrel.getStructure());
-            try {
-                database.remove(BukkitBarrelDataType.INSTANCE, barrel);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        multiBlockStructures.forEach(placedStructureRegistry::unregisterStructure);
+        for (StructureHolder<?> holder : holders) {
+            holder.destroy();
+            remove(holder);
         }
     }
 
@@ -171,20 +190,27 @@ public class BlockEventListener implements Listener {
      */
     private void destroyFromBlock(Block block) {
         BreweryLocation breweryLocation = BukkitAdapter.toBreweryLocation(block);
-        Optional<PlacedBreweryStructure> placedBreweryStructure = placedStructureRegistry.getStructure(breweryLocation);
-        placedBreweryStructure.ifPresent(placedStructureRegistry::removeStructure);
-        placedStructureRegistry.getHolder(breweryLocation)
-                .map(BukkitBarrel.class::cast)
-                .ifPresent(barrel -> {
-                    placedStructureRegistry.removePosition(breweryLocation);
-                    barrel.destroy();
-                    placedStructureRegistry.removeStructure(barrel.getStructure());
-                    try {
-                        database.remove(BukkitBarrelDataType.INSTANCE, barrel);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+        Optional<MultiBlockStructure<?>> multiBlockStructure = placedStructureRegistry.getStructure(breweryLocation);
+        multiBlockStructure.ifPresent(placedStructureRegistry::unregisterStructure);
+        multiBlockStructure
+                .map(MultiBlockStructure::getHolder)
+                .ifPresent(holder -> {
+                    holder.destroy();
+                    remove(holder);
                 });
         breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
+    }
+
+    private void remove(StructureHolder<?> holder) {
+        try {
+            if (holder instanceof BukkitBarrel barrel) {
+                database.remove(BukkitBarrelDataType.INSTANCE, barrel);
+            }
+            if (holder instanceof BukkitDistillery distillery) {
+                database.remove(BukkitDistilleryDataType.INSTANCE, distillery);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

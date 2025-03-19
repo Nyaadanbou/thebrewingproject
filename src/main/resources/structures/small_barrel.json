@@ -1,5 +1,5 @@
 {
-  "schemFile": "small_barrel.schem",
+  "schem_file": "small_barrel.schem",
   "meta": {
     "inventory_size": 9,
     "type": "barrel",

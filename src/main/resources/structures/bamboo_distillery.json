@@ -1,0 +1,9 @@
+{
+  "schem_file": "bamboo_distillery.schem",
+  "meta": {
+    "inventory_size": 9,
+    "type": "distillery",
+    "tagged_material": "decorated_pot",
+    "process_time": 800
+  }
+}

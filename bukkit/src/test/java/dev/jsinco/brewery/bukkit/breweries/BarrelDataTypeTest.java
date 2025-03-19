@@ -50,10 +50,17 @@ class BarrelDataTypeTest {
     void checkPersistence() throws IOException, SQLException {
         StructurePlacerUtils.constructSmallOakBarrel(world);
         Location barrelBlock = new Location(world, -3, 1, 2);
-        Optional<PlacedBreweryStructure> breweryStructureOptional = TheBrewingProject.getInstance().getStructureRegistry().getPossibleStructures(barrelBlock.getBlock().getType(), StructureType.BARREL)
-                .stream().map(breweryStructure -> PlacedBreweryStructure.findValid(breweryStructure, barrelBlock, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES))
-                .filter(Optional::isPresent).map(Optional::get).findFirst();
-        BukkitBarrel barrel = new BukkitBarrel(new Location(world, 1, 2, 3), breweryStructureOptional.get(), 9, BarrelType.OAK);
+        Optional<Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType>> breweryStructureOptional = TheBrewingProject.getInstance()
+                .getStructureRegistry()
+                .getPossibleStructures(barrelBlock.getBlock().getType(), StructureType.BARREL)
+                .stream()
+                .map(breweryStructure ->
+                        PlacedBreweryStructure.<BarrelType, BukkitBarrel>findValid(breweryStructure, barrelBlock, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES)
+                )
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+        BukkitBarrel barrel = new BukkitBarrel(new Location(world, 1, 2, 3), breweryStructureOptional.get().first(), 9, BarrelType.OAK);
         barrel.setBrews(List.of(
                 new Pair<>(new Brew<>(new PassedMoment(10), Map.of(), new Interval(10, 10), 0, CauldronType.WATER, BarrelType.OAK), 4),
                 new Pair<>(new Brew<>(new PassedMoment(10), Map.of(), new Interval(10, 10), 0, CauldronType.WATER, BarrelType.OAK), 5)

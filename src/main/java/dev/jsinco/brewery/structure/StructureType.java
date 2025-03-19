@@ -1,22 +1,18 @@
 package dev.jsinco.brewery.structure;
 
+import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.breweries.Distillery;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public enum StructureType {
+public record StructureType<T>(String key, Class<T> tClass, StructureMeta<?>... mandatoryMeta) {
 
-    BARREL(StructureMeta.INVENTORY_SIZE, StructureMeta.USE_BARREL_SUBSTITUTION), DISTILLERY(StructureMeta.INVENTORY_SIZE);
+    public static final StructureType<Barrel> BARREL = new StructureType<>("barrel", Barrel.class, StructureMeta.INVENTORY_SIZE, StructureMeta.USE_BARREL_SUBSTITUTION);
+    public static final StructureType<Distillery> DISTILLERY = new StructureType<>("distillery", Distillery.class, StructureMeta.INVENTORY_SIZE, StructureMeta.TAGGED_MATERIAL, StructureMeta.PROCESS_TIME);
 
-    private final Set<StructureMeta<?, ?>> mandatoryMeta;
-
-    StructureType(StructureMeta<?, ?>... mandatoryMeta) {
-        this.mandatoryMeta = Arrays.stream(mandatoryMeta).collect(Collectors.toSet());
-    }
-
-    public List<StructureMeta<?, ?>> getMissingMandatory(Collection<StructureMeta<?, ?>> actualMeta) {
-        return mandatoryMeta.stream().filter(value -> !actualMeta.contains(value)).toList();
+    public List<StructureMeta<?>> getMissingMandatory(Collection<StructureMeta<?>> actualMeta) {
+        return Arrays.stream(mandatoryMeta).filter(value -> !actualMeta.contains(value)).toList();
     }
 }

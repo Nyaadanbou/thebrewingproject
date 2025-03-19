@@ -32,7 +32,7 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
 
     @Override
     public void insert(BukkitBarrel value, Connection connection) throws SQLException {
-        PlacedBreweryStructure placedStructure = value.getStructure();
+       PlacedBreweryStructure<BukkitBarrel>placedStructure = value.getStructure();
         BreweryStructure structure = placedStructure.getStructure();
         Location origin = placedStructure.getWorldOrigin();
         UUID worldUuid = value.getWorld().getUID();
@@ -54,7 +54,7 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
         for (Pair<Brew<ItemStack>, Integer> brew : value.getBrews()) {
             BarrelBrewDataType.BarrelContext context = new BarrelBrewDataType.BarrelContext(signLocation.getBlockX(),
                     signLocation.getBlockY(), signLocation.getBlockZ(), brew.second(), signLocation.getWorld().getUID());
-            TheBrewingProject.getInstance().getDatabase().insertValue(BukkitBarrelBrewDataType.DATA_TYPE, new Pair<>(brew.first(), context));
+            TheBrewingProject.getInstance().getDatabase().insertValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew.first(), context));
         }
     }
 
@@ -90,14 +90,14 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
                     Logging.warning("Could not find format '" + format + "' for brewery structure with sign pos: " + signLocation);
                     continue;
                 }
-                PlacedBreweryStructure structure = new PlacedBreweryStructure(breweryStructureOptional.get(), transform, worldOrigin);
+                PlacedBreweryStructure<BukkitBarrel> structure = new PlacedBreweryStructure(breweryStructureOptional.get(), transform, worldOrigin);
                 BukkitBarrel barrel = new BukkitBarrel(signLocation, structure, size, type);
                 structure.setHolder(barrel);
                 output.add(barrel);
             }
         }
         for (BukkitBarrel barrel : output) {
-            barrel.setBrews(BukkitBarrelBrewDataType.DATA_TYPE.find(BukkitAdapter.toBreweryLocation(barrel.getSignLocation()), connection));
+            barrel.setBrews(BukkitBarrelBrewDataType.INSTANCE.find(BukkitAdapter.toBreweryLocation(barrel.getSignLocation()), connection));
         }
         return output;
     }

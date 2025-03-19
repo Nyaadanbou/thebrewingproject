@@ -1,6 +1,9 @@
 package dev.jsinco.brewery.brews;
 
-import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.FindableStoredData;
+import dev.jsinco.brewery.database.InsertableStoredData;
+import dev.jsinco.brewery.database.RemovableStoredData;
+import dev.jsinco.brewery.database.UpdateableStoredData;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.DecoderEncoder;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class BarrelBrewDataType<I> implements RetrievableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>,
+public abstract class BarrelBrewDataType<I> implements
         InsertableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>, RemovableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>>,
         FindableStoredData<Pair<Brew<I>, Integer>, BreweryLocation>, UpdateableStoredData<Pair<Brew<I>, BarrelBrewDataType.BarrelContext>> {
     protected BarrelBrewDataType() {
@@ -30,17 +33,18 @@ public abstract class BarrelBrewDataType<I> implements RetrievableStoredData<Pai
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_insert.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = value.second();
-            Brew brew = value.first();
+            Brew<I> brew = value.first();
             preparedStatement.setInt(1, context.signX);
             preparedStatement.setInt(2, context.signY);
             preparedStatement.setInt(3, context.signZ);
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(context.worldUuid));
             preparedStatement.setInt(5, context.inventoryPos);
-            preparedStatement.setString(6, brew.barrelType().key().toString());
-            preparedStatement.setString(7, brew.cauldronType().key().toString());
+            preparedStatement.setInt(6, brew.distillRuns());
+            preparedStatement.setString(7, brew.cauldronType().key());
             preparedStatement.setLong(8, brew.brewTime().moment());
             preparedStatement.setLong(9, ((Interval) brew.aging()).start());
             preparedStatement.setString(10, Ingredient.ingredientsToJson(brew.ingredients()));
+            preparedStatement.setString(11, brew.barrelType().key());
             preparedStatement.execute();
         }
     }
@@ -58,23 +62,10 @@ public abstract class BarrelBrewDataType<I> implements RetrievableStoredData<Pai
         }
     }
 
-    @Override
-    public List<Pair<Brew<I>, BarrelContext>> retrieveAll(Connection connection, UUID world) throws SQLException {
-        List<Pair<Brew<I>, BarrelContext>> output = new ArrayList<>();
-        String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_select_all.sql");
-        try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                output.add(new Pair<>(brewFromResultSet(resultSet), contextFromResultSet(resultSet)));
-            }
-        }
-        return output;
-    }
-
     private Brew<I> brewFromResultSet(ResultSet resultSet) throws SQLException {
         long agingStart = resultSet.getLong("aging_start");
-        return new Brew<I>(new PassedMoment(resultSet.getLong("brew_time")), Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json"), getIngredientManager()),
-                new Interval(agingStart, agingStart), 0, Registry.CAULDRON_TYPE.get(resultSet.getString("cauldron_type")),
+        return new Brew<>(new PassedMoment(resultSet.getLong("brew_time")), Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json"), getIngredientManager()),
+                new Interval(agingStart, agingStart), resultSet.getInt("distillery_runs"), Registry.CAULDRON_TYPE.get(resultSet.getString("cauldron_type")),
                 Registry.BARREL_TYPE.get(resultSet.getString("barrel_type")));
     }
 
@@ -111,11 +102,12 @@ public abstract class BarrelBrewDataType<I> implements RetrievableStoredData<Pai
             preparedStatement.setLong(3, brew.brewTime().moment());
             preparedStatement.setLong(4, ((Interval) brew.aging()).start());
             preparedStatement.setString(5, Ingredient.ingredientsToJson(brew.ingredients()));
-            preparedStatement.setInt(6, context.signX);
-            preparedStatement.setInt(7, context.signY);
-            preparedStatement.setInt(8, context.signZ);
-            preparedStatement.setBytes(9, DecoderEncoder.asBytes(context.worldUuid));
-            preparedStatement.setInt(10, context.inventoryPos);
+            preparedStatement.setInt(6, brew.distillRuns());
+            preparedStatement.setInt(7, context.signX);
+            preparedStatement.setInt(8, context.signY);
+            preparedStatement.setInt(9, context.signZ);
+            preparedStatement.setBytes(10, DecoderEncoder.asBytes(context.worldUuid));
+            preparedStatement.setInt(11, context.inventoryPos);
             preparedStatement.execute();
         }
     }
