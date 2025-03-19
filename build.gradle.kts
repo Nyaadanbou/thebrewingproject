@@ -43,6 +43,10 @@ java {
 }
 
 tasks {
+    jar {
+        dependsOn(project(":datagenerator").getTasksByName("run", false))
+    }
+
     test {
         useJUnitPlatform()
     }
