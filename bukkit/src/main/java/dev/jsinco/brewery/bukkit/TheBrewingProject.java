@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit;
 
+import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
@@ -20,12 +21,13 @@ import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.database.DatabaseDriver;
+import dev.jsinco.brewery.effect.DrunkTextRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
-import dev.jsinco.brewery.breweries.Barrel;
+import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.stream.Stream;
 
@@ -51,6 +54,8 @@ public class TheBrewingProject extends JavaPlugin {
     private BreweryRegistry breweryRegistry;
     @Getter
     private Database database;
+    @Getter
+    private DrunkTextRegistry drunkTextRegistry;
 
     @Override
     public void onLoad() {
@@ -60,6 +65,7 @@ public class TheBrewingProject extends JavaPlugin {
         this.breweryRegistry = new BreweryRegistry();
         loadStructures();
         this.recipeRegistry = new RecipeRegistry<>();
+        this.drunkTextRegistry = new DrunkTextRegistry();
     }
 
     private void loadStructures() {
@@ -111,6 +117,11 @@ public class TheBrewingProject extends JavaPlugin {
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
         getCommand("test").setExecutor(new TestCommand());
+        try (InputStream inputStream = Util.class.getResourceAsStream("/drunk_text.json")) {
+            drunkTextRegistry.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void saveResources() {
