@@ -1,23 +1,26 @@
 package dev.jsinco.brewery.effect;
 
+import dev.jsinco.brewery.effect.text.DrunkTextElement;
+import dev.jsinco.brewery.effect.text.SingleDrunkTextElement;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class SingleDrunkTextElementTest {
 
 
     @Test
-    void transform_empty() {
+    void findTransform_empty() {
         SingleDrunkTextElement singleDrunkTextElement = new SingleDrunkTextElement("*hic*", 100, 0);
-        assertEquals("*hic*", singleDrunkTextElement.transform(""));
+        assertFalse(singleDrunkTextElement.findTransform("").isEmpty(), "Did not insert any drunk text");
     }
 
     @Test
-    void transform() {
+    void findTransform() {
         SingleDrunkTextElement singleDrunkTextElement = new SingleDrunkTextElement("*hic*", 100, 0);
-        String transformed = singleDrunkTextElement.transform(" ");
-        assertTrue(transformed.equals("*hic* ") || transformed.equals(" *hic*"), "Did not insert any drunk text");
+        List<DrunkTextElement.TextTransformation> transformed = singleDrunkTextElement.findTransform(" ");
+        assertFalse(transformed.isEmpty(), "Did not insert any drunk text");
     }
 }

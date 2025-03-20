@@ -3,7 +3,7 @@
     "from" : "a",
     "to" : "b",
     "text" : "Absinthe",
-    "expected" : "bbsinthe"
+    "expected" : "Bbsinthe"
   },
   {
     "from" : "(hello\\s+)world!",
@@ -15,7 +15,7 @@
     "from" : "goodbye(\\s+world!)",
     "to" : "Hello",
     "text" : "Goodbye world!",
-    "expected" : "Hello world!"
+    "expected" : "hello world!"
   },
   {
     "from" : "(hello)\\s+(world!)",
@@ -52,5 +52,11 @@
     "to" : "recursion\\?",
     "text" : "recursion\\?",
     "expected" : "recursion\\?"
+  },
+  {
+    "from" : "aa",
+    "to" : "bb",
+    "text" : "aaccccaaaa",
+    "expected" : "bbccccbbbb"
   }
 ]

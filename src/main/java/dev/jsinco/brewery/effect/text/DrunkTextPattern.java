@@ -1,7 +1,10 @@
-package dev.jsinco.brewery.effect;
+package dev.jsinco.brewery.effect.text;
 
 import dev.jsinco.brewery.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.regex.MatchResult;
@@ -13,23 +16,28 @@ public record DrunkTextPattern(Pattern pattern, String text, int percentage, int
     private static final Random RANDOM = new Random();
 
     @Override
-    public String transform(String initial) {
+    public @NotNull List<TextTransformation> findTransform(String initial) {
         Matcher matcher = pattern.matcher(initial);
-        return matcher.replaceAll(this::transformWithMatch);
+        List<TextTransformation> output = new ArrayList<>();
+        while (matcher.find()) {
+            if (percentage < RANDOM.nextInt(0, 101)) {
+                continue;
+            }
+            output.add(compileTransformFromMatch(matcher.toMatchResult()));
+        }
+        return output;
     }
 
-    private String transformWithMatch(MatchResult matchResult) {
-        if (percentage < RANDOM.nextInt(0, 101)) {
-            return matchResult.group();
-        }
-        boolean isNotCaps = matchResult.group().equals(matchResult.group().toLowerCase(Locale.ROOT));
-        String text = !isNotCaps ? text().toUpperCase(Locale.ROOT) : text().toLowerCase(Locale.ROOT);
+    private TextTransformation compileTransformFromMatch(MatchResult matchResult) {
+        String string = matchResult.group();
+        boolean isCaps = string.equals(string.toUpperCase(Locale.ROOT)) && !string.equals(string.toLowerCase(Locale.ROOT));
+        String text = isCaps ? text().toUpperCase(Locale.ROOT) : text().toLowerCase(Locale.ROOT);
         if (matchResult.groupCount() > 0) {
             Pair<Integer, Integer> range = findRange(matchResult);
-            String string = matchResult.group();
-            return string.substring(0, range.first()) + text + string.substring(range.second());
+            int start = matchResult.start();
+            return new TextTransformation(text, range.first() + start, range.second() + start, alcohol());
         }
-        return text;
+        return new TextTransformation(text, matchResult.start(), matchResult.end(), alcohol());
     }
 
     private Pair<Integer, Integer> findRange(MatchResult matchResult) {

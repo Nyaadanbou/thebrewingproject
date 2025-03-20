@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.effect;
+package dev.jsinco.brewery.effect.text;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
