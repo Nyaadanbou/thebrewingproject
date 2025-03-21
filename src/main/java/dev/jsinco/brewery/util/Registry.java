@@ -3,6 +3,7 @@ package dev.jsinco.brewery.util;
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
+import dev.jsinco.brewery.effect.DrunkEvent;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 
@@ -15,7 +16,16 @@ public class Registry {
     public static final Map<String, BarrelType> BARREL_TYPE = getBarrelTypes();
     public static final Map<String, CauldronType> CAULDRON_TYPE = getEnumValues();
     public static final Map<String, StructureMeta<?>> STRUCTURE_META = getStructureMeta();
-    public static final Map<String, StructureType<?>> STRUCTURE_TYPE = getStructureType();
+    public static final Map<String, StructureType<?>> STRUCTURE_TYPE = getStructureTypes();
+    public static final Map<String, DrunkEvent> DRUNK_EVENT = getDrunkEvents();
+
+    private static Map<String, DrunkEvent> getDrunkEvents() {
+        ImmutableMap.Builder<String, DrunkEvent> outputBuilder = ImmutableMap.builder();
+        for (DrunkEvent drunkEvent : DrunkEvent.values()) {
+            outputBuilder.put(drunkEvent.key(), drunkEvent);
+        }
+        return outputBuilder.build();
+    }
 
     private static Map<String, StructureMeta<?>> getStructureMeta() {
         try {
@@ -35,7 +45,7 @@ public class Registry {
         }
     }
 
-    private static Map<String, StructureType<?>> getStructureType() {
+    private static Map<String, StructureType<?>> getStructureTypes() {
         try {
             ImmutableMap.Builder<String, StructureType<?>> outputBuilder = ImmutableMap.builder();
             for (Field field : StructureType.class.getDeclaredFields()) {

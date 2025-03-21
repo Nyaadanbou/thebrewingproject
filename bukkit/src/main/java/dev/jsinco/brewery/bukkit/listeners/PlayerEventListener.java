@@ -6,9 +6,12 @@ import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
-import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
+import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -19,22 +22,28 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.UUID;
 
 public class PlayerEventListener implements Listener {
 
     private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
+    private final DrunkManager drunkManager;
+    private final DrunkTextRegistry drunkTextRegistry;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunkManager drunkManager, DrunkTextRegistry drunkTextRegistry) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
+        this.drunkManager = drunkManager;
+        this.drunkTextRegistry = drunkTextRegistry;
     }
 
 
@@ -126,5 +135,17 @@ public class PlayerEventListener implements Listener {
             return false;
         }
         return type != Material.GLASS_BOTTLE;
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onAsyncChat(AsyncPlayerChatEvent event) {
+        UUID playerUuid = event.getPlayer().getUniqueId();
+        DrunkState drunkState = drunkManager.getDrunkState(playerUuid);
+        if (drunkState == null) {
+            return;
+        }
+        String text = event.getMessage();
+        String transformed = DrunkTextTransformer.transform(text, drunkTextRegistry, drunkState.alcohol());
+        event.setMessage(transformed);
     }
 }

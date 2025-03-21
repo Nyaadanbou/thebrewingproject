@@ -2,7 +2,8 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
-import dev.jsinco.brewery.effect.DrunkTextTransformer;
+import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,6 +32,10 @@ public class TestCommand implements CommandExecutor {
                 }
                 builder.replace(builder.length() - 1, builder.length(), "");
                 sender.sendMessage("Drunken text at alcohol " + alcohol + ": " + DrunkTextTransformer.transform(builder.toString(), TheBrewingProject.getInstance().getDrunkTextRegistry(), alcohol));
+            }
+            case "consume" -> {
+                int alcohol = Integer.parseInt(args[1]);
+                TheBrewingProject.getInstance().getDrunkManager().consume(player.getUniqueId(), alcohol, player.getWorld().getGameTime());
             }
             default -> {
             }

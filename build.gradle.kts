@@ -36,6 +36,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
     testImplementation("com.google.code.gson:gson:2.12.1")
     testImplementation("org.joml:joml:1.10.8")
+    testImplementation("com.google.guava:guava:33.4.0-jre")
 }
 
 java {
