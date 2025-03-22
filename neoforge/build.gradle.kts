@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("net.neoforged.gradle.userdev") version "7.0.181"
+    id("net.neoforged.gradle.userdev") version "7.0.183"
 }
 
 group = "dev.jsinco.brewery"
