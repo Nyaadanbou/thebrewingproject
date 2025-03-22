@@ -27,10 +27,20 @@ public class DrunkManager {
         }
     }
 
-    public void consume(UUID playerUuid, int alcohol, long timeStamp) {
+    public void consume(UUID playerUuid, int alcohol) {
+        this.consume(playerUuid, alcohol, drunkManagerTime);
+    }
+
+    /**
+     *
+     * @param playerUuid
+     * @param alcohol
+     * @param timestamp Should be in relation to the internal clock in drunk manager
+     */
+    public void consume(UUID playerUuid, int alcohol, long timestamp) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         DrunkState drunkState = alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(inverseDecayRate, timeStamp).addAlcohol(alcohol) : new DrunkState(alcohol, timeStamp);
+                drunks.get(playerUuid).recalculate(inverseDecayRate, timestamp).addAlcohol(alcohol) : new DrunkState(alcohol, timestamp);
         if (drunkState.alcohol() <= 0) {
             drunks.remove(playerUuid);
             return;
@@ -79,7 +89,13 @@ public class DrunkManager {
         if (drunkState == null) {
             return;
         }
-        List<DrunkEvent> drunkEvents = List.copyOf(Registry.DRUNK_EVENT.values());
+        if (drunkState.alcohol() < lowestLevelRequiredForEvent) {
+            return;
+        }
+        List<DrunkEvent> drunkEvents = Registry.DRUNK_EVENT.values()
+                .stream()
+                .filter(drunkEvent -> drunkEvent.getAlcohol() <= drunkState.alcohol())
+                .toList();
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
         long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(1000, 500)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
