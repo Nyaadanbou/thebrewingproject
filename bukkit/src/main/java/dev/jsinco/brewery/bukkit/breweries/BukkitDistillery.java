@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.*;
 
-public class BukkitDistillery implements Distillery<BukkitDistillery> {
+public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack> {
 
     @Getter
     private final PlacedBreweryStructure<BukkitDistillery> structure;
@@ -65,6 +65,12 @@ public class BukkitDistillery implements Distillery<BukkitDistillery> {
             TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
             player.openInventory(distillate.getInventory());
         }
+    }
+
+    @Override
+    public boolean inventoryAllows(UUID playerUuid, ItemStack item) {
+        // TODO
+        return false;
     }
 
     /**

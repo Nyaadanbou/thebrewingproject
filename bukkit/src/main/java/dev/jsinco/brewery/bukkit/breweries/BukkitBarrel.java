@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Getter
-public class BukkitBarrel implements Barrel<BukkitBarrel>, Tickable, InventoryHolder {
+public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack>, Tickable, InventoryHolder {
     private final PlacedBreweryStructure<BukkitBarrel> structure;
     @Getter
     private final @NotNull Inventory inventory;
@@ -57,6 +57,12 @@ public class BukkitBarrel implements Barrel<BukkitBarrel>, Tickable, InventoryHo
             signLocation.getWorld().playSound(signLocation, Sound.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
         }
         Bukkit.getPlayer(playerUuid).openInventory(inventory);
+    }
+
+    @Override
+    public boolean inventoryAllows(UUID playerUuid, ItemStack item) {
+        // TODO
+        return false;
     }
 
     private void close() {

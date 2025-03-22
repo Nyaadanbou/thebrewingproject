@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistilleryDataType;
@@ -30,6 +31,6 @@ public class InventoryEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        // TODO prevent illegal items getting into the custom inventories
+        InventoryAccessible inventoryAccessible = registry.getFromInventory(event.getInventory());
     }
 }

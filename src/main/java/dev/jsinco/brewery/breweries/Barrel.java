@@ -1,8 +1,6 @@
 package dev.jsinco.brewery.breweries;
 
-import dev.jsinco.brewery.structure.MultiBlockStructure;
-
-public interface Barrel<B extends Barrel<B>> extends StructureHolder<B>, InventoryAccessible {
+public interface Barrel<B extends Barrel<B, I>, I> extends StructureHolder<B>, InventoryAccessible<I> {
 
     void destroy();
 
