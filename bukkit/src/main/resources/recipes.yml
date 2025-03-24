@@ -1,6 +1,6 @@
 recipes:
   # Example Recipe with every possible entry
-  example_recipe:
+  example-recipe:
     brew-time: 3
     brew-difficulty: 3 # Optional, defaults to 1
     alcohol: 14% # Optional, defaults to 0%
@@ -49,6 +49,20 @@ recipes:
       title: 'Warms you from inside\n 2nd line'
       message: 'Tastes good'
       action-bar: 'Action Bar Message'
+  wheat-beer:
+    ingredients:
+      - Wheat/3
+    brew-time: 8
+    brew-difficulty: 1
+    aging:
+      barrel-type: ANY
+      years: 2
+    alcohol: 5
+    potion-attributes:
+      name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
+      lore:
+        - +++ &8Refreshing
+      color: ffb84d
 
 
 # These recipes are used randomly when a player has brewed a potion with ingredients
@@ -61,6 +75,6 @@ recipes:
 # color : String
 # glint : Boolean
 default-recipes:
-  cauldron_brew:
+  cauldron-brew:
     name: 'Cauldron Brew'
     color: 'AQUA'
