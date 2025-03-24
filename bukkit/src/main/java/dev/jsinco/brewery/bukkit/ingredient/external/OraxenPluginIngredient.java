@@ -16,6 +16,11 @@ public class OraxenPluginIngredient extends PluginIngredient {
     }
 
     @Override
+    public String displayName() {
+        return OraxenItems.getItemById(this.getItemId()).getDisplayName();
+    }
+
+    @Override
     public String getItemIdByItemStack(ItemStack itemStack) {
         return OraxenItems.getIdByItem(itemStack);
     }

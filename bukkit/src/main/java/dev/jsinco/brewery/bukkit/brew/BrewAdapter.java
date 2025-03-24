@@ -76,7 +76,13 @@ public class BrewAdapter {
         int g = 0;
         int b = 0;
         int amount = 0;
+        Ingredient<ItemStack> topIngredient = null;
+        int topIngredientAmount = 0;
         for (Map.Entry<Ingredient<ItemStack>, Integer> ingredient : brew.ingredients().entrySet()) {
+            if (topIngredientAmount < ingredient.getValue()) {
+                topIngredient = ingredient.getKey();
+                topIngredientAmount = ingredient.getValue();
+            }
             String key = ingredient.getKey().getKey();
             Color color = ItemColorUtil.getItemColor(key);
             if (color == null) {
@@ -87,7 +93,15 @@ public class BrewAdapter {
             b += color.getBlue() * ingredient.getValue();
             amount += ingredient.getValue();
         }
-        meta.setDisplayName("Unfinished Brew");
+        String displayName;
+        if (brew.aging() != null && brew.aging().moment() > Moment.AGING_YEAR / 2) {
+            displayName = topIngredient == null ? "Aged brew" : "Aged " + topIngredient.displayName().toLowerCase() + " brew";
+        } else if (brew.distillRuns() > 0) {
+            displayName = topIngredient == null ? "Distillate" : topIngredient.displayName() + " distillate";
+        } else {
+            displayName = topIngredient == null ? "Fermented mesh" : "Fermented " + topIngredient.displayName().toLowerCase();
+        }
+        meta.setDisplayName(displayName);
         meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
     }
 

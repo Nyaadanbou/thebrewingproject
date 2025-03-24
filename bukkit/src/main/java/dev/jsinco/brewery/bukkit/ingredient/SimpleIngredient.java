@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import net.md_5.bungee.chat.TranslationRegistry;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -30,6 +31,11 @@ public class SimpleIngredient implements Ingredient<ItemStack> {
     @Override
     public String getKey() {
         return material.getKey().toString();
+    }
+
+    @Override
+    public String displayName() {
+        return TranslationRegistry.INSTANCE.translate(material.getItemTranslationKey());
     }
 
     @Override

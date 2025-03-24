@@ -24,6 +24,8 @@ public interface Ingredient<I> {
 
     String getKey();
 
+    String displayName();
+
 
     static <I> Map<Ingredient<I>, Integer> ingredientsFromJson(String json, IngredientManager<?> ingredientManager) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();

@@ -16,4 +16,9 @@ public class CustomIngredient extends PluginIngredient {
     public boolean matches(ItemStack itemStack) {
         return false;
     }
+
+    @Override
+    public String displayName() {
+        return "";
+    }
 }
