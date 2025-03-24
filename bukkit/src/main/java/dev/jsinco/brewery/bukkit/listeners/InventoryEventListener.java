@@ -3,16 +3,29 @@ package dev.jsinco.brewery.bukkit.listeners;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.util.Logging;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class InventoryEventListener implements Listener {
 
     private final BreweryRegistry registry;
     private final Database database;
+    private static final Set<InventoryAction> CLICKED_INVENTORY_ITEM_MOVE = Set.of(InventoryAction.PLACE_SOME,
+            InventoryAction.PLACE_ONE, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF,
+            InventoryAction.PICKUP_SOME, InventoryAction.PICKUP_ONE);
+    private static final Set<InventoryAction> TRANSFER_HOVERED_ITEM = Set.of(InventoryAction.MOVE_TO_OTHER_INVENTORY,
+            InventoryAction.HOTBAR_SWAP, InventoryAction.HOTBAR_MOVE_AND_READD);
 
     public InventoryEventListener(BreweryRegistry registry, Database database) {
         this.registry = registry;
@@ -21,11 +34,36 @@ public class InventoryEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
-        InventoryAccessible<ItemStack> inventoryAccessible = registry.getFromInventory(event.getClickedInventory());
+        InventoryAccessible<ItemStack, Inventory> inventoryAccessible = registry.getFromInventory(event.getInventory());
         if (inventoryAccessible == null) {
             return;
         }
-        if (!inventoryAccessible.inventoryAllows(event.getView().getPlayer().getUniqueId(), event.getCursor())) {
+        InventoryAction action = event.getAction();
+        Logging.log(action.toString());
+        if (action == InventoryAction.NOTHING) {
+            return;
+        }
+        boolean upperInventoryIsClicked = event.getClickedInventory() == event.getInventory();
+        if (!upperInventoryIsClicked && CLICKED_INVENTORY_ITEM_MOVE.contains(action)) {
+            return;
+        }
+        Stream<ItemStack> relatedItems;
+        if (TRANSFER_HOVERED_ITEM.contains(action)) {
+            InventoryView view = event.getView();
+            ItemStack hotbarItem = event.getHotbarButton() == -1 ? null : view.getBottomInventory().getItem(event.getHotbarButton());
+            ItemStack hoveredItem = event.getCurrentItem();
+            if (upperInventoryIsClicked && hotbarItem == null) {
+                return;
+            }
+            relatedItems = Stream.of(hotbarItem, hoveredItem);
+        } else {
+            ItemStack cursor = event.getCursor();
+            relatedItems = Stream.of(cursor);
+        }
+        Stream<ItemStack> itemsToCheck = relatedItems
+                .filter(Objects::nonNull)
+                .filter(item -> !item.getType().isAir());
+        if (itemsToCheck.anyMatch(item -> !inventoryAccessible.inventoryAllows(event.getWhoClicked().getUniqueId(), item))) {
             event.setResult(Event.Result.DENY);
         }
     }

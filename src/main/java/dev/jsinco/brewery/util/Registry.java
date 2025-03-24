@@ -16,7 +16,7 @@ public class Registry {
     public static final Map<String, BarrelType> BARREL_TYPE = getBarrelTypes();
     public static final Map<String, CauldronType> CAULDRON_TYPE = getEnumValues();
     public static final Map<String, StructureMeta<?>> STRUCTURE_META = getStructureMeta();
-    public static final Map<String, StructureType<?>> STRUCTURE_TYPE = getStructureTypes();
+    public static final Map<String, StructureType> STRUCTURE_TYPE = getStructureTypes();
     public static final Map<String, DrunkEvent> DRUNK_EVENT = getDrunkEvents();
 
     private static Map<String, DrunkEvent> getDrunkEvents() {
@@ -45,16 +45,16 @@ public class Registry {
         }
     }
 
-    private static Map<String, StructureType<?>> getStructureTypes() {
+    private static Map<String, StructureType> getStructureTypes() {
         try {
-            ImmutableMap.Builder<String, StructureType<?>> outputBuilder = ImmutableMap.builder();
+            ImmutableMap.Builder<String, StructureType> outputBuilder = ImmutableMap.builder();
             for (Field field : StructureType.class.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
                 Object staticField = field.get(null);
-                if (staticField instanceof StructureType<?> structureMeta) {
-                    outputBuilder.put(structureMeta.key(), structureMeta);
+                if (staticField instanceof StructureType structureType) {
+                    outputBuilder.put(structureType.key(), structureType);
                 }
             }
             return outputBuilder.build();

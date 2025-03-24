@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.*;
 
-public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack> {
+public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack, Inventory> {
 
     @Getter
     private final PlacedBreweryStructure<BukkitDistillery> structure;
@@ -51,7 +51,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack>
         this.distillate = new DistilleryInventory("Distillery Distillate", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), this);
     }
 
-    public void open(BreweryLocation location, UUID playerUuid) {
+    public void open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
         checkDirty();
         Player player = Bukkit.getPlayer(playerUuid);
         if (mixtureContainerLocations.contains(location)) {
@@ -68,9 +68,16 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack>
     }
 
     @Override
-    public boolean inventoryAllows(UUID playerUuid, ItemStack item) {
-        // TODO
-        return false;
+    public boolean inventoryAllows(@NotNull UUID playerUuid, @NotNull ItemStack item) {
+        //TODO permissions
+        return BrewAdapter.fromItem(item)
+                .map(brew -> brew.aging() == null)
+                .orElse(false);
+    }
+
+    @Override
+    public Set<Inventory> getInventories() {
+        return Set.of(mixture.getInventory(), distillate.getInventory());
     }
 
     /**

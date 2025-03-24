@@ -21,13 +21,10 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
-public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack>, Tickable, InventoryHolder {
+public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>, Tickable, InventoryHolder {
     private final PlacedBreweryStructure<BukkitBarrel> structure;
     @Getter
     private final @NotNull Inventory inventory;
@@ -48,7 +45,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack>, Tickable, 
         this.signLocation = signLocation;
     }
 
-    public void open(BreweryLocation location, UUID playerUuid) {
+    public void open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
         if (inventory.getViewers().isEmpty()) {
             populateInventory();
         }
@@ -60,9 +57,16 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack>, Tickable, 
     }
 
     @Override
-    public boolean inventoryAllows(UUID playerUuid, ItemStack item) {
-        // TODO
-        return false;
+    public boolean inventoryAllows(@NotNull UUID playerUuid, @NotNull ItemStack item) {
+        //TODO check permissions
+        return BrewAdapter.fromItem(item)
+                .map(brew -> brew.aging() == null)
+                .orElse(false);
+    }
+
+    @Override
+    public Set<Inventory> getInventories() {
+        return Set.of(this.inventory);
     }
 
     private void close() {

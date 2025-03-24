@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.breweries.BarrelType;
+import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.bukkit.structure.*;
@@ -22,6 +23,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -70,6 +73,7 @@ public class BlockEventListener implements Listener {
         placedStructureRegistry.registerStructure(placedBreweryStructure);
         BukkitBarrel barrel = new BukkitBarrel(event.getBlock().getLocation(), placedBreweryStructure, placedBreweryStructure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), placedStructurePair.second());
         placedBreweryStructure.setHolder(barrel);
+        breweryRegistry.registerInventory(barrel);
         try {
             database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
         } catch (SQLException e) {
@@ -99,6 +103,7 @@ public class BlockEventListener implements Listener {
         placedStructureRegistry.registerStructure(distilleryPlacedBreweryStructure);
         try {
             database.insertValue(BukkitDistilleryDataType.INSTANCE, bukkitDistillery);
+            breweryRegistry.registerInventory(bukkitDistillery);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -163,6 +168,9 @@ public class BlockEventListener implements Listener {
             placedStructureRegistry.getHolder(breweryLocation).ifPresent(holder -> {
                 holders.add(holder);
                 multiBlockStructures.add(holder.getStructure());
+                if (holder instanceof InventoryAccessible inventoryAccessible) {
+                    breweryRegistry.unregisterInventory(inventoryAccessible);
+                }
             });
             breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
         }
@@ -197,6 +205,9 @@ public class BlockEventListener implements Listener {
                 .ifPresent(holder -> {
                     holder.destroy();
                     remove(holder);
+                    if (holder instanceof InventoryAccessible inventoryAccessible) {
+                        breweryRegistry.unregisterInventory(inventoryAccessible);
+                    }
                 });
         breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
     }

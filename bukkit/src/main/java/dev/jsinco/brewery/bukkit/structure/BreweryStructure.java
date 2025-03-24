@@ -49,7 +49,7 @@ public class BreweryStructure {
         this.name = Objects.requireNonNull(name);
         this.structureMeta = Objects.requireNonNull(structureMeta);
         structureMeta.forEach((key, value) -> Preconditions.checkArgument(key.validator().test(value), "Invalid structure '" + name + "': value '" + value + "' is not allowed for meta: " + structureMeta));
-        StructureType<?> type = getMeta(StructureMeta.TYPE);
+        StructureType type = getMeta(StructureMeta.TYPE);
         Preconditions.checkArgument(type != null, "Invalid structure '" + name + "', missing meta: " + StructureMeta.TYPE);
         List<StructureMeta< ?>> missing = type.getMissingMandatory(structureMeta.keySet());
         Preconditions.checkArgument(missing.isEmpty(), "Invalid structure '" + name + "', missing meta: " + missing);

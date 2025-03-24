@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.breweries;
 
-public interface Distillery<D extends Distillery<D, I>, I> extends StructureHolder<D>, InventoryAccessible<I> {
+public interface Distillery<D extends Distillery<D, IS, I>, IS, I> extends StructureHolder<D>, InventoryAccessible<IS, I> {
 
     long getStartTime();
 

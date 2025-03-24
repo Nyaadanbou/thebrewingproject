@@ -12,15 +12,15 @@ import java.util.*;
 public class StructureRegistry {
 
     private final Map<String, BreweryStructure> structureNames = new HashMap<>();
-    private final Map<StructureType<?>, Map<Material, Set<BreweryStructure>>> structuresWithMaterials = new HashMap<>();
-    private final Map<StructureType<?>, Set<BreweryStructure>> structures = new HashMap<>();
+    private final Map<StructureType, Map<Material, Set<BreweryStructure>>> structuresWithMaterials = new HashMap<>();
+    private final Map<StructureType, Set<BreweryStructure>> structures = new HashMap<>();
 
     public Optional<BreweryStructure> getStructure(@NotNull String key) {
         Preconditions.checkNotNull(key);
         return Optional.ofNullable(structureNames.get(key));
     }
 
-    public Set<BreweryStructure> getPossibleStructures(@NotNull Material material, StructureType<?> structureType) {
+    public Set<BreweryStructure> getPossibleStructures(@NotNull Material material, StructureType structureType) {
         Preconditions.checkNotNull(material);
         return structuresWithMaterials.computeIfAbsent(structureType, ignored -> new HashMap<>()).getOrDefault(material, Set.of());
     }
@@ -47,7 +47,7 @@ public class StructureRegistry {
         }
     }
 
-    public Collection<BreweryStructure> getStructures(StructureType<?> structureType) {
+    public Collection<BreweryStructure> getStructures(StructureType structureType) {
         return structures.computeIfAbsent(structureType, ignored -> new HashSet<>());
     }
 }

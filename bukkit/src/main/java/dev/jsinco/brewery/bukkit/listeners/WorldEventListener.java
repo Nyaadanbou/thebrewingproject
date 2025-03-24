@@ -48,14 +48,15 @@ public class WorldEventListener implements Listener {
         try {
             List<BukkitBarrel> barrelList = database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID());
             for (BukkitBarrel barrel : barrelList) {
-                Location signLocation = barrel.getSignLocation();
                 placedStructureRegistry.registerStructure(barrel.getStructure());
+                registry.registerInventory(barrel);
             }
             List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
             List<BukkitDistillery> distilleries = database.retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID());
             distilleries.stream()
                     .map(BukkitDistillery::getStructure)
                     .forEach(placedStructureRegistry::registerStructure);
+            distilleries.forEach(registry::registerInventory);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
         }

@@ -4,7 +4,9 @@ import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
+import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
+import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.TestCommand;
 import dev.jsinco.brewery.bukkit.effect.DrunkEventAction;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
@@ -145,8 +147,8 @@ public class TheBrewingProject extends JavaPlugin {
 
     private void updateStructures() {
         breweryRegistry.getActiveCauldrons().forEach(BukkitCauldron::tick);
-        breweryRegistry.getOpened(StructureType.BARREL).forEach(Barrel::tick);
-        breweryRegistry.getOpened(StructureType.DISTILLERY).forEach(Distillery::tick);
+        breweryRegistry.<BukkitBarrel>getOpened(StructureType.BARREL).forEach(Barrel::tick);
+        breweryRegistry.<BukkitDistillery>getOpened(StructureType.DISTILLERY).forEach(Distillery::tick);
     }
 
     private void otherTicking() {
