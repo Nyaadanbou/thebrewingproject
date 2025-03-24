@@ -17,7 +17,7 @@ public class RecipeRegistry<R, I, M> {
         this.recipes = Objects.requireNonNull(recipes);
     }
 
-    public Optional<Recipe> getRecipe(@NotNull String recipeName) {
+    public Optional<Recipe<R, I>> getRecipe(@NotNull String recipeName) {
         Objects.requireNonNull(recipeName);
         return Optional.ofNullable(recipes.get(recipeName));
     }

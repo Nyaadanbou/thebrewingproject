@@ -56,5 +56,8 @@ bukkit {
         register("test") {
 
         }
+        register("brew") {
+            aliases = listOf("brewery")
+        }
     }
 }

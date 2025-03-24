@@ -38,7 +38,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         return brew1.cauldronType == brew2.cauldronType && brew1.barrelType == brew2.barrelType;
     }
 
-    public Brew<I> withCauldronTime(Interval interval) {
+    public Brew<I> withCauldronTime(Moment interval) {
         return new Brew<>(interval, ingredients, aging, distillRuns, cauldronType, barrelType);
     }
 
@@ -46,7 +46,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         return new Brew<>(brewTime, Map.copyOf(ingredients), aging, distillRuns, cauldronType, barrelType);
     }
 
-    public Brew<I> withAging(Interval interval) {
+    public Brew<I> withAging(Moment interval) {
         return new Brew<>(brewTime, ingredients, interval, distillRuns, cauldronType, barrelType);
     }
 

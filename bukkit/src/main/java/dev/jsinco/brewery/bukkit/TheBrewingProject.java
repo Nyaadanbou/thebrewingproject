@@ -7,6 +7,7 @@ import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
+import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.command.TestCommand;
 import dev.jsinco.brewery.bukkit.effect.DrunkEventAction;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
@@ -125,6 +126,7 @@ public class TheBrewingProject extends JavaPlugin {
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
         getCommand("test").setExecutor(new TestCommand());
+        getCommand("brew").setExecutor(new BreweryCommand());
         try (InputStream inputStream = Util.class.getResourceAsStream("/drunk_text.json")) {
             drunkTextRegistry.load(inputStream);
         } catch (IOException e) {
