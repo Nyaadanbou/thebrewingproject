@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("org.jetbrains:annotations:24.0.0")
     compileOnly("io.th0rgal:oraxen:1.163.0")
