@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.recipes;
 
 public enum PotionQuality {
-    EXCELLENT,
+    BAD,
     GOOD,
-    BAD
+    EXCELLENT
 }

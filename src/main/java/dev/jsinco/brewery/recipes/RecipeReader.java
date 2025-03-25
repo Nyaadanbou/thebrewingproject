@@ -9,10 +9,7 @@ import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class RecipeReader<R, I> {
 
@@ -51,14 +48,14 @@ public class RecipeReader<R, I> {
      * @return A Recipe object with all the attributes of the recipe.
      */
     private Recipe<R, I> getRecipe(ConfigurationSection recipe, String recipeName) {
-        return new Recipe.Builder<R,I>(recipeName)
+        return new Recipe.Builder<R, I>(recipeName)
                 .brewTime(recipe.getInt("brew-time", 0))
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
                 .cauldronType(Registry.CAULDRON_TYPE.get(Registry.brewerySpacedKey(recipe.getString("cauldron-type", "water").toLowerCase(Locale.ROOT))))
                 .ingredients(ingredientManager.getIngredientsWithAmount(recipe.getStringList("ingredients")))
                 .distillRuns(recipe.getInt("distilling.runs", 0))
                 .distillTime(recipe.getInt("distilling.time", 30))
-                .barrelType(Registry.BARREL_TYPE.get(Registry.brewerySpacedKey(recipe.getString("barrel-type", "any").toLowerCase(Locale.ROOT))))
+                .barrelType(Registry.BARREL_TYPE.get(Registry.brewerySpacedKey(recipe.getString("aging.barrel-type", "any").toLowerCase(Locale.ROOT))))
                 .agingYears(recipe.getInt("aging.years", 0))
                 .recipeResult(recipeResultReader.readRecipeResult(recipe))
                 .build();
@@ -76,7 +73,7 @@ public class RecipeReader<R, I> {
         }
 
         String[] list = str.split("/");
-        if(list.length == 2) {
+        if (list.length != 3) {
             throw new IllegalArgumentException("Expected a string with format <bad>/<good>/<excellent>");
         }
         Map<PotionQuality, String> map = new HashMap<>();
@@ -90,15 +87,19 @@ public class RecipeReader<R, I> {
         Map<PotionQuality, List<String>> map = new HashMap<>();
 
         for (String string : list) {
-            if (string.startsWith("+")) {
-                map.put(PotionQuality.BAD, list);
+            if (string.startsWith("+++")) {
+                map.computeIfAbsent(PotionQuality.EXCELLENT, ignored -> new ArrayList<>()).add(string.substring(3));
             } else if (string.startsWith("++")) {
-                map.put(PotionQuality.GOOD, list);
-            } else if (string.startsWith("+++")) {
-                map.put(PotionQuality.EXCELLENT, list);
+                map.computeIfAbsent(PotionQuality.GOOD, ignored -> new ArrayList<>()).add(string.substring(2));
+            } else if (string.startsWith("+")) {
+                map.computeIfAbsent(PotionQuality.BAD, ignored -> new ArrayList<>()).add(string.substring(1));
             } else {
                 for (PotionQuality quality : PotionQuality.values()) {
-                    map.put(quality, list);
+                    map.computeIfAbsent(quality, ignored -> new ArrayList<>()).add(switch (quality) {
+                        case BAD -> string.substring(1);
+                        case GOOD -> string.substring(2);
+                        case EXCELLENT -> string.substring(3);
+                    });
                 }
             }
         }

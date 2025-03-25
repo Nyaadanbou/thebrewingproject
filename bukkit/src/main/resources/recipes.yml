@@ -61,7 +61,7 @@ recipes:
     potion-attributes:
       name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
       lore:
-        - +++ &8Refreshing
+        - +++<dark_gray>Refreshing
       color: ffb84d
 
 

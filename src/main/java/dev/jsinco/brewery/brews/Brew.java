@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Integer> ingredients,
@@ -107,7 +106,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         }
         double barrelTypeScore = 1;
         if (barrelType != null) {
-            if (!barrelType.equals(recipe.getBarrelType())) {
+            if (!barrelType.equals(recipe.getBarrelType()) && recipe.getBarrelType() != BarrelType.ANY) {
                 barrelTypeScore = 0.9;
             }
         }
@@ -115,7 +114,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
     }
 
     private double getNearbyValueScore(long expected, long value) {
-        double sigmoid = 1D / (1D + Math.exp((double) (expected - value) / expected));
+        double sigmoid = 1D / (1D + Math.exp((double) (expected - value)));
         return sigmoid * (1D - sigmoid) * 4D;
     }
 
