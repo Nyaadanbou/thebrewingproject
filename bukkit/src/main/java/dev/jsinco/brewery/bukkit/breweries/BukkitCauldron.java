@@ -138,7 +138,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         Location particleLoc = // Complex particle location based off BreweryX
                 block.getLocation().add(0.5 + (RANDOM.nextDouble() * 0.8 - 0.4), 0.9, 0.5 + (RANDOM.nextDouble() * 0.8 - 0.4));
 
-        block.getWorld().spawnParticle(Particle.SPELL_MOB, particleLoc, 0, particleColor);
+        block.getWorld().spawnParticle(Particle.BUBBLE, particleLoc, 0, particleColor);
 
 
         if (!Config.MINIMAL_PARTICLES) {
@@ -148,15 +148,15 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         if (RANDOM.nextFloat() > 0.85) {
             // Dark pixely smoke cloud at 0.4 random in x and z
             // 0 count enables direction, send to y = 1 with speed 0.09
-            block.getWorld().spawnParticle(Particle.SMOKE_LARGE, particleLoc, 0, 0, 1, 0, 0.09);
+            block.getWorld().spawnParticle(Particle.LARGE_SMOKE, particleLoc, 0, 0, 1, 0, 0.09);
         }
         if (RANDOM.nextFloat() > 0.2) {
             // A Water Splash with 0.2 offset in x and z
-            block.getWorld().spawnParticle(Particle.WATER_SPLASH, particleLoc, 1, 0.2, 0, 0.2);
+            block.getWorld().spawnParticle(Particle.SPLASH, particleLoc, 1, 0.2, 0, 0.2);
         }
         if (RANDOM.nextFloat() > 0.4) {
             // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
-            block.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
+            block.getWorld().spawnParticle(Particle.DUST_PLUME, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
         }
     }
 

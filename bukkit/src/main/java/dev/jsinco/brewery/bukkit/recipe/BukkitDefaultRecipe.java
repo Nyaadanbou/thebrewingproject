@@ -42,7 +42,7 @@ public class BukkitDefaultRecipe implements DefaultRecipe<ItemStack, PotionMeta>
 
     public void applyMeta(PotionMeta meta) {
         meta.setDisplayName(name);
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
         meta.setLore(lore);
         meta.setColor(color);
         if (glint) {

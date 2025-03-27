@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.recipe;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.recipes.PotionQuality;
 import dev.jsinco.brewery.util.Registry;
+import lombok.Getter;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -27,13 +28,19 @@ public class RecipeEffects {
             .build();
 
     // Commands
+    @Getter
     private final @NotNull Map<PotionQuality, List<String>> commands;
     // Effects
+    @Getter
     private final @NotNull List<@NotNull RecipeEffect> effects;
     // Messages <-- Consider removing because server owners can use commands
+    @Getter
     private final @Nullable String title;
+    @Getter
     private final @Nullable String message;
+    @Getter
     private final @Nullable String actionBar;
+    @Getter
     private final int alcohol;
 
     private RecipeEffects(@NotNull Map<PotionQuality, List<String>> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
