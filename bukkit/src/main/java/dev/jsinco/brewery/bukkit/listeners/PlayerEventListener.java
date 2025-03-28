@@ -2,16 +2,19 @@ package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
+import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
+import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
+import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -24,7 +27,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -37,13 +44,15 @@ public class PlayerEventListener implements Listener {
     private final Database database;
     private final DrunkManager drunkManager;
     private final DrunkTextRegistry drunkTextRegistry;
+    private final RecipeRegistry<ItemStack, PotionMeta> recipeRegistry;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunkManager drunkManager, DrunkTextRegistry drunkTextRegistry) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunkManager drunkManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack, PotionMeta> recipeRegistry) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
         this.drunkManager = drunkManager;
         this.drunkTextRegistry = drunkTextRegistry;
+        this.recipeRegistry = recipeRegistry;
     }
 
 
@@ -147,5 +156,14 @@ public class PlayerEventListener implements Listener {
         String text = event.getMessage();
         String transformed = DrunkTextTransformer.transform(text, drunkTextRegistry, drunkState.alcohol());
         event.setMessage(transformed);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        if (!(event.getItem().getItemMeta() instanceof PotionMeta potionMeta)) {
+            return;
+        }
+        PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
+        drunkManager.consume(event.getPlayer().getUniqueId(), persistentDataContainer.get(RecipeEffects.ALCOHOL, PersistentDataType.INTEGER));
     }
 }

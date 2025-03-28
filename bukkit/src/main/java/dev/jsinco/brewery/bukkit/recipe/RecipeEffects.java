@@ -22,6 +22,8 @@ public class RecipeEffects {
     public static final NamespacedKey ACTION_BAR = NamespacedKey.fromString(Registry.brewerySpacedKey("action_bar"));
     public static final NamespacedKey TITLE = NamespacedKey.fromString(Registry.brewerySpacedKey("titles"));
     public static final NamespacedKey ALCOHOL = NamespacedKey.fromString(Registry.brewerySpacedKey("alcohol"));
+    private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL);
+
     public static final RecipeEffects GENERIC = new Builder()
             .commands(Map.of())
             .effects(List.of())
@@ -57,6 +59,7 @@ public class RecipeEffects {
             meta.addCustomEffect(recipeEffect.getPotionEffect(quality), true);
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
+        PDC_TYPES.forEach(container::remove);
         if (commands.containsKey(quality)) {
             container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands.get(quality));
         }

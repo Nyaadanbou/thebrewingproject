@@ -62,7 +62,7 @@ public class RecipeReader<I, M> {
     }
 
     public static int parseAlcoholString(String str) {
-        return Util.getIntDefaultZero(str.replace("%", "").replace(" ", ""));
+        return Integer.parseInt(str.replace("%", "").replace(" ", ""));
     }
 
     // FIXME - I feel like there has to be a better way of doing this that doesn't rely on a map of enums?

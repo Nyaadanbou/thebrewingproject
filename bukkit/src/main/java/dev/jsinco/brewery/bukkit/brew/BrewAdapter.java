@@ -22,6 +22,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class BrewAdapter {
     private static final NamespacedKey CAULDRON_TYPE = NamespacedKey.fromString(Registry.brewerySpacedKey("cauldron_type"));
     private static final NamespacedKey BARREL_TYPE = NamespacedKey.fromString(Registry.brewerySpacedKey("barrel_type"));
     private static final NamespacedKey BREWERY_DATA_VERSION = NamespacedKey.fromString(Registry.brewerySpacedKey("version"));
+    private static final List<NamespacedKey> PDC_TYPES = List.of(BREW_TIME, INGREDIENTS, AGING, DISTILL_RUNS, CAULDRON_TYPE, BARREL_TYPE, BREWERY_DATA_VERSION);
 
     public static ItemStack toItem(Brew<ItemStack> brew) {
         ItemStack itemStack = new ItemStack(Material.POTION);
@@ -105,6 +107,9 @@ public class BrewAdapter {
 
     private static boolean fillPersistentData(PotionMeta potionMeta, Brew<ItemStack> brew) {
         PersistentDataContainer data = potionMeta.getPersistentDataContainer();
+        Integer dataVersion = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER);
+        boolean previouslyStored = dataVersion != null;
+        PDC_TYPES.forEach(data::remove);
         if (brew.brewTime() != null) {
             data.set(BREW_TIME, MomentPdcType.INSTANCE, brew.brewTime());
         }
@@ -119,7 +124,6 @@ public class BrewAdapter {
         if (brew.cauldronType() != null) {
             data.set(CAULDRON_TYPE, CauldronPdcType.INSTANCE, brew.cauldronType());
         }
-        boolean previouslyStored = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER) != null;
         data.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
         return previouslyStored;
     }
