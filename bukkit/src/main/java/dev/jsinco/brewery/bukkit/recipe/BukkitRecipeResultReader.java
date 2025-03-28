@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
+import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
 import dev.jsinco.brewery.util.moment.Interval;
@@ -18,23 +19,36 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
         return new BukkitRecipeResult.Builder()
                 .recipeEffects(getRecipeEffects(configurationSection))
                 .customModelData(configurationSection.getInt("potion-attributes.custom-model-data", -1))
-                .lore(RecipeReader.getQualityFactoredList(configurationSection.getStringList("potion-attributes.lore")))
+                .lore(QualityData.readQualityFactoredStringList(configurationSection.getStringList("potion-attributes.lore")))
                 .glint(configurationSection.getBoolean("potion-attributes.glint", false))
-                .names(RecipeReader.getQualityFactoredString(configurationSection.getString("potion-attributes.name")))
+                .names(QualityData.readQualityFactoredString(configurationSection.getString("potion-attributes.name")))
                 .color(ColorUtil.parseColorString(configurationSection.getString("potion-attributes.color")))
                 .appendBrewInfoLore(configurationSection.getBoolean("potion-attributes.append-brew-info-lore", true))
                 .build();
     }
 
-    private static RecipeEffects getRecipeEffects(ConfigurationSection configurationSection) {
-        return new RecipeEffects.Builder()
-                .actionBar(configurationSection.getString("messages.action-bar", null))
-                .title(configurationSection.getString("messages.title", null))
-                .message(configurationSection.getString("messages.message", null))
-                .commands(RecipeReader.getQualityFactoredList(configurationSection.getStringList("commands")))
-                .effects(getEffectsFromStringList(configurationSection.getStringList("effects")))
-                .alcohol(RecipeReader.parseAlcoholString(configurationSection.getString("alcohol", "0%")))
-                .build();
+    private static QualityData<RecipeEffects> getRecipeEffects(ConfigurationSection configurationSection) {
+        QualityData<String> actionBar = QualityData.readQualityFactoredString(configurationSection.getString("messages.action-bar", null));
+        QualityData<String> title = QualityData.readQualityFactoredString(configurationSection.getString("messages.title", null));
+        QualityData<String> message = QualityData.readQualityFactoredString(configurationSection.getString("messages.title", null));
+        QualityData<List<String>> commands = QualityData.readQualityFactoredStringList(configurationSection.getStringList("commands"));
+        QualityData<List<RecipeEffect>> effects = QualityData.readQualityFactoredStringList(configurationSection.getStringList("effects"))
+                .map(list -> list
+                        .stream()
+                        .map(BukkitRecipeResultReader::getEffect)
+                        .toList()
+                );
+        QualityData<Integer> alcohol = QualityData.readQualityFactoredString(configurationSection.getString("alcohol", "0%"))
+                .map(RecipeReader::parseAlcoholString);
+        return QualityData.fromValueMapper(quality -> new RecipeEffects.Builder()
+                .actionBar(actionBar.get(quality))
+                .title(title.get(quality))
+                .message(message.get(quality))
+                .commands(commands.getOrDefault(quality, List.of()))
+                .alcohol(alcohol.getOrDefault(quality, 0))
+                .effects(effects.getOrDefault(quality, List.of()))
+                .build()
+        );
     }
 
     private static RecipeEffect getEffect(String string) {

@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
+import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -40,7 +41,7 @@ public class DefaultRecipeReader {
                 .color(ColorUtil.parseColorString(defaultRecipe.getString("color", "BLUE")))
                 .customModelData(defaultRecipe.getInt("custom-model-data", -1))
                 .glint(defaultRecipe.getBoolean("glint", false))
-                .recipeEffects(RecipeEffects.GENERIC)
+                .recipeEffects(QualityData.equalValue(RecipeEffects.GENERIC))
                 .appendBrewInfoLore(false)
                 .build();
     }

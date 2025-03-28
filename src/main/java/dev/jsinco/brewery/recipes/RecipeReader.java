@@ -3,13 +3,14 @@ package dev.jsinco.brewery.recipes;
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.Util;
+import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RecipeReader<I, M> {
 
@@ -63,49 +64,5 @@ public class RecipeReader<I, M> {
 
     public static int parseAlcoholString(String str) {
         return Integer.parseInt(str.replace("%", "").replace(" ", ""));
-    }
-
-    // FIXME - I feel like there has to be a better way of doing this that doesn't rely on a map of enums?
-    // This is ok from my point of view / thorinwasher
-    public static Map<BrewQuality, String> getQualityFactoredString(String str) {
-        if (!str.contains("/")) {
-            return Map.of(BrewQuality.BAD, str, BrewQuality.GOOD, str, BrewQuality.EXCELLENT, str);
-        }
-
-        String[] list = str.split("/");
-        if (list.length != 3) {
-            throw new IllegalArgumentException("Expected a string with format <bad>/<good>/<excellent>");
-        }
-        Map<BrewQuality, String> map = new HashMap<>();
-        for (int i = 0; i < Math.min(list.length, 3); i++) {
-            map.put(BrewQuality.values()[i], list[i]);
-        }
-        return map;
-    }
-
-    public static Map<BrewQuality, List<String>> getQualityFactoredList(List<String> list) {
-        Map<BrewQuality, List<String>> map = new HashMap<>();
-
-        for (String string : list) {
-            if (string.startsWith("+++")) {
-                map.computeIfAbsent(BrewQuality.EXCELLENT, ignored -> new ArrayList<>()).add(string.substring(3));
-            } else if (string.startsWith("++")) {
-                map.computeIfAbsent(BrewQuality.GOOD, ignored -> new ArrayList<>()).add(string.substring(2));
-            } else if (string.startsWith("+")) {
-                map.computeIfAbsent(BrewQuality.BAD, ignored -> new ArrayList<>()).add(string.substring(1));
-            } else {
-                for (BrewQuality quality : BrewQuality.values()) {
-                    map.computeIfAbsent(quality, ignored -> new ArrayList<>()).add(switch (quality) {
-                        case BAD -> string.substring(1);
-                        case GOOD -> string.substring(2);
-                        case EXCELLENT -> string.substring(3);
-                    });
-                }
-            }
-        }
-        for (BrewQuality quality : BrewQuality.values()) {
-            map.putIfAbsent(quality, new ArrayList<>());
-        }
-        return map;
     }
 }

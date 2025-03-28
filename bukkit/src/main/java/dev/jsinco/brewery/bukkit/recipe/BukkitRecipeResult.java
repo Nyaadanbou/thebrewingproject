@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
+import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -31,33 +32,25 @@ import java.util.stream.Stream;
 public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
 
     public static final BukkitRecipeResult GENERIC = new Builder()
-            .names(Map.of(
-                    BrewQuality.EXCELLENT, "Unknown brew",
-                    BrewQuality.GOOD, "Unknown brew",
-                    BrewQuality.BAD, "Unknown brew"
-            ))
-            .lore(Map.of(
-                    BrewQuality.EXCELLENT, List.of(),
-                    BrewQuality.GOOD, List.of(),
-                    BrewQuality.BAD, List.of()
-            ))
-            .recipeEffects(RecipeEffects.GENERIC)
+            .names(QualityData.equalValue("Unknown brew"))
+            .lore(QualityData.equalValue(List.of()))
+            .recipeEffects(QualityData.equalValue(RecipeEffects.GENERIC))
             .build();
     private final boolean glint;
     private final int customModelData;
 
     @Getter
-    private final Map<BrewQuality, String> names;
+    private final QualityData<String> names;
     @Getter
-    private final Map<BrewQuality, List<String>> lore;
+    private final QualityData<List<String>> lore;
 
     @Getter
-    private final RecipeEffects recipeEffects;
+    private final QualityData<RecipeEffects> recipeEffects;
     @Getter
     private final Color color;
     private final boolean appendBrewInfoLore;
 
-    private BukkitRecipeResult(boolean glint, int customModelData, RecipeEffects recipeEffects, Map<BrewQuality, String> names, Map<BrewQuality, List<String>> lore, Color color, boolean appendBrewInfoLore) {
+    private BukkitRecipeResult(boolean glint, int customModelData, QualityData<RecipeEffects> recipeEffects, QualityData<String> names, QualityData<List<String>> lore, Color color, boolean appendBrewInfoLore) {
         this.glint = glint;
         this.customModelData = customModelData;
         this.recipeEffects = recipeEffects;
@@ -96,7 +89,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
-        recipeEffects.applyTo(meta, quality);
+        recipeEffects.get(quality).applyTo(meta, quality);
     }
 
     private Stream<? extends Component> compileExtraLore(BrewScore score, Brew<ItemStack> brew) {
@@ -131,7 +124,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         BrewQuality quality = score.brewQuality();
         return Map.of(
                 "brew_name", () -> compileMessage(score, brew, this.names.get(quality), "brew_name"),
-                "alcohol", () -> Component.text(String.valueOf(this.getRecipeEffects().getAlcohol())),
+                "alcohol", () -> Component.text(String.valueOf(this.getRecipeEffects().get(quality).getAlcohol())),
                 "quality", () -> Component.text(score.displayName()),
                 "aging_years", () -> Component.text(brew.aging() != null ? brew.aging().agingYears() : 0),
                 "distill_amount", () -> Component.text(brew.distillRuns()),
@@ -142,9 +135,9 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
 
         private boolean glint;
         private int customModelData;
-        private Map<BrewQuality, String> names;
-        private Map<BrewQuality, List<String>> lore;
-        private RecipeEffects recipeEffects;
+        private QualityData<String> names;
+        private QualityData<List<String>> lore;
+        private QualityData<RecipeEffects> recipeEffects;
         private Color color = Color.BLUE;
         private boolean appendBrewInfoLore = true;
 
@@ -158,17 +151,17 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
             return this;
         }
 
-        public Builder names(@NotNull Map<BrewQuality, String> names) {
+        public Builder names(@NotNull QualityData<String> names) {
             this.names = Objects.requireNonNull(names);
             return this;
         }
 
-        public Builder lore(@NotNull Map<BrewQuality, List<String>> lore) {
+        public Builder lore(@NotNull QualityData<List<String>> lore) {
             this.lore = Objects.requireNonNull(lore);
             return this;
         }
 
-        public Builder recipeEffects(@NotNull RecipeEffects recipeEffects) {
+        public Builder recipeEffects(@NotNull QualityData<RecipeEffects> recipeEffects) {
             this.recipeEffects = Objects.requireNonNull(recipeEffects);
             return this;
         }
@@ -191,12 +184,12 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         }
 
         public Builder name(String name) {
-            this.names = equalQualityResultMap(name);
+            this.names = QualityData.equalValue(name);
             return this;
         }
 
         public Builder lore(List<String> lore) {
-            this.lore = equalQualityResultMap(lore);
+            this.lore = QualityData.equalValue(lore);
             return this;
         }
 

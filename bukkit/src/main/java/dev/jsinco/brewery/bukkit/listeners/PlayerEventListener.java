@@ -16,6 +16,8 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -165,5 +167,6 @@ public class PlayerEventListener implements Listener {
         }
         PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
         drunkManager.consume(event.getPlayer().getUniqueId(), persistentDataContainer.get(RecipeEffects.ALCOHOL, PersistentDataType.INTEGER));
+
     }
 }

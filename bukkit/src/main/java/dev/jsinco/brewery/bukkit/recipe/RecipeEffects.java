@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class RecipeEffects {
@@ -25,13 +24,13 @@ public class RecipeEffects {
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL);
 
     public static final RecipeEffects GENERIC = new Builder()
-            .commands(Map.of())
+            .commands(List.of())
             .effects(List.of())
             .build();
 
     // Commands
     @Getter
-    private final @NotNull Map<BrewQuality, List<String>> commands;
+    private final @NotNull List<String> commands;
     // Effects
     @Getter
     private final @NotNull List<@NotNull RecipeEffect> effects;
@@ -45,7 +44,7 @@ public class RecipeEffects {
     @Getter
     private final int alcohol;
 
-    private RecipeEffects(@NotNull Map<BrewQuality, List<String>> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
+    private RecipeEffects(@NotNull List<String> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
         this.commands = commands;
         this.effects = effects;
         this.title = title;
@@ -60,9 +59,7 @@ public class RecipeEffects {
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
         PDC_TYPES.forEach(container::remove);
-        if (commands.containsKey(quality)) {
-            container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands.get(quality));
-        }
+        container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands);
         if (title != null) {
             container.set(TITLE, PersistentDataType.STRING, title);
         }
@@ -77,14 +74,14 @@ public class RecipeEffects {
 
     public static class Builder {
 
-        private Map<BrewQuality, List<String>> commands = Map.of();
+        private List<String> commands = List.of();
         private List<RecipeEffect> effects = List.of();
         private @Nullable String title;
         private @Nullable String message;
         private @Nullable String actionBar;
         private int alcohol;
 
-        public Builder commands(@NotNull Map<BrewQuality, List<String>> commands) {
+        public Builder commands(@NotNull List<String> commands) {
             this.commands = commands;
             return this;
         }
