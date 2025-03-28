@@ -14,7 +14,7 @@ import java.util.Objects;
  * Recipe object with fewer attributes only used for identifying which recipe is being brewed
  */
 @Getter
-public class Recipe<R, I> {
+public class Recipe<I, M> {
 
     // TODO: re-add specific heat sources
 
@@ -36,11 +36,12 @@ public class Recipe<R, I> {
 
     // End product
     @NotNull
-    private final R recipeResult;
+    private final RecipeResult<I, M> recipeResult;
 
 
     private Recipe(String recipeName, Map<Ingredient<I>, Integer> ingredients, int brewTime, int brewDifficulty,
-                   CauldronType cauldronType, BarrelType barrelType, int agingYears, int distillRuns, int distillTime, @NotNull R recipeResult) {
+                   CauldronType cauldronType, BarrelType barrelType, int agingYears, int distillRuns, int distillTime,
+                   @NotNull RecipeResult<I, M> recipeResult) {
         this.recipeName = recipeName;
         this.ingredients = ingredients;
         this.brewTime = brewTime;
@@ -53,7 +54,7 @@ public class Recipe<R, I> {
         this.recipeResult = recipeResult;
     }
 
-    public static class Builder<R, I> {
+    public static class Builder<I, M> {
         private final String recipeName;
         private Map<Ingredient<I>, Integer> ingredients = new HashMap<>();
         private int brewTime = 1;
@@ -63,58 +64,58 @@ public class Recipe<R, I> {
         private int agingYears = 0;
         private int distillRuns = 0;
         private int distillTime = 30;
-        private R recipeResult;
+        private RecipeResult<I, M> recipeResult;
 
         public Builder(String recipeName) {
             this.recipeName = recipeName;
         }
 
-        public Builder<R, I> ingredients(Map<Ingredient<I>, Integer> ingredients) {
+        public Builder<I, M> ingredients(Map<Ingredient<I>, Integer> ingredients) {
             this.ingredients = ingredients;
             return this;
         }
 
-        public Builder<R, I> brewTime(int brewTime) {
+        public Builder<I, M> brewTime(int brewTime) {
             this.brewTime = brewTime;
             return this;
         }
 
-        public Builder<R, I> brewDifficulty(int brewDifficulty) {
+        public Builder<I, M> brewDifficulty(int brewDifficulty) {
             this.brewDifficulty = brewDifficulty;
             return this;
         }
 
-        public Builder<R, I> cauldronType(CauldronType cauldronType) {
+        public Builder<I, M> cauldronType(CauldronType cauldronType) {
             this.cauldronType = cauldronType;
             return this;
         }
 
-        public Builder<R, I> barrelType(BarrelType barrelType) {
+        public Builder<I, M> barrelType(BarrelType barrelType) {
             this.barrelType = barrelType;
             return this;
         }
 
-        public Builder<R, I> agingYears(int agingYears) {
+        public Builder<I, M> agingYears(int agingYears) {
             this.agingYears = agingYears;
             return this;
         }
 
-        public Builder<R, I> distillRuns(int distillRuns) {
+        public Builder<I, M> distillRuns(int distillRuns) {
             this.distillRuns = distillRuns;
             return this;
         }
 
-        public Builder<R, I> distillTime(int distillTime) {
+        public Builder<I, M> distillTime(int distillTime) {
             this.distillTime = distillTime;
             return this;
         }
 
-        public Builder<R, I> recipeResult(@NotNull R recipeResult) {
+        public Builder<I, M> recipeResult(@NotNull RecipeResult<I, M> recipeResult) {
             this.recipeResult = Objects.requireNonNull(recipeResult);
             return this;
         }
 
-        public Recipe<R, I> build() {
+        public Recipe<I, M> build() {
             Objects.requireNonNull(recipeResult);
             if (ingredients.isEmpty()) {
                 throw new IllegalStateException("Ingredients should not be empty");

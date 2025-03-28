@@ -7,7 +7,7 @@ import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
+import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.Registry;
@@ -15,6 +15,7 @@ import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -25,11 +26,11 @@ public class CreateCommand {
     public static boolean onCommand(Player player, String[] args) {
         //TODO check perms
         if (args.length == 1) {
-            Optional<Recipe<RecipeResult, ItemStack>> recipeOptional = TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(args[0]);
+            Optional<Recipe<ItemStack, PotionMeta>> recipeOptional = TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(args[0]);
             if (recipeOptional.isEmpty()) {
                 return false;
             }
-            Recipe<RecipeResult, ItemStack> recipe = recipeOptional.get();
+            Recipe<ItemStack, PotionMeta> recipe = recipeOptional.get();
             ItemStack brewItem = BrewAdapter.toItem(new Brew<>(new PassedMoment(recipe.getBrewTime()), recipe.getIngredients(), new PassedMoment(recipe.getAgingYears()), recipe.getDistillRuns(), recipe.getCauldronType(), recipe.getBarrelType()));
             player.getWorld().dropItem(player.getLocation(), brewItem);
             return true;

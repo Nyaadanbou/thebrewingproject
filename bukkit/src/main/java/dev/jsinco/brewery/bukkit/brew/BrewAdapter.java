@@ -7,7 +7,6 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.breweries.BarrelPdcType;
 import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
-import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
@@ -48,18 +47,19 @@ public class BrewAdapter {
     }
 
     public static void applyMeta(PotionMeta meta, Brew<ItemStack> brew) {
-        RecipeRegistry<RecipeResult, ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
-        Optional<Recipe<RecipeResult, ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
+        RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
+        Optional<Recipe<ItemStack, PotionMeta>> recipe = brew.closestRecipe(recipeRegistry);
         Optional<BrewScore> score = recipe.map(brew::score);
         Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
 
         if (quality.isEmpty()) {
-            DefaultRecipe<ItemStack, PotionMeta> randomDefault = recipeRegistry.getRandomDefaultRecipe();
+            RecipeResult<ItemStack, PotionMeta> randomDefault = recipeRegistry.getRandomDefaultRecipe();
             boolean hasPreviousData = fillPersistentData(meta, brew);
             if (hasPreviousData) {
                 return;
             }
-            randomDefault.applyMeta(meta);
+            //TODO Refactor this weird implementation for default recipes
+            randomDefault.applyMeta(BrewScore.EXCELLENT, meta, brew);
         } else if (!brew.hasCompletedRecipe(recipe.get())) {
             fillPersistentData(meta, brew);
             incompletePotion(meta, brew);

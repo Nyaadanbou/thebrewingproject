@@ -5,7 +5,7 @@ import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
-import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
+import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.configuration.Config;
@@ -20,6 +20,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
     // To determine the closest recipe:
     // Every time @tick is run, check all reducedrecipes/recipes list and see if the ingredients match
     // if they do, set the closest recipe to that recipe
-    private @Nullable Recipe<RecipeResult, ItemStack> closestRecipe = null;
+    private @Nullable Recipe<ItemStack, PotionMeta> closestRecipe = null;
     // To determine particle effect color:
     // Every time @tick is run and if closest recipe is NOT null, get color from the closest recipe
     // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
@@ -106,7 +107,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
             this.particleColor = Color.AQUA;
         } else if (this.closestRecipe != null) {
-            this.particleColor = ColorUtil.getNextColor(Color.AQUA, this.closestRecipe.getRecipeResult().getColor(), Math.max(block.getWorld().getGameTime() - brewStart, 0), this.closestRecipe.getBrewTime() * Moment.MINUTE);
+            this.particleColor = ColorUtil.getNextColor(Color.AQUA, ((BukkitRecipeResult) this.closestRecipe.getRecipeResult()).getColor(), Math.max(block.getWorld().getGameTime() - brewStart, 0), this.closestRecipe.getBrewTime() * Moment.MINUTE);
         }
     }
 

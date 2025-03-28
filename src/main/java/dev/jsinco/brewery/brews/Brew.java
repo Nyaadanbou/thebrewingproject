@@ -63,10 +63,10 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
     }
 
 
-    public <R> Optional<Recipe<R, I>> closestRecipe(RecipeRegistry<R, I, ?> registry) {
+    public <M> Optional<Recipe<I, M>> closestRecipe(RecipeRegistry<I, M> registry) {
         double bestScore = 0;
-        Recipe<R, I> bestMatch = null;
-        for (Recipe<R, I> recipe : registry.getRecipes()) {
+        Recipe<I, M> bestMatch = null;
+        for (Recipe<I, M> recipe : registry.getRecipes()) {
             // Don't even bother checking recipes that don't have the same amount of ingredients
             if (this.ingredients.size() != recipe.getIngredients().size()
                     || !this.ingredients.keySet().equals(recipe.getIngredients().keySet())) {
@@ -98,7 +98,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         return score;
     }
 
-    public @NotNull BrewScore score(Recipe<?, I> recipe) {
+    public @NotNull BrewScore score(Recipe<I, ?> recipe) {
         double ingredientScore = getIngredientScore(recipe.getIngredients(), this.ingredients);
         double cauldronTimeScore = 1;
         if (brewTime != null) {
@@ -139,11 +139,11 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         return new BrewScore(ingredientScore, cauldronTimeScore, distillRunsScore, agingTimeScore, cauldronTypeScore, barrelTypeScore, recipe.getBrewDifficulty());
     }
 
-    public Optional<BrewQuality> quality(Recipe<?, I> recipe) {
+    public Optional<BrewQuality> quality(Recipe<I, ?> recipe) {
         return Optional.ofNullable(score(recipe).brewQuality());
     }
 
-    public boolean hasCompletedRecipe(Recipe<?, I> recipe) {
+    public boolean hasCompletedRecipe(Recipe<I, ?> recipe) {
         if (!recipe.getIngredients().keySet().equals(ingredients.keySet())) {
             return false;
         }

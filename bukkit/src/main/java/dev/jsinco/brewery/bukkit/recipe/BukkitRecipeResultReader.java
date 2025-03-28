@@ -4,16 +4,18 @@ import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
 import dev.jsinco.brewery.util.moment.Interval;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BukkitRecipeResultReader implements RecipeResultReader<RecipeResult> {
+public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, PotionMeta> {
     @Override
-    public RecipeResult readRecipeResult(ConfigurationSection configurationSection) {
-        return new RecipeResult.Builder()
+    public BukkitRecipeResult readRecipeResult(ConfigurationSection configurationSection) {
+        return new BukkitRecipeResult.Builder()
                 .recipeEffects(getRecipeEffects(configurationSection))
                 .customModelData(configurationSection.getInt("potion-attributes.custom-model-data", -1))
                 .lore(RecipeReader.getQualityFactoredList(configurationSection.getStringList("potion-attributes.lore")))

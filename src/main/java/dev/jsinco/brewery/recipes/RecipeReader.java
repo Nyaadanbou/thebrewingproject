@@ -11,19 +11,19 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 
-public class RecipeReader<R, I> {
+public class RecipeReader<I, M> {
 
     private final File folder;
-    private final RecipeResultReader<R> recipeResultReader;
+    private final RecipeResultReader<I, M> recipeResultReader;
     private final IngredientManager<I> ingredientManager;
 
-    public RecipeReader(File folder, RecipeResultReader<R> recipeResultReader, IngredientManager<I> ingredientManager) {
+    public RecipeReader(File folder, RecipeResultReader<I, M> recipeResultReader, IngredientManager<I> ingredientManager) {
         this.folder = folder;
         this.recipeResultReader = recipeResultReader;
         this.ingredientManager = ingredientManager;
     }
 
-    public Map<String, Recipe<R, I>> readRecipes() {
+    public Map<String, Recipe<I, M>> readRecipes() {
         Path mainDir = folder.toPath();
         YamlFile recipesFile = new YamlFile(mainDir.resolve("recipes.yml").toFile());
 
@@ -34,7 +34,7 @@ public class RecipeReader<R, I> {
         }
 
         ConfigurationSection recipesSection = recipesFile.getConfigurationSection("recipes");
-        ImmutableMap.Builder<String, Recipe<R, I>> recipes = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<String, Recipe<I, M>> recipes = new ImmutableMap.Builder<>();
         for (String recipeName : recipesSection.getKeys(false)) {
             recipes.put(recipeName, getRecipe(recipesSection.getConfigurationSection(recipeName), recipeName));
         }
@@ -47,8 +47,8 @@ public class RecipeReader<R, I> {
      * @param recipeName The name/id of the recipe to obtain. Ex: 'example_recipe'
      * @return A Recipe object with all the attributes of the recipe.
      */
-    private Recipe<R, I> getRecipe(ConfigurationSection recipe, String recipeName) {
-        return new Recipe.Builder<R, I>(recipeName)
+    private Recipe<I, M> getRecipe(ConfigurationSection recipe, String recipeName) {
+        return new Recipe.Builder<I, M>(recipeName)
                 .brewTime(recipe.getInt("brew-time", 0))
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
                 .cauldronType(Registry.CAULDRON_TYPE.get(Registry.brewerySpacedKey(recipe.getString("cauldron-type", "water").toLowerCase(Locale.ROOT))))

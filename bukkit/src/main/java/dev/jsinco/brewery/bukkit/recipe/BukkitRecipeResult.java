@@ -4,8 +4,10 @@ import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
+import dev.jsinco.brewery.recipes.RecipeResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -26,9 +28,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class RecipeResult {
+public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
 
-    public static final RecipeResult GENERIC = new Builder()
+    public static final BukkitRecipeResult GENERIC = new Builder()
             .names(Map.of(
                     BrewQuality.EXCELLENT, "Unknown brew",
                     BrewQuality.GOOD, "Unknown brew",
@@ -55,7 +57,7 @@ public class RecipeResult {
     private final Color color;
     private final boolean appendBrewInfoLore;
 
-    private RecipeResult(boolean glint, int customModelData, RecipeEffects recipeEffects, Map<BrewQuality, String> names, Map<BrewQuality, List<String>> lore, Color color, boolean appendBrewInfoLore) {
+    private BukkitRecipeResult(boolean glint, int customModelData, RecipeEffects recipeEffects, Map<BrewQuality, String> names, Map<BrewQuality, List<String>> lore, Color color, boolean appendBrewInfoLore) {
         this.glint = glint;
         this.customModelData = customModelData;
         this.recipeEffects = recipeEffects;
@@ -84,6 +86,7 @@ public class RecipeResult {
                                 compileExtraLore(score, brew)
                         )
                         .map(component -> component.decoration(TextDecoration.ITALIC, false))
+                        .map(component -> component.colorIfAbsent(NamedTextColor.GRAY))
                         .toList()
         );
         meta.setColor(color);
@@ -180,11 +183,29 @@ public class RecipeResult {
             return this;
         }
 
-        public RecipeResult build() {
+        public BukkitRecipeResult build() {
             Objects.requireNonNull(names, "Names not initialized, a recipe has to have names");
             Objects.requireNonNull(lore, "Lore not initialized, a recipe has to have lore");
             Objects.requireNonNull(recipeEffects, "Effects not initialized, a recipe has to have effects");
-            return new RecipeResult(glint, customModelData, recipeEffects, names, lore, color, appendBrewInfoLore);
+            return new BukkitRecipeResult(glint, customModelData, recipeEffects, names, lore, color, appendBrewInfoLore);
+        }
+
+        public Builder name(String name) {
+            this.names = equalQualityResultMap(name);
+            return this;
+        }
+
+        public Builder lore(List<String> lore) {
+            this.lore = equalQualityResultMap(lore);
+            return this;
+        }
+
+        private <T> Map<BrewQuality, T> equalQualityResultMap(T t) {
+            return Map.of(
+                    BrewQuality.EXCELLENT, t,
+                    BrewQuality.GOOD, t,
+                    BrewQuality.BAD, t
+            );
         }
     }
 }

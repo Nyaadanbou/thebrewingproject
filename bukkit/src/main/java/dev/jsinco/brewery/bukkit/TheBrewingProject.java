@@ -19,7 +19,7 @@ import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
 import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
-import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
+import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
@@ -54,7 +54,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private PlacedStructureRegistry placedStructureRegistry;
     @Getter
-    private RecipeRegistry<RecipeResult, ItemStack, PotionMeta> recipeRegistry;
+    private RecipeRegistry<ItemStack, PotionMeta> recipeRegistry;
     @Getter
     private BreweryRegistry breweryRegistry;
     @Getter
@@ -121,7 +121,7 @@ public class TheBrewingProject extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateStructures, 0, 1);
         Bukkit.getScheduler().runTaskTimer(this, this::otherTicking, 0, 1);
-        RecipeReader<RecipeResult, ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
+        RecipeReader<ItemStack, PotionMeta> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));

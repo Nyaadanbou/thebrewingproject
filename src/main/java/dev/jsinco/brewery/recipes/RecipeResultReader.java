@@ -2,7 +2,7 @@ package dev.jsinco.brewery.recipes;
 
 import org.simpleyaml.configuration.ConfigurationSection;
 
-public interface RecipeResultReader<R> {
+public interface RecipeResultReader<I, M> {
 
-    R readRecipeResult(ConfigurationSection configurationSection);
+    RecipeResult<I, M> readRecipeResult(ConfigurationSection configurationSection);
 }
