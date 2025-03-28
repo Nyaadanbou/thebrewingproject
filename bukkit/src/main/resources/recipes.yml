@@ -75,6 +75,11 @@ recipes:
 # color : String
 # glint : Boolean
 default-recipes:
-  cauldron-brew:
-    name: 'Cauldron Brew'
-    color: 'AQUA'
+  ruined_brew:
+    name: 'Ruined brew'
+    color: 'GRAY'
+    lore:
+      - ""
+      - Cooked for <cooking_time> minutes
+      - Aged for <aging_years> years
+      - Distilled <distill_amount> times
