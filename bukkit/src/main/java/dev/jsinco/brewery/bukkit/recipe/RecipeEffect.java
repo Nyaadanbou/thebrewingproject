@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
-import dev.jsinco.brewery.recipes.PotionQuality;
+import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -16,7 +16,7 @@ public record RecipeEffect(PotionEffectType effect, Interval durationBounds, Int
         return new RecipeEffect(effect, durationBounds, amplifierBounds);
     }
 
-    public PotionEffect getPotionEffect(PotionQuality quality) {
+    public PotionEffect getPotionEffect(BrewQuality quality) {
         return switch (quality) {
             // Return the lowest (first) bound
             case BAD -> new PotionEffect(effect, (int) durationBounds.start(), (int) amplifierBounds.start());

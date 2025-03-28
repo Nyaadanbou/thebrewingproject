@@ -2,7 +2,8 @@ package dev.jsinco.brewery.brews;
 
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.recipes.PotionQuality;
+import dev.jsinco.brewery.recipes.BrewQuality;
+import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
@@ -71,7 +72,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
                     || !this.ingredients.keySet().equals(recipe.getIngredients().keySet())) {
                 continue;
             }
-            double score = evaluateRecipe(recipe);
+            double score = score(recipe).rawScore();
             if (score > bestScore) {
                 bestScore = score;
                 bestMatch = recipe;
@@ -80,7 +81,24 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
         return Optional.ofNullable(bestMatch);
     }
 
-    private double evaluateRecipe(Recipe<?, I> recipe) {
+    private double getNearbyValueScore(long expected, long value) {
+        double sigmoid = 1D / (1D + Math.exp((double) (expected - value) / expected * 5));
+        return sigmoid * (1D - sigmoid) * 4D;
+    }
+
+    private double getIngredientScore(Map<Ingredient<I>, Integer> target, Map<Ingredient<I>, Integer> actual) {
+        double score = 1;
+        for (Map.Entry<Ingredient<I>, Integer> targetEntry : target.entrySet()) {
+            Integer actualAmount = actual.get(targetEntry.getKey());
+            if (actualAmount == null) {
+                return 0;
+            }
+            score *= getNearbyValueScore(targetEntry.getValue(), actualAmount);
+        }
+        return score;
+    }
+
+    public @NotNull BrewScore score(Recipe<?, I> recipe) {
         double ingredientScore = getIngredientScore(recipe.getIngredients(), this.ingredients);
         double cauldronTimeScore = 1;
         if (brewTime != null) {
@@ -110,50 +128,19 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
                 barrelTypeScore = 0.9;
             }
         }
-        return ingredientScore * cauldronTimeScore * agingTimeScore * cauldronTypeScore * barrelTypeScore;
-    }
-
-    private double getNearbyValueScore(long expected, long value) {
-        double sigmoid = 1D / (1D + Math.exp((double) (expected - value)));
-        return sigmoid * (1D - sigmoid) * 4D;
-    }
-
-    private double getIngredientScore(Map<Ingredient<I>, Integer> target, Map<Ingredient<I>, Integer> actual) {
-        double score = 1;
-        for (Map.Entry<Ingredient<I>, Integer> targetEntry : target.entrySet()) {
-            Integer actualAmount = actual.get(targetEntry.getKey());
-            if (actualAmount == null) {
-                return 0;
+        double distillRunsScore = 1;
+        if (distillRuns > 0) {
+            if (recipe.getDistillRuns() == 0) {
+                distillRunsScore = 0;
+            } else {
+                distillRunsScore = getNearbyValueScore(recipe.getDistillRuns(), distillRuns);
             }
-            score *= getNearbyValueScore(targetEntry.getValue(), actualAmount);
         }
-        return score;
+        return new BrewScore(ingredientScore, cauldronTimeScore, distillRunsScore, agingTimeScore, cauldronTypeScore, barrelTypeScore, recipe.getBrewDifficulty());
     }
 
-    public Optional<PotionQuality> quality(Recipe<?, I> recipe) {
-        double score = evaluateRecipe(recipe);
-        double scoreWithDifficulty;
-        // Avoid extreme point, log(0) is minus infinity
-        if (recipe.getBrewDifficulty() == 0) {
-            return Optional.of(PotionQuality.EXCELLENT);
-        }
-        // Avoid extreme point in calculation (can not divide by 0)
-        if (recipe.getBrewDifficulty() == 1) {
-            scoreWithDifficulty = score;
-        } else {
-            double logBrewDifficulty = Math.log(recipe.getBrewDifficulty());
-            scoreWithDifficulty = (Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty) - 1D / recipe.getBrewDifficulty()) / (1 - 1D / recipe.getBrewDifficulty());
-        }
-        if (scoreWithDifficulty > 0.9) {
-            return Optional.of(PotionQuality.EXCELLENT);
-        }
-        if (scoreWithDifficulty > 0.5) {
-            return Optional.of(PotionQuality.GOOD);
-        }
-        if (scoreWithDifficulty > 0.3) {
-            return Optional.of(PotionQuality.BAD);
-        }
-        return Optional.empty();
+    public Optional<BrewQuality> quality(Recipe<?, I> recipe) {
+        return Optional.ofNullable(score(recipe).brewQuality());
     }
 
     public boolean hasCompletedRecipe(Recipe<?, I> recipe) {

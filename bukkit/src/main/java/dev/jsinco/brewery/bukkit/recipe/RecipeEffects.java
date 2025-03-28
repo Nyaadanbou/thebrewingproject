@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
-import dev.jsinco.brewery.recipes.PotionQuality;
+import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
 import org.bukkit.NamespacedKey;
@@ -29,7 +29,7 @@ public class RecipeEffects {
 
     // Commands
     @Getter
-    private final @NotNull Map<PotionQuality, List<String>> commands;
+    private final @NotNull Map<BrewQuality, List<String>> commands;
     // Effects
     @Getter
     private final @NotNull List<@NotNull RecipeEffect> effects;
@@ -43,7 +43,7 @@ public class RecipeEffects {
     @Getter
     private final int alcohol;
 
-    private RecipeEffects(@NotNull Map<PotionQuality, List<String>> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
+    private RecipeEffects(@NotNull Map<BrewQuality, List<String>> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
         this.commands = commands;
         this.effects = effects;
         this.title = title;
@@ -52,7 +52,7 @@ public class RecipeEffects {
         this.alcohol = alcohol;
     }
 
-    public void applyTo(PotionMeta meta, PotionQuality quality) {
+    public void applyTo(PotionMeta meta, BrewQuality quality) {
         for (RecipeEffect recipeEffect : effects) {
             meta.addCustomEffect(recipeEffect.getPotionEffect(quality), true);
         }
@@ -74,14 +74,14 @@ public class RecipeEffects {
 
     public static class Builder {
 
-        private Map<PotionQuality, List<String>> commands = Map.of();
+        private Map<BrewQuality, List<String>> commands = Map.of();
         private List<RecipeEffect> effects = List.of();
         private @Nullable String title;
         private @Nullable String message;
         private @Nullable String actionBar;
         private int alcohol;
 
-        public Builder commands(@NotNull Map<PotionQuality, List<String>> commands) {
+        public Builder commands(@NotNull Map<BrewQuality, List<String>> commands) {
             this.commands = commands;
             return this;
         }

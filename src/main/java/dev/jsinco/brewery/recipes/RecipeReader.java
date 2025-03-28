@@ -67,34 +67,34 @@ public class RecipeReader<R, I> {
 
     // FIXME - I feel like there has to be a better way of doing this that doesn't rely on a map of enums?
     // This is ok from my point of view / thorinwasher
-    public static Map<PotionQuality, String> getQualityFactoredString(String str) {
+    public static Map<BrewQuality, String> getQualityFactoredString(String str) {
         if (!str.contains("/")) {
-            return Map.of(PotionQuality.BAD, str, PotionQuality.GOOD, str, PotionQuality.EXCELLENT, str);
+            return Map.of(BrewQuality.BAD, str, BrewQuality.GOOD, str, BrewQuality.EXCELLENT, str);
         }
 
         String[] list = str.split("/");
         if (list.length != 3) {
             throw new IllegalArgumentException("Expected a string with format <bad>/<good>/<excellent>");
         }
-        Map<PotionQuality, String> map = new HashMap<>();
+        Map<BrewQuality, String> map = new HashMap<>();
         for (int i = 0; i < Math.min(list.length, 3); i++) {
-            map.put(PotionQuality.values()[i], list[i]);
+            map.put(BrewQuality.values()[i], list[i]);
         }
         return map;
     }
 
-    public static Map<PotionQuality, List<String>> getQualityFactoredList(List<String> list) {
-        Map<PotionQuality, List<String>> map = new HashMap<>();
+    public static Map<BrewQuality, List<String>> getQualityFactoredList(List<String> list) {
+        Map<BrewQuality, List<String>> map = new HashMap<>();
 
         for (String string : list) {
             if (string.startsWith("+++")) {
-                map.computeIfAbsent(PotionQuality.EXCELLENT, ignored -> new ArrayList<>()).add(string.substring(3));
+                map.computeIfAbsent(BrewQuality.EXCELLENT, ignored -> new ArrayList<>()).add(string.substring(3));
             } else if (string.startsWith("++")) {
-                map.computeIfAbsent(PotionQuality.GOOD, ignored -> new ArrayList<>()).add(string.substring(2));
+                map.computeIfAbsent(BrewQuality.GOOD, ignored -> new ArrayList<>()).add(string.substring(2));
             } else if (string.startsWith("+")) {
-                map.computeIfAbsent(PotionQuality.BAD, ignored -> new ArrayList<>()).add(string.substring(1));
+                map.computeIfAbsent(BrewQuality.BAD, ignored -> new ArrayList<>()).add(string.substring(1));
             } else {
-                for (PotionQuality quality : PotionQuality.values()) {
+                for (BrewQuality quality : BrewQuality.values()) {
                     map.computeIfAbsent(quality, ignored -> new ArrayList<>()).add(switch (quality) {
                         case BAD -> string.substring(1);
                         case GOOD -> string.substring(2);
@@ -102,6 +102,9 @@ public class RecipeReader<R, I> {
                     });
                 }
             }
+        }
+        for (BrewQuality quality : BrewQuality.values()) {
+            map.putIfAbsent(quality, new ArrayList<>());
         }
         return map;
     }

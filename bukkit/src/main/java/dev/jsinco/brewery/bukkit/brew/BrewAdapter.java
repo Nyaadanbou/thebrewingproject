@@ -9,10 +9,7 @@ import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
 import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
-import dev.jsinco.brewery.recipes.DefaultRecipe;
-import dev.jsinco.brewery.recipes.PotionQuality;
-import dev.jsinco.brewery.recipes.Recipe;
-import dev.jsinco.brewery.recipes.RecipeRegistry;
+import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.ItemColorUtil;
 import dev.jsinco.brewery.util.Registry;
@@ -53,7 +50,8 @@ public class BrewAdapter {
     public static void applyMeta(PotionMeta meta, Brew<ItemStack> brew) {
         RecipeRegistry<RecipeResult, ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
         Optional<Recipe<RecipeResult, ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
-        Optional<PotionQuality> quality = recipe.flatMap(brew::quality);
+        Optional<BrewScore> score = recipe.map(brew::score);
+        Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
 
         if (quality.isEmpty()) {
             DefaultRecipe<ItemStack, PotionMeta> randomDefault = recipeRegistry.getRandomDefaultRecipe();
@@ -67,7 +65,7 @@ public class BrewAdapter {
             incompletePotion(meta, brew);
         } else {
             fillPersistentData(meta, brew);
-            recipe.get().getRecipeResult().applyMeta(quality.get(), meta);
+            recipe.get().getRecipeResult().applyMeta(score.get(), meta, brew);
         }
     }
 

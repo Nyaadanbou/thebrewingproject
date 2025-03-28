@@ -3,7 +3,6 @@ package dev.jsinco.brewery.bukkit.recipe;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
-import dev.jsinco.brewery.util.Util;
 import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
@@ -11,7 +10,7 @@ import org.simpleyaml.configuration.ConfigurationSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BukkitRecipeResultReader implements RecipeResultReader<RecipeResult>{
+public class BukkitRecipeResultReader implements RecipeResultReader<RecipeResult> {
     @Override
     public RecipeResult readRecipeResult(ConfigurationSection configurationSection) {
         return new RecipeResult.Builder()
@@ -21,8 +20,10 @@ public class BukkitRecipeResultReader implements RecipeResultReader<RecipeResult
                 .glint(configurationSection.getBoolean("potion-attributes.glint", false))
                 .names(RecipeReader.getQualityFactoredString(configurationSection.getString("potion-attributes.name")))
                 .color(ColorUtil.parseColorString(configurationSection.getString("potion-attributes.color")))
+                .appendBrewInfoLore(configurationSection.getBoolean("potion-attributes.append-brew-info-lore", true))
                 .build();
     }
+
     private static RecipeEffects getRecipeEffects(ConfigurationSection configurationSection) {
         return new RecipeEffects.Builder()
                 .actionBar(configurationSection.getString("messages.action-bar", null))
