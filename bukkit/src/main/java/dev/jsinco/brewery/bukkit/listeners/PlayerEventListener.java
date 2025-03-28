@@ -2,7 +2,6 @@ package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
@@ -16,8 +15,6 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -165,8 +162,7 @@ public class PlayerEventListener implements Listener {
         if (!(event.getItem().getItemMeta() instanceof PotionMeta potionMeta)) {
             return;
         }
-        PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
-        drunkManager.consume(event.getPlayer().getUniqueId(), persistentDataContainer.get(RecipeEffects.ALCOHOL, PersistentDataType.INTEGER));
-
+        RecipeEffects.fromItem(event.getItem())
+                .ifPresent(effect -> effect.applyTo(event.getPlayer(), drunkManager));
     }
 }

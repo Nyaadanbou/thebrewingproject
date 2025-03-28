@@ -30,7 +30,7 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
     private static QualityData<RecipeEffects> getRecipeEffects(ConfigurationSection configurationSection) {
         QualityData<String> actionBar = QualityData.readQualityFactoredString(configurationSection.getString("messages.action-bar", null));
         QualityData<String> title = QualityData.readQualityFactoredString(configurationSection.getString("messages.title", null));
-        QualityData<String> message = QualityData.readQualityFactoredString(configurationSection.getString("messages.title", null));
+        QualityData<String> message = QualityData.readQualityFactoredString(configurationSection.getString("messages.message", null));
         QualityData<List<String>> commands = QualityData.readQualityFactoredStringList(configurationSection.getStringList("commands"));
         QualityData<List<RecipeEffect>> effects = QualityData.readQualityFactoredStringList(configurationSection.getStringList("effects"))
                 .map(list -> list

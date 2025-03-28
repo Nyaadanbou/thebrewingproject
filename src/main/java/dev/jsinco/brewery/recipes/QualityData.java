@@ -75,11 +75,7 @@ public class QualityData<T> {
                 map.computeIfAbsent(BrewQuality.BAD, ignored -> new ArrayList<>()).add(string.substring(1));
             } else {
                 for (BrewQuality quality : BrewQuality.values()) {
-                    map.computeIfAbsent(quality, ignored -> new ArrayList<>()).add(switch (quality) {
-                        case BAD -> string.substring(1);
-                        case GOOD -> string.substring(2);
-                        case EXCELLENT -> string.substring(3);
-                    });
+                    map.computeIfAbsent(quality, ignored -> new ArrayList<>()).add(string);
                 }
             }
         }

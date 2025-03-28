@@ -1,10 +1,20 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
+import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -13,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class RecipeEffects {
 
@@ -70,6 +81,64 @@ public class RecipeEffects {
             container.set(ACTION_BAR, PersistentDataType.STRING, actionBar);
         }
         container.set(ALCOHOL, PersistentDataType.INTEGER, alcohol);
+    }
+
+    public static Optional<RecipeEffects> fromItem(@NotNull ItemStack item) {
+        RecipeEffects.Builder builder = new RecipeEffects.Builder();
+        PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
+        if (!persistentDataContainer.has(ALCOHOL)) {
+            return Optional.empty();
+        }
+        builder.commands(persistentDataContainer.getOrDefault(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, List.of()));
+        builder.alcohol(persistentDataContainer.getOrDefault(ALCOHOL, PersistentDataType.INTEGER, 0));
+        if (persistentDataContainer.has(TITLE)) {
+            builder.title(persistentDataContainer.get(TITLE, PersistentDataType.STRING));
+        }
+        if (persistentDataContainer.has(MESSAGE)) {
+            builder.message(persistentDataContainer.get(MESSAGE, PersistentDataType.STRING));
+        }
+        if (persistentDataContainer.has(ACTION_BAR)) {
+            builder.actionBar(persistentDataContainer.get(ACTION_BAR, PersistentDataType.STRING));
+        }
+        return Optional.of(builder.build());
+    }
+
+    public void applyTo(Player player, DrunkManager drunkManager) {
+        drunkManager.consume(player.getUniqueId(), alcohol);
+        this.commands.stream()
+                .map(command -> compileUnparsedEffectMessage(command, player, drunkManager))
+                .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+        if (title != null) {
+            player.showTitle(Title.title(compileEffectMessage(title, player, drunkManager), Component.empty()));
+        }
+        if (message != null) {
+            player.sendMessage(compileEffectMessage(message, player, drunkManager));
+        }
+        if (actionBar != null) {
+            player.sendActionBar(compileEffectMessage(actionBar, player, drunkManager));
+        }
+    }
+
+    private Component compileEffectMessage(String message, Player player, DrunkManager drunkManager) {
+        DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
+        return MiniMessage.miniMessage().deserialize(
+                message,
+                Placeholder.component("player_name", player.name()),
+                Placeholder.component("team_name", player.teamDisplayName()),
+                Placeholder.parsed("alcohol", String.valueOf(this.getAlcohol())),
+                Placeholder.parsed("player_alcohol", String.valueOf(drunkState == null ? "0" : drunkState.alcohol())),
+                Placeholder.unparsed("world", player.getWorld().getName())
+        );
+    }
+
+    private String compileUnparsedEffectMessage(String message, Player player, DrunkManager drunkManager) {
+        DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
+        return message
+                .replace("<player_name>", player.getName())
+                .replace("<team_name>", PlainTextComponentSerializer.plainText().serialize(player.teamDisplayName()))
+                .replace("<alcohol>", String.valueOf(this.getAlcohol()))
+                .replace("<player_alcohol>", String.valueOf(String.valueOf(drunkState == null ? "0" : drunkState.alcohol())))
+                .replace("<world>", player.getWorld().getName());
     }
 
     public static class Builder {
