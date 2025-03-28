@@ -49,7 +49,7 @@ class BreweryStructureTest {
 
     @ParameterizedTest
     @MethodSource("getInvalidMeta")
-    void invalidMeta(Map<StructureMeta< ?>, Object> structureMeta) throws URISyntaxException, IOException {
+    void invalidMeta(Map<StructureMeta<?>, Object> structureMeta) throws URISyntaxException, IOException {
         URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.schem");
         Schematic schematic = new SchematicReader().read(Paths.get(url.toURI()));
         assertThrows(IllegalArgumentException.class, () -> new BreweryStructure(schematic, "hello", structureMeta));
@@ -57,7 +57,7 @@ class BreweryStructureTest {
 
     @ParameterizedTest
     @MethodSource("getValidMeta")
-    void validMeta(Map<StructureMeta< ?>, Object> structureMeta) throws URISyntaxException, IOException {
+    void validMeta(Map<StructureMeta<?>, Object> structureMeta) throws URISyntaxException, IOException {
         URL url = PlacedBreweryStructure.class.getResource("/structures/test_barrel.schem");
         Schematic schematic = new SchematicReader().read(Paths.get(url.toURI()));
         assertDoesNotThrow(() -> new BreweryStructure(schematic, "hello", structureMeta));
@@ -90,12 +90,13 @@ class BreweryStructureTest {
                 Arguments.of(Map.of(
                         StructureMeta.TYPE, StructureType.DISTILLERY,
                         StructureMeta.INVENTORY_SIZE, 18,
-                        StructureMeta.TAGGED_MATERIAL, "decorated_pot"
+                        StructureMeta.TAGGED_MATERIAL, "decorated_pot",
+                        StructureMeta.PROCESS_TIME, 0L
                 )),
                 Arguments.of(Map.of(
                         StructureMeta.TYPE, StructureType.BARREL,
                         StructureMeta.INVENTORY_SIZE, 9,
-                        StructureMeta.USE_BARREL_SUBSTITUTION, true))
-        );
+                        StructureMeta.USE_BARREL_SUBSTITUTION, true)
+        ));
     }
 }

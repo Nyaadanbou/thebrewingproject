@@ -6,7 +6,7 @@ import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.bukkit.recipe.RecipeResult;
-import dev.jsinco.brewery.recipes.PotionQuality;
+import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.util.moment.Interval;
@@ -50,7 +50,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe2").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @Test
@@ -63,7 +63,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe3").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @Test
@@ -76,7 +76,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe4").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @Test
@@ -89,7 +89,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe5").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @Test
@@ -102,7 +102,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe6").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @Test
@@ -115,7 +115,7 @@ class BrewTest {
         Recipe<RecipeResult, ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe7").get(), closest);
         assertTrue(brew.hasCompletedRecipe(closest));
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(closest).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
     @ParameterizedTest
@@ -137,7 +137,7 @@ class BrewTest {
                 CauldronType.WATER,
                 BarrelType.BAMBOO
         );
-        assertEquals(PotionQuality.EXCELLENT, brew.quality(recipe).get());
+        assertEquals(BrewQuality.EXCELLENT, brew.quality(recipe).get());
     }
 
     @ParameterizedTest
@@ -161,8 +161,8 @@ class BrewTest {
                     CauldronType.WATER,
                     BarrelType.BAMBOO
             );
-            PotionQuality potionQuality = brew.quality(recipe).orElse(null);
-            if(potionQuality == null) {
+            BrewQuality brewQuality = brew.quality(recipe).orElse(null);
+            if(brewQuality == null) {
                 hasHadNullQuality = true;
             }
         }
@@ -190,8 +190,8 @@ class BrewTest {
                     CauldronType.WATER,
                     BarrelType.BAMBOO
             );
-            PotionQuality potionQuality = brew.quality(recipe).orElse(null);
-            if(potionQuality == null) {
+            BrewQuality brewQuality = brew.quality(recipe).orElse(null);
+            if(brewQuality == null) {
                 hasHadNullQuality = true;
             }
         }
