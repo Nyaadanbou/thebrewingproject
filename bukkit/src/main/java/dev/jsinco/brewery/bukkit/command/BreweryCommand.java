@@ -1,5 +1,7 @@
 package dev.jsinco.brewery.bukkit.command;
 
+import dev.jsinco.brewery.bukkit.effect.DrunkEventAction;
+import dev.jsinco.brewery.effect.DrunkEvent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,6 +19,10 @@ public class BreweryCommand implements CommandExecutor {
         }
         return switch (args[0]) {
             case "create" -> CreateCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
+            case "puke" -> {
+                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.PUKE);
+                yield true;
+            }
             default -> false;
         };
     }

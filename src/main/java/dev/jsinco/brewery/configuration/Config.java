@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.configuration;
 
 import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.moment.Moment;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 public final class Config extends AbstractConfig {
-
     @Key("config-version")
     @Comment("""
             Config version. Don't change this""")
@@ -57,6 +57,11 @@ public final class Config extends AbstractConfig {
             Campfires must be lit and lava must be a source block.""")
     public static List<String> HEAT_SOURCES = List.of("campfire", "soul_campfire", "lava", "fire", "soul_fire", "magma_block");
 
+    @Key("puke.despawn-rate")
+    @Comment("""
+            How many ticks should the puke items live
+            """)
+    public static int PUKE_DESPAWN_RATE = 6 * Moment.SECOND;
 
     private static final Config CONFIG = new Config();
 
