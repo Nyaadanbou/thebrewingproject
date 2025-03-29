@@ -1,17 +1,21 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
+import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
 import dev.jsinco.brewery.util.moment.Interval;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, PotionMeta> {
     @Override
@@ -53,11 +57,14 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
 
     private static RecipeEffect getEffect(String string) {
         if (!string.contains("/")) {
-            return RecipeEffect.of(PotionEffectType.getByName(string), new Interval(1, 1), new Interval(1, 1));
+            PotionEffectType type = Registry.EFFECT.get(NamespacedKey.fromString(string.toLowerCase(Locale.ROOT)));
+            Preconditions.checkNotNull(type);
+            return new RecipeEffect(type, new Interval(1, 1), new Interval(1, 1));
         }
 
         String[] parts = string.split("/");
-        PotionEffectType effectType = PotionEffectType.getByName(parts[0]);
+        PotionEffectType type = PotionEffectType.getByName(parts[0]);
+        Preconditions.checkNotNull(type);
         Interval durationBounds = Interval.parse(parts[1]);
         Interval amplifierBounds;
         if (parts.length >= 3) {
@@ -65,16 +72,7 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
         } else {
             amplifierBounds = new Interval(1, 1);
         }
-
-        return RecipeEffect.of(effectType, durationBounds, amplifierBounds);
-    }
-
-    private static List<RecipeEffect> getEffectsFromStringList(List<String> list) {
-        List<RecipeEffect> effects = new ArrayList<>();
-        for (String string : list) {
-            effects.add(getEffect(string));
-        }
-        return effects;
+        return new RecipeEffect(type, durationBounds, amplifierBounds);
     }
 
 }

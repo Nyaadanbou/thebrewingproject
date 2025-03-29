@@ -1,30 +1,20 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
-import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.util.moment.Moment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
 
-// FIXME - needs to convert from seconds to minecraft ticks
-public record RecipeEffect(PotionEffectType effect, Interval durationBounds, Interval amplifierBounds) {
+public record RecipeEffect(PotionEffectType type, Interval durationRange, Interval amplifierRange) {
 
     private static final Random RANDOM = new Random();
 
-    public static RecipeEffect of(PotionEffectType effect, Interval durationBounds, Interval amplifierBounds) {
-        return new RecipeEffect(effect, durationBounds, amplifierBounds);
-    }
-
-    public PotionEffect getPotionEffect(BrewQuality quality) {
-        return switch (quality) {
-            // Return the lowest (first) bound
-            case BAD -> new PotionEffect(effect, (int) durationBounds.start(), (int) amplifierBounds.start());
-            // Return a value between the first and second bounds
-            case GOOD ->
-                    new PotionEffect(effect, RANDOM.nextInt((int) durationBounds.start(), (int) durationBounds.stop()), RANDOM.nextInt((int) amplifierBounds.start(), (int) amplifierBounds.stop()));
-            // Return the highest (second) bound
-            case EXCELLENT -> new PotionEffect(effect, (int) durationBounds.stop(), (int) amplifierBounds.stop());
-        };
+    public PotionEffect newPotionEffect() {
+        return new PotionEffect(type,
+                RANDOM.nextInt((int) durationRange.start(), (int) (durationRange.stop() + 1)) * Moment.SECOND,
+                RANDOM.nextInt((int) amplifierRange.start(), (int) (amplifierRange.stop() + 1)) * Moment.SECOND
+        );
     }
 }

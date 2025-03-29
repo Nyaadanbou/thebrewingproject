@@ -66,7 +66,7 @@ public class RecipeEffects {
 
     public void applyTo(PotionMeta meta, BrewQuality quality) {
         for (RecipeEffect recipeEffect : effects) {
-            meta.addCustomEffect(recipeEffect.getPotionEffect(quality), true);
+            meta.addCustomEffect(recipeEffect.newPotionEffect(), true);
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
         PDC_TYPES.forEach(container::remove);
