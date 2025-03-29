@@ -9,11 +9,13 @@ import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -91,7 +93,10 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
 
     public boolean addIngredient(@NotNull ItemStack item, Player player) {
         // TODO: Add API event
-        // TODO: Add permission check
+        if (!player.hasPermission("brewery.cauldron.access")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_ACCESS_DENIED));
+            return false;
+        }
         if (ingredients.isEmpty()) {
             this.brewStart = block.getWorld().getGameTime();
         }

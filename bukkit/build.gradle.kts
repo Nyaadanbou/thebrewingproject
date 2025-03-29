@@ -1,3 +1,5 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+
 plugins {
     id("java")
     id("io.github.goooler.shadow") version "8.1.7"
@@ -60,6 +62,33 @@ bukkit {
         }
         register("brew") {
             aliases = listOf("brewery")
+        }
+    }
+    permissions {
+        register("brewery.barrel.create") {
+            children = listOf("brewery.barrel.access")
+        }
+        register("brewery.barrel.access")
+        register("brewery.distillery.create") {
+            children = listOf("brewery.distillery.access")
+        }
+        register("brewery.distillery.access")
+        register("brewery.cauldron.access")
+        register("brewery.structure.access") {
+            children = listOf("brewery.barrel.access", "brewery.distillery.access", "brewery.cauldron.access")
+        }
+        register("brewery.structure.create") {
+            children = listOf("brewery.structure.access", "brewery.barrel.create", "brewery.distillery.create")
+            default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+        register("brewery.command.create") {
+            default = BukkitPluginDescription.Permission.Default.OP
+        }
+        register("brewery.command") {
+            children = listOf("brewery.command.create")
+        }
+        register("brewery") {
+            children = listOf("brewery.command", "brewery.structure.create")
         }
     }
 }

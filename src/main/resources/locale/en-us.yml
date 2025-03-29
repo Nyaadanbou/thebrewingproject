@@ -6,6 +6,12 @@ brew.tooltip-quality: <quality_color><quality></quality_color>
 brew.tooltip-sealed:
   - <gray><quality>
 distillery.create: <gray>Created a distillery
+distillery.create-denied: <red>You don't have enough permissions to create a distillery
+distillery.access-denied: <red>You don't have enough permissions to access a distillery
+barrel.create: <gray>Created a barrel
+barrel.create-denied: <red>You don't have enough permissions to create a barrel
+barrel.access-denied: <red>You don't have enough permissions to access a barrel
+cauldron.access-denied: <red>You don't have enough permissions to access a cauldron
 command.create.unique-argument: <gray>Each argument has to be unique
 command.create.unknown-argument: <gray>Unknown argument '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>

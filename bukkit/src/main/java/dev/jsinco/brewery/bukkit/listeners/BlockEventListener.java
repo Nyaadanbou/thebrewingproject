@@ -70,6 +70,11 @@ public class BlockEventListener implements Listener {
             // Exit if there's an overlapping structure
             return;
         }
+        if (!event.getPlayer().hasPermission("brewery.barrel.create")) {
+            event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.BARREL_CREATE_DENIED));
+            return;
+        }
+        event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.BARREL_CREATE));
         placedStructureRegistry.registerStructure(placedBreweryStructure);
         BukkitBarrel barrel = new BukkitBarrel(event.getBlock().getLocation(), placedBreweryStructure, placedBreweryStructure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), placedStructurePair.second());
         placedBreweryStructure.setHolder(barrel);
@@ -90,6 +95,13 @@ public class BlockEventListener implements Listener {
         for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
             Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), DistilleryBlockDataMatcher.INSTANCE, new Void[1]);
             if (placedBreweryStructureOptional.isPresent()) {
+                if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
+                    continue;
+                }
+                if (!placeEvent.getPlayer().hasPermission("brewery.distillery.create")) {
+                    placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE_DENIED));
+                    return;
+                }
                 registerDistillery(placedBreweryStructureOptional.get().first());
                 placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
                 return;

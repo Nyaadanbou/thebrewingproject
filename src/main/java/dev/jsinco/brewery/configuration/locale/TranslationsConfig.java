@@ -31,6 +31,24 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("distillery.create")
     public static String DISTILLERY_CREATE;
 
+    @Key("distillery.create-denied")
+    public static String DISTILLERY_CREATE_DENIED;
+
+    @Key("distillery.access-denied")
+    public static String DISTILLERY_ACCESS_DENIED;
+
+    @Key("barrel.create")
+    public static String BARREL_CREATE;
+
+    @Key("barrel.create-denied")
+    public static String BARREL_CREATE_DENIED;
+
+    @Key("barrel.access-denied")
+    public static String BARREL_ACCESS_DENIED;
+
+    @Key("cauldron.access-denied")
+    public static String CAULDRON_ACCESS_DENIED;
+
     @Key("command.create.unique-argument")
     public static String COMMAND_CREATE_UNIQUE_ARGUMENT;
 
