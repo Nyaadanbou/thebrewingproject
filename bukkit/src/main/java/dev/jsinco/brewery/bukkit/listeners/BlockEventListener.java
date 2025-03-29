@@ -6,6 +6,7 @@ import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.bukkit.structure.*;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.MultiBlockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
@@ -13,6 +14,7 @@ import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,8 +25,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -91,7 +91,7 @@ public class BlockEventListener implements Listener {
             Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), DistilleryBlockDataMatcher.INSTANCE, new Void[1]);
             if (placedBreweryStructureOptional.isPresent()) {
                 registerDistillery(placedBreweryStructureOptional.get().first());
-                placeEvent.getPlayer().sendMessage("Created a distillery");
+                placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
                 return;
             }
         }

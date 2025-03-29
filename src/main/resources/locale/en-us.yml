@@ -1,0 +1,11 @@
+brew.tooltip-ingredients: <ingredients_quality_color>Ingredients</ingredients_quality_color>
+brew.tooltip-aging: <aging_quality_color>Aged <aging_years> years</aging_quality_color>
+brew.tooltip-distilling: <distilling_quality_color>Distilled <distill_amount> times</distilling_quality_color>
+brew.tooltip-cooking: <cooking_quality_color>Cooked <cooking_time> minutes</cooking_quality_color>
+brew.tooltip-quality: <quality_color><quality></quality_color>
+brew.tooltip-sealed:
+  - <gray><quality>
+distillery.create: <gray>Created a distillery
+command.create.unique-argument: <gray>Each argument has to be unique
+command.create.unknown-argument: <gray>Unknown argument '<argument>'
+command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>

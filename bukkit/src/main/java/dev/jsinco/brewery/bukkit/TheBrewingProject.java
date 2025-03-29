@@ -19,10 +19,11 @@ import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
 import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
-import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
+import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.database.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunkManager;
@@ -67,6 +68,8 @@ public class TheBrewingProject extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
+        Config.reload(this.getDataFolder());
+        TranslationsConfig.reload(this.getDataFolder());
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistry();
         this.breweryRegistry = new BreweryRegistry();

@@ -7,12 +7,14 @@ import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.moment.PassedMoment;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -57,12 +59,12 @@ public class CreateCommand {
                 operatorName = replacements.get(operatorName);
             }
             if (used.contains(operatorName)) {
-                player.sendMessage("Each argument has to be unique!");
+                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNIQUE_ARGUMENT, Placeholder.unparsed("argument", operatorName)));
                 return false;
             }
             BiFunction<Iterator<String>, Brew<ItemStack>, Brew<ItemStack>> operator = operators.get(operatorName);
             if (operator == null) {
-                player.sendMessage("Unknown argument: " + operatorName);
+                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNKNOWN_ARGUMENT, Placeholder.unparsed("argument", operatorName)));
                 return false;
             }
             brew = operator.apply(iterator, brew);
@@ -70,7 +72,8 @@ public class CreateCommand {
             used.add(operatorName);
         }
         if (!mandatory.isEmpty()) {
-            player.sendMessage("Missing mandatory argument: " + mandatory);
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT, Placeholder.unparsed("arguments", mandatory.toString())));
+            return false;
         }
         ItemStack brewItem = BrewAdapter.toItem(brew);
         player.getWorld().dropItem(player.getLocation(), brewItem);

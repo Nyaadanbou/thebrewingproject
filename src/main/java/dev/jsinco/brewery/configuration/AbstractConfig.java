@@ -49,9 +49,8 @@ public abstract class AbstractConfig {
                 return;
             }
             try {
-                Object obj = getClassObject();
-                Object value = getValue(key.value(), field.get(obj));
-                field.set(obj, value);
+                Object value = getValue(key.value(), field.get(null));
+                field.set(null, value);
                 if (comment != null) {
                     setComment(key.value(), comment.value());
                 }
@@ -71,10 +70,6 @@ public abstract class AbstractConfig {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected @Nullable Object getClassObject() {
-        return null;
     }
 
     protected @Nullable Object getValue(@NotNull String path, @Nullable Object def) {

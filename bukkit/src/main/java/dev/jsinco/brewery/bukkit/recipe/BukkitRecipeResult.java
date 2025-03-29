@@ -1,17 +1,21 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
+import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.apache.commons.lang3.ArrayUtils;
@@ -98,37 +102,42 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         }
         Stream.Builder<Component> streamBuilder = Stream.builder();
         streamBuilder.add(Component.empty());
-        streamBuilder.add(Component.text("Ingredients").color(TextColor.color(BrewScore.quality(score.ingredientScore()).getColor())));
+        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_INGREDIENTS));
         if (brew.aging() != null) {
-            streamBuilder.add(compileMessage(score, brew, "Aged <aging_years> years").color(TextColor.color(BrewScore.quality(score.agingTimeScore() * score.barrelTypeScore()).getColor())));
+            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_AGING));
         }
         if (brew.distillRuns() > 0) {
-            streamBuilder.add(compileMessage(score, brew, "Distilled <distill_amount> times").color(TextColor.color(BrewScore.quality(score.distillRunsScore()).getColor())));
+            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_DISTILLING));
         }
-        streamBuilder.add(compileMessage(score, brew, "Cooked <cooking_time> minutes").color(TextColor.color(BrewScore.quality(score.cauldronTypeScore() * score.cauldronTimeScore()).getColor())));
-        BrewQuality quality = score.brewQuality();
-        streamBuilder.add(compileMessage(score, brew, "<quality>").color(TextColor.color(quality.getColor())));
+        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_COOKING));
+        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY));
         return streamBuilder.build();
     }
 
     private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage, String... banned) {
-        Map<String, Supplier<Component>> resolverMap = getResolverMap(score, brew);
+        Map<String, Supplier<TagResolver>> resolverMap = getResolverMap(score, brew);
         TagResolver[] placeholders = resolverMap.entrySet().stream()
                 .filter(entry -> !ArrayUtils.contains(banned, entry.getKey()))
-                .map(entry -> Placeholder.component(entry.getKey(), entry.getValue().get()))
+                .map(entry -> entry.getValue().get())
                 .toArray(TagResolver[]::new);
         return MiniMessage.miniMessage().deserialize(serializedMiniMessage, placeholders);
     }
 
-    private @NotNull Map<String, Supplier<Component>> getResolverMap(BrewScore score, Brew<ItemStack> brew) {
+    private @NotNull Map<String, Supplier<TagResolver>> getResolverMap(BrewScore score, Brew<ItemStack> brew) {
         BrewQuality quality = score.brewQuality();
-        return Map.of(
-                "brew_name", () -> compileMessage(score, brew, this.names.get(quality), "brew_name"),
-                "alcohol", () -> Component.text(String.valueOf(this.getRecipeEffects().get(quality).getAlcohol())),
-                "quality", () -> Component.text(score.displayName()),
-                "aging_years", () -> Component.text(brew.aging() != null ? brew.aging().agingYears() : 0),
-                "distill_amount", () -> Component.text(brew.distillRuns()),
-                "cooking_time", () -> Component.text(brew.brewTime().minutes()));
+        ImmutableMap.Builder<String, Supplier<TagResolver>> resolverMap = ImmutableMap.builder();
+        resolverMap.put("brew_name", () -> Placeholder.component("brew_name", compileMessage(score, brew, this.names.get(quality), "brew_name")));
+        resolverMap.put("alcohol", () -> Formatter.number("alcohol", this.getRecipeEffects().get(quality).getAlcohol()));
+        resolverMap.put("quality", () -> Placeholder.component("quality", Component.text(score.displayName())));
+        resolverMap.put("aging_years", () -> Formatter.number("aging_years", brew.aging() != null ? brew.aging().agingYears() : 0));
+        resolverMap.put("distill_amount", () -> Formatter.number("distill_amount", brew.distillRuns()));
+        resolverMap.put("cooking_time", () -> Formatter.number("cooking_time", brew.brewTime().minutes()));
+        resolverMap.put("aging_quality_color", () -> Placeholder.styling("aging_quality_color", TextColor.color(BrewScore.quality(score.agingTimeScore() * score.barrelTypeScore()).getColor())));
+        resolverMap.put("distilling_quality_color", () -> Placeholder.styling("distilling_quality_color", TextColor.color(TextColor.color(BrewScore.quality(score.distillRunsScore()).getColor()))));
+        resolverMap.put("cooking_quality_color", () -> Placeholder.styling("cooking_quality_color", TextColor.color(BrewScore.quality(score.cauldronTypeScore() * score.cauldronTimeScore()).getColor())));
+        resolverMap.put("quality_color", () -> Placeholder.styling("quality_color", TextColor.color(quality.getColor())));
+        resolverMap.put("ingredients_quality_color", () -> Placeholder.styling("ingredients_quality_color", TextColor.color(BrewScore.quality(score.ingredientScore()).getColor())));
+        return resolverMap.build();
     }
 
     public static class Builder {
