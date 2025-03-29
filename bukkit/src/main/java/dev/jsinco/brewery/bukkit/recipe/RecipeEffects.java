@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
+import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.recipes.BrewQuality;
@@ -109,26 +110,14 @@ public class RecipeEffects {
                 .map(command -> compileUnparsedEffectMessage(command, player, drunkManager))
                 .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
         if (title != null) {
-            player.showTitle(Title.title(compileEffectMessage(title, player, drunkManager), Component.empty()));
+            player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunkManager, this.alcohol), Component.empty()));
         }
         if (message != null) {
-            player.sendMessage(compileEffectMessage(message, player, drunkManager));
+            player.sendMessage(MessageUtil.compilePlayerMessage(message, player, drunkManager, this.alcohol));
         }
         if (actionBar != null) {
-            player.sendActionBar(compileEffectMessage(actionBar, player, drunkManager));
+            player.sendActionBar(MessageUtil.compilePlayerMessage(actionBar, player, drunkManager, this.alcohol));
         }
-    }
-
-    private Component compileEffectMessage(String message, Player player, DrunkManager drunkManager) {
-        DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
-        return MiniMessage.miniMessage().deserialize(
-                message,
-                Placeholder.component("player_name", player.name()),
-                Placeholder.component("team_name", player.teamDisplayName()),
-                Placeholder.parsed("alcohol", String.valueOf(this.getAlcohol())),
-                Placeholder.parsed("player_alcohol", String.valueOf(drunkState == null ? "0" : drunkState.alcohol())),
-                Placeholder.unparsed("world", player.getWorld().getName())
-        );
     }
 
     private String compileUnparsedEffectMessage(String message, Player player, DrunkManager drunkManager) {

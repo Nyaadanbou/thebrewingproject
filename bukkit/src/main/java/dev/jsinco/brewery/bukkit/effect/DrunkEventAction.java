@@ -1,8 +1,12 @@
 package dev.jsinco.brewery.bukkit.effect;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkEvent;
+import dev.jsinco.brewery.effect.DrunkManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,8 +30,17 @@ public class DrunkEventAction {
             return;
         }
         if (event == DrunkEvent.PUKE) {
-            PukeHandler pukeHandler = new PukeHandler(60, player);
+            PukeHandler pukeHandler = new PukeHandler(Config.PUKE_TIME, player);
             Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::doPuke, 0, 1);
+        }
+        if (event == DrunkEvent.KICK) {
+            DrunkManager drunkManager = TheBrewingProject.getInstance().getDrunkManager();
+            player.kick(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, player, drunkManager, 0));
+            if (Config.KICK_EVENT_SERVER_MESSAGE != null) {
+                Component message = MessageUtil.compilePlayerMessage(Config.KICK_EVENT_SERVER_MESSAGE, player, drunkManager, 0);
+                Bukkit.getOnlinePlayers().forEach(player1 -> player1.sendMessage(message));
+            }
+            drunkManager.registerPassedOut(player.getUniqueId());
         }
     }
 

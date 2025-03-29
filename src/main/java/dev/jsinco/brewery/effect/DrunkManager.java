@@ -1,7 +1,9 @@
 package dev.jsinco.brewery.effect;
 
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.util.RandomUtil;
 import dev.jsinco.brewery.util.Registry;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -17,6 +19,7 @@ public class DrunkManager {
     private int lowestLevelRequiredForEvent = Integer.MAX_VALUE;
 
     private static final Random RANDOM = new Random();
+    private final Map<UUID, Long> passedOut = new HashMap<>();
 
     public DrunkManager(int inverseDecayRate) {
         this.inverseDecayRate = inverseDecayRate;
@@ -32,10 +35,9 @@ public class DrunkManager {
     }
 
     /**
-     *
      * @param playerUuid
      * @param alcohol
-     * @param timestamp Should be in relation to the internal clock in drunk manager
+     * @param timestamp  Should be in relation to the internal clock in drunk manager
      */
     public void consume(UUID playerUuid, int alcohol, long timestamp) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
@@ -66,6 +68,12 @@ public class DrunkManager {
 
     public void tick(BiConsumer<UUID, DrunkEvent> action) {
         Map<UUID, DrunkEvent> currentEvents = events.remove(drunkManagerTime++);
+        List<UUID> wokenUp = passedOut.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() + Config.KICK_EVENT_DURATION < drunkManagerTime)
+                .map(Map.Entry::getKey)
+                .toList();
+        wokenUp.forEach(passedOut::remove);
         if (currentEvents == null) {
             return;
         }
@@ -100,5 +108,13 @@ public class DrunkManager {
         long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(1000, 500)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
+    }
+
+    public void registerPassedOut(@NotNull UUID uniqueId) {
+        this.passedOut.put(uniqueId, drunkManagerTime);
+    }
+
+    public boolean isPassedOut(@NotNull UUID uniqueId) {
+        return passedOut.containsKey(uniqueId);
     }
 }

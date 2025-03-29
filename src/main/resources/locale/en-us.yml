@@ -15,3 +15,4 @@ cauldron.access-denied: <red>You don't have enough permissions to access a cauld
 command.create.unique-argument: <gray>Each argument has to be unique
 command.create.unknown-argument: <gray>Unknown argument '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>
+events.default-kick-event-message: You passed out... ZZzzz

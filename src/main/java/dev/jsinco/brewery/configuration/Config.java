@@ -63,6 +63,21 @@ public final class Config extends AbstractConfig {
             """)
     public static int PUKE_DESPAWN_RATE = 6 * Moment.SECOND;
 
+    @Key("puke.puke-time")
+    @Comment("""
+            How many ticks the player will puke
+            """)
+    public static int PUKE_TIME = 4 * Moment.SECOND;
+
+    @Key("events.kick-event.message")
+    public static String KICK_EVENT_MESSAGE;
+
+    @Key("events.kick-event.server-message")
+    public static String KICK_EVENT_SERVER_MESSAGE;
+
+    @Key("events.kick-event.kick-duration")
+    public static int KICK_EVENT_DURATION = 300;
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {

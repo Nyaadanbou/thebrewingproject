@@ -23,6 +23,10 @@ public class BreweryCommand implements CommandExecutor {
                 DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.PUKE);
                 yield true;
             }
+            case "kick" -> {
+                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.KICK);
+                yield true;
+            }
             default -> false;
         };
     }

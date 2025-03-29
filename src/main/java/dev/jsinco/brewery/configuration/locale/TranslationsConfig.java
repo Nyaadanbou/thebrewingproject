@@ -58,6 +58,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.create.missing-mandatory-argument")
     public static String COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT;
 
+    @Key("events.default-kick-event-message")
+    public static String KICK_EVENT_MESSAGE;
+
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 
     public static void reload(File dataFolder) {
