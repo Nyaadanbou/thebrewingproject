@@ -57,7 +57,10 @@ public class DrunkManager {
     }
 
     public @Nullable DrunkState getDrunkState(UUID playerUuid) {
-        return drunks.get(playerUuid);
+        boolean alreadyDrunk = drunks.containsKey(playerUuid);
+        return alreadyDrunk ?
+                drunks.get(playerUuid).recalculate(inverseDecayRate, drunkManagerTime) : null;
+
     }
 
     public void clear(UUID playerUuid) {
@@ -98,7 +101,7 @@ public class DrunkManager {
         if (plannedEvents.containsKey(playerUuid)) {
             return;
         }
-        DrunkState drunkState = drunks.get(playerUuid);
+        DrunkState drunkState = getDrunkState(playerUuid);
         if (drunkState == null) {
             return;
         }
@@ -110,7 +113,7 @@ public class DrunkManager {
                 .filter(drunkEvent -> drunkEvent.getAlcohol() <= drunkState.alcohol())
                 .toList();
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
-        long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(100, 50)));
+        long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(200, 100)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
     }
