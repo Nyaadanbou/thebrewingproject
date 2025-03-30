@@ -33,10 +33,6 @@ public class TestCommand implements CommandExecutor {
                 builder.replace(builder.length() - 1, builder.length(), "");
                 sender.sendMessage("Drunken text at alcohol " + alcohol + ": " + DrunkTextTransformer.transform(builder.toString(), TheBrewingProject.getInstance().getDrunkTextRegistry(), alcohol));
             }
-            case "consume" -> {
-                int alcohol = Integer.parseInt(args[1]);
-                TheBrewingProject.getInstance().getDrunkManager().consume(player.getUniqueId(), alcohol, player.getWorld().getGameTime());
-            }
             default -> {
             }
         }

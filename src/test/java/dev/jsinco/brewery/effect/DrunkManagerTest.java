@@ -20,13 +20,13 @@ class DrunkManagerTest {
 
     @Test
     void consume() {
-        drunkManager.consume(playerUuid, 10, 0);
-        assertEquals(new DrunkState(10, 0), drunkManager.getDrunkState(playerUuid));
-        drunkManager.consume(playerUuid, 0, 20);
-        assertEquals(new DrunkState(9, 20), drunkManager.getDrunkState(playerUuid));
-        drunkManager.consume(playerUuid, -9, 0);
+        drunkManager.consume(playerUuid, 10, 0, 0);
+        assertEquals(new DrunkState(10, 0, 0), drunkManager.getDrunkState(playerUuid));
+        drunkManager.consume(playerUuid, 0, 0, 20);
+        assertEquals(new DrunkState(9, 0, 20), drunkManager.getDrunkState(playerUuid));
+        drunkManager.consume(playerUuid, -9, 0, 0);
         assertNull(drunkManager.getDrunkState(playerUuid));
-        drunkManager.consume(playerUuid, -10, 20);
+        drunkManager.consume(playerUuid, -10, 20, 0);
         assertNull(drunkManager.getDrunkState(playerUuid));
     }
 

@@ -58,8 +58,35 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.create.missing-mandatory-argument")
     public static String COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT;
 
+    @Key("command.status.info.message")
+    public static String COMMAND_STATUS_INFO_MESSAGE;
+
+    @Key("command.status.consume.message")
+    public static String COMMAND_STATUS_CONSUME_MESSAGE;
+
+    @Key("command.status.clear.message")
+    public static String COMMAND_STATUS_CLEAR_MESSAGE;
+
+    @Key("command.status.set.message")
+    public static String COMMAND_STATUS_SET_MESSAGE;
+
+    @Key("command.unknown-player")
+    public static String COMMAND_UNKNOWN_PLAYER;
+
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;
+
+    @Key("events.puke")
+    public static String PUKE_EVENT;
+
+    @Key("events.stumble")
+    public static String STUMBLE_EVENT;
+
+    @Key("events.kick")
+    public static String KICK_EVENT;
+
+    @Key("events.nothing-planned")
+    public static String NO_EVENT_PLANNED;
 
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 

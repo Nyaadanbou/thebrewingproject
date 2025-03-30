@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 public class DrunkEventAction {
     private static final Random RANDOM = new Random();
+    private static final int STUMBLE_DURATION = 10;
 
     public static void doDrunkEvent(UUID playerUuid, DrunkEvent event) {
         Player player = Bukkit.getPlayer(playerUuid);
@@ -41,6 +43,10 @@ public class DrunkEventAction {
                 Bukkit.getOnlinePlayers().forEach(player1 -> player1.sendMessage(message));
             }
             drunkManager.registerPassedOut(player.getUniqueId());
+        }
+        if (event == DrunkEvent.STUMBLE) {
+            StumbleHandler stumbleHandler = new StumbleHandler(RANDOM.nextInt(STUMBLE_DURATION / 2, STUMBLE_DURATION * 3 / 2 + 1), player);
+            Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), stumbleHandler::doStumble, 0, 1);
         }
     }
 
@@ -79,6 +85,34 @@ public class DrunkEventAction {
             }
             int despawnRate = Math.max(Config.PUKE_DESPAWN_RATE, 4);
             item.setTicksLived(worldDespawnRate - despawnRate + RANDOM.nextInt(-despawnRate / 2, despawnRate / 2 + 1));
+        }
+    }
+
+    private static class StumbleHandler {
+
+        private int countDown;
+        private final int duration;
+        private final Player player;
+        private final Vector pushDirection;
+
+        public StumbleHandler(int duration, Player player) {
+            this.countDown = duration;
+            this.duration = duration;
+            this.player = player;
+            double radians = RANDOM.nextDouble(Math.PI * 2);
+            this.pushDirection = new Vector(Math.cos(radians), 0, Math.sin(radians))
+                    .multiply(RANDOM.nextDouble(0.2));
+        }
+
+        public void doStumble(BukkitTask task) {
+            if (!player.isOnline() || countDown-- < 0) {
+                task.cancel();
+                return;
+            }
+            if (!player.isOnGround()) {
+                return;
+            }
+            player.setVelocity(pushDirection);
         }
     }
 }

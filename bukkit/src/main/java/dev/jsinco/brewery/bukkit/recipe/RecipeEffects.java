@@ -105,7 +105,7 @@ public class RecipeEffects {
     }
 
     public void applyTo(Player player, DrunkManager drunkManager) {
-        drunkManager.consume(player.getUniqueId(), alcohol);
+        drunkManager.consume(player.getUniqueId(), alcohol, alcohol);
         this.commands.stream()
                 .map(command -> compileUnparsedEffectMessage(command, player, drunkManager))
                 .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
