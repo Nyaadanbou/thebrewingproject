@@ -73,6 +73,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.unknown-player")
     public static String COMMAND_UNKNOWN_PLAYER;
 
+    @Key("command.not-enough-permissions")
+    public static String COMMAND_NOT_ENOUGH_PERMISSIONS;
+
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;
 

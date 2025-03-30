@@ -20,6 +20,10 @@ import java.util.Arrays;
 
 public class StatusCommand {
     public static boolean onCommand(Player player, @NotNull String[] args) {
+        if (!player.hasPermission("brewery.command.status")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+            return true;
+        }
         DrunkManager drunkManager = TheBrewingProject.getInstance().getDrunkManager();
         return switch (args[0]) {
             case "info" -> StatusCommand.info(player, drunkManager, Arrays.copyOfRange(args, 1, args.length));

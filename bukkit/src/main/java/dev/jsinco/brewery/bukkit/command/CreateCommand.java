@@ -26,7 +26,10 @@ public class CreateCommand {
 
 
     public static boolean onCommand(Player player, String[] args) {
-        //TODO check perms
+        if (!player.hasPermission("brewery.command.create")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+            return true;
+        }
         if (args.length == 1) {
             Optional<Recipe<ItemStack, PotionMeta>> recipeOptional = TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(args[0]);
             if (recipeOptional.isEmpty()) {

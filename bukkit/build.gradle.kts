@@ -61,7 +61,7 @@ bukkit {
 
         }
         register("brew") {
-            aliases = listOf("brewery")
+            aliases = listOf("brewery", "tbp")
         }
     }
     permissions {
@@ -84,8 +84,11 @@ bukkit {
         register("brewery.command.create") {
             default = BukkitPluginDescription.Permission.Default.OP
         }
+        register("brewery.command.status") {
+            default = BukkitPluginDescription.Permission.Default.OP
+        }
         register("brewery.command") {
-            children = listOf("brewery.command.create")
+            children = listOf("brewery.command.create", "brewery.command.status")
         }
         register("brewery") {
             children = listOf("brewery.command", "brewery.structure.create")
