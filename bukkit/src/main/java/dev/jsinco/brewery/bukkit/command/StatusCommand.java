@@ -76,7 +76,7 @@ public class StatusCommand {
             return true;
         }
         drunkManager.clear(target.getUniqueId());
-        requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE));
+        requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE, Placeholder.unparsed("player_name", target.getName())));
         return true;
     }
 
@@ -129,7 +129,7 @@ public class StatusCommand {
                 Formatter.number("alcohol", drunkState == null ? 0 : drunkState.alcohol()),
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
                 Placeholder.unparsed("player_name", target.getName()),
-                Formatter.number("next_event_time", nextEvent == null ? -1 : nextEvent.second() - drunkManager.getDrunkManagerTime()),
+                Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunkManager.getDrunkManagerTime()),
                 Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().translation())
         );
     }

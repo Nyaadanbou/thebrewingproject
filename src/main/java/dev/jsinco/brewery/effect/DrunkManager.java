@@ -64,7 +64,7 @@ public class DrunkManager {
     }
 
     public void clear(UUID playerUuid) {
-        Long plannedEventTime = plannedEvents.get(playerUuid);
+        Long plannedEventTime = plannedEvents.remove(playerUuid);
         drunks.remove(playerUuid);
         if (plannedEventTime == null) {
             return;
