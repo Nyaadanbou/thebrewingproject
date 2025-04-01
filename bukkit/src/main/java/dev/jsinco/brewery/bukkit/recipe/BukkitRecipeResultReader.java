@@ -35,7 +35,6 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
         QualityData<String> actionBar = QualityData.readQualityFactoredString(configurationSection.getString("messages.action-bar", null));
         QualityData<String> title = QualityData.readQualityFactoredString(configurationSection.getString("messages.title", null));
         QualityData<String> message = QualityData.readQualityFactoredString(configurationSection.getString("messages.message", null));
-        QualityData<List<String>> commands = QualityData.readQualityFactoredStringList(configurationSection.getStringList("commands"));
         QualityData<List<RecipeEffect>> effects = QualityData.readQualityFactoredStringList(configurationSection.getStringList("effects"))
                 .map(list -> list
                         .stream()
@@ -48,7 +47,6 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
                 .actionBar(actionBar.get(quality))
                 .title(title.get(quality))
                 .message(message.get(quality))
-                .commands(commands.getOrDefault(quality, List.of()))
                 .alcohol(alcohol.getOrDefault(quality, 0))
                 .effects(effects.getOrDefault(quality, List.of()))
                 .build()

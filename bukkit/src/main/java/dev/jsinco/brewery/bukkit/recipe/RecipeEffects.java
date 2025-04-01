@@ -1,21 +1,17 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
-import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -36,17 +32,11 @@ public class RecipeEffects {
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL);
 
     public static final RecipeEffects GENERIC = new Builder()
-            .commands(List.of())
             .effects(List.of())
             .build();
 
-    // Commands
-    @Getter
-    private final @NotNull List<String> commands;
-    // Effects
     @Getter
     private final @NotNull List<@NotNull RecipeEffect> effects;
-    // Messages <-- Consider removing because server owners can use commands
     @Getter
     private final @Nullable String title;
     @Getter
@@ -56,8 +46,7 @@ public class RecipeEffects {
     @Getter
     private final int alcohol;
 
-    private RecipeEffects(@NotNull List<String> commands, @NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
-        this.commands = commands;
+    private RecipeEffects(@NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
         this.effects = effects;
         this.title = title;
         this.message = message;
@@ -65,13 +54,12 @@ public class RecipeEffects {
         this.alcohol = alcohol;
     }
 
-    public void applyTo(PotionMeta meta, BrewQuality quality) {
+    public void applyTo(PotionMeta meta) {
         for (RecipeEffect recipeEffect : effects) {
             meta.addCustomEffect(recipeEffect.newPotionEffect(), true);
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
         PDC_TYPES.forEach(container::remove);
-        container.set(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, commands);
         if (title != null) {
             container.set(TITLE, PersistentDataType.STRING, title);
         }
@@ -86,11 +74,14 @@ public class RecipeEffects {
 
     public static Optional<RecipeEffects> fromItem(@NotNull ItemStack item) {
         RecipeEffects.Builder builder = new RecipeEffects.Builder();
-        PersistentDataContainer persistentDataContainer = item.getItemMeta().getPersistentDataContainer();
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return Optional.empty();
+        }
+        PersistentDataContainer persistentDataContainer = meta.getPersistentDataContainer();
         if (!persistentDataContainer.has(ALCOHOL)) {
             return Optional.empty();
         }
-        builder.commands(persistentDataContainer.getOrDefault(COMMANDS, ListPersistentDataType.STRING_LIST_PDC_TYPE, List.of()));
         builder.alcohol(persistentDataContainer.getOrDefault(ALCOHOL, PersistentDataType.INTEGER, 0));
         if (persistentDataContainer.has(TITLE)) {
             builder.title(persistentDataContainer.get(TITLE, PersistentDataType.STRING));
@@ -106,9 +97,6 @@ public class RecipeEffects {
 
     public void applyTo(Player player, DrunkManager drunkManager) {
         drunkManager.consume(player.getUniqueId(), alcohol, alcohol);
-        this.commands.stream()
-                .map(command -> compileUnparsedEffectMessage(command, player, drunkManager))
-                .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
         if (title != null) {
             player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunkManager, this.alcohol), Component.empty()));
         }
@@ -132,17 +120,11 @@ public class RecipeEffects {
 
     public static class Builder {
 
-        private List<String> commands = List.of();
         private List<RecipeEffect> effects = List.of();
         private @Nullable String title;
         private @Nullable String message;
         private @Nullable String actionBar;
         private int alcohol;
-
-        public Builder commands(@NotNull List<String> commands) {
-            this.commands = commands;
-            return this;
-        }
 
         public Builder effects(@NotNull List<@NotNull RecipeEffect> effects) {
             this.effects = effects;
@@ -170,9 +152,8 @@ public class RecipeEffects {
         }
 
         public RecipeEffects build() {
-            Objects.requireNonNull(commands);
             Objects.requireNonNull(effects);
-            return new RecipeEffects(commands, effects, title, message, actionBar, alcohol);
+            return new RecipeEffects(effects, title, message, actionBar, alcohol);
         }
 
     }

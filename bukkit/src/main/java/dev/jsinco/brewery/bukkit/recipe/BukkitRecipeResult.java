@@ -93,7 +93,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
-        recipeEffects.get(quality).applyTo(meta, quality);
+        recipeEffects.get(quality).applyTo(meta);
     }
 
     private Stream<? extends Component> compileExtraLore(BrewScore score, Brew<ItemStack> brew) {
