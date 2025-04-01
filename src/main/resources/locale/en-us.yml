@@ -11,12 +11,31 @@ distillery.access-denied: <red>You don't have enough permissions to access a dis
 barrel.create: <gray>Created a barrel
 barrel.create-denied: <red>You don't have enough permissions to create a barrel
 barrel.access-denied: <red>You don't have enough permissions to access a barrel
+barrel.type:
+  any: any
+  oak: oak
+  birch: birch
+  spruce: spruce
+  jungle: jungle
+  acacia: acacia
+  dark_oak: dark_oak
+  crimson: crimson
+  warped: warped
+  cherry: cherry
+  bamboo: bamboo
+  copper: copper
+  none: none
 cauldron.access-denied: <red>You don't have enough permissions to access a cauldron
+cauldron.type:
+  water: water
+  lava: lava
+  snow: snow
+  none: none
 command.unknown-player: <red>Unknown player <player_name>
 command.create.unique-argument: <gray>Each argument has to be unique
 command.create.unknown-argument: <gray>Unknown argument '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>
-command.status.info.message: |
+command.status.info.message: |-
   <gray>Condition of <player_name>:
   Alcohol level: <alcohol>
   Toxin level: <toxins>
@@ -25,6 +44,19 @@ command.status.consume.message: <gray><player_name> consumed <alcohol> alcohol w
 command.status.clear.message: <gray>Cleared all drunk effects on <player_name>
 command.status.set.message: <gray>Set the drunk effect of <player_name> to <alcohol> alcohol and <toxins> toxins
 command.not-enough-permissions: <red>Not enough permissions
+command.info.message: |-
+  <gray>----<quality_color><quality></quality_color>----
+  Ingredients: <ingredients_quality_color><ingredients></ingredients_quality_color>
+  Aged: <aging_quality_color><aging_years> years</aging_quality_color>
+  Distilled: <distilling_quality_color><distill_amount> times</distilling_quality_color>
+  Cooked: <cooking_quality_color><cooking_time> minutes</cooking_quality_color>
+command.info.effect-message: |-
+  <gray>Potion effects: <potion_effects>
+  Alcohol: <effect_alcohol>
+  Title message: <effect_title_message>
+  Effect message: <effect_message>
+  Effect action bar: <effect_action_bar>
+command.info.not-a-brew: <red>You're not holding a brew!
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>
 events.puke: puke
 events.stumble: stumble

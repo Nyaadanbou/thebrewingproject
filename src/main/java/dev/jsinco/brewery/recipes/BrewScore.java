@@ -6,6 +6,7 @@ public record BrewScore(double ingredientScore, double cauldronTimeScore, double
                         double agingTimeScore, double cauldronTypeScore, double barrelTypeScore, int brewDifficulty) {
 
     public static final BrewScore EXCELLENT = new BrewScore(1, 1, 1, 1, 1, 1, 1);
+    public static final BrewScore NONE = new BrewScore(0, 0, 0, 0, 0, 0, 1);
     private static final char FULL_STAR = '\u2605';
     private static final char HALF_STAR = '\u2BEA';
     private static final char EMPTY_STAR = '\u2606';

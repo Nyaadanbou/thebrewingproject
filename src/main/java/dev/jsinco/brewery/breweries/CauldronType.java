@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.breweries;
 
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.util.Registry;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +25,10 @@ public enum CauldronType {
 
     public String key() {
         return Registry.brewerySpacedKey(name().toLowerCase(Locale.ROOT));
+    }
+
+    public String translation() {
+        return TranslationsConfig.CAULDRON_TYPE.get(this.name().toLowerCase(Locale.ROOT));
     }
 
     public static @Nullable CauldronType from(String materialType) {

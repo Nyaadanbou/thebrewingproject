@@ -7,6 +7,7 @@ import dev.jsinco.brewery.util.FileUtil;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class TranslationsConfig extends AbstractConfig {
 
@@ -40,6 +41,12 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("barrel.create")
     public static String BARREL_CREATE;
 
+    @Key("barrel.type.none")
+    public static String BARREL_TYPE_NONE;
+
+    @Key("barrel.type")
+    public static Map<String, String> BARREL_TYPE;
+
     @Key("barrel.create-denied")
     public static String BARREL_CREATE_DENIED;
 
@@ -48,6 +55,12 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("cauldron.access-denied")
     public static String CAULDRON_ACCESS_DENIED;
+
+    @Key("cauldron.type")
+    public static Map<String, String> CAULDRON_TYPE;
+
+    @Key("cauldron.type.none")
+    public static String CAULDRON_TYPE_NONE;
 
     @Key("command.create.unique-argument")
     public static String COMMAND_CREATE_UNIQUE_ARGUMENT;
@@ -75,6 +88,15 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("command.not-enough-permissions")
     public static String COMMAND_NOT_ENOUGH_PERMISSIONS;
+
+    @Key("command.info.not-a-brew")
+    public static String COMMAND_INFO_NOT_A_BREW;
+
+    @Key("command.info.message")
+    public static String COMMAND_INFO_BREW_MESSAGE;
+
+    @Key("command.info.effect-message")
+    public static String COMMAND_INFO_EFFECT_MESSAGE;
 
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;

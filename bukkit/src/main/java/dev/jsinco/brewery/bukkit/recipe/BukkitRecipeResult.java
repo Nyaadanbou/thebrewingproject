@@ -1,14 +1,13 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
-import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +17,6 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -28,9 +26,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
@@ -77,7 +73,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         BrewQuality quality = score.brewQuality();
         Preconditions.checkNotNull(quality);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
-        meta.displayName(compileMessage(score, brew, names.get(quality), "brew_name").decoration(TextDecoration.ITALIC, false));
+        meta.displayName(compileMessage(score, brew, names.get(quality), true).decoration(TextDecoration.ITALIC, false));
         meta.lore(Stream.concat(lore.get(quality).stream()
                                         .map(line -> compileMessage(score, brew, line)),
                                 compileExtraLore(score, brew)
@@ -114,30 +110,27 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         return streamBuilder.build();
     }
 
-    private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage, String... banned) {
-        Map<String, Supplier<TagResolver>> resolverMap = getResolverMap(score, brew);
-        TagResolver[] placeholders = resolverMap.entrySet().stream()
-                .filter(entry -> !ArrayUtils.contains(banned, entry.getKey()))
-                .map(entry -> entry.getValue().get())
-                .toArray(TagResolver[]::new);
-        return MiniMessage.miniMessage().deserialize(serializedMiniMessage, placeholders);
+    private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage) {
+        return MiniMessage.miniMessage().deserialize(serializedMiniMessage, getResolver(score, brew, false));
     }
 
-    private @NotNull Map<String, Supplier<TagResolver>> getResolverMap(BrewScore score, Brew<ItemStack> brew) {
+    private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage, boolean isBrewName) {
+        return MiniMessage.miniMessage().deserialize(serializedMiniMessage, getResolver(score, brew, isBrewName));
+    }
+
+    private @NotNull TagResolver getResolver(BrewScore score, Brew<ItemStack> brew, boolean isBrewName) {
         BrewQuality quality = score.brewQuality();
-        ImmutableMap.Builder<String, Supplier<TagResolver>> resolverMap = ImmutableMap.builder();
-        resolverMap.put("brew_name", () -> Placeholder.component("brew_name", compileMessage(score, brew, this.names.get(quality), "brew_name")));
-        resolverMap.put("alcohol", () -> Formatter.number("alcohol", this.getRecipeEffects().get(quality).getAlcohol()));
-        resolverMap.put("quality", () -> Placeholder.component("quality", Component.text(score.displayName())));
-        resolverMap.put("aging_years", () -> Formatter.number("aging_years", brew.aging() != null ? brew.aging().agingYears() : 0));
-        resolverMap.put("distill_amount", () -> Formatter.number("distill_amount", brew.distillRuns()));
-        resolverMap.put("cooking_time", () -> Formatter.number("cooking_time", brew.brewTime().minutes()));
-        resolverMap.put("aging_quality_color", () -> Placeholder.styling("aging_quality_color", TextColor.color(BrewScore.quality(score.agingTimeScore() * score.barrelTypeScore()).getColor())));
-        resolverMap.put("distilling_quality_color", () -> Placeholder.styling("distilling_quality_color", TextColor.color(TextColor.color(BrewScore.quality(score.distillRunsScore()).getColor()))));
-        resolverMap.put("cooking_quality_color", () -> Placeholder.styling("cooking_quality_color", TextColor.color(BrewScore.quality(score.cauldronTypeScore() * score.cauldronTimeScore()).getColor())));
-        resolverMap.put("quality_color", () -> Placeholder.styling("quality_color", TextColor.color(quality.getColor())));
-        resolverMap.put("ingredients_quality_color", () -> Placeholder.styling("ingredients_quality_color", TextColor.color(BrewScore.quality(score.ingredientScore()).getColor())));
-        return resolverMap.build();
+        TagResolver.Builder output = TagResolver.builder();
+        if (!isBrewName) {
+            output.resolver(Placeholder.component("brew_name", compileMessage(score, brew, this.names.get(quality), true)));
+        }
+        output.resolvers(
+                Formatter.number("alcohol", this.getRecipeEffects().get(quality).getAlcohol()),
+                MessageUtil.getScoreTagResolver(score),
+                MessageUtil.getBrewTagResolver(brew)
+        );
+
+        return output.build();
     }
 
     public static class Builder {
@@ -200,14 +193,6 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         public Builder lore(List<String> lore) {
             this.lore = QualityData.equalValue(lore);
             return this;
-        }
-
-        private <T> Map<BrewQuality, T> equalQualityResultMap(T t) {
-            return Map.of(
-                    BrewQuality.EXCELLENT, t,
-                    BrewQuality.GOOD, t,
-                    BrewQuality.BAD, t
-            );
         }
     }
 }

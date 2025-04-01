@@ -32,6 +32,7 @@ public class BreweryCommand implements CommandExecutor {
                 yield true;
             }
             case "status" -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
+            case "info" -> InfoCommand.onCommand(player);
             default -> false;
         };
     }

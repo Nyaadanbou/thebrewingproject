@@ -24,4 +24,9 @@ public record Interval(long start, long stop) implements Moment {
         String[] split = string.split("-");
         return new Interval(Util.getIntDefaultZero(split[0]), Util.getIntDefaultZero(split[1]));
     }
+
+    @Override
+    public String toString() {
+        return start + "-" + stop;
+    }
 }
