@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class BreweryCommand implements CommandExecutor {
     @Override
@@ -19,16 +20,8 @@ public class BreweryCommand implements CommandExecutor {
         }
         return switch (args[0]) {
             case "create" -> CreateCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
-            case "puke" -> {
-                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.PUKE);
-                yield true;
-            }
-            case "kick" -> {
-                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.KICK);
-                yield true;
-            }
-            case "stumble" -> {
-                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.STUMBLE);
+            case "event" -> {
+                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.valueOf(args[1].toUpperCase(Locale.ROOT)));
                 yield true;
             }
             case "status" -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));

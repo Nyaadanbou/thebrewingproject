@@ -36,7 +36,7 @@ command.create.unique-argument: <gray>Each argument has to be unique
 command.create.unknown-argument: <gray>Unknown argument '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>
 command.status.info.message: |-
-  <gray>Condition of <player_name>:
+  <gray>----<player_name>----
   Alcohol level: <alcohol>
   Toxin level: <toxins>
   Player will <gold><next_event></gold> in <red><next_event_time></red> ticks
@@ -58,7 +58,12 @@ command.info.effect-message: |-
   Effect action bar: <effect_action_bar>
 command.info.not-a-brew: <red>You're not holding a brew!
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>
-events.puke: puke
-events.stumble: stumble
-events.kick: pass out
+events.types:
+  puke: puke
+  stumble: stumble
+  kick: pass out
+  chicken: lay egg
+  teleport: teleport
+  message: send message
+events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing

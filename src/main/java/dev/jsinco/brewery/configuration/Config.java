@@ -19,23 +19,6 @@ public final class Config extends AbstractConfig {
             What language file should we use? See: /TheBrewingProject/languages""")
     public static String LANGUAGE = "en-us";
 
-    @Key("update-check")
-    @Comment("""
-            Resolved the latest version of TheBrewingProject and let's
-            players with the permission node know when an update is available.""")
-    public static boolean UPDATE_CHECK = true;
-
-
-    @Key("auto-saving")
-    @Comment("""
-            Auto saving interval in minutes""")
-    public static int AUTO_SAVE_INTERVAL = 9;
-
-    @Key("verbose-logging")
-    @Comment("""
-            Enable verbose/debug logging""")
-    public static boolean VERBOSE_LOGGING = false;
-
 
     // Brewing Settings
 
@@ -75,8 +58,11 @@ public final class Config extends AbstractConfig {
     @Key("events.kick-event.server-message")
     public static String KICK_EVENT_SERVER_MESSAGE;
 
-    @Key("events.kick-event.kick-duration")
-    public static int KICK_EVENT_DURATION = 300;
+    @Key("events.pass-out-time")
+    public static int PASS_OUT_TIME = 5;
+
+    @Key("events.messages")
+    public static List<String> DRUNK_MESSAGES = List.of();
 
     private static final Config CONFIG = new Config();
 

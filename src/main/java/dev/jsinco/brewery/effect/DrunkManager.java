@@ -4,6 +4,7 @@ import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.RandomUtil;
 import dev.jsinco.brewery.util.Registry;
+import dev.jsinco.brewery.util.moment.Moment;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,7 @@ public class DrunkManager {
     public void clear(UUID playerUuid) {
         Long plannedEventTime = plannedEvents.remove(playerUuid);
         drunks.remove(playerUuid);
+        passedOut.remove(playerUuid);
         if (plannedEventTime == null) {
             return;
         }
@@ -78,7 +80,7 @@ public class DrunkManager {
         Map<UUID, DrunkEvent> currentEvents = events.remove(drunkManagerTime++);
         List<UUID> wokenUp = passedOut.entrySet()
                 .stream()
-                .filter(entry -> entry.getValue() + Config.KICK_EVENT_DURATION < drunkManagerTime)
+                .filter(entry -> entry.getValue() + (long) Config.PASS_OUT_TIME * Moment.MINUTE < drunkManagerTime)
                 .map(Map.Entry::getKey)
                 .toList();
         wokenUp.forEach(passedOut::remove);

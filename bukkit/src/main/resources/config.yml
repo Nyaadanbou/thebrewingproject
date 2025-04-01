@@ -2,6 +2,23 @@
 config-version: 1
 
 
+events:
+  enabled-random-events:
+    - puke
+    - pass_out
+    - stumble
+    - chicken
+    - teleport
+    - message
+  # In minutes
+  pass-out-time: 5
+  teleport-locations: []
+  messages:
+    - I love you <random_player_name>, you're my best friend
+    - I could do one more.
+    - Who is she?
+    - Watch this!
+    - I'm not drunk. You're drunk.
 # Settings for cauldrons
 cauldrons:
   # Reduce the number of particles that spawn while cauldrons brew.

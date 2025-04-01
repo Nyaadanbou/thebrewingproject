@@ -33,10 +33,16 @@ public class MessageUtil {
         DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
         return MiniMessage.miniMessage().deserialize(
                 message,
-                Placeholder.component("player_name", player.name()),
-                Placeholder.component("team_name", player.teamDisplayName()),
                 Placeholder.parsed("alcohol", String.valueOf(alcohol)),
                 Placeholder.parsed("player_alcohol", String.valueOf(drunkState == null ? "0" : drunkState.alcohol())),
+                getPlayerTagResolver(player)
+        );
+    }
+
+    public static TagResolver getPlayerTagResolver(Player player) {
+        return TagResolver.resolver(
+                Placeholder.component("player_name", player.name()),
+                Placeholder.component("team_name", player.teamDisplayName()),
                 Placeholder.unparsed("world", player.getWorld().getName())
         );
     }

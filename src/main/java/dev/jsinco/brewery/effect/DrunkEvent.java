@@ -10,18 +10,19 @@ import java.util.Locale;
 
 @Getter
 public enum DrunkEvent implements RandomUtil.WeightedProbabilityElement {
-    PUKE(35, 20, TranslationsConfig.PUKE_EVENT),
-    KICK(80, 5, TranslationsConfig.KICK_EVENT),
-    STUMBLE(25, 25, TranslationsConfig.STUMBLE_EVENT);
+    PUKE(35, 20),
+    PASS_OUT(80, 5),
+    STUMBLE(25, 25),
+    CHICKEN(99, 1),
+    TELEPORT(90, 7),
+    MESSAGE(25, 15);
 
     private final int alcohol;
     private final int probabilityWeight;
-    private final String translation;
 
-    DrunkEvent(int alcohol, int probabilityWeight, String translation) {
+    DrunkEvent(int alcohol, int probabilityWeight) {
         this.alcohol = alcohol;
         this.probabilityWeight = probabilityWeight;
-        this.translation = translation;
     }
 
     public String key() {
@@ -29,6 +30,6 @@ public enum DrunkEvent implements RandomUtil.WeightedProbabilityElement {
     }
 
     public @NotNull String translation() {
-        return this.translation;
+        return TranslationsConfig.EVENT_TYPES.get(this.name().toLowerCase(Locale.ROOT));
     }
 }
