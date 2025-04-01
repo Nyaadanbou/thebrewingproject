@@ -19,10 +19,6 @@ public class TestCommand implements CommandExecutor {
             return false;
         }
         switch (args[0]) {
-            case "info" -> {
-                ItemStack item = player.getInventory().getItemInMainHand();
-                player.sendMessage(BrewAdapter.fromItem(item).toString());
-            }
             case "drunktext" -> {
                 int alcohol = Integer.parseInt(args[1]);
                 StringBuilder builder = new StringBuilder();
