@@ -63,6 +63,8 @@ recipes:
       lore:
         - +++<dark_gray>Refreshing
       color: ffb84d
+    events:
+      - example-event
 
 
 # These recipes are used randomly when a player has brewed a potion with ingredients

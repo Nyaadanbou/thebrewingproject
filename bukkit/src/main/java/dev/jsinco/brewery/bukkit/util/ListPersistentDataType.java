@@ -13,7 +13,7 @@ public class ListPersistentDataType<T> implements PersistentDataType<byte[], Lis
 
     private final PersistentDataType<byte[], T> persistentDataType;
 
-    public static final ListPersistentDataType<String> STRING_LIST_PDC_TYPE = new ListPersistentDataType<>(new StringPdcType());
+    public static final ListPersistentDataType<String> STRING_LIST = new ListPersistentDataType<>(new StringPdcType());
 
     public ListPersistentDataType(PersistentDataType<byte[], T> persistentDataType) {
         this.persistentDataType = persistentDataType;

@@ -5,12 +5,12 @@ import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
 
@@ -41,6 +41,12 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
                         .map(BukkitRecipeResultReader::getEffect)
                         .toList()
                 );
+        QualityData<List<BreweryKey>> events = QualityData.readQualityFactoredStringList(configurationSection.getStringList("events"))
+                .map(list -> list
+                        .stream()
+                        .map(BreweryKey::parse)
+                        .toList()
+                );
         QualityData<Integer> alcohol = QualityData.readQualityFactoredString(configurationSection.getString("alcohol", "0%"))
                 .map(RecipeReader::parseAlcoholString);
         return QualityData.fromValueMapper(quality -> new RecipeEffects.Builder()
@@ -49,6 +55,7 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
                 .message(message.get(quality))
                 .alcohol(alcohol.getOrDefault(quality, 0))
                 .effects(effects.getOrDefault(quality, List.of()))
+                .events(events.getOrDefault(quality, List.of()))
                 .build()
         );
     }

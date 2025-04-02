@@ -1,10 +1,17 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
+import com.google.common.base.Preconditions;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.event.CustomEventRegistry;
+import dev.jsinco.brewery.effect.event.EventStep;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -22,7 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+@Getter
 public class RecipeEffects {
 
     public static final NamespacedKey COMMANDS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("commands"));
@@ -30,29 +39,27 @@ public class RecipeEffects {
     public static final NamespacedKey ACTION_BAR = BukkitAdapter.toNamespacedKey(BreweryKey.parse("action_bar"));
     public static final NamespacedKey TITLE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("titles"));
     public static final NamespacedKey ALCOHOL = BukkitAdapter.toNamespacedKey(BreweryKey.parse("alcohol"));
+    public static final NamespacedKey EVENTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("events"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL);
 
     public static final RecipeEffects GENERIC = new Builder()
             .effects(List.of())
             .build();
 
-    @Getter
     private final @NotNull List<@NotNull RecipeEffect> effects;
-    @Getter
     private final @Nullable String title;
-    @Getter
     private final @Nullable String message;
-    @Getter
     private final @Nullable String actionBar;
-    @Getter
     private final int alcohol;
+    private final @NotNull List<@NotNull BreweryKey> events;
 
-    private RecipeEffects(@NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol) {
+    private RecipeEffects(@NotNull List<RecipeEffect> effects, @Nullable String title, @Nullable String message, @Nullable String actionBar, int alcohol, @NotNull List<@NotNull BreweryKey> events) {
         this.effects = effects;
         this.title = title;
         this.message = message;
         this.actionBar = actionBar;
         this.alcohol = alcohol;
+        this.events = events;
     }
 
     public void applyTo(PotionMeta meta) {
@@ -71,6 +78,7 @@ public class RecipeEffects {
             container.set(ACTION_BAR, PersistentDataType.STRING, actionBar);
         }
         container.set(ALCOHOL, PersistentDataType.INTEGER, alcohol);
+        container.set(EVENTS, ListPersistentDataType.STRING_LIST, events.stream().map(BreweryKey::toString).toList());
     }
 
     public static Optional<RecipeEffects> fromItem(@NotNull ItemStack item) {
@@ -93,6 +101,11 @@ public class RecipeEffects {
         if (persistentDataContainer.has(ACTION_BAR)) {
             builder.actionBar(persistentDataContainer.get(ACTION_BAR, PersistentDataType.STRING));
         }
+        builder.events(persistentDataContainer.getOrDefault(EVENTS, ListPersistentDataType.STRING_LIST, List.of())
+                .stream()
+                .map(BreweryKey::parse)
+                .collect(Collectors.toList())
+        );
         return Optional.of(builder.build());
     }
 
@@ -107,6 +120,20 @@ public class RecipeEffects {
         if (actionBar != null) {
             player.sendActionBar(MessageUtil.compilePlayerMessage(actionBar, player, drunkManager, this.alcohol));
         }
+        CustomEventRegistry customEventRegistry = TheBrewingProject.getInstance().getCustomDrunkEventRegistry();
+        DrunkEventExecutor.doDrunkEvents(player.getUniqueId(), events
+                .stream()
+                .map(eventKey -> {
+                    if (Registry.DRUNK_EVENT.containsKey(eventKey)) {
+                        return Registry.DRUNK_EVENT.get(eventKey);
+                    } else {
+                        return customEventRegistry.getCustomEvent(eventKey);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .map(EventStep.class::cast)
+                .toList()
+        );
     }
 
     private String compileUnparsedEffectMessage(String message, Player player, DrunkManager drunkManager) {
@@ -125,10 +152,16 @@ public class RecipeEffects {
         private @Nullable String title;
         private @Nullable String message;
         private @Nullable String actionBar;
+        private @NotNull List<@NotNull BreweryKey> events = List.of();
         private int alcohol;
 
         public Builder effects(@NotNull List<@NotNull RecipeEffect> effects) {
             this.effects = effects;
+            return this;
+        }
+
+        public Builder events(@NotNull List<@NotNull BreweryKey> events) {
+            this.events = events;
             return this;
         }
 
@@ -153,8 +186,9 @@ public class RecipeEffects {
         }
 
         public RecipeEffects build() {
-            Objects.requireNonNull(effects);
-            return new RecipeEffects(effects, title, message, actionBar, alcohol);
+            Preconditions.checkNotNull(effects);
+            Preconditions.checkNotNull(events);
+            return new RecipeEffects(effects, title, message, actionBar, alcohol, events);
         }
 
     }
