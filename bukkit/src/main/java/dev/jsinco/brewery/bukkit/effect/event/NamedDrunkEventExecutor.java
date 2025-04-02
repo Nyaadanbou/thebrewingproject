@@ -1,10 +1,10 @@
-package dev.jsinco.brewery.bukkit.effect;
+package dev.jsinco.brewery.bukkit.effect.event;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkEvent;
+import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.effect.DrunkManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class DrunkEventAction {
+public class NamedDrunkEventExecutor {
     private static final Random RANDOM = new Random();
     private static final int STUMBLE_DURATION = 10;
 
-    public static void doDrunkEvent(UUID playerUuid, DrunkEvent event) {
+    public static void doDrunkEvent(UUID playerUuid, NamedDrunkEvent event) {
         Player player = Bukkit.getPlayer(playerUuid);
         if (player == null) {
             return;
@@ -58,7 +58,7 @@ public class DrunkEventAction {
                 player.getWorld().spawn(player.getLocation(), Chicken.class, chicken -> {
                     chicken.setEggLayTime(Integer.MAX_VALUE);
                     chicken.setPersistent(false);
-                    chicken.setIsChickenJockey(true);
+                    chicken.setAge(0);
                     chicken.setLootTable(new LootTable() {
                         @Override
                         public @NotNull Collection<ItemStack> populateLoot(@Nullable Random random, @NotNull LootContext context) {
@@ -76,11 +76,10 @@ public class DrunkEventAction {
                         }
                     });
                     chicken.setBreed(false);
-                    chicken.setAge(0);
                 });
                 player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CHICKEN_MESSAGE, MessageUtil.getPlayerTagResolver(player)));
             }
-            case MESSAGE -> {
+            case DRUNK_MESSAGE -> {
                 List<String> drunkMessages = Config.DRUNK_MESSAGES;
                 if (drunkMessages.isEmpty()) {
                     return;

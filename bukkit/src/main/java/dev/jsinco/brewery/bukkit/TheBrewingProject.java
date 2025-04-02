@@ -9,7 +9,8 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.command.TestCommand;
-import dev.jsinco.brewery.bukkit.effect.DrunkEventAction;
+import dev.jsinco.brewery.bukkit.effect.event.CustomDrunkEventReader;
+import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
 import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
@@ -27,12 +28,14 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.database.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -44,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TheBrewingProject extends JavaPlugin {
@@ -64,6 +68,8 @@ public class TheBrewingProject extends JavaPlugin {
     private DrunkTextRegistry drunkTextRegistry;
     @Getter
     private DrunkManager drunkManager;
+    @Getter
+    private CustomEventRegistry customDrunkEventRegistry;
 
     @Override
     public void onLoad() {
@@ -76,6 +82,8 @@ public class TheBrewingProject extends JavaPlugin {
         loadStructures();
         this.recipeRegistry = new RecipeRegistry<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
+        this.customDrunkEventRegistry = new CustomEventRegistry();
+        CustomDrunkEventReader.read(Config.CUSTOM_EVENTS).forEach(customDrunkEventRegistry::registerCustomEvent);
     }
 
     private void loadStructures() {
@@ -115,7 +123,7 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        this.drunkManager = new DrunkManager(200);
+        this.drunkManager = new DrunkManager(200, customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunkManager, this.drunkTextRegistry, recipeRegistry), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
@@ -157,7 +165,7 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
     private void otherTicking() {
-        drunkManager.tick(DrunkEventAction::doDrunkEvent);
+        drunkManager.tick(DrunkEventExecutor::doDrunkEvent);
     }
 
     public void registerPluginIngredients() {

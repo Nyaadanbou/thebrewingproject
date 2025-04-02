@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.breweries;
 
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,8 +24,8 @@ public enum CauldronType {
         return materialKey;
     }
 
-    public String key() {
-        return Registry.brewerySpacedKey(name().toLowerCase(Locale.ROOT));
+    public BreweryKey key() {
+        return BreweryKey.parse(name().toLowerCase(Locale.ROOT));
     }
 
     public String translation() {

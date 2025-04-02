@@ -40,11 +40,11 @@ public abstract class BarrelBrewDataType<I> implements
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(context.worldUuid));
             preparedStatement.setInt(5, context.inventoryPos);
             preparedStatement.setInt(6, brew.distillRuns());
-            preparedStatement.setString(7, brew.cauldronType().key());
+            preparedStatement.setString(7, brew.cauldronType().key().toString());
             preparedStatement.setLong(8, brew.brewTime().moment());
             preparedStatement.setLong(9, ((Interval) brew.aging()).start());
             preparedStatement.setString(10, Ingredient.ingredientsToJson(brew.ingredients()));
-            preparedStatement.setString(11, brew.barrelType().key());
+            preparedStatement.setString(11, brew.barrelType().key().toString());
             preparedStatement.execute();
         }
     }
@@ -97,8 +97,8 @@ public abstract class BarrelBrewDataType<I> implements
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = newValue.second();
             Brew<I> brew = newValue.first();
-            preparedStatement.setString(1, brew.barrelType().key());
-            preparedStatement.setString(2, brew.cauldronType().key());
+            preparedStatement.setString(1, brew.barrelType().key().toString());
+            preparedStatement.setString(2, brew.cauldronType().key().toString());
             preparedStatement.setLong(3, brew.brewTime().moment());
             preparedStatement.setLong(4, ((Interval) brew.aging()).start());
             preparedStatement.setString(5, Ingredient.ingredientsToJson(brew.ingredients()));

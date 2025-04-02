@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.structure.StructureMeta;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.Util;
 import dev.thorinwasher.schem.Schematic;
@@ -61,7 +62,7 @@ public class StructureReader {
                     .entrySet()
                     .stream()
                     .map(entry -> {
-                        StructureMeta<?> meta = dev.jsinco.brewery.util.Registry.STRUCTURE_META.get(entry.getKey());
+                        StructureMeta<?> meta = dev.jsinco.brewery.util.Registry.STRUCTURE_META.get(BreweryKey.parse(entry.getKey()));
                         Object value = meta.deserializer().apply(entry.getValue());
                         return new Pair<>(meta, value);
                     })

@@ -78,7 +78,7 @@ class BukkitBarrelBrewDataTypeTest {
             preparedStatement.setBytes(7, DecoderEncoder.asBytes(world.getUID()));
             preparedStatement.setString(8, "[1,2,3,4,5,6,7,8,9]");
             preparedStatement.setString(9, "test_format");
-            preparedStatement.setString(10, BarrelType.ACACIA.key());
+            preparedStatement.setString(10, BarrelType.ACACIA.key().toString());
             preparedStatement.setInt(11, 9);
             preparedStatement.execute();
         }

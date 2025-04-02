@@ -2,6 +2,7 @@ package dev.jsinco.brewery.recipes;
 
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.ConfigurationSection;
@@ -52,11 +53,11 @@ public class RecipeReader<I, M> {
         return new Recipe.Builder<I, M>(recipeName)
                 .brewTime(recipe.getInt("brew-time", 0))
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
-                .cauldronType(Registry.CAULDRON_TYPE.get(Registry.brewerySpacedKey(recipe.getString("cauldron-type", "water").toLowerCase(Locale.ROOT))))
+                .cauldronType(Registry.CAULDRON_TYPE.get(BreweryKey.parse(recipe.getString("cauldron-type", "water").toLowerCase(Locale.ROOT))))
                 .ingredients(ingredientManager.getIngredientsWithAmount(recipe.getStringList("ingredients")))
                 .distillRuns(recipe.getInt("distilling.runs", 0))
                 .distillTime(recipe.getInt("distilling.time", 30))
-                .barrelType(Registry.BARREL_TYPE.get(Registry.brewerySpacedKey(recipe.getString("aging.barrel-type", "any").toLowerCase(Locale.ROOT))))
+                .barrelType(Registry.BARREL_TYPE.get(BreweryKey.parse(recipe.getString("aging.barrel-type", "any").toLowerCase(Locale.ROOT))))
                 .agingYears(recipe.getInt("aging.years", 0))
                 .recipeResult(recipeResultReader.readRecipeResult(recipe))
                 .build();

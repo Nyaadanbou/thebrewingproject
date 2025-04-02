@@ -1,7 +1,11 @@
 package dev.jsinco.brewery.bukkit.command;
 
-import dev.jsinco.brewery.bukkit.effect.DrunkEventAction;
-import dev.jsinco.brewery.effect.DrunkEvent;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
+import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
+import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
+import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Registry;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 public class BreweryCommand implements CommandExecutor {
     @Override
@@ -21,7 +24,12 @@ public class BreweryCommand implements CommandExecutor {
         return switch (args[0]) {
             case "create" -> CreateCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
             case "event" -> {
-                DrunkEventAction.doDrunkEvent(player.getUniqueId(), DrunkEvent.valueOf(args[1].toUpperCase(Locale.ROOT)));
+                NamedDrunkEvent namedDrunkEvent = Registry.DRUNK_EVENT.get(BreweryKey.parse(args[1]));
+                if (namedDrunkEvent != null) {
+                    NamedDrunkEventExecutor.doDrunkEvent(player.getUniqueId(), namedDrunkEvent);
+                    yield true;
+                }
+                DrunkEventExecutor.doDrunkEvent(player.getUniqueId(), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().getCustomEvent(BreweryKey.parse(args[1])));
                 yield true;
             }
             case "status" -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));

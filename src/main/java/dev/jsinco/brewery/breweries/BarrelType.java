@@ -2,7 +2,7 @@ package dev.jsinco.brewery.breweries;
 
 
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.util.Registry;
+import dev.jsinco.brewery.util.BreweryKey;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -24,8 +24,8 @@ public enum BarrelType {
 
     public static final BarrelType[] PLACEABLE_TYPES = Arrays.stream(values()).filter(barrelType -> barrelType != ANY).toArray(BarrelType[]::new);
 
-    public String key() {
-        return Registry.brewerySpacedKey(name().toLowerCase(Locale.ROOT));
+    public BreweryKey key() {
+        return BreweryKey.parse(name().toLowerCase(Locale.ROOT));
     }
 
     public String translation() {

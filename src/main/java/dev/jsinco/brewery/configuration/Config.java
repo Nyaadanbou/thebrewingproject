@@ -7,6 +7,7 @@ import org.simpleyaml.configuration.file.YamlFile;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public final class Config extends AbstractConfig {
     @Key("config-version")
@@ -63,6 +64,12 @@ public final class Config extends AbstractConfig {
 
     @Key("events.messages")
     public static List<String> DRUNK_MESSAGES = List.of();
+
+    @Key("events.custom-events")
+    public static Map<String, Object> CUSTOM_EVENTS = Map.of();
+
+    @Key("events.enabled-random-events")
+    public static List<String> ENABLED_RANDOM_EVENTS = List.of();
 
     private static final Config CONFIG = new Config();
 

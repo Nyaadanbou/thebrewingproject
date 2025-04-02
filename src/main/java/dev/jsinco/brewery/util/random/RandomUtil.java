@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.util;
+package dev.jsinco.brewery.util.random;
 
 import java.util.List;
 import java.util.Random;
@@ -23,8 +23,4 @@ public class RandomUtil {
         return tList.getLast();
     }
 
-    public interface WeightedProbabilityElement {
-
-        int getProbabilityWeight();
-    }
 }

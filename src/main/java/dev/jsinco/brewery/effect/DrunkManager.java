@@ -1,37 +1,39 @@
 package dev.jsinco.brewery.effect;
 
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.effect.event.CustomEventRegistry;
+import dev.jsinco.brewery.effect.event.DrunkEvent;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.RandomUtil;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Moment;
+import dev.jsinco.brewery.util.random.RandomUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 public class DrunkManager {
 
     private final int inverseDecayRate;
+    private final CustomEventRegistry eventRegistry;
+    private final Set<BreweryKey> allowedEvents;
     private Map<UUID, DrunkState> drunks = new HashMap<>();
     @Getter
     private long drunkManagerTime = 0;
     private Map<Long, Map<UUID, DrunkEvent>> events = new HashMap<>();
     private Map<UUID, Long> plannedEvents = new HashMap<>();
-    private int lowestLevelRequiredForEvent = Integer.MAX_VALUE;
 
     private static final Random RANDOM = new Random();
     private final Map<UUID, Long> passedOut = new HashMap<>();
 
-    public DrunkManager(int inverseDecayRate) {
+    public DrunkManager(int inverseDecayRate, CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
         this.inverseDecayRate = inverseDecayRate;
-        for (DrunkEvent drunkEvent : Registry.DRUNK_EVENT.values()) {
-            if (drunkEvent.getAlcohol() < lowestLevelRequiredForEvent) {
-                lowestLevelRequiredForEvent = drunkEvent.getAlcohol();
-            }
-        }
+        this.eventRegistry = registry;
+        this.allowedEvents = allowedEvents;
     }
 
     public void consume(UUID playerUuid, int alcohol, int toxins) {
@@ -52,9 +54,7 @@ public class DrunkManager {
             return;
         }
         drunks.put(playerUuid, drunkState);
-        if (drunkState.alcohol() >= lowestLevelRequiredForEvent) {
-            planEvent(playerUuid);
-        }
+        planEvent(playerUuid);
     }
 
     public @Nullable DrunkState getDrunkState(UUID playerUuid) {
@@ -107,13 +107,15 @@ public class DrunkManager {
         if (drunkState == null) {
             return;
         }
-        if (drunkState.alcohol() < lowestLevelRequiredForEvent) {
+        List<DrunkEvent> drunkEvents = Stream.concat(Registry.DRUNK_EVENT.values().stream(), eventRegistry.events().stream())
+                .filter(event -> allowedEvents.contains(event.key()))
+                .filter(drunkEvent -> drunkEvent.getAlcoholRequirement() <= drunkState.alcohol())
+                .filter(drunkEvent -> drunkEvent.getAlcoholRequirement() <= drunkState.toxins())
+                .filter(drunkEvent -> drunkEvent.getProbabilityWeight() > 0)
+                .toList();
+        if (drunkEvents.isEmpty()) {
             return;
         }
-        List<DrunkEvent> drunkEvents = Registry.DRUNK_EVENT.values()
-                .stream()
-                .filter(drunkEvent -> drunkEvent.getAlcohol() <= drunkState.alcohol())
-                .toList();
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
         long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(200, 100)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);

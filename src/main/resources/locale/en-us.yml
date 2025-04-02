@@ -64,6 +64,6 @@ events.types:
   kick: pass out
   chicken: lay egg
   teleport: teleport
-  message: send message
+  drunk_message: send message
 events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing

@@ -1,10 +1,15 @@
 package dev.jsinco.brewery.effect;
 
+import dev.jsinco.brewery.effect.event.CustomEventRegistry;
+import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
+import dev.jsinco.brewery.util.BreweryKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,7 +20,10 @@ class DrunkManagerTest {
 
     @BeforeEach
     void setup() {
-        this.drunkManager = new DrunkManager(20);
+        this.drunkManager = new DrunkManager(20, new CustomEventRegistry(), Arrays.stream(NamedDrunkEvent.values())
+                .map(NamedDrunkEvent::key)
+                .collect(Collectors.toSet())
+        );
     }
 
     @Test

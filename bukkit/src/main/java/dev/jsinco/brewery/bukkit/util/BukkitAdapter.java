@@ -1,8 +1,10 @@
 package dev.jsinco.brewery.bukkit.util;
 
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 
 public class BukkitAdapter {
@@ -21,5 +23,13 @@ public class BukkitAdapter {
 
     public static Block toBlock(BreweryLocation location) {
         return Bukkit.getWorld(location.worldUuid()).getBlockAt(location.x(), location.y(), location.z());
+    }
+
+    public static NamespacedKey toNamespacedKey(BreweryKey breweryKey) {
+        return NamespacedKey.fromString(breweryKey.toString());
+    }
+
+    public static BreweryKey toBreweryKey(NamespacedKey namespacedKey) {
+        return new BreweryKey(namespacedKey.namespace(), namespacedKey.getKey());
     }
 }

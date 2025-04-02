@@ -7,11 +7,12 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.breweries.BarrelPdcType;
 import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.ItemColorUtil;
-import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Moment;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -31,13 +32,13 @@ public class BrewAdapter {
 
 
     private static final int DATA_VERSION = 0;
-    private static final NamespacedKey BREW_TIME = NamespacedKey.fromString(Registry.brewerySpacedKey("brew_time"));
-    private static final NamespacedKey INGREDIENTS = NamespacedKey.fromString(Registry.brewerySpacedKey("ingredients"));
-    private static final NamespacedKey AGING = NamespacedKey.fromString(Registry.brewerySpacedKey("aging_time"));
-    private static final NamespacedKey DISTILL_RUNS = NamespacedKey.fromString(Registry.brewerySpacedKey("distill_runs"));
-    private static final NamespacedKey CAULDRON_TYPE = NamespacedKey.fromString(Registry.brewerySpacedKey("cauldron_type"));
-    private static final NamespacedKey BARREL_TYPE = NamespacedKey.fromString(Registry.brewerySpacedKey("barrel_type"));
-    private static final NamespacedKey BREWERY_DATA_VERSION = NamespacedKey.fromString(Registry.brewerySpacedKey("version"));
+    private static final NamespacedKey BREW_TIME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("brew_time"));
+    private static final NamespacedKey INGREDIENTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("ingredients"));
+    private static final NamespacedKey AGING = BukkitAdapter.toNamespacedKey(BreweryKey.parse("aging_time"));
+    private static final NamespacedKey DISTILL_RUNS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("distill_runs"));
+    private static final NamespacedKey CAULDRON_TYPE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("cauldron_type"));
+    private static final NamespacedKey BARREL_TYPE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("barrel_type"));
+    private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(BREW_TIME, INGREDIENTS, AGING, DISTILL_RUNS, CAULDRON_TYPE, BARREL_TYPE, BREWERY_DATA_VERSION);
 
     public static ItemStack toItem(Brew<ItemStack> brew) {

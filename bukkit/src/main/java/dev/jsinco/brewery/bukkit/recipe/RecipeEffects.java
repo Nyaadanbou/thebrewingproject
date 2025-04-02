@@ -1,9 +1,10 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.util.Registry;
+import dev.jsinco.brewery.util.BreweryKey;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -24,11 +25,11 @@ import java.util.Optional;
 
 public class RecipeEffects {
 
-    public static final NamespacedKey COMMANDS = NamespacedKey.fromString(Registry.brewerySpacedKey("commands"));
-    public static final NamespacedKey MESSAGE = NamespacedKey.fromString(Registry.brewerySpacedKey("message"));
-    public static final NamespacedKey ACTION_BAR = NamespacedKey.fromString(Registry.brewerySpacedKey("action_bar"));
-    public static final NamespacedKey TITLE = NamespacedKey.fromString(Registry.brewerySpacedKey("titles"));
-    public static final NamespacedKey ALCOHOL = NamespacedKey.fromString(Registry.brewerySpacedKey("alcohol"));
+    public static final NamespacedKey COMMANDS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("commands"));
+    public static final NamespacedKey MESSAGE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("message"));
+    public static final NamespacedKey ACTION_BAR = BukkitAdapter.toNamespacedKey(BreweryKey.parse("action_bar"));
+    public static final NamespacedKey TITLE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("titles"));
+    public static final NamespacedKey ALCOHOL = BukkitAdapter.toNamespacedKey(BreweryKey.parse("alcohol"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL);
 
     public static final RecipeEffects GENERIC = new Builder()

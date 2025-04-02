@@ -2,9 +2,9 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkEvent;
 import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -134,7 +134,7 @@ public class StatusCommand {
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
                 Placeholder.unparsed("player_name", target.getName()),
                 Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunkManager.getDrunkManagerTime()),
-                Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().translation())
+                Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
         );
     }
 }

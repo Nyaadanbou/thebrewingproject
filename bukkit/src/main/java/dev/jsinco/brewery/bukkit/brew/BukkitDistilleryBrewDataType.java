@@ -66,7 +66,7 @@ public class BukkitDistilleryBrewDataType implements
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(distilleryContext.worldUuid()));
             preparedStatement.setInt(5, distilleryContext.inventoryPos());
             preparedStatement.setBoolean(6, distilleryContext.distillate());
-            preparedStatement.setString(7, brew.cauldronType().key());
+            preparedStatement.setString(7, brew.cauldronType().key().toString());
             preparedStatement.setLong(8, brew.brewTime().moment());
             preparedStatement.setInt(9, brew.distillRuns());
             preparedStatement.setString(10, Ingredient.ingredientsToJson(brew.ingredients()));
@@ -93,7 +93,7 @@ public class BukkitDistilleryBrewDataType implements
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_update.sql"))) {
             Brew<ItemStack> brew = newValue.first();
             DistilleryContext distilleryContext = newValue.second();
-            preparedStatement.setString(1, brew.cauldronType().key());
+            preparedStatement.setString(1, brew.cauldronType().key().toString());
             preparedStatement.setLong(2, brew.brewTime().moment());
             preparedStatement.setInt(3, brew.distillRuns());
             preparedStatement.setString(4, Ingredient.ingredientsToJson(brew.ingredients()));

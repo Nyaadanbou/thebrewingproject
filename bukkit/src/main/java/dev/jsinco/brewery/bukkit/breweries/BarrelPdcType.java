@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.breweries.BarrelType;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
@@ -24,12 +25,12 @@ public class BarrelPdcType implements PersistentDataType<String, BarrelType> {
     @NotNull
     @Override
     public String toPrimitive(@NotNull BarrelType complex, @NotNull PersistentDataAdapterContext context) {
-        return complex.key();
+        return complex.key().toString();
     }
 
     @NotNull
     @Override
     public BarrelType fromPrimitive(@NotNull String primitive, @NotNull PersistentDataAdapterContext context) {
-        return Registry.BARREL_TYPE.get(primitive);
+        return Registry.BARREL_TYPE.get(BreweryKey.parse(primitive));
     }
 }

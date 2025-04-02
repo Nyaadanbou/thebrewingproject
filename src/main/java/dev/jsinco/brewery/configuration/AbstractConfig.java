@@ -4,6 +4,14 @@
  */
 package dev.jsinco.brewery.configuration;
 
+import dev.jsinco.brewery.util.Logging;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.comments.CommentType;
+import org.simpleyaml.configuration.file.YamlFile;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
+
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,14 +21,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import dev.jsinco.brewery.util.Logging;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.simpleyaml.configuration.ConfigurationSection;
-import org.simpleyaml.configuration.comments.CommentType;
-import org.simpleyaml.configuration.file.YamlFile;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 public abstract class AbstractConfig {
     private YamlFile config;
@@ -95,17 +95,13 @@ public abstract class AbstractConfig {
         }
         Map<String, Object> map = new LinkedHashMap<>();
         for (String key : section.getKeys(false)) {
-            String rawValue = section.getString(key);
+            Object rawValue = get(path + "." + key);
             if (rawValue == null) {
                 continue;
             }
-            map.put(key, addToMap(rawValue));
+            map.put(key, rawValue);
         }
         return map;
-    }
-
-    protected @NotNull Object addToMap(@NotNull String rawValue) {
-        return rawValue;
     }
 
     protected void set(@NotNull String path, @Nullable Object value) {
