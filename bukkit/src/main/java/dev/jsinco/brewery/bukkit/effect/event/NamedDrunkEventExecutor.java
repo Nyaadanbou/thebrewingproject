@@ -1,11 +1,12 @@
 package dev.jsinco.brewery.bukkit.effect.event;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
@@ -96,9 +97,13 @@ public class NamedDrunkEventExecutor {
                 player.chat(drunkMessages.get(RANDOM.nextInt(drunkMessages.size())).replace("<random_player_name>", randomPlayer.getName()));
             }
             case TELEPORT -> {
-                player.sendMessage("Should have teleported you somewhere?");
-            }
-            default -> {
+                String teleport = Config.TELEPORT_DESTINATIONS.get(RANDOM.nextInt(Config.TELEPORT_DESTINATIONS.size()));
+                Location location = BukkitAdapter.parseLocation(teleport);
+                if (location == null) {
+                    return;
+                }
+                player.teleport(location);
+                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.TELEPORT_MESSAGE, MessageUtil.getPlayerTagResolver(player)));
             }
         }
     }

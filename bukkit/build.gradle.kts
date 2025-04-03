@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "dev.jsinco.brewery"
-version = "1.0-SNAPSHOT"
+version = "1.0-ALPHA"
 
 repositories {
     mavenCentral()
@@ -47,6 +47,11 @@ tasks {
     runServer {
         minecraftVersion("1.21.4")
     }
+
+    shadowJar {
+        archiveBaseName.set(rootProject.name)
+        archiveClassifier.unset()
+    }
 }
 
 
@@ -57,9 +62,6 @@ bukkit {
     authors = listOf("Jsinco", "Mitality", "Thorinwasher")
     name = rootProject.name
     commands {
-        register("test") {
-
-        }
         register("brew") {
             aliases = listOf("brewery", "tbp")
         }
@@ -82,13 +84,24 @@ bukkit {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("brewery.command.create") {
-            default = BukkitPluginDescription.Permission.Default.OP
         }
         register("brewery.command.status") {
-            default = BukkitPluginDescription.Permission.Default.OP
+        }
+        register("brewery.command.event") {
+        }
+        register("brewery.command.reload") {
+        }
+        register("brewery.command.info") {
         }
         register("brewery.command") {
-            children = listOf("brewery.command.create", "brewery.command.status")
+            children = listOf(
+                "brewery.command.create",
+                "brewery.command.status",
+                "brewery.command.event",
+                "brewery.command.reload",
+                "brewery.command.info"
+            )
+            default = BukkitPluginDescription.Permission.Default.OP
         }
         register("brewery") {
             children = listOf("brewery.command", "brewery.structure.create")

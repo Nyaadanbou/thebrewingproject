@@ -50,4 +50,10 @@ public class StructureRegistry {
     public Collection<BreweryStructure> getStructures(StructureType structureType) {
         return structures.computeIfAbsent(structureType, ignored -> new HashSet<>());
     }
+
+    public void clear() {
+        structures.clear();
+        structureNames.clear();
+        structuresWithMaterials.clear();
+    }
 }

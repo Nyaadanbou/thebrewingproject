@@ -31,11 +31,6 @@ recipes:
     aging: # Category optional, defaults to ANY and 0
       barrel-type: 'OAK'
       years: 11
-    commands: # Optional, defaults to empty
-      - '+++ weather clear'
-      - '+ weather rain'
-      - 'say Hello'
-      - 'player:home'
     # Change from BreweryX
     # Amplifiers have been moved to the last '/' of the effects string
     # <POTION-TYPE>/<DURATION>/<AMPLIFIER>
@@ -49,6 +44,8 @@ recipes:
       title: 'Warms you from inside\n 2nd line'
       message: 'Tastes good'
       action-bar: 'Action Bar Message'
+    events:
+      - example-event
   wheat-beer:
     ingredients:
       - Wheat/3
@@ -61,7 +58,7 @@ recipes:
     potion-attributes:
       name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
       lore:
-        - +++<dark_gray>Refreshing
+        - +++<gold>Refreshing
       color: ffb84d
     events:
       - example-event

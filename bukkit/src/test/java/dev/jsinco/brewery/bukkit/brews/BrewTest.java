@@ -49,7 +49,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 13), 129, CauldronType.WATER, BarrelType.ACACIA);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe2").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
@@ -62,7 +62,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 13), 129, CauldronType.WATER, BarrelType.BAMBOO);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe3").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
@@ -75,7 +75,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 13), 129, CauldronType.LAVA, BarrelType.ACACIA);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe4").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
@@ -88,7 +88,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 13), 128, CauldronType.WATER, BarrelType.ACACIA);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe5").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
@@ -101,7 +101,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 13), 129, CauldronType.WATER, BarrelType.ACACIA);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe6").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 
@@ -114,7 +114,7 @@ class BrewTest {
         ), new Interval(0, Interval.AGING_YEAR * 10), 129, CauldronType.WATER, BarrelType.ACACIA);
         Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe7").get(), closest);
-        assertTrue(brew.hasCompletedRecipe(closest));
+        assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
     }
 

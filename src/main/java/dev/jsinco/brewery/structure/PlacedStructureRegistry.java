@@ -8,7 +8,7 @@ import java.util.*;
 
 public class PlacedStructureRegistry {
 
-    private final Map<UUID, Map<BreweryVector, MultiBlockStructure<? extends StructureHolder>>> structures = new HashMap<>();
+    private final Map<UUID, Map<BreweryVector, MultiBlockStructure<? extends StructureHolder<?>>>> structures = new HashMap<>();
 
     public void registerStructure(MultiBlockStructure<?> placedBreweryStructure) {
         for (BreweryLocation location : placedBreweryStructure.positions()) {
@@ -38,14 +38,18 @@ public class PlacedStructureRegistry {
         return breweryStructures;
     }
 
-    public Optional<StructureHolder> getHolder(BreweryLocation location) {
+    public Optional<StructureHolder<?>> getHolder(BreweryLocation location) {
         UUID worldUuid = location.worldUuid();
-        Map<BreweryVector, MultiBlockStructure<? extends StructureHolder>> placedBreweryStructureMap = structures.getOrDefault(worldUuid, new HashMap<>());
+        Map<BreweryVector, MultiBlockStructure<? extends StructureHolder<?>>> placedBreweryStructureMap = structures.getOrDefault(worldUuid, new HashMap<>());
         return Optional.ofNullable(placedBreweryStructureMap.get(location.toVector()))
                 .map(MultiBlockStructure::getHolder);
     }
 
     public void unloadWorld(UUID worldUuid) {
         structures.remove(worldUuid);
+    }
+
+    public void clear() {
+        structures.clear();
     }
 }

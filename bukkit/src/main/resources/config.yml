@@ -28,6 +28,8 @@ events:
           duration: 5s
         - type: drunk_message
         - type: teleport
+  teleport-destinations:
+    - world, 0, 80, 0
 # Settings for cauldrons
 cauldrons:
   # Reduce the number of particles that spawn while cauldrons brew.

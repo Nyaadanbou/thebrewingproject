@@ -3,10 +3,11 @@ package dev.jsinco.brewery.recipes;
 import org.jetbrains.annotations.Nullable;
 
 public record BrewScore(double ingredientScore, double cauldronTimeScore, double distillRunsScore,
-                        double agingTimeScore, double cauldronTypeScore, double barrelTypeScore, int brewDifficulty) {
+                        double agingTimeScore, double cauldronTypeScore, double barrelTypeScore, int brewDifficulty,
+                        boolean completed) {
 
-    public static final BrewScore EXCELLENT = new BrewScore(1, 1, 1, 1, 1, 1, 1);
-    public static final BrewScore NONE = new BrewScore(0, 0, 0, 0, 0, 0, 1);
+    public static final BrewScore EXCELLENT = new BrewScore(1, 1, 1, 1, 1, 1, 1, true);
+    public static final BrewScore NONE = new BrewScore(0, 0, 0, 0, 0, 0, 1, true);
     private static final char FULL_STAR = '\u2605';
     private static final char HALF_STAR = '\u2BEA';
     private static final char EMPTY_STAR = '\u2606';

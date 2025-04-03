@@ -105,7 +105,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
             if (recipe.getBrewTime() == 0 && brewTime.minutes() > 0) {
                 cauldronTimeScore = 0;
             } else {
-                cauldronTimeScore = getNearbyValueScore(recipe.getBrewTime(), brewTime.minutes());
+                cauldronTimeScore = getNearbyValueScore((long) recipe.getBrewTime() * Moment.MINUTE, brewTime.moment());
             }
         }
         double agingTimeScore = 1;
@@ -113,7 +113,7 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
             if (recipe.getAgingYears() == 0 && aging.agingYears() > 0) {
                 agingTimeScore = 0;
             } else {
-                agingTimeScore = getNearbyValueScore(recipe.getAgingYears(), aging.agingYears());
+                agingTimeScore = getNearbyValueScore((long) recipe.getAgingYears() * Moment.AGING_YEAR, aging.moment());
             }
         }
         double cauldronTypeScore = 1;
@@ -136,23 +136,26 @@ public record Brew<I>(@Nullable Moment brewTime, @NotNull Map<Ingredient<I>, Int
                 distillRunsScore = getNearbyValueScore(recipe.getDistillRuns(), distillRuns);
             }
         }
-        return new BrewScore(ingredientScore, cauldronTimeScore, distillRunsScore, agingTimeScore, cauldronTypeScore, barrelTypeScore, recipe.getBrewDifficulty());
+        BrewQuality testBrewQuality = new BrewScore(ingredientScore, cauldronTimeScore, distillRunsScore, agingTimeScore, cauldronTypeScore, barrelTypeScore, recipe.getBrewDifficulty(), true).brewQuality();
+        double finalAgingTimeScore;
+        boolean completed = true;
+        if (testBrewQuality == null && aging() != null && aging().moment() < (long) recipe.getAgingYears() * Moment.AGING_YEAR) {
+            finalAgingTimeScore = 1;
+            completed = false;
+        } else {
+            finalAgingTimeScore = agingTimeScore;
+        }
+        double finalDistillingScore;
+        if (testBrewQuality == null && distillRuns() < recipe.getDistillRuns() && aging() == null) {
+            finalDistillingScore = 1;
+            completed = false;
+        } else {
+            finalDistillingScore = distillRunsScore;
+        }
+        return new BrewScore(ingredientScore, cauldronTimeScore, finalDistillingScore, finalAgingTimeScore, cauldronTypeScore, barrelTypeScore, recipe.getBrewDifficulty(), completed);
     }
 
     public Optional<BrewQuality> quality(Recipe<I, ?> recipe) {
         return Optional.ofNullable(score(recipe).brewQuality());
-    }
-
-    public boolean hasCompletedRecipe(Recipe<I, ?> recipe) {
-        if (!recipe.getIngredients().keySet().equals(ingredients.keySet())) {
-            return false;
-        }
-        if (recipe.getBrewTime() > 0 && (brewTime == null || brewTime.minutes() < 1)) {
-            return false;
-        }
-        if (recipe.getAgingYears() > 0 && (aging == null || aging.agingYears() < 1)) {
-            return false;
-        }
-        return recipe.getDistillRuns() <= 0 || distillRuns >= 1;
     }
 }

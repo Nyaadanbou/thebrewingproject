@@ -3,9 +3,11 @@ package dev.jsinco.brewery.bukkit.command;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,6 +26,10 @@ public class BreweryCommand implements CommandExecutor {
         return switch (args[0]) {
             case "create" -> CreateCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
             case "event" -> {
+                if (!player.hasPermission("brewery.command.event")) {
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+                    yield true;
+                }
                 NamedDrunkEvent namedDrunkEvent = Registry.DRUNK_EVENT.get(BreweryKey.parse(args[1]));
                 if (namedDrunkEvent != null) {
                     NamedDrunkEventExecutor.doDrunkEvent(player.getUniqueId(), namedDrunkEvent);
@@ -34,6 +40,15 @@ public class BreweryCommand implements CommandExecutor {
             }
             case "status" -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
             case "info" -> InfoCommand.onCommand(player);
+            case "reload" -> {
+                if (!player.hasPermission("brewery.command.reload")) {
+                    player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+                    yield true;
+                }
+                TheBrewingProject.getInstance().reload();
+                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_RELOAD_MESSAGE));
+                yield true;
+            }
             default -> false;
         };
     }

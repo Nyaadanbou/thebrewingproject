@@ -63,7 +63,7 @@ public class BrewAdapter {
             }
             //TODO Refactor this weird implementation for default recipes
             randomDefault.applyMeta(BrewScore.EXCELLENT, meta, brew);
-        } else if (!brew.hasCompletedRecipe(recipe.get())) {
+        } else if (!score.map(BrewScore::completed).get()) {
             fillPersistentData(meta, brew);
             incompletePotion(meta, brew);
         } else {

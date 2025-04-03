@@ -25,4 +25,8 @@ public class CustomEventRegistry {
     public Collection<CustomEvent> events() {
         return customEvents.values();
     }
+
+    public void clear() {
+        customEvents.clear();
+    }
 }

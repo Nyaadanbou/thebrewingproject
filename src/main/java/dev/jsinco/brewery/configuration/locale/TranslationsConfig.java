@@ -3,7 +3,6 @@ package dev.jsinco.brewery.configuration.locale;
 import dev.jsinco.brewery.configuration.AbstractConfig;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.util.FileUtil;
-import org.simpleyaml.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -46,7 +45,7 @@ public class TranslationsConfig extends AbstractConfig {
     public static String BARREL_TYPE_NONE;
 
     @Key("barrel.type")
-    public static Map<String,String> BARREL_TYPE;
+    public static Map<String, String> BARREL_TYPE;
 
     @Key("barrel.create-denied")
     public static String BARREL_CREATE_DENIED;
@@ -58,7 +57,7 @@ public class TranslationsConfig extends AbstractConfig {
     public static String CAULDRON_ACCESS_DENIED;
 
     @Key("cauldron.type")
-    public static Map<String,String> CAULDRON_TYPE;
+    public static Map<String, String> CAULDRON_TYPE;
 
     @Key("cauldron.type.none")
     public static String CAULDRON_TYPE_NONE;
@@ -99,17 +98,23 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.info.effect-message")
     public static String COMMAND_INFO_EFFECT_MESSAGE;
 
+    @Key("command.reload-message")
+    public static String COMMAND_RELOAD_MESSAGE;
+
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;
 
     @Key("events.types")
-    public static Map<String,String> EVENT_TYPES;
+    public static Map<String, String> EVENT_TYPES;
 
     @Key("events.nothing-planned")
     public static String NO_EVENT_PLANNED;
 
     @Key("events.chicken-message")
     public static String CHICKEN_MESSAGE;
+
+    @Key("events.teleport-message")
+    public static String TELEPORT_MESSAGE;
 
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 

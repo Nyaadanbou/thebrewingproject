@@ -53,4 +53,8 @@ public class DrunkTextRegistry {
         Preconditions.checkArgument(alcohol >= 0 && alcohol <= 100, "Alcohol outside range");
         return drunkenTexts.computeIfAbsent(alcohol, ignored -> new ArrayList<>());
     }
+
+    public void clear() {
+        drunkenTexts.clear();
+    }
 }

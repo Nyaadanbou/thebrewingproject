@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class InfoCommand {
     public static boolean onCommand(Player player) {
-        if (!player.hasPermission("brewery.info")) {
+        if (!player.hasPermission("brewery.command.info")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
             return true;
         }

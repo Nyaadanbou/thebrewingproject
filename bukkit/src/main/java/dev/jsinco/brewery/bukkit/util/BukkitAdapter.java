@@ -5,7 +5,9 @@ import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 public class BukkitAdapter {
 
@@ -31,5 +33,17 @@ public class BukkitAdapter {
 
     public static BreweryKey toBreweryKey(NamespacedKey namespacedKey) {
         return new BreweryKey(namespacedKey.namespace(), namespacedKey.getKey());
+    }
+
+    public static @Nullable Location parseLocation(String teleport) {
+        String[] split = teleport.split(",");
+        World world = Bukkit.getWorld(split[0]);
+        if (world == null) {
+            return null;
+        }
+        int x = Integer.parseInt(split[1].strip());
+        int y = Integer.parseInt(split[2].strip());
+        int z = Integer.parseInt(split[3].strip());
+        return new Location(world, x, y, z);
     }
 }

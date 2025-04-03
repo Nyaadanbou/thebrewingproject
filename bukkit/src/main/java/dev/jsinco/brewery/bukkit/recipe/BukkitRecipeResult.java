@@ -69,7 +69,6 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
     }
 
     public void applyMeta(BrewScore score, PotionMeta meta, Brew<ItemStack> brew) {
-        //TODO translations
         BrewQuality quality = score.brewQuality();
         Preconditions.checkNotNull(quality);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);

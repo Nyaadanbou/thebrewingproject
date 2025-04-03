@@ -18,9 +18,9 @@ import java.util.stream.Stream;
 
 public class DrunkManager {
 
-    private final int inverseDecayRate;
+    private int inverseDecayRate;
     private final CustomEventRegistry eventRegistry;
-    private final Set<BreweryKey> allowedEvents;
+    private Set<BreweryKey> allowedEvents;
     private Map<UUID, DrunkState> drunks = new HashMap<>();
     @Getter
     private long drunkManagerTime = 0;
@@ -62,6 +62,15 @@ public class DrunkManager {
         return alreadyDrunk ?
                 drunks.get(playerUuid).recalculate(inverseDecayRate, drunkManagerTime) : null;
 
+    }
+
+    public void reset(int inverseDecayRate, Set<BreweryKey> allowedEvents) {
+        plannedEvents.clear();
+        passedOut.clear();
+        drunks.clear();
+        this.allowedEvents = allowedEvents;
+        events.clear();
+        this.inverseDecayRate = inverseDecayRate;
     }
 
     public void clear(UUID playerUuid) {

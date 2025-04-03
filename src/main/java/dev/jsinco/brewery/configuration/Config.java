@@ -71,6 +71,9 @@ public final class Config extends AbstractConfig {
     @Key("events.enabled-random-events")
     public static List<String> ENABLED_RANDOM_EVENTS = List.of();
 
+    @Key("events.teleport-destinations")
+    public static List<String> TELEPORT_DESTINATIONS = List.of();
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {

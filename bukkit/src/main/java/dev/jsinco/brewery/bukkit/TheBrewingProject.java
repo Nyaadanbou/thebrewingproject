@@ -8,7 +8,6 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
-import dev.jsinco.brewery.bukkit.command.TestCommand;
 import dev.jsinco.brewery.bukkit.effect.event.CustomDrunkEventReader;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
@@ -70,6 +69,7 @@ public class TheBrewingProject extends JavaPlugin {
     private DrunkManager drunkManager;
     @Getter
     private CustomEventRegistry customDrunkEventRegistry;
+    private WorldEventListener worldEventListener;
 
     @Override
     public void onLoad() {
@@ -84,6 +84,36 @@ public class TheBrewingProject extends JavaPlugin {
         this.drunkTextRegistry = new DrunkTextRegistry();
         this.customDrunkEventRegistry = new CustomEventRegistry();
         CustomDrunkEventReader.read(Config.CUSTOM_EVENTS).forEach(customDrunkEventRegistry::registerCustomEvent);
+    }
+
+    public void reload() {
+        Config.reload(this.getDataFolder());
+        TranslationsConfig.reload(this.getDataFolder());
+        this.structureRegistry.clear();
+        this.placedStructureRegistry.clear();
+        this.breweryRegistry.clear();
+        loadStructures();
+        this.drunkTextRegistry.clear();
+        this.customDrunkEventRegistry.clear();
+        CustomDrunkEventReader.read(Config.CUSTOM_EVENTS).forEach(customDrunkEventRegistry::registerCustomEvent);
+        saveResources();
+        this.database = new Database(DatabaseDriver.SQLITE);
+        try {
+            database.init(this.getDataFolder());
+        } catch (IOException | SQLException e) {
+            throw new RuntimeException(e); // Hard exit if any issues here
+        }
+        this.drunkManager.reset(200, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
+        worldEventListener.init();
+        RecipeReader<ItemStack, PotionMeta> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
+
+        this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
+        this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
+        try (InputStream inputStream = Util.class.getResourceAsStream("/drunk_text.json")) {
+            drunkTextRegistry.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void loadStructures() {
@@ -127,7 +157,7 @@ public class TheBrewingProject extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunkManager, this.drunkTextRegistry, recipeRegistry), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
-        WorldEventListener worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
+        this.worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateStructures, 0, 1);
@@ -136,7 +166,6 @@ public class TheBrewingProject extends JavaPlugin {
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
-        getCommand("test").setExecutor(new TestCommand());
         getCommand("brew").setExecutor(new BreweryCommand());
         try (InputStream inputStream = Util.class.getResourceAsStream("/drunk_text.json")) {
             drunkTextRegistry.load(inputStream);

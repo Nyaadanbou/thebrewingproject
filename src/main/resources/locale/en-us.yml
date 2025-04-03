@@ -57,6 +57,7 @@ command.info.effect-message: |-
   Effect message: <effect_message>
   Effect action bar: <effect_action_bar>
 command.info.not-a-brew: <red>You're not holding a brew!
+command.reload-message: <green>Reloaded <gold>The Brewing Project</gold>!
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>
 events.types:
   puke: puke
@@ -67,3 +68,4 @@ events.types:
   drunk_message: send message
 events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing
+events.teleport-message: <gray>What? Huh? <red>Where am I?

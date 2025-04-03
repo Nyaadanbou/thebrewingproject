@@ -66,4 +66,10 @@ public final class BreweryRegistry {
     public void unregisterInventory(InventoryAccessible<ItemStack, Inventory> inventoryAccessible) {
         inventoryAccessible.getInventories().forEach(inventories::remove);
     }
+
+    public void clear() {
+        activeCauldrons.clear();
+        opened.clear();
+        inventories.clear();
+    }
 }
