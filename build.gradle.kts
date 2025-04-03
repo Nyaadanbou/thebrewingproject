@@ -22,7 +22,7 @@ repositories {
 dependencies {
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("com.zaxxer:HikariCP:6.2.1")
-    implementation("org.xerial:sqlite-jdbc:3.47.2.0")
+    compileOnly("org.xerial:sqlite-jdbc:3.47.2.0")
 
     compileOnly("org.jetbrains:annotations:24.0.0")
     compileOnly("com.google.guava:guava:33.4.0-jre")
@@ -37,6 +37,7 @@ dependencies {
     testImplementation("com.google.code.gson:gson:2.12.1")
     testImplementation("org.joml:joml:1.10.8")
     testImplementation("com.google.guava:guava:33.4.0-jre")
+    testImplementation("org.xerial:sqlite-jdbc:3.47.2.0")
 }
 
 java {
