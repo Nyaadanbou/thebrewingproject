@@ -10,6 +10,7 @@ import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.moment.PassedMoment;
@@ -90,7 +91,7 @@ public class CreateCommand {
     }
 
     private static Brew<ItemStack> modifyCook(Iterator<String> arguments, Brew<ItemStack> initial) {
-        int cookTime = Integer.parseInt(arguments.next()) * Moment.MINUTE;
+        long cookTime = (long) (Double.parseDouble(arguments.next()) * Moment.MINUTE);
         return initial.withCauldronTime(new PassedMoment(cookTime)).withCauldronType(CauldronType.WATER);
     }
 
@@ -100,8 +101,8 @@ public class CreateCommand {
     }
 
     private static Brew<ItemStack> modifyAge(Iterator<String> arguments, Brew<ItemStack> initial) {
-        int age = Integer.parseInt(arguments.next()) * Moment.AGING_YEAR;
-        BarrelType barrelType = Registry.BARREL_TYPE.get(arguments.next().toUpperCase(Locale.ROOT));
+        long age = (long) (Double.parseDouble(arguments.next()) * Moment.AGING_YEAR);
+        BarrelType barrelType = Registry.BARREL_TYPE.get(BreweryKey.parse(arguments.next().toUpperCase(Locale.ROOT)));
         return initial.withAging(new PassedMoment(age)).withBarrelType(barrelType);
     }
 

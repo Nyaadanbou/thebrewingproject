@@ -106,7 +106,11 @@ public class BrewAdapter {
             displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
         }
         meta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
-        meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
+        if (amount != 0) {
+            meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
+        } else {
+            meta.setColor(org.bukkit.Color.YELLOW);
+        }
     }
 
     private static boolean fillPersistentData(PotionMeta potionMeta, Brew<ItemStack> brew) {

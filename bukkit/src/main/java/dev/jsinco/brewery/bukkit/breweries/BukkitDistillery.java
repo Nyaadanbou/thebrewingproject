@@ -130,7 +130,6 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
             distillate.updateBrewsFromInventory();
         }
         if (hasChanged) {
-            Logging.log("Inventory has changed, resetting start time");
             resetStartTime();
         }
         if (distillate.getInventory().getViewers().isEmpty() && mixture.getInventory().getViewers().isEmpty()) {
