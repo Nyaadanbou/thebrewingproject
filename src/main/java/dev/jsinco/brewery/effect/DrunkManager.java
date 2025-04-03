@@ -119,7 +119,7 @@ public class DrunkManager {
         List<DrunkEvent> drunkEvents = Stream.concat(Registry.DRUNK_EVENT.values().stream(), eventRegistry.events().stream())
                 .filter(event -> allowedEvents.contains(event.key()))
                 .filter(drunkEvent -> drunkEvent.getAlcoholRequirement() <= drunkState.alcohol())
-                .filter(drunkEvent -> drunkEvent.getAlcoholRequirement() <= drunkState.toxins())
+                .filter(drunkEvent -> drunkEvent.getToxinsRequirement() <= drunkState.toxins())
                 .filter(drunkEvent -> drunkEvent.getProbabilityWeight() > 0)
                 .toList();
         if (drunkEvents.isEmpty()) {
