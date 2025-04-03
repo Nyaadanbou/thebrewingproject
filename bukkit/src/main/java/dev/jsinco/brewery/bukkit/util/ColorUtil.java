@@ -30,6 +30,10 @@ public class ColorUtil {
         NAME_TO_COLOR_MAP.put("FUCHSIA", Color.FUCHSIA);
         NAME_TO_COLOR_MAP.put("PURPLE", Color.PURPLE);
         NAME_TO_COLOR_MAP.put("ORANGE", Color.ORANGE);
+        NAME_TO_COLOR_MAP.put("PINK", Color.FUCHSIA);
+        NAME_TO_COLOR_MAP.put("BRIGHT_GRAY", Color.SILVER);
+        NAME_TO_COLOR_MAP.put("BRIGHT_RED", Color.fromRGB(255, 0, 0));
+        NAME_TO_COLOR_MAP.put("DARK_RED", Color.fromRGB(128, 0, 0));
     }
 
 
@@ -38,11 +42,14 @@ public class ColorUtil {
         if (NAME_TO_COLOR_MAP.containsKey(hexOrValue)) {
             return NAME_TO_COLOR_MAP.get(hexOrValue);
         }
-
-        return Color.fromRGB(
-                Integer.valueOf(hexOrValue.substring(0, 2), 16),
-                Integer.valueOf(hexOrValue.substring(2, 4), 16),
-                Integer.valueOf(hexOrValue.substring(4, 6), 16));
+        try {
+            return Color.fromRGB(
+                    Integer.valueOf(hexOrValue.substring(0, 2), 16),
+                    Integer.valueOf(hexOrValue.substring(2, 4), 16),
+                    Integer.valueOf(hexOrValue.substring(4, 6), 16));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid color string: " + hexOrValue);
+        }
     }
 
     public static String colorText(String msg) {

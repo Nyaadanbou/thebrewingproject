@@ -9,11 +9,14 @@ import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.ItemColorUtil;
 import dev.jsinco.brewery.util.moment.Moment;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -96,13 +99,13 @@ public class BrewAdapter {
         }
         String displayName;
         if (brew.aging() != null && brew.aging().moment() > Moment.AGING_YEAR / 2) {
-            displayName = topIngredient == null ? "Aged brew" : "Aged " + topIngredient.displayName().toLowerCase() + " brew";
+            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
         } else if (brew.distillRuns() > 0) {
-            displayName = topIngredient == null ? "Distillate" : topIngredient.displayName() + " distillate";
+            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED.replace("<ingredient>", topIngredient.displayName());
         } else {
-            displayName = topIngredient == null ? "Fermented mesh" : "Fermented " + topIngredient.displayName().toLowerCase();
+            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
         }
-        meta.setDisplayName(displayName);
+        meta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
         meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
     }
 

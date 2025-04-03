@@ -39,7 +39,6 @@ public class InventoryEventListener implements Listener {
             return;
         }
         InventoryAction action = event.getAction();
-        Logging.log(action.toString());
         if (action == InventoryAction.NOTHING) {
             return;
         }

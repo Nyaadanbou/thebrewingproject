@@ -46,22 +46,337 @@ recipes:
       action-bar: 'Action Bar Message'
     events:
       - example-event
-  wheat-beer:
+  absinthe:
+    alcohol: 42
+    brew-difficulty: 8
+    brew-time: 3
+    distilling.runs: 6
+    distilling.time: 80
+    effects:
+      - POISON/15-25
+    ingredients:
+      - Short_Grass/15
+    potion-attributes.color: GREEN
+    potion-attributes.lore:
+      - +++<dark_gray>High proof liquor
+    potion-attributes.name: Poor Absinthe/Absinthe/Strong Absinthe
+  ap_mead:
+    aging.barrel-type: 2
+    aging.years: 4
+    alcohol: 11
+    brew-difficulty: 4
+    brew-time: 4
+    distilling.runs: 0
+    effects:
+      - WATER_BREATHING/1-2/150
+    ingredients:
+      - Sugar_Cane/6
+      - Apple/2
+    potion-attributes.color: ORANGE
+    potion-attributes.lore:
+      - Is there any Apple in this?
+      - Refreshing taste of Apple
+      - Sweetest hint of Apple
+    potion-attributes.name: Apple Mead/Sweet Apple Mead/<gold>Sweet Golden Apple Mead
+  apple_liquor:
+    aging.barrel-type: 5
+    aging.years: 6
+    alcohol: 14
+    brew-difficulty: 5
+    brew-time: 16
+    distilling.runs: 3
+    ingredients:
+      - Apple/12
+      - Diamond/300
+      - Barrel/20
+      - bedrock/2
+      - egg/3
+    potion-attributes.color: BRIGHT_RED
+    potion-attributes.lore:
+      - +Sour like Acid
+      - +++ Good Apple Liquor
+    potion-attributes.name: Sour Apple Liquor/Apple Liquor/Calvados
+  beer:
+    aging.barrel-type: 0
+    aging.years: 3
+    alcohol: 6
+    brew-difficulty: 1
+    brew-time: 8
+    distilling.runs: 0
+    ingredients:
+      - Wheat/6
+    potion-attributes.color: ffd333
+    potion-attributes.lore:
+      - +++ <dark_gray>Crisp taste
+    potion-attributes.name: Skunky Beer/Beer/Fine Beer
+  cidre:
+    aging.barrel-type: 0
+    aging.years: 3
+    alcohol: 7
+    brew-difficulty: 4
+    brew-time: 7
+    distilling.runs: 0
+    ingredients:
+      - Apple/14
+    potion-attributes.color: f86820
+    potion-attributes.name: Poor Cidre/Apple Cider/Great Apple Cider
+  coffee:
+    alcohol: -6
+    brew-difficulty: 3
+    brew-time: 2
+    effects:
+      - REGENERATION/1/2-5
+      - SPEED/1/30-140
+    ingredients:
+      - Cocoa_Beans/12
+      - Milk_Bucket/2
+    potion-attributes.color: BLACK
+    potion-attributes.lore:
+      - + <dark_gray>Probably a week old
+    potion-attributes.name: Stale Coffee/Coffee/Strong Coffee
+  darkbeer:
+    aging.barrel-type: 6
+    aging.years: 0
+    alcohol: 7
+    brew-difficulty: 2
+    brew-time: 8
+    distilling.runs: 3
+    ingredients:
+      - Wheat/6
+    potion-attributes.color: '650013'
+    potion-attributes.lore:
+      - +++ <dark_gray>Roasted taste
+    potion-attributes.name: Skunky Darkbeer/Darkbeer/Fine Darkbeer
+  eggnog:
+    aging.years: 3
+    alcohol: 10
+    brew-difficulty: 4
+    brew-time: 2
+    ingredients:
+      - Egg/5
+      - Sugar/2
+      - Milk_Bucket/1
+    potion-attributes.color: ffe680
+    potion-attributes.lore:
+      - Made with raw egg
+    potion-attributes.name: Egg Liquor/Eggnog/Advocaat
+  fire_whiskey:
+    aging.barrel-type: 4
+    aging.years: 18
+    alcohol: 28
+    brew-difficulty: 7
+    brew-time: 12
+    distilling.runs: 3
+    distilling.time: 55
+    ingredients:
+      - Wheat/10
+      - Blaze_Powder/2
+    messages.message: You get a burning feeling in your mouth
+    potion-attributes.color: ORANGE
+    potion-attributes.name: Powdery Whiskey/Burning Whiskey/Blazing Whiskey
+  g_vodka:
+    aging.years: 0
+    alcohol: 20
+    brew-difficulty: 6
+    brew-time: 18
+    distilling.runs: 3
+    effects:
+      - WEAKNESS/28
+      - POISON/4
+    ingredients:
+      - Potato/10
+      - Gold_Nugget/2
+    potion-attributes.color: ORANGE
+    potion-attributes.name: Rancid Vodka/<gold>Golden Vodka/<gold>Shimmering Golden
+      Vodka
+  gin:
+    alcohol: 20
+    brew-difficulty: 6
+    brew-time: 6
+    distilling.runs: 2
+    ingredients:
+      - Wheat/9
+      - Blue_Orchid/6
+      - Apple/1
+    potion-attributes.color: 99ddff
+    potion-attributes.lore:
+      - ++ With the
+      - ++ taste of juniper
+      - +++ Perfectly finished off
+      - +++ with juniper
+    potion-attributes.name: Pale Gin/Gin/Old Tom Gin
+  gr_absinthe:
+    alcohol: 46
+    brew-difficulty: 9
+    brew-time: 5
+    distilling.runs: 6
+    distilling.time: 85
+    effects:
+      - POISON/25-40
+      - HARM/2
+      - NIGHT_VISION/40-60
+    ingredients:
+      - Short_Grass/17
+      - Poisonous_Potato/2
+    potion-attributes.color: LIME
+    potion-attributes.lore:
+      - <green>Looks poisonous
+    potion-attributes.name: Poor Absinthe/Green Absinthe/Bright Green Absinthe
+  hot_choc:
+    brew-difficulty: 2
+    brew-time: 2
+    effects:
+      - FAST_DIGGING/40
+    ingredients:
+      - cookie/3
+    potion-attributes.color: DARK_RED
+    potion-attributes.name: Hot Chocolate
+  iced_coffee:
+    alcohol: -8
+    brew-difficulty: 4
+    brew-time: 1
+    effects:
+      - REGENERATION/30
+      - SPEED/10
+    ingredients:
+      - cookie/8
+      - snowball/4
+      - milk_bucket/1
+    potion-attributes.color: BLACK
+    potion-attributes.name: Watery Coffee/Iced Coffee/Strong Iced Coffee
+  mead:
+    aging.barrel-type: 2
+    aging.years: 4
+    alcohol: 9
+    brew-difficulty: 2
+    brew-time: 3
+    distilling.runs: 0
+    ingredients:
+      - Sugar_Cane/6
+    potion-attributes.color: ORANGE
+    potion-attributes.lore:
+      - +++ Has a golden shine
+    potion-attributes.name: Awkward Mead/Mead/<gold>Golden Mead
+  potato_soup:
+    brew-difficulty: 1
+    brew-time: 3
+    effects:
+      - HEAL/0-1
+    ingredients:
+      - Potato/5
+      - Short_Grass/3
+    potion-attributes.color: ORANGE
+    potion-attributes.name: Potato soup
+  rum:
+    aging.barrel-type: 2
+    aging.years: 14
+    alcohol: 30
+    brew-difficulty: 6
+    brew-time: 6
+    distilling.runs: 2
+    distilling.time: 30
+    effects:
+      - FIRE_RESISTANCE/1/20-100
+      - POISON/1-0/30-0
+    ingredients:
+      - Sugar_Cane/18
+    potion-attributes.color: DARK_RED
+    potion-attributes.lore:
+      - + <dark_gray>Too bitter to drink
+      - ++ <dark_gray>Spiced by the barrel
+      - +++ <yellow>Spiced Gold
+    potion-attributes.name: Bitter Rum/Spicy Rum/<gold>Golden Rum
+  shroom_vodka:
+    aging.years: 0
+    alcohol: 18
+    brew-difficulty: 7
+    brew-time: 18
+    distilling.runs: 5
+    effects:
+      - WEAKNESS/80
+      - CONFUSION/27
+      - NIGHT_VISION/50-80
+      - BLINDNESS/12-2
+      - SLOW/10-3
+    ingredients:
+      - Potato/10
+      - Red_Mushroom/3
+      - Brown_Mushroom/3
+    potion-attributes.color: ff9999
+    potion-attributes.lore:
+      - +++<green>Glows in the dark
+    potion-attributes.name: Mushroom Vodka/Mushroom Vodka/Glowing Mushroom Vodka
+  tequila:
+    aging.barrel-type: 1
+    aging.years: 12
+    alcohol: 20
+    brew-difficulty: 5
+    brew-time: 15
+    distilling.runs: 2
+    ingredients:
+      - cactus/8
+    potion-attributes.color: f5f07e
+    potion-attributes.lore:
+      - Desert spirit
+    potion-attributes.name: Mezcal/Tequila/Tequila anejo
+  vodka:
+    aging.years: 0
+    alcohol: 20
+    brew-difficulty: 4
+    brew-time: 15
+    distilling.runs: 3
+    effects:
+      - WEAKNESS/15
+      - POISON/10
+    ingredients:
+      - Potato/10
+    potion-attributes.color: WHITE
+    potion-attributes.lore:
+      - + <dark_gray>Almost undrinkable
+    potion-attributes.name: Lousy Vodka/Vodka/Russian Vodka
+  wheatbeer:
+    aging.barrel-type: 1
+    aging.years: 2
+    alcohol: 5
+    brew-difficulty: 1
+    brew-time: 8
+    distilling.runs: 0
     ingredients:
       - Wheat/3
-    brew-time: 8
-    brew-difficulty: 1
-    aging:
-      barrel-type: ANY
-      years: 2
-    alcohol: 5
-    potion-attributes:
-      name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
-      lore:
-        - +++<gold>Refreshing
-      color: ffb84d
-    events:
-      - example-event
+    potion-attributes.color: ffb84d
+    potion-attributes.lore:
+      - +++ <dark_gray>Refreshing
+    potion-attributes.name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
+  whiskey:
+    aging.barrel-type: 4
+    aging.years: 18
+    alcohol: 26
+    brew-difficulty: 7
+    brew-time: 10
+    distilling.runs: 2
+    distilling.time: 50
+    ingredients:
+      - Wheat/10
+    potion-attributes.color: ORANGE
+    potion-attributes.lore:
+      - <gray>Single Malt
+    potion-attributes.name: Unsightly Whiskey/Whiskey/Scotch Whiskey
+  wine:
+    aging.barrel-type: 0
+    aging.years: 20
+    alcohol: 8
+    brew-difficulty: 4
+    brew-time: 5
+    distilling.runs: 0
+    ingredients:
+      - Sweet_Berries/5
+    potion-attributes.color: RED
+    potion-attributes.lore:
+      - + <dark_gray>Harsh
+      - + <dark_gray>Corked
+      - ++ <dark_gray>Mellow
+      - +++ <dark_gray>Full-Bodied
+    potion-attributes.name: Red Wine
 
 
 # These recipes are used randomly when a player has brewed a potion with ingredients

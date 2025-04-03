@@ -5,6 +5,12 @@ brew.tooltip-cooking: <cooking_quality_color>Cooked <cooking_time> minutes</cook
 brew.tooltip-quality: <quality_color><quality></quality_color>
 brew.tooltip-sealed:
   - <gray><quality>
+brew.display-name.unfinished-aged: Aged <ingredient> brew
+brew.display-name.unfinished-aged-unknown: Aged brew
+brew.display-name.unfinished-distilled: <ingredient> distillate
+brew.display-name.unfinished-distilled-unknown: Distillate
+brew.display-name.unfinished-fermented: Fermented <ingredient> mesh
+brew.display-name.unfinished-fermented-unknown: Fermented mesh
 distillery.create: <gray>Created a distillery
 distillery.create-denied: <red>You don't have enough permissions to create a distillery
 distillery.access-denied: <red>You don't have enough permissions to access a distillery

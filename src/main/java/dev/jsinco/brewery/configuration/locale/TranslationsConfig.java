@@ -29,6 +29,24 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("brew.tooltip-sealed")
     public static List<String> BREW_TOOLTIP_SEALED;
 
+    @Key("brew.display-name.unfinished-aged")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_AGED;
+
+    @Key("brew.display-name.unfinished-aged-unknown")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_AGED_UNKNOWN;
+
+    @Key("brew.display-name.unfinished-distilled")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_DISTILLED;
+
+    @Key("brew.display-name.unfinished-distilled-unknown")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_DISTILLED_UNKNOWN;
+
+    @Key("brew.display-name.unfinished-fermented")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_FERMENTED;
+
+    @Key("brew.display-name.unfinished-fermented-unknown")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN;
+
     @Key("distillery.create")
     public static String DISTILLERY_CREATE;
 

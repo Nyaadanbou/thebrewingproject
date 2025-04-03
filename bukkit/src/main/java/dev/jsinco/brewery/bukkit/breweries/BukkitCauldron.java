@@ -144,7 +144,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         Location particleLoc = // Complex particle location based off BreweryX
                 block.getLocation().add(0.5 + (RANDOM.nextDouble() * 0.8 - 0.4), 0.9, 0.5 + (RANDOM.nextDouble() * 0.8 - 0.4));
 
-        block.getWorld().spawnParticle(Particle.BUBBLE, particleLoc, 0, particleColor);
+        block.getWorld().spawnParticle(Particle.ENTITY_EFFECT, particleLoc, 0, particleColor);
 
 
         if (!Config.MINIMAL_PARTICLES) {
