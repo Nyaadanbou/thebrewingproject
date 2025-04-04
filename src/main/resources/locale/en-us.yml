@@ -74,4 +74,4 @@ events.types:
   drunk_message: send message
 events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing
-events.teleport-message: <gray>What? Huh? <red>Where am I?
+events.teleport-message: <gray>What? Huh? <red>Where am I</red>?

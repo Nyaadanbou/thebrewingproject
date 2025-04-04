@@ -54,7 +54,7 @@ public class BlockEventListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSignChangeEvent(SignChangeEvent event) {
         String[] lines = event.getLines();
-        if (!Objects.equals(lines[0], "Barrel") || !lines[1].isEmpty() || !lines[2].isEmpty() || !lines[3].isEmpty()) {
+        if (!"barrel".equalsIgnoreCase(lines[0]) || !lines[1].isEmpty() || !lines[2].isEmpty() || !lines[3].isEmpty()) {
             return;
         }
         if (!(event.getBlock().getBlockData() instanceof WallSign wallSign)) {
