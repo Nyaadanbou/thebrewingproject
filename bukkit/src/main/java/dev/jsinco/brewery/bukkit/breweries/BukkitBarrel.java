@@ -66,10 +66,15 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
 
     @Override
     public boolean inventoryAllows(@NotNull UUID playerUuid, @NotNull ItemStack item) {
-        //TODO check permissions
-        return BrewAdapter.fromItem(item)
-                .map(brew -> brew.aging() == null)
-                .orElse(false);
+        Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) {
+            return false;
+        }
+        if (!player.hasPermission("brewery.barrel.access")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.BARREL_ACCESS_DENIED));
+            return false;
+        }
+        return BrewAdapter.fromItem(item).isPresent();
     }
 
     @Override

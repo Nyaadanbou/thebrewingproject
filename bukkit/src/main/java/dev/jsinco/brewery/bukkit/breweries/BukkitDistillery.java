@@ -9,7 +9,6 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.structure.StructureMeta;
-import dev.jsinco.brewery.util.Logging;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
@@ -79,10 +78,15 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
 
     @Override
     public boolean inventoryAllows(@NotNull UUID playerUuid, @NotNull ItemStack item) {
-        //TODO permissions
-        return BrewAdapter.fromItem(item)
-                .map(brew -> brew.aging() == null)
-                .orElse(false);
+        Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) {
+            return false;
+        }
+        if (!player.hasPermission("brewery.distillery.access")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_ACCESS_DENIED));
+            return false;
+        }
+        return BrewAdapter.fromItem(item).isPresent();
     }
 
     @Override
