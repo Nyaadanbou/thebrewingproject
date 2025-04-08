@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "dev.jsinco.brewery"
-version = "1.0-ALPHA"
+version = rootProject.version
 
 repositories {
     mavenCentral()
