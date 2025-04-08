@@ -9,7 +9,7 @@ public record DrunkState(int alcohol, int toxins, double walkSpeedSquared, long 
         int diff = (int) (timestamp - this.timestamp);
         int alcohol = (this.alcohol - diff / inverseDecayRate);
         int toxins = (this.toxins - diff / inverseDecayRate);
-        return new DrunkState(Math.max(0, Math.min(alcohol, 100)), toxins, this.walkSpeedSquared, timestamp);
+        return new DrunkState(Math.max(0, Math.min(alcohol, 100)), Math.max(0, Math.min(toxins, 100)), this.walkSpeedSquared, timestamp);
     }
 
     public DrunkState addAlcohol(int alcohol, int toxins) {
