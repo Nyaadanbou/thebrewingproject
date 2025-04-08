@@ -27,12 +27,12 @@ public final class CustomEvent implements DrunkEvent {
     }
 
     @Override
-    public int getAlcoholRequirement() {
+    public int alcoholRequirement() {
         return alcohol;
     }
 
     @Override
-    public int getToxinsRequirement() {
+    public int toxinsRequirement() {
         return toxins;
     }
 
@@ -47,7 +47,7 @@ public final class CustomEvent implements DrunkEvent {
     }
 
     @Override
-    public int getProbabilityWeight() {
+    public int probabilityWeight() {
         return probabilityWeight;
     }
 

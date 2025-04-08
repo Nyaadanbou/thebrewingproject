@@ -5,7 +5,8 @@ import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -43,16 +44,17 @@ public class NamedDrunkEventExecutor {
                 Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::doPuke, 0, 1);
             }
             case PASS_OUT -> {
-                DrunkManager drunkManager = TheBrewingProject.getInstance().getDrunkManager();
-                player.kick(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, player, drunkManager, 0));
+                DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+                player.kick(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, player, drunksManager, 0));
                 if (Config.KICK_EVENT_SERVER_MESSAGE != null) {
-                    Component message = MessageUtil.compilePlayerMessage(Config.KICK_EVENT_SERVER_MESSAGE, player, drunkManager, 0);
+                    Component message = MessageUtil.compilePlayerMessage(Config.KICK_EVENT_SERVER_MESSAGE, player, drunksManager, 0);
                     Bukkit.getOnlinePlayers().forEach(player1 -> player1.sendMessage(message));
                 }
-                drunkManager.registerPassedOut(player.getUniqueId());
+                drunksManager.registerPassedOut(player.getUniqueId());
             }
             case STUMBLE -> {
-                StumbleHandler stumbleHandler = new StumbleHandler(RANDOM.nextInt(STUMBLE_DURATION / 2, STUMBLE_DURATION * 3 / 2 + 1), player);
+                DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+                StumbleHandler stumbleHandler = new StumbleHandler(RANDOM.nextInt(STUMBLE_DURATION / 2, STUMBLE_DURATION * 3 / 2 + 1), player, drunksManager);
                 Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), stumbleHandler::doStumble, 0, 1);
             }
             case CHICKEN -> {
@@ -147,19 +149,24 @@ public class NamedDrunkEventExecutor {
     }
 
     private static class StumbleHandler {
-
+        private final Vector pushDirection2;
         private int countDown;
         private final int duration;
         private final Player player;
-        private final Vector pushDirection;
+        private final Vector pushDirection1;
 
-        public StumbleHandler(int duration, Player player) {
+        public StumbleHandler(int duration, Player player, DrunksManager drunksManager) {
             this.countDown = duration;
             this.duration = duration;
             this.player = player;
-            double radians = RANDOM.nextDouble(Math.PI * 2);
-            this.pushDirection = new Vector(Math.cos(radians), 0, Math.sin(radians))
-                    .multiply(RANDOM.nextDouble(0.2));
+            double radians1 = RANDOM.nextDouble(Math.PI * 2);
+            DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
+            double maxMagnitude = Math.max(0.1, drunkState == null ? 0 : Math.sqrt(drunkState.walkSpeedSquared()));
+            this.pushDirection1 = new Vector(Math.cos(radians1), 0, Math.sin(radians1))
+                    .multiply(RANDOM.nextDouble(maxMagnitude));
+            double radians2 = RANDOM.nextDouble(Math.PI * 2);
+            this.pushDirection2 = new Vector(Math.cos(radians2), 0, Math.sin(radians2))
+                    .multiply(RANDOM.nextDouble(maxMagnitude));
         }
 
         public void doStumble(BukkitTask task) {
@@ -170,6 +177,10 @@ public class NamedDrunkEventExecutor {
             if (!player.isOnGround()) {
                 return;
             }
+            double progress = ((double) duration - (double) countDown) / duration;
+            Vector pushDirection = pushDirection2.clone()
+                    .multiply(progress)
+                    .add(pushDirection1.clone().multiply(1 - progress));
             player.setVelocity(pushDirection);
         }
     }

@@ -74,6 +74,9 @@ public final class Config extends AbstractConfig {
     @Key("events.teleport-destinations")
     public static List<String> TELEPORT_DESTINATIONS = List.of();
 
+    @Key("events.default")
+    public static Map<String, Object> DEFAULT_EVENTS = Map.of();
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {

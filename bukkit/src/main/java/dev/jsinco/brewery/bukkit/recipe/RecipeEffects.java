@@ -6,7 +6,7 @@ import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
-import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.event.EventStep;
@@ -109,16 +109,16 @@ public class RecipeEffects {
         return Optional.of(builder.build());
     }
 
-    public void applyTo(Player player, DrunkManager drunkManager) {
-        drunkManager.consume(player.getUniqueId(), alcohol, alcohol);
+    public void applyTo(Player player, DrunksManager drunksManager) {
+        drunksManager.consume(player.getUniqueId(), alcohol, alcohol);
         if (title != null) {
-            player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunkManager, this.alcohol), Component.empty()));
+            player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunksManager, this.alcohol), Component.empty()));
         }
         if (message != null) {
-            player.sendMessage(MessageUtil.compilePlayerMessage(message, player, drunkManager, this.alcohol));
+            player.sendMessage(MessageUtil.compilePlayerMessage(message, player, drunksManager, this.alcohol));
         }
         if (actionBar != null) {
-            player.sendActionBar(MessageUtil.compilePlayerMessage(actionBar, player, drunkManager, this.alcohol));
+            player.sendActionBar(MessageUtil.compilePlayerMessage(actionBar, player, drunksManager, this.alcohol));
         }
         CustomEventRegistry customEventRegistry = TheBrewingProject.getInstance().getCustomDrunkEventRegistry();
         DrunkEventExecutor.doDrunkEvents(player.getUniqueId(), events
@@ -136,8 +136,8 @@ public class RecipeEffects {
         );
     }
 
-    private String compileUnparsedEffectMessage(String message, Player player, DrunkManager drunkManager) {
-        DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
+    private String compileUnparsedEffectMessage(String message, Player player, DrunksManager drunksManager) {
+        DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return message
                 .replace("<player_name>", player.getName())
                 .replace("<team_name>", PlainTextComponentSerializer.plainText().serialize(player.teamDisplayName()))

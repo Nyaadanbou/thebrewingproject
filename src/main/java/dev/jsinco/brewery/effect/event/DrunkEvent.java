@@ -5,9 +5,9 @@ import dev.jsinco.brewery.util.random.WeightedProbabilityElement;
 
 public sealed interface DrunkEvent extends WeightedProbabilityElement, EventStep permits CustomEvent, NamedDrunkEvent {
 
-    int getAlcoholRequirement();
+    int alcoholRequirement();
 
-    int getToxinsRequirement();
+    int toxinsRequirement();
 
     String getTranslation();
 

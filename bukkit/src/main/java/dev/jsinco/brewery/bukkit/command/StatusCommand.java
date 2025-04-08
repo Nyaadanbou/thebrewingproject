@@ -2,7 +2,7 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.util.Pair;
@@ -24,12 +24,12 @@ public class StatusCommand {
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
             return true;
         }
-        DrunkManager drunkManager = TheBrewingProject.getInstance().getDrunkManager();
+        DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
         return switch (args[0]) {
-            case "info" -> StatusCommand.info(player, drunkManager, Arrays.copyOfRange(args, 1, args.length));
-            case "consume" -> StatusCommand.consume(player, drunkManager, Arrays.copyOfRange(args, 1, args.length));
-            case "clear" -> StatusCommand.clear(player, drunkManager, Arrays.copyOfRange(args, 1, args.length));
-            case "set" -> StatusCommand.set(player, drunkManager, Arrays.copyOfRange(args, 1, args.length));
+            case "info" -> StatusCommand.info(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "consume" -> StatusCommand.consume(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "clear" -> StatusCommand.clear(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "set" -> StatusCommand.set(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
             default -> false;
         };
     }
@@ -42,7 +42,7 @@ public class StatusCommand {
         }
     }
 
-    private static boolean set(Player requester, DrunkManager drunkManager, @NotNull String[] args) {
+    private static boolean set(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
         if (args.length < 2) {
             return false;
         }
@@ -60,7 +60,7 @@ public class StatusCommand {
             }
             subArgs = Arrays.copyOfRange(args, 1, args.length);
         }
-        drunkManager.clear(target.getUniqueId());
+        drunksManager.clear(target.getUniqueId());
         int alcohol = Integer.parseInt(subArgs[0]);
         int toxins;
         if (subArgs.length == 2) {
@@ -68,23 +68,23 @@ public class StatusCommand {
         } else {
             toxins = 0;
         }
-        drunkManager.consume(target.getUniqueId(), alcohol, toxins);
-        requester.sendMessage(compileStatusMessage(target, drunkManager, TranslationsConfig.COMMAND_STATUS_SET_MESSAGE));
+        drunksManager.consume(target.getUniqueId(), alcohol, toxins);
+        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_SET_MESSAGE));
         return true;
     }
 
-    private static boolean clear(@NotNull Player requester, DrunkManager drunkManager, @NotNull String[] args) {
+    private static boolean clear(@NotNull Player requester, DrunksManager drunksManager, @NotNull String[] args) {
         OfflinePlayer target = getTarget(requester, args);
         if (target == null) {
             requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
             return true;
         }
-        drunkManager.clear(target.getUniqueId());
+        drunksManager.clear(target.getUniqueId());
         requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE, Placeholder.unparsed("player_name", target.getName())));
         return true;
     }
 
-    private static boolean consume(Player requester, DrunkManager drunkManager, @NotNull String[] args) {
+    private static boolean consume(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
         if (args.length < 2) {
             return false;
         }
@@ -109,31 +109,31 @@ public class StatusCommand {
         } else {
             toxins = 0;
         }
-        drunkManager.consume(target.getUniqueId(), alcohol, toxins);
-        requester.sendMessage(compileStatusMessage(target, drunkManager, TranslationsConfig.COMMAND_STATUS_CONSUME_MESSAGE));
+        drunksManager.consume(target.getUniqueId(), alcohol, toxins);
+        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_CONSUME_MESSAGE));
         return true;
     }
 
-    private static boolean info(Player requester, DrunkManager drunkManager, @NotNull String[] args) {
+    private static boolean info(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
         OfflinePlayer target = getTarget(requester, args);
         if (target == null) {
             requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
             return true;
         }
-        requester.sendMessage(compileStatusMessage(target, drunkManager, TranslationsConfig.COMMAND_STATUS_INFO_MESSAGE));
+        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_INFO_MESSAGE));
         return true;
     }
 
-    private static Component compileStatusMessage(OfflinePlayer target, DrunkManager drunkManager, String message) {
-        DrunkState drunkState = drunkManager.getDrunkState(target.getUniqueId());
-        Pair<DrunkEvent, Long> nextEvent = drunkManager.getPlannedEvent(target.getUniqueId());
-        drunkManager.getPlannedEvent(target.getUniqueId());
+    private static Component compileStatusMessage(OfflinePlayer target, DrunksManager drunksManager, String message) {
+        DrunkState drunkState = drunksManager.getDrunkState(target.getUniqueId());
+        Pair<DrunkEvent, Long> nextEvent = drunksManager.getPlannedEvent(target.getUniqueId());
+        drunksManager.getPlannedEvent(target.getUniqueId());
         return MiniMessage.miniMessage().deserialize(
                 message,
                 Formatter.number("alcohol", drunkState == null ? 0 : drunkState.alcohol()),
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
                 Placeholder.unparsed("player_name", target.getName()),
-                Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunkManager.getDrunkManagerTime()),
+                Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunksManager.getDrunkManagerTime()),
                 Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
         );
     }

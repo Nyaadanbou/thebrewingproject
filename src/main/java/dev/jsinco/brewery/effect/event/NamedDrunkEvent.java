@@ -2,46 +2,51 @@ package dev.jsinco.brewery.effect.event;
 
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.util.BreweryKey;
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-//TODO add customizability here from the config
 public enum NamedDrunkEvent implements DrunkEvent {
-    PUKE(35, 45, 20),
-    PASS_OUT(80, 80, 5),
-    STUMBLE(25, 0, 25),
-    CHICKEN(99, 50, 1),
-    TELEPORT(90, 40, 7),
-    DRUNK_MESSAGE(25, 0, 15);
+    PUKE(35, 45, 40),
+    PASS_OUT(80, 80, 10),
+    STUMBLE(25, 0, 100),
+    CHICKEN(99, 50, 2),
+    TELEPORT(90, 40, 14),
+    DRUNK_MESSAGE(25, 0, 30);
 
-    private final int alcohol;
-    private final int toxins;
-    @Getter
+
+    private final int alcoholRequirement;
+    private final int toxinsRequirement;
     private final int probabilityWeight;
+    private final BreweryKey key;
 
-    NamedDrunkEvent(int alcohol, int toxins, int probabilityWeight) {
-        this.alcohol = alcohol;
-        this.toxins = toxins;
+    NamedDrunkEvent(int alcoholRequirement, int toxinsRequirement, int probabilityWeight) {
+        this.alcoholRequirement = alcoholRequirement;
+        this.toxinsRequirement = toxinsRequirement;
         this.probabilityWeight = probabilityWeight;
+        this.key = BreweryKey.parse(this.name().toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public int alcoholRequirement() {
+        return alcoholRequirement;
+    }
+
+    @Override
+    public int toxinsRequirement() {
+        return toxinsRequirement;
+    }
+
+    @Override
+    public String getTranslation() {
+        return TranslationsConfig.EVENT_TYPES.get(this.name().toLowerCase(Locale.ROOT));
     }
 
     public BreweryKey key() {
-        return BreweryKey.parse(name().toLowerCase(Locale.ROOT));
+        return this.key;
     }
 
     @Override
-    public int getAlcoholRequirement() {
-        return alcohol;
-    }
-
-    @Override
-    public int getToxinsRequirement() {
-        return toxins;
-    }
-
-    public @NotNull String getTranslation() {
-        return TranslationsConfig.EVENT_TYPES.get(this.name().toLowerCase(Locale.ROOT));
+    public int probabilityWeight() {
+        return probabilityWeight;
     }
 }

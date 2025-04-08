@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-public class DrunkManager {
+public class DrunksManager {
 
     private int inverseDecayRate;
     private final CustomEventRegistry eventRegistry;
@@ -30,7 +30,7 @@ public class DrunkManager {
     private static final Random RANDOM = new Random();
     private final Map<UUID, Long> passedOut = new HashMap<>();
 
-    public DrunkManager(int inverseDecayRate, CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
+    public DrunksManager(int inverseDecayRate, CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
         this.inverseDecayRate = inverseDecayRate;
         this.eventRegistry = registry;
         this.allowedEvents = allowedEvents;
@@ -48,7 +48,7 @@ public class DrunkManager {
     public void consume(UUID playerUuid, int alcohol, int toxins, long timestamp) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         DrunkState drunkState = alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(inverseDecayRate, timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, timestamp);
+                drunks.get(playerUuid).recalculate(inverseDecayRate, timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, 0, timestamp);
         if (drunkState.alcohol() <= 0) {
             drunks.remove(playerUuid);
             return;
@@ -116,34 +116,45 @@ public class DrunkManager {
         if (drunkState == null) {
             return;
         }
-        List<DrunkEvent> drunkEvents = Stream.concat(Registry.DRUNK_EVENT.values().stream(), eventRegistry.events().stream())
+        List<DrunkEvent> drunkEvents = Stream.concat(
+                        Registry.DRUNK_EVENT.values().stream(),
+                        eventRegistry.events().stream())
                 .filter(event -> allowedEvents.contains(event.key()))
-                .filter(drunkEvent -> drunkEvent.getAlcoholRequirement() <= drunkState.alcohol())
-                .filter(drunkEvent -> drunkEvent.getToxinsRequirement() <= drunkState.toxins())
-                .filter(drunkEvent -> drunkEvent.getProbabilityWeight() > 0)
+                .filter(drunkEvent -> drunkEvent.alcoholRequirement() <= drunkState.alcohol())
+                .filter(drunkEvent -> drunkEvent.toxinsRequirement() <= drunkState.toxins())
+                .filter(drunkEvent -> drunkEvent.probabilityWeight() > 0)
                 .toList();
         if (drunkEvents.isEmpty()) {
             return;
         }
+        int cumulativeSum = RandomUtil.cumulativeSum(drunkEvents);
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
-        long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(200, 100)));
+        double value = (double) 10000 / cumulativeSum;
+        long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(value, value / 2)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
     }
 
-    public void registerPassedOut(@NotNull UUID uniqueId) {
-        this.passedOut.put(uniqueId, drunkManagerTime);
+    public void registerPassedOut(@NotNull UUID playerUUID) {
+        this.passedOut.put(playerUUID, drunkManagerTime);
     }
 
     public boolean isPassedOut(@NotNull UUID uniqueId) {
         return passedOut.containsKey(uniqueId);
     }
 
-    public @Nullable Pair<DrunkEvent, Long> getPlannedEvent(UUID uniqueId) {
-        Long time = plannedEvents.get(uniqueId);
+    public @Nullable Pair<DrunkEvent, Long> getPlannedEvent(UUID playerUUID) {
+        Long time = plannedEvents.get(playerUUID);
         if (time == null) {
             return null;
         }
-        return new Pair<>(events.get(time).get(uniqueId), time);
+        return new Pair<>(events.get(time).get(playerUUID), time);
+    }
+
+    public void registerMovement(@NotNull UUID playerUUID, double speedSquared) {
+        if (!drunks.containsKey(playerUUID)) {
+            return;
+        }
+        drunks.computeIfPresent(playerUUID, (ignored, state) -> state.withSpeedSquared(speedSquared));
     }
 }

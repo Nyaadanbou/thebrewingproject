@@ -12,8 +12,8 @@ import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.Database;
-import dev.jsinco.brewery.effect.DrunkManager;
 import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
@@ -27,10 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 
@@ -43,15 +40,15 @@ public class PlayerEventListener implements Listener {
     private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
-    private final DrunkManager drunkManager;
+    private final DrunksManager drunksManager;
     private final DrunkTextRegistry drunkTextRegistry;
     private final RecipeRegistry<ItemStack, PotionMeta> recipeRegistry;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunkManager drunkManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack, PotionMeta> recipeRegistry) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack, PotionMeta> recipeRegistry) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
-        this.drunkManager = drunkManager;
+        this.drunksManager = drunksManager;
         this.drunkTextRegistry = drunkTextRegistry;
         this.recipeRegistry = recipeRegistry;
     }
@@ -150,7 +147,7 @@ public class PlayerEventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onAsyncChat(AsyncPlayerChatEvent event) {
         UUID playerUuid = event.getPlayer().getUniqueId();
-        DrunkState drunkState = drunkManager.getDrunkState(playerUuid);
+        DrunkState drunkState = drunksManager.getDrunkState(playerUuid);
         if (drunkState == null) {
             return;
         }
@@ -165,14 +162,19 @@ public class PlayerEventListener implements Listener {
             return;
         }
         RecipeEffects.fromItem(event.getItem())
-                .ifPresent(effect -> effect.applyTo(event.getPlayer(), drunkManager));
+                .ifPresent(effect -> effect.applyTo(event.getPlayer(), drunksManager));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerLoginEvent event) {
-        if (drunkManager.isPassedOut(event.getPlayer().getUniqueId())) {
+        if (drunksManager.isPassedOut(event.getPlayer().getUniqueId())) {
             event.setResult(PlayerLoginEvent.Result.KICK_FULL);
-            event.kickMessage(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, event.getPlayer(), drunkManager, 0));
+            event.kickMessage(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, event.getPlayer(), drunksManager, 0));
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        drunksManager.registerMovement(event.getPlayer().getUniqueId(), event.getTo().clone().subtract(event.getFrom()).lengthSquared());
     }
 }

@@ -3,7 +3,7 @@ package dev.jsinco.brewery.bukkit.util;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkManager;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 
 public class MessageUtil {
 
-    public static Component compilePlayerMessage(String message, Player player, DrunkManager drunkManager, int alcohol) {
-        DrunkState drunkState = drunkManager.getDrunkState(player.getUniqueId());
+    public static Component compilePlayerMessage(String message, Player player, DrunksManager drunksManager, int alcohol) {
+        DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return MiniMessage.miniMessage().deserialize(
                 message,
                 Placeholder.parsed("alcohol", String.valueOf(alcohol)),
