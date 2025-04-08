@@ -29,6 +29,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("brew.tooltip-sealed")
     public static List<String> BREW_TOOLTIP_SEALED;
 
+    @Key("brew.tooltip-volume")
+    public static String BREW_TOOLTIP_VOLUME;
+
     @Key("brew.display-name.unfinished-aged")
     public static String BREW_DISPLAY_NAME_UNFINISHED_AGED;
 

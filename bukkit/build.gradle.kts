@@ -93,13 +93,16 @@ bukkit {
         }
         register("brewery.command.info") {
         }
+        register("brewery.command.seal") {
+        }
         register("brewery.command") {
             children = listOf(
                 "brewery.command.create",
                 "brewery.command.status",
                 "brewery.command.event",
                 "brewery.command.reload",
-                "brewery.command.info"
+                "brewery.command.info",
+                "brewery.command.seal"
             )
             default = BukkitPluginDescription.Permission.Default.OP
         }

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.command;
 
+import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
@@ -10,6 +11,8 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Optional;
+
 public class InfoCommand {
     public static boolean onCommand(Player player) {
         if (!player.hasPermission("brewery.command.info")) {
@@ -17,18 +20,22 @@ public class InfoCommand {
             return true;
         }
         ItemStack item = player.getInventory().getItemInMainHand();
-        BrewAdapter.fromItem(item)
-                .ifPresentOrElse(brew -> player.sendMessage(
+        Optional<Brew<ItemStack>> brewOptional = BrewAdapter.fromItem(item);
+        brewOptional
+                .ifPresent(brew -> player.sendMessage(
                         MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_BREW_MESSAGE,
                                 MessageUtil.getBrewTagResolver(brew),
                                 MessageUtil.getScoreTagResolver(brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry())
                                         .map(brew::score)
                                         .orElse(BrewScore.NONE))
-                        )), () -> player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_NOT_A_BREW)));
-        RecipeEffects.fromItem(item)
-                .ifPresent(effects -> {
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_EFFECT_MESSAGE, MessageUtil.recipeEffectResolver(effects)));
-                });
+                        )));
+        Optional<RecipeEffects> recipeEffectsOptional = RecipeEffects.fromItem(item);
+        recipeEffectsOptional.ifPresent(effects -> {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_EFFECT_MESSAGE, MessageUtil.recipeEffectResolver(effects)));
+        });
+        if (brewOptional.isEmpty() && recipeEffectsOptional.isEmpty()) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_NOT_A_BREW));
+        }
         return true;
     }
 }

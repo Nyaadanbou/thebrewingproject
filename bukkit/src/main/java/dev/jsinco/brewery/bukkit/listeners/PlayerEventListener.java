@@ -18,10 +18,12 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,7 +31,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -75,9 +81,33 @@ public class PlayerEventListener implements Listener {
             return;
         }
         Block block = event.getClickedBlock();
-        if (block == null || !Tag.CAULDRONS.isTagged(block.getType())) {
+        if (block == null) {
             return;
         }
+        if (Tag.CAULDRONS.isTagged(block.getType())) {
+            handleCauldron(event, block);
+        }
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        ItemStack offHand = inventory.getItemInOffHand();
+        if (block.getType() == Material.CRAFTING_TABLE && offHand.getType() == Material.PAPER && event.getPlayer().isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            ItemMeta offHandMeta = offHand.getItemMeta();
+            ItemStack mainHand = inventory.getItemInMainHand();
+            BrewAdapter.seal(mainHand, offHandMeta.hasCustomName() ? offHandMeta.customName() : null);
+            inventory.setItemInMainHand(mainHand);
+            event.setUseItemInHand(Event.Result.DENY);
+            decreaseItem(offHand, event.getPlayer());
+            inventory.setItemInOffHand(offHand);
+        }
+
+    }
+
+    private void decreaseItem(ItemStack itemStack, Player player) {
+        if (player.getGameMode() != GameMode.CREATIVE) {
+            itemStack.setAmount(itemStack.getAmount() - 1);
+        }
+    }
+
+    private void handleCauldron(PlayerInteractEvent event, @NotNull Block block) {
         if (!BukkitCauldron.isValidStructure(block)) {
             breweryRegistry.getActiveCauldron(BukkitAdapter.toBreweryLocation(block))
                     .ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
@@ -100,7 +130,7 @@ public class PlayerEventListener implements Listener {
                     .flatMap(BukkitCauldron::getBrew)
                     .map(BrewAdapter::toItem)
                     .ifPresent(brewItemStack -> {
-                        itemStack.setAmount(itemStack.getAmount() - 1);
+                        decreaseItem(itemStack, event.getPlayer());
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);
                         Levelled cauldron = (Levelled) block.getBlockData();
                         if (cauldron.getLevel() == 1) {
@@ -129,7 +159,10 @@ public class PlayerEventListener implements Listener {
     }
 
 
-    private boolean isIngredient(ItemStack itemStack) {
+    private boolean isIngredient(@Nullable ItemStack itemStack) {
+        if (itemStack == null) {
+            return false;
+        }
         if (1 == itemStack.getMaxStackSize()) {
             // Probably equipment
             return false;

@@ -7,7 +7,9 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.breweries.BarrelPdcType;
 import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
 import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
+import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.bukkit.util.MomentPdcType;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
@@ -15,8 +17,11 @@ import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.ItemColorUtil;
 import dev.jsinco.brewery.util.moment.Moment;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -24,12 +29,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class BrewAdapter {
 
@@ -156,5 +163,47 @@ public class BrewAdapter {
             return Optional.empty();
         }
         return Optional.of(new Brew<>(cauldronTime, ingredients, aging, distillAmount == null ? 0 : distillAmount, cauldronType, barrelType));
+    }
+
+    public static void seal(ItemStack itemStack, @Nullable Component volume) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+        RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
+        Optional<Brew<ItemStack>> brewOptional = fromItem(itemStack);
+        Optional<Recipe<ItemStack, PotionMeta>> closestRecipe = brewOptional.flatMap(brew -> brew.closestRecipe(recipeRegistry));
+        Optional<BrewScore> score = closestRecipe.map(recipe -> brewOptional.get().score(recipe));
+        score.filter(BrewScore::completed)
+                .filter(brewScore -> brewScore.brewQuality() != null)
+                .map(brewScore -> TagResolver.resolver(
+                        MessageUtil.getBrewTagResolver(brewOptional.get()),
+                        MessageUtil.getScoreTagResolver(brewScore)
+                ))
+                .ifPresent(
+                        tagResolver -> setSealedLore(volume, closestRecipe.get(), score.get(), tagResolver, itemStack)
+                );
+    }
+
+    private static void setSealedLore(Component volume, Recipe<ItemStack, PotionMeta> closestRecipe, BrewScore score, TagResolver tagResolver, ItemStack itemStack) {
+        MiniMessage miniMessage = MiniMessage.miniMessage();
+        Stream<Component> extraLore = Stream.concat(
+                volume == null ? Stream.of(Component.empty()) :
+                        Stream.of(Component.empty(), miniMessage.deserialize(TranslationsConfig.BREW_TOOLTIP_VOLUME, Placeholder.component("volume", volume))),
+                TranslationsConfig.BREW_TOOLTIP_SEALED.stream()
+                        .map(line -> miniMessage.deserialize(line, tagResolver))
+        );
+        List<Component> lore = Stream.concat(
+                        ((BukkitRecipeResult) closestRecipe.getRecipeResult()).getLore().get(score.brewQuality())
+                                .stream()
+                                .map(line -> miniMessage.deserialize(line, tagResolver)),
+                        extraLore
+                ).map(component1 -> component1.decoration(TextDecoration.ITALIC, false))
+                .toList();
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.lore(lore);
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        PDC_TYPES.forEach(data::remove);
+        itemStack.setItemMeta(meta);
     }
 }

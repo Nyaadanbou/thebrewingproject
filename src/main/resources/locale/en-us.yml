@@ -5,6 +5,7 @@ brew.tooltip-cooking: <cooking_quality_color>Cooked <cooking_time> minutes</cook
 brew.tooltip-quality: <quality_color><quality></quality_color>
 brew.tooltip-sealed:
   - <gray><quality>
+brew.tooltip-volume: "<gray>Volume: <volume>"
 brew.display-name.unfinished-aged: Aged <ingredient> brew
 brew.display-name.unfinished-aged-unknown: Aged brew
 brew.display-name.unfinished-distilled: <ingredient> distillate
