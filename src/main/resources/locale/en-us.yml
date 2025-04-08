@@ -58,10 +58,11 @@ command.info.message: |-
   Cooked: <cooking_quality_color><cooking_time> minutes</cooking_quality_color>
 command.info.effect-message: |-
   <gray>Potion effects: <potion_effects>
-  Alcohol: <effect_alcohol>
+  Alcohol/Toxins: <gold><effect_alcohol></gold>/<red><effect_toxins></red>
   Title message: <effect_title_message>
   Effect message: <effect_message>
   Effect action bar: <effect_action_bar>
+  Effect events: <effect_events>
 command.info.not-a-brew: <red>You're not holding a brew!
 command.reload-message: <green>Reloaded <gold>The Brewing Project</gold>!
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>

@@ -11,7 +11,6 @@ import dev.jsinco.brewery.recipes.RecipeResult;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -88,7 +87,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
-        recipeEffects.get(quality).applyTo(meta);
+        recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
     }
 
     private Stream<? extends Component> compileExtraLore(BrewScore score, Brew<ItemStack> brew) {

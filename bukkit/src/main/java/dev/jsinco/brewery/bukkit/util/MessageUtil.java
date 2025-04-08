@@ -3,8 +3,9 @@ package dev.jsinco.brewery.bukkit.util;
 import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunksManager;
+import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.Recipe;
@@ -101,9 +102,11 @@ public class MessageUtil {
                         ).collect(Component.toComponent(Component.text(",")))
                 ),
                 Formatter.number("effect_alcohol", effects.getAlcohol()),
+                Formatter.number("effect_toxins", effects.getToxins()),
                 Placeholder.parsed("effect_title_message", effects.getTitle() == null ? "" : effects.getTitle()),
                 Placeholder.parsed("effect_message", effects.getMessage() == null ? "" : effects.getMessage()),
-                Placeholder.parsed("effect_action_bar", effects.getActionBar() == null ? "" : effects.getActionBar())
+                Placeholder.parsed("effect_action_bar", effects.getActionBar() == null ? "" : effects.getActionBar()),
+                Placeholder.parsed("effect_events", effects.getEvents().stream().map(DrunkEvent::getTranslation).collect(Collectors.joining(",")))
         );
     }
 
