@@ -1,6 +1,6 @@
 DELETE
 FROM barrels
-WHERE sign_x = ?
-  AND sign_y = ?
-  AND sign_z = ?
+WHERE unique_x = ?
+  AND unique_y = ?
+  AND unique_z = ?
   AND world_uuid = ?;

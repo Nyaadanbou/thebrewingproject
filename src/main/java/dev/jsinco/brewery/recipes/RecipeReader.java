@@ -71,7 +71,7 @@ public class RecipeReader<I, M> {
         BrewingStep.StepType type = BrewingStep.StepType.valueOf(String.valueOf(map.get("type")).toUpperCase(Locale.ROOT));
         return switch (type) {
             case COOK -> new BrewingStep.Cook(
-                    new PassedMoment((long) map.get("cook-time") * PassedMoment.MINUTE),
+                    new PassedMoment(((Integer) map.get("cook-time")).longValue() * PassedMoment.MINUTE),
                     ingredientManager.getIngredientsWithAmount((List<String>) map.get("ingredients")),
                     Registry.CAULDRON_TYPE.get(BreweryKey.parse(map.get("cauldron-type").toString().toLowerCase(Locale.ROOT)))
             );
@@ -79,11 +79,11 @@ public class RecipeReader<I, M> {
                     (int) map.get("runs")
             );
             case AGE -> new BrewingStep.Age(
-                    new PassedMoment((long) map.get("age-years") * Moment.AGING_YEAR),
+                    new PassedMoment(((Integer) map.get("age-years")).longValue() * Moment.AGING_YEAR),
                     Registry.BARREL_TYPE.get(BreweryKey.parse(map.get("barrel-type").toString().toLowerCase(Locale.ROOT)))
             );
             case MIX -> new BrewingStep.Mix(
-                    new PassedMoment((long) map.get("mix-time") * Moment.MINUTE),
+                    new PassedMoment(((Integer) map.get("mix-time")).longValue() * Moment.MINUTE),
                     ingredientManager.getIngredientsWithAmount((List<String>) map.get("ingredients"))
             );
         };

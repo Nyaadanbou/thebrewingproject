@@ -1,6 +1,5 @@
 UPDATE cauldrons
-SET brew_start    = ?,
-    ingredients_json = ?
+SET brew = ?
 WHERE cauldron_x = ?
   AND cauldron_y = ?
   AND cauldron_z = ?

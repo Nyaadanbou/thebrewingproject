@@ -29,12 +29,11 @@ CREATE TABLE IF NOT EXISTS barrel_brews
 
 CREATE TABLE IF NOT EXISTS cauldrons
 (
-    cauldron_x       INTEGER,
-    cauldron_y       INTEGER,
-    cauldron_z       INTEGER,
-    world_uuid       BINARY(16),
-    brew_start       INTEGER,
-    ingredients_json TEXT,
+    cauldron_x INTEGER,
+    cauldron_y INTEGER,
+    cauldron_z INTEGER,
+    world_uuid BINARY(16),
+    brew       JSON,
     PRIMARY KEY (cauldron_x, cauldron_y, cauldron_z, world_uuid)
 );
 

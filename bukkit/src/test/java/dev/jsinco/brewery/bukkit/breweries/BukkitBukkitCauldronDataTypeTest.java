@@ -6,6 +6,7 @@ import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,14 +40,16 @@ class BukkitBukkitCauldronDataTypeTest {
 
     @Test
     void checkPersistence() throws IOException, SQLException {
-        BukkitCauldron cauldron = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 10), world.getBlockAt(0, 0, 0), 103);
+        Block block = world.getBlockAt(0, 0, 0);
+        block.setType(Material.WATER_CAULDRON);
+        BukkitCauldron cauldron = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 10), block, 103);
         database.insertValue(BukkitCauldronDataType.INSTANCE, cauldron);
         List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, cauldrons.size());
         BukkitCauldron retrievedCauldron = cauldrons.get(0);
         assertEquals(cauldron.getBrew(), retrievedCauldron.getBrew());
         assertEquals(cauldron.position(), retrievedCauldron.position());
-        BukkitCauldron updatedValue = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 11), world.getBlockAt(0, 0, 0), 104);
+        BukkitCauldron updatedValue = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 11), block, 104);
         database.updateValue(BukkitCauldronDataType.INSTANCE, updatedValue);
         List<BukkitCauldron> updatedCauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, updatedCauldrons.size());

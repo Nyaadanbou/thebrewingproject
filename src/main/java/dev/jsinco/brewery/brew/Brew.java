@@ -11,7 +11,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -93,6 +92,18 @@ public class Brew {
 
     public BrewingStep lastStep() {
         return steps.getLast();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Brew brew = (Brew) other;
+        return steps.equals(brew.steps);
     }
 
     public static class Serializer {

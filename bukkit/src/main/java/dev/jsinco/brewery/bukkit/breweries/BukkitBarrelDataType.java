@@ -79,7 +79,7 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Location worldOrigin = new Location(Bukkit.getWorld(world), resultSet.getInt("origin_x"), resultSet.getInt("origin_y"), resultSet.getInt("origin_z"));
-                Location signLocation = new Location(Bukkit.getWorld(world), resultSet.getInt("sign_x"), resultSet.getInt("sign_y"), resultSet.getInt("sign_z"));
+                Location signLocation = new Location(Bukkit.getWorld(world), resultSet.getInt("unique_x"), resultSet.getInt("unique_y"), resultSet.getInt("unique_z"));
                 Matrix3d transform = DecoderEncoder.deserializeTransformation(resultSet.getString("transformation"));
                 String format = resultSet.getString("format");
                 BarrelType type = Registry.BARREL_TYPE.get(BreweryKey.parse(resultSet.getString("barrel_type")));
