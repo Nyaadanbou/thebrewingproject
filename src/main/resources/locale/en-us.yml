@@ -75,6 +75,7 @@ events.types:
   chicken: lay egg
   teleport: teleport
   drunk_message: send message
+  nausea: feel nauseous
 events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing
 events.teleport-message: <gray>What? Huh? <red>Where am I</red>?

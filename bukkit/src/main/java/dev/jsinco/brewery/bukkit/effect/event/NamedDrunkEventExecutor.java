@@ -8,6 +8,7 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
+import dev.jsinco.brewery.util.moment.Moment;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
@@ -19,6 +20,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -106,6 +109,9 @@ public class NamedDrunkEventExecutor {
                 }
                 player.teleport(location);
                 player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.TELEPORT_MESSAGE, MessageUtil.getPlayerTagResolver(player)));
+            }
+            case NAUSEA -> {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, RANDOM.nextInt(Moment.MINUTE / 2, Moment.MINUTE * 3 / 2), 1));
             }
         }
     }

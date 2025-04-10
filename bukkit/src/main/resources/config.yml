@@ -10,6 +10,7 @@ events:
     - chicken
     - teleport
     - message
+    - nausea
   # In minutes
   pass-out-time: 5
   teleport-locations: []

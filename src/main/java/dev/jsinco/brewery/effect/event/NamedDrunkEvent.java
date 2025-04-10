@@ -11,7 +11,8 @@ public enum NamedDrunkEvent implements DrunkEvent {
     STUMBLE(25, 0, 100),
     CHICKEN(99, 50, 2),
     TELEPORT(90, 40, 14),
-    DRUNK_MESSAGE(25, 0, 30);
+    DRUNK_MESSAGE(25, 0, 30),
+    NAUSEA(60, 50, 50);
 
 
     private final int alcoholRequirement;
