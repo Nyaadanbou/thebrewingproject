@@ -76,7 +76,7 @@ public class BrewScore {
 
     public double rawScore() {
         return this.scores.stream()
-                .reduce(0D, (aDouble, aDouble2) -> aDouble * aDouble2);
+                .reduce(1D, (aDouble, aDouble2) -> aDouble * aDouble2);
     }
 
     public boolean completed() {
