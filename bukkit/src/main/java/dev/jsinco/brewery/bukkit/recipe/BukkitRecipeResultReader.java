@@ -69,7 +69,7 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
 
         String[] parts = string.split("/");
         PotionEffectType type = PotionEffectType.getByName(parts[0]);
-        Preconditions.checkNotNull(type);
+        Preconditions.checkNotNull(type, "invalid effect type: " + parts[0]);
         Interval durationBounds = Interval.parse(parts[1]);
         Interval amplifierBounds;
         if (parts.length >= 3) {
