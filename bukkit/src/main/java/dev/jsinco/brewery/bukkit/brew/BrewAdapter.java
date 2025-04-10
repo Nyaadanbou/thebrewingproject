@@ -1,22 +1,18 @@
 package dev.jsinco.brewery.bukkit.brew;
 
-import dev.jsinco.brewery.breweries.BarrelType;
-import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.breweries.BarrelPdcType;
-import dev.jsinco.brewery.bukkit.breweries.CauldronPdcType;
-import dev.jsinco.brewery.bukkit.ingredient.IngredientsPdcType;
+import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
-import dev.jsinco.brewery.bukkit.util.MomentPdcType;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.ItemColorUtil;
-import dev.jsinco.brewery.util.moment.Moment;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -32,26 +28,20 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class BrewAdapter {
 
 
     private static final int DATA_VERSION = 0;
-    private static final NamespacedKey BREW_TIME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("brew_time"));
-    private static final NamespacedKey INGREDIENTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("ingredients"));
-    private static final NamespacedKey AGING = BukkitAdapter.toNamespacedKey(BreweryKey.parse("aging_time"));
-    private static final NamespacedKey DISTILL_RUNS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("distill_runs"));
-    private static final NamespacedKey CAULDRON_TYPE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("cauldron_type"));
-    private static final NamespacedKey BARREL_TYPE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("barrel_type"));
-    private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
-    private static final List<NamespacedKey> PDC_TYPES = List.of(BREW_TIME, INGREDIENTS, AGING, DISTILL_RUNS, CAULDRON_TYPE, BARREL_TYPE, BREWERY_DATA_VERSION);
 
-    public static ItemStack toItem(Brew<ItemStack> brew) {
+    private static final NamespacedKey BREWING_STEPS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("steps"));
+    private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
+    private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
+
+    public static ItemStack toItem(Brew brew) {
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
         applyMeta(potionMeta, brew);
@@ -59,7 +49,7 @@ public class BrewAdapter {
         return itemStack;
     }
 
-    public static void applyMeta(PotionMeta meta, Brew<ItemStack> brew) {
+    public static void applyMeta(PotionMeta meta, Brew brew) {
         RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
         Optional<Recipe<ItemStack, PotionMeta>> recipe = brew.closestRecipe(recipeRegistry);
         Optional<BrewScore> score = recipe.map(brew::score);
@@ -75,21 +65,30 @@ public class BrewAdapter {
             randomDefault.applyMeta(BrewScore.EXCELLENT, meta, brew);
         } else if (!score.map(BrewScore::completed).get()) {
             fillPersistentData(meta, brew);
-            incompletePotion(meta, brew);
+            incompletePotion(meta, brew, recipe.get());
         } else {
             fillPersistentData(meta, brew);
             recipe.get().getRecipeResult().applyMeta(score.get(), meta, brew);
         }
     }
 
-    private static void incompletePotion(PotionMeta meta, Brew<ItemStack> brew) {
+    private static void incompletePotion(PotionMeta meta, Brew brew, Recipe<ItemStack, PotionMeta> recipe) {
+        Map<Ingredient<ItemStack>, Integer> ingredients = new HashMap<>();
+        for (BrewingStep brewingStep : brew.getSteps()) {
+            if (brewingStep instanceof BrewingStep.Cook cook) {
+                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient<ItemStack>, Integer>) cook.ingredients());
+            }
+            if (brewingStep instanceof BrewingStep.Mix mix) {
+                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient<ItemStack>, Integer>) mix.ingredients());
+            }
+        }
         int r = 0;
         int g = 0;
         int b = 0;
         int amount = 0;
         Ingredient<ItemStack> topIngredient = null;
         int topIngredientAmount = 0;
-        for (Map.Entry<Ingredient<ItemStack>, Integer> ingredient : brew.ingredients().entrySet()) {
+        for (Map.Entry<Ingredient<ItemStack>, Integer> ingredient : ingredients.entrySet()) {
             if (topIngredientAmount < ingredient.getValue()) {
                 topIngredient = ingredient.getKey();
                 topIngredientAmount = ingredient.getValue();
@@ -104,14 +103,16 @@ public class BrewAdapter {
             b += color.getBlue() * ingredient.getValue();
             amount += ingredient.getValue();
         }
-        String displayName;
-        if (brew.aging() != null && brew.aging().moment() > Moment.AGING_YEAR / 2) {
-            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
-        } else if (brew.distillRuns() > 0) {
-            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED.replace("<ingredient>", topIngredient.displayName());
-        } else {
-            displayName = topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
-        }
+        String displayName = switch (brew.getSteps().getLast().stepType()) {
+            case COOK ->
+                    topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
+            case DISTILL ->
+                    topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_DISTILLED.replace("<ingredient>", topIngredient.displayName());
+            case AGE ->
+                    topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_AGED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
+            case MIX ->
+                    topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED.replace("<ingredient>", topIngredient.displayName());
+        };
         meta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
         if (amount != 0) {
             meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
@@ -120,30 +121,16 @@ public class BrewAdapter {
         }
     }
 
-    private static boolean fillPersistentData(PotionMeta potionMeta, Brew<ItemStack> brew) {
+    private static boolean fillPersistentData(PotionMeta potionMeta, Brew brew) {
         PersistentDataContainer data = potionMeta.getPersistentDataContainer();
         Integer dataVersion = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER);
         boolean previouslyStored = dataVersion != null;
-        PDC_TYPES.forEach(data::remove);
-        if (brew.brewTime() != null) {
-            data.set(BREW_TIME, MomentPdcType.INSTANCE, brew.brewTime());
-        }
-        data.set(INGREDIENTS, IngredientsPdcType.INSTANCE, brew.ingredients());
-        if (brew.aging() != null) {
-            data.set(AGING, MomentPdcType.INSTANCE, brew.aging());
-        }
-        data.set(DISTILL_RUNS, PersistentDataType.INTEGER, brew.distillRuns());
-        if (brew.barrelType() != null) {
-            data.set(BARREL_TYPE, BarrelPdcType.INSTANCE, brew.barrelType());
-        }
-        if (brew.cauldronType() != null) {
-            data.set(CAULDRON_TYPE, CauldronPdcType.INSTANCE, brew.cauldronType());
-        }
+        data.set(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST, brew.getSteps());
         data.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
         return previouslyStored;
     }
 
-    public static Optional<Brew<ItemStack>> fromItem(ItemStack itemStack) {
+    public static Optional<Brew> fromItem(ItemStack itemStack) {
         ItemMeta meta = itemStack.getItemMeta();
         if (meta == null) {
             return Optional.empty();
@@ -153,16 +140,7 @@ public class BrewAdapter {
         if (!Objects.equals(dataVersion, DATA_VERSION)) {
             return Optional.empty();
         }
-        Moment cauldronTime = data.get(BREW_TIME, MomentPdcType.INSTANCE);
-        Map<Ingredient<ItemStack>, Integer> ingredients = data.get(INGREDIENTS, IngredientsPdcType.INSTANCE);
-        Moment aging = data.get(AGING, MomentPdcType.INSTANCE);
-        Integer distillAmount = data.get(DISTILL_RUNS, PersistentDataType.INTEGER);
-        BarrelType barrelType = data.get(BARREL_TYPE, BarrelPdcType.INSTANCE);
-        CauldronType cauldronType = data.get(CAULDRON_TYPE, CauldronPdcType.INSTANCE);
-        if (ingredients == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new Brew<>(cauldronTime, ingredients, aging, distillAmount == null ? 0 : distillAmount, cauldronType, barrelType));
+        return Optional.of(new Brew(data.get(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST)));
     }
 
     public static void seal(ItemStack itemStack, @Nullable Component volume) {
@@ -171,15 +149,12 @@ public class BrewAdapter {
             return;
         }
         RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
-        Optional<Brew<ItemStack>> brewOptional = fromItem(itemStack);
+        Optional<Brew> brewOptional = fromItem(itemStack);
         Optional<Recipe<ItemStack, PotionMeta>> closestRecipe = brewOptional.flatMap(brew -> brew.closestRecipe(recipeRegistry));
         Optional<BrewScore> score = closestRecipe.map(recipe -> brewOptional.get().score(recipe));
         score.filter(BrewScore::completed)
                 .filter(brewScore -> brewScore.brewQuality() != null)
-                .map(brewScore -> TagResolver.resolver(
-                        MessageUtil.getBrewTagResolver(brewOptional.get()),
-                        MessageUtil.getScoreTagResolver(brewScore)
-                ))
+                .map(MessageUtil::getScoreTagResolver)
                 .ifPresent(
                         tagResolver -> setSealedLore(volume, closestRecipe.get(), score.get(), tagResolver, itemStack)
                 );

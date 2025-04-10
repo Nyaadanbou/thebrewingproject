@@ -1,10 +1,10 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.breweries.BarrelType;
-import dev.jsinco.brewery.brews.BarrelBrewDataType;
+import dev.jsinco.brewery.brew.BarrelBrewDataType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
-import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.database.InsertableStoredData;
@@ -51,7 +51,7 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
             preparedStatement.setInt(11, value.getSize());
             preparedStatement.execute();
         }
-        for (Pair<Brew<ItemStack>, Integer> brew : value.getBrews()) {
+        for (Pair<Brew, Integer> brew : value.getBrews()) {
             BarrelBrewDataType.BarrelContext context = new BarrelBrewDataType.BarrelContext(signLocation.getBlockX(),
                     signLocation.getBlockY(), signLocation.getBlockZ(), brew.second(), signLocation.getWorld().getUID());
             TheBrewingProject.getInstance().getDatabase().insertValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew.first(), context));

@@ -1,13 +1,9 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.bukkit.breweries.*;
-import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
-import dev.jsinco.brewery.util.Logging;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,6 +48,7 @@ public class WorldEventListener implements Listener {
                 registry.registerInventory(barrel);
             }
             List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+            cauldrons.forEach(registry::addActiveCauldron);
             List<BukkitDistillery> distilleries = database.retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID());
             distilleries.stream()
                     .map(BukkitDistillery::getStructure)

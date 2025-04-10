@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Represents a simple ingredient that only consists of a material and an amount
+ * Represents a simple ingredient that only consists of a material and an runs
  */
 public class SimpleIngredient implements Ingredient<ItemStack> {
 

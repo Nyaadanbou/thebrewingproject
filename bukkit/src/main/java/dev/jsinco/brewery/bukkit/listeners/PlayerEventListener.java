@@ -127,7 +127,7 @@ public class PlayerEventListener implements Listener {
         }
         if (itemStack.getType() == Material.GLASS_BOTTLE) {
             cauldronOptional
-                    .flatMap(BukkitCauldron::getBrew)
+                    .map(BukkitCauldron::getBrew)
                     .map(BrewAdapter::toItem)
                     .ifPresent(brewItemStack -> {
                         decreaseItem(itemStack, event.getPlayer());
@@ -155,6 +155,7 @@ public class PlayerEventListener implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        breweryRegistry.addActiveCauldron(newCauldron);
         return newCauldron;
     }
 

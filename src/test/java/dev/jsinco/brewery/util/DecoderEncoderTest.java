@@ -20,8 +20,10 @@ class DecoderEncoderTest {
         byte[][] toEncode = List.of("Hello", "world", "!").stream()
                 .map(string -> string.getBytes(StandardCharsets.UTF_8))
                 .toArray(byte[][]::new);
-        byte[] encoded = DecoderEncoder.encode(toEncode);
-        assertTrue(Arrays.deepEquals(toEncode, DecoderEncoder.decode(encoded)));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        DecoderEncoder.encode(toEncode, output);
+        ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+        assertTrue(Arrays.deepEquals(toEncode, DecoderEncoder.decode(input)));
     }
 
     @Test

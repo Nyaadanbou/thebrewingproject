@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitDistilleryBrewDataType;
 import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
@@ -93,8 +93,8 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
             }
         }
         for (BukkitDistillery distillery : output) {
-            List<Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext>> contents = BukkitDistilleryBrewDataType.INSTANCE.find(distillery.getStructure().getUnique(), connection);
-            for (Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext> content : contents) {
+            List<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>> contents = BukkitDistilleryBrewDataType.INSTANCE.find(distillery.getStructure().getUnique(), connection);
+            for (Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext> content : contents) {
                 BukkitDistilleryBrewDataType.DistilleryContext context = content.second();
                 BukkitDistillery.DistilleryInventory inventory = context.distillate() ? distillery.getDistillate() : distillery.getMixture();
                 inventory.set(content.first(), context.inventoryPos());

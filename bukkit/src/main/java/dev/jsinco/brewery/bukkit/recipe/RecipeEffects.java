@@ -98,7 +98,7 @@ public class RecipeEffects {
             container.set(ACTION_BAR, PersistentDataType.STRING, actionBar);
         }
         container.set(ALCOHOL, PersistentDataType.INTEGER, alcohol);
-        container.set(TOXINS, PersistentDataType.INTEGER, (int) (alcohol * (1.5 - score.distillRunsScore()) / 2));
+        container.set(TOXINS, PersistentDataType.INTEGER, (int) (alcohol * (1.5 - score.score()) / 2));
         container.set(EVENTS, ListPersistentDataType.STRING_LIST, events.stream().map(BreweryKey::toString).toList());
     }
 

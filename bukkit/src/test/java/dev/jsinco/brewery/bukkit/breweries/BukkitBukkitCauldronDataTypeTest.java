@@ -1,11 +1,11 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.breweries.Cauldron;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.util.moment.Interval;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,16 +43,16 @@ class BukkitBukkitCauldronDataTypeTest {
         database.insertValue(BukkitCauldronDataType.INSTANCE, cauldron);
         List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, cauldrons.size());
-        Cauldron<ItemStack> retrievedCauldron = cauldrons.get(0);
-        assertEquals(cauldron.ingredients(), retrievedCauldron.ingredients());
+        BukkitCauldron retrievedCauldron = cauldrons.get(0);
+        assertEquals(cauldron.getBrew(), retrievedCauldron.getBrew());
         assertEquals(cauldron.position(), retrievedCauldron.position());
-        assertEquals(cauldron.brewStart(), retrievedCauldron.brewStart());
         BukkitCauldron updatedValue = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 11), world.getBlockAt(0, 0, 0), 104);
         database.updateValue(BukkitCauldronDataType.INSTANCE, updatedValue);
         List<BukkitCauldron> updatedCauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, updatedCauldrons.size());
-        assertEquals(104, updatedCauldrons.get(0).brewStart());
-        assertEquals(11, updatedCauldrons.get(0).ingredients().get(new SimpleIngredient(Material.OAK_PLANKS)));
+        BrewingStep.Cook lastStep = (BrewingStep.Cook) updatedCauldrons.getFirst().getBrew().lastStep();
+        assertEquals(new Interval(104, 104), lastStep.brewTime());
+        assertEquals(11, lastStep.ingredients().get(new SimpleIngredient(Material.OAK_PLANKS)));
         database.remove(BukkitCauldronDataType.INSTANCE, cauldron);
         assertEquals(0, database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID()).size());
     }

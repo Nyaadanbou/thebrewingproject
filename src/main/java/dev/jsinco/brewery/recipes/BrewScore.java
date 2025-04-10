@@ -1,27 +1,53 @@
 package dev.jsinco.brewery.recipes;
 
+import dev.jsinco.brewery.brew.BrewingStep;
 import org.jetbrains.annotations.Nullable;
 
-public record BrewScore(double ingredientScore, double cauldronTimeScore, double distillRunsScore,
-                        double agingTimeScore, double cauldronTypeScore, double barrelTypeScore, int brewDifficulty,
-                        boolean completed) {
+import java.util.Arrays;
+import java.util.List;
 
-    public static final BrewScore EXCELLENT = new BrewScore(1, 1, 1, 1, 1, 1, 1, true);
-    public static final BrewScore NONE = new BrewScore(0, 0, 0, 0, 0, 0, 1, true);
+public class BrewScore {
+
+    public static final BrewScore EXCELLENT = new BrewScore(1D);
+    public static final BrewScore NONE = new BrewScore(0D);
     private static final char FULL_STAR = '\u2605';
     private static final char HALF_STAR = '\u2BEA';
     private static final char EMPTY_STAR = '\u2606';
+
+    private final List<Double> scores;
+    private final boolean completed;
+    private final int brewDifficulty;
 
     public @Nullable BrewQuality brewQuality() {
         return quality(score());
     }
 
-    private double score() {
+    private BrewScore(double score) {
+        double modifiedScore = Math.pow(score, (double) 1 / BrewingStep.StepType.values().length);
+        this.scores = Arrays.stream(BrewingStep.StepType.values()).map(ignored -> modifiedScore).toList();
+        this.completed = true;
+        this.brewDifficulty = 1;
+    }
+
+    public BrewScore(List<Double> scores, boolean completed, int brewDifficulty) {
+        this.scores = scores;
+        this.completed = completed;
+        this.brewDifficulty = brewDifficulty;
+    }
+
+    public double getPartialScore(int stepIndex) {
+        return applyDifficulty(scores.get(stepIndex));
+    }
+
+    public double score() {
+        return applyDifficulty(rawScore());
+    }
+
+    private double applyDifficulty(double score) {
         // Avoid extreme point, log(0) is minus infinity
         if (brewDifficulty == 0) {
             return 1D;
         }
-        double score = rawScore();
         double scoreWithDifficulty;
         // Avoid extreme point, can not divide by log(1) as it's 0
         if (brewDifficulty == 1) {
@@ -49,7 +75,12 @@ public record BrewScore(double ingredientScore, double cauldronTimeScore, double
     }
 
     public double rawScore() {
-        return ingredientScore * cauldronTimeScore * distillRunsScore * agingTimeScore * cauldronTypeScore * barrelTypeScore;
+        return this.scores.stream()
+                .reduce(0D, (aDouble, aDouble2) -> aDouble * aDouble2);
+    }
+
+    public boolean completed() {
+        return completed;
     }
 
     public static BrewQuality quality(double score) {

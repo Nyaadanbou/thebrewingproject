@@ -20,28 +20,25 @@ public class DecoderEncoder {
         throw new IllegalStateException("Utility class");
     }
 
-    public static byte[] encode(byte[][] byteArrayArray) throws IOException {
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-        arrayOutputStream.write(LIST_ENCODING_VERSION);
-        writeVarInt(byteArrayArray.length, arrayOutputStream);
+    public static void encode(byte[][] byteArrayArray, OutputStream outputStream) throws IOException {
+        outputStream.write(LIST_ENCODING_VERSION);
+        writeVarInt(byteArrayArray.length, outputStream);
         for (byte[] byteArray : byteArrayArray) {
-            writeVarInt(byteArray.length, arrayOutputStream);
-            arrayOutputStream.write(byteArray);
+            writeVarInt(byteArray.length, outputStream);
+            outputStream.write(byteArray);
         }
-        return arrayOutputStream.toByteArray();
     }
 
-    public static byte[][] decode(byte[] byteArray) throws IOException {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
-        byte version = (byte) byteArrayInputStream.read();
+    public static byte[][] decode(InputStream inputStream) throws IOException {
+        byte version = (byte) inputStream.read();
         if (version != LIST_ENCODING_VERSION) {
             throw new IOException("Invalid format");
         }
-        int listSize = readVarInt(byteArrayInputStream);
+        int listSize = readVarInt(inputStream);
         byte[][] output = new byte[listSize][];
         for (int i = 0; i < listSize; i++) {
-            int stringLength = readVarInt(byteArrayInputStream);
-            output[i] = byteArrayInputStream.readNBytes(stringLength);
+            int stringLength = readVarInt(inputStream);
+            output[i] = inputStream.readNBytes(stringLength);
         }
         return output;
     }

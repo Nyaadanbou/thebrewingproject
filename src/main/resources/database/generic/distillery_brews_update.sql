@@ -1,8 +1,5 @@
 UPDATE distillery_brews
-SET cauldron_type    = ?,
-    brew_time        = ?,
-    distillery_runs  = ?,
-    ingredients_json = ?
+SET brew = ?
 WHERE unique_x = ?
   AND unique_y = ?
   AND unique_z = ?

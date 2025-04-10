@@ -1,4 +1,4 @@
-SELECT *
+SELECT brew
 FROM barrel_brews
 WHERE sign_x = ?
   AND sign_y = ?

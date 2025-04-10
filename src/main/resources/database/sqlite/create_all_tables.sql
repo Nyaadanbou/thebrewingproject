@@ -3,32 +3,27 @@ CREATE TABLE IF NOT EXISTS barrels
     origin_x       INTEGER,
     origin_y       INTEGER,
     origin_z       INTEGER,
-    sign_x         INTEGER,
-    sign_y         INTEGER,
-    sign_z         INTEGER,
+    unique_x       INTEGER,
+    unique_y       INTEGER,
+    unique_z       INTEGER,
     world_uuid     BINARY(16),
     transformation TEXT,
     format         TEXT,
     barrel_type    TEXT,
     size           INTEGER,
-    PRIMARY KEY (sign_x, sign_y, sign_z, world_uuid)
+    PRIMARY KEY (unique_x, unique_y, unique_z, world_uuid)
 );
 
 CREATE TABLE IF NOT EXISTS barrel_brews
 (
-    sign_x           INTEGER,
-    sign_y           INTEGER,
-    sign_z           INTEGER,
-    world_uuid       BINARY(16),
-    pos              INTEGER,
-    distillery_runs  INTEGER,
-    cauldron_type    TEXT,
-    brew_time        INTEGER,
-    aging_start      INTEGER,
-    ingredients_json TEXT,
-    barrel_type      TEXT,
-    FOREIGN KEY (sign_x, sign_y, sign_z, world_uuid)
-        REFERENCES barrels (sign_x, sign_y, sign_z, world_uuid)
+    unique_x   INTEGER,
+    unique_y   INTEGER,
+    unique_z   INTEGER,
+    world_uuid BINARY(16),
+    pos        INTEGER,
+    brew       JSON,
+    FOREIGN KEY (unique_x, unique_y, unique_z, world_uuid)
+        REFERENCES barrels (unique_x, unique_y, unique_z, world_uuid)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -60,19 +55,16 @@ CREATE TABLE IF NOT EXISTS distilleries
 
 CREATE TABLE IF NOT EXISTS distillery_brews
 (
-    unique_x         INTEGER,
-    unique_y         INTEGER,
-    unique_z         INTEGER,
-    world_uuid       BINARY(16),
-    pos              INTEGER,
-    is_distillate    INTEGER,
-    cauldron_type    TEXT,
-    brew_time        INTEGER,
-    distillery_runs  INTEGER,
-    ingredients_json TEXT,
+    unique_x      INTEGER,
+    unique_y      INTEGER,
+    unique_z      INTEGER,
+    world_uuid    BINARY(16),
+    pos           INTEGER,
+    is_distillate INTEGER,
+    brew          JSON,
     FOREIGN KEY (unique_x, unique_y, unique_z, world_uuid)
-            REFERENCES distilleries (unique_x, unique_y, unique_z, world_uuid)
-            ON UPDATE CASCADE ON DELETE CASCADE
+        REFERENCES distilleries (unique_x, unique_y, unique_z, world_uuid)
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS version

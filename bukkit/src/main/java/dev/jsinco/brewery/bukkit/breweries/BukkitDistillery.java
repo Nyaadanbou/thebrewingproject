@@ -1,7 +1,8 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.Distillery;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.brew.BukkitDistilleryBrewDataType;
@@ -157,7 +158,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     private void transferItems(DistilleryInventory inventory1, DistilleryInventory inventory2) {
-        Brew<ItemStack>[] brews = inventory1.getBrews();
+        Brew[] brews = inventory1.getBrews();
         int i = 0;
         for (int j = 0; j < inventory2.getBrews().length; j++) {
             if (inventory2.getBrews()[j] != null) {
@@ -172,9 +173,13 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
             if (i >= brews.length) {
                 return;
             }
-            Brew<ItemStack> mixtureBrew = inventory1.getBrews()[i];
+            Brew mixtureBrew = inventory1.getBrews()[i];
             inventory1.store(null, i);
-            inventory2.store(mixtureBrew.withDistillAmount(mixtureBrew.distillRuns() + 1), j);
+            inventory2.store(mixtureBrew.withLastStep(
+                            BrewingStep.Distill.class,
+                            BrewingStep.Distill::incrementAmount,
+                            () -> new BrewingStep.Distill(1))
+                    , i);
         }
     }
 
@@ -187,7 +192,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
 
         private final Inventory inventory;
         @Getter
-        private final Brew<ItemStack>[] brews;
+        private final Brew[] brews;
         private final BukkitDistillery owner;
 
         public DistilleryInventory(String title, int size, BukkitDistillery owner) {
@@ -208,7 +213,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
          * @param brew
          * @param position
          */
-        public void set(@Nullable Brew<ItemStack> brew, int position) {
+        public void set(@Nullable Brew brew, int position) {
             brews[position] = brew;
         }
 
@@ -218,16 +223,16 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
          * @param brew
          * @param position
          */
-        public void store(@Nullable Brew<ItemStack> brew, int position) {
+        public void store(@Nullable Brew brew, int position) {
             if (Objects.equals(brews[position], brew)) {
                 return;
             }
             try {
-                Brew<ItemStack> previous = brews[position];
+                Brew previous = brews[position];
                 set(brew, position);
                 BreweryLocation unique = owner.getStructure().getUnique();
                 BukkitDistilleryBrewDataType.DistilleryContext context = new BukkitDistilleryBrewDataType.DistilleryContext(unique.x(), unique.y(), unique.z(), unique.worldUuid(), position, this == owner.getDistillate());
-                Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext> data = new Pair<>(brew, context);
+                Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext> data = new Pair<>(brew, context);
                 if (previous == null) {
                     TheBrewingProject.getInstance().getDatabase().insertValue(BukkitDistilleryBrewDataType.INSTANCE, data);
                     return;
@@ -245,7 +250,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
 
         public void updateInventoryFromBrews() {
             for (int i = 0; i < brews.length; i++) {
-                Brew<ItemStack> brew = brews[i];
+                Brew brew = brews[i];
                 if (brew == null) {
                     inventory.setItem(i, null);
                     continue;
@@ -258,7 +263,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
             boolean hasUpdated = false;
             for (int i = 0; i < inventory.getSize(); i++) {
                 ItemStack itemStack = inventory.getItem(i);
-                Brew<ItemStack> brew;
+                Brew brew;
                 if (itemStack == null) {
                     brew = null;
                 } else {
@@ -273,7 +278,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         }
 
         public boolean isEmpty() {
-            for (Brew<ItemStack> brew : brews) {
+            for (Brew brew : brews) {
                 if (brew != null) {
                     return false;
                 }

@@ -1,8 +1,9 @@
 package dev.jsinco.brewery.bukkit.brews;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
@@ -15,7 +16,6 @@ import dev.jsinco.brewery.util.moment.PassedMoment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,12 +53,22 @@ class BukkitBarrelBrewDataTypeTest {
     void checkPersistence() throws SQLException, IOException {
         prepareBarrel();
         BreweryLocation searchObject = new BreweryLocation(1, 2, 3, world.getUID());
-        Brew<ItemStack> brew1 = new Brew<>(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
-        Brew<ItemStack> brew2 = new Brew<>(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), new Interval(1010, 1010), 0, CauldronType.WATER, BarrelType.ACACIA);
+        Brew brew1 = new Brew(
+                List.of(
+                        new BrewingStep.Cook(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), CauldronType.WATER),
+                        new BrewingStep.Age(new Interval(1010, 1010), BarrelType.ACACIA)
+                )
+        );
+        Brew brew2 = new Brew(
+                List.of(
+                        new BrewingStep.Cook(new PassedMoment(10), Map.of(new SimpleIngredient(Material.ACACIA_BUTTON), 3), CauldronType.WATER),
+                        new BrewingStep.Age(new Interval(1010, 1010), BarrelType.ACACIA)
+                )
+        );
         BukkitBarrelBrewDataType.BarrelContext barrelContext1 = new BukkitBarrelBrewDataType.BarrelContext(1, 2, 3, 0, world.getUID());
         BukkitBarrelBrewDataType.BarrelContext barrelContext2 = new BukkitBarrelBrewDataType.BarrelContext(1, 2, 3, 1, world.getUID());
-        Pair<Brew<ItemStack>, BukkitBarrelBrewDataType.BarrelContext> data1 = new Pair<>(brew1, barrelContext1);
-        Pair<Brew<ItemStack>, BukkitBarrelBrewDataType.BarrelContext> data2 = new Pair<>(brew2, barrelContext2);
+        Pair<Brew, BukkitBarrelBrewDataType.BarrelContext> data1 = new Pair<>(brew1, barrelContext1);
+        Pair<Brew, BukkitBarrelBrewDataType.BarrelContext> data2 = new Pair<>(brew2, barrelContext2);
         database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data1);
         assertTrue(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
         database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data2);

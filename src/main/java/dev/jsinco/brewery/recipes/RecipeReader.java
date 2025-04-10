@@ -1,17 +1,21 @@
 package dev.jsinco.brewery.recipes;
 
 import com.google.common.collect.ImmutableMap;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
-import org.jetbrains.annotations.Nullable;
+import dev.jsinco.brewery.util.moment.Moment;
+import dev.jsinco.brewery.util.moment.PassedMoment;
+import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class RecipeReader<I, M> {
 
@@ -51,16 +55,38 @@ public class RecipeReader<I, M> {
      */
     private Recipe<I, M> getRecipe(ConfigurationSection recipe, String recipeName) {
         return new Recipe.Builder<I, M>(recipeName)
-                .brewTime(recipe.getInt("brew-time", 0))
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
-                .cauldronType(Registry.CAULDRON_TYPE.get(BreweryKey.parse(recipe.getString("cauldron-type", "water").toLowerCase(Locale.ROOT))))
-                .ingredients(ingredientManager.getIngredientsWithAmount(recipe.getStringList("ingredients")))
-                .distillRuns(recipe.getInt("distilling.runs", 0))
-                .distillTime(recipe.getInt("distilling.time", 30))
-                .barrelType(Registry.BARREL_TYPE.get(BreweryKey.parse(recipe.getString("aging.barrel-type", "any").toLowerCase(Locale.ROOT))))
-                .agingYears(recipe.getInt("aging.years", 0))
                 .recipeResult(recipeResultReader.readRecipeResult(recipe))
+                .steps(parseSteps(recipe.getMapList("steps")))
                 .build();
+    }
+
+    private @NotNull List<BrewingStep> parseSteps(List<Map<?, ?>> steps) {
+        return steps.stream()
+                .map(this::parseStep)
+                .toList();
+    }
+
+    private BrewingStep parseStep(Map<?, ?> map) {
+        BrewingStep.StepType type = BrewingStep.StepType.valueOf(String.valueOf(map.get("type")).toUpperCase(Locale.ROOT));
+        return switch (type) {
+            case COOK -> new BrewingStep.Cook(
+                    new PassedMoment((long) map.get("cook-time") * PassedMoment.MINUTE),
+                    ingredientManager.getIngredientsWithAmount((List<String>) map.get("ingredients")),
+                    Registry.CAULDRON_TYPE.get(BreweryKey.parse(map.get("cauldron-type").toString().toLowerCase(Locale.ROOT)))
+            );
+            case DISTILL -> new BrewingStep.Distill(
+                    (int) map.get("runs")
+            );
+            case AGE -> new BrewingStep.Age(
+                    new PassedMoment((long) map.get("age-years") * Moment.AGING_YEAR),
+                    Registry.BARREL_TYPE.get(BreweryKey.parse(map.get("barrel-type").toString().toLowerCase(Locale.ROOT)))
+            );
+            case MIX -> new BrewingStep.Mix(
+                    new PassedMoment((long) map.get("mix-time") * Moment.MINUTE),
+                    ingredientManager.getIngredientsWithAmount((List<String>) map.get("ingredients"))
+            );
+        };
     }
 
     public static int parseAlcoholString(String str) {

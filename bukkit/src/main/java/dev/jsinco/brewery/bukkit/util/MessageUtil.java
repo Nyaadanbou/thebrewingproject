@@ -1,6 +1,8 @@
 package dev.jsinco.brewery.bukkit.util;
 
-import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkState;
@@ -25,8 +27,11 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MessageUtil {
 
@@ -48,31 +53,40 @@ public class MessageUtil {
         );
     }
 
-    public static TagResolver getBrewTagResolver(@NotNull Brew<ItemStack> brew) {
+    public static TagResolver getScoreTagResolver(@NotNull BrewScore score) {
+        BrewQuality quality = score.brewQuality();
         return TagResolver.resolver(
-                Formatter.number("aging_years", brew.aging() != null ? brew.aging().agingYears() : 0),
-                Formatter.number("distill_amount", brew.distillRuns()),
-                Formatter.number("cooking_time", brew.brewTime() != null ? brew.brewTime().minutes() : 0),
-                Placeholder.parsed("ingredients", formatIngredients(brew.ingredients())),
-                Placeholder.parsed("barrel_type", brew.barrelType() != null ? brew.barrelType().translation() : TranslationsConfig.BARREL_TYPE_NONE),
-                Placeholder.parsed("cauldron_type", brew.cauldronType() != null ? brew.cauldronType().translation() : TranslationsConfig.CAULDRON_TYPE_NONE)
+                Placeholder.component("quality", Component.text(score.displayName())),
+                Placeholder.styling("quality_color", resolveQualityColor(quality))
         );
     }
 
-    public static TagResolver getScoreTagResolver(@NotNull BrewScore score) {
-        BrewQuality quality = score.brewQuality();
-        BrewQuality agingQuality = BrewScore.quality(score.agingTimeScore() * score.barrelTypeScore());
-        BrewQuality distillingQuality = BrewScore.quality(score.distillRunsScore());
-        BrewQuality cookingQuality = BrewScore.quality(score.cauldronTypeScore() * score.cauldronTimeScore());
-        BrewQuality ingredientsQuality = BrewScore.quality(score.ingredientScore());
-        return TagResolver.resolver(
-                Placeholder.component("quality", Component.text(score.displayName())),
-                Placeholder.styling("aging_quality_color", resolveQualityColor(agingQuality)),
-                Placeholder.styling("distilling_quality_color", resolveQualityColor(distillingQuality)),
-                Placeholder.styling("cooking_quality_color", resolveQualityColor(cookingQuality)),
-                Placeholder.styling("quality_color", resolveQualityColor(quality)),
-                Placeholder.styling("ingredients_quality_color", resolveQualityColor(ingredientsQuality))
-        );
+    public static @NotNull TagResolver getBrewStepTagResolver(BrewingStep brewingStep, double score) {
+        TagResolver resolver = switch (brewingStep) {
+            case BrewingStep.Age age -> TagResolver.resolver(
+                    Formatter.number("aging_years", age.age().agingYears()),
+                    Placeholder.parsed("barrel_type", age.barrelType().translation())
+            );
+            case BrewingStep.Cook cook -> TagResolver.resolver(
+                    Formatter.number("cooking_time", cook.brewTime().minutes()),
+                    Placeholder.parsed("ingredients", cook.ingredients().entrySet()
+                            .stream()
+                            .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
+                            .collect(Collectors.joining(", "))
+                    ),
+                    Placeholder.parsed("cauldron_type", cook.cauldronType().translation())
+            );
+            case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
+            case BrewingStep.Mix mix -> TagResolver.resolver(
+                    Formatter.number("mixing_time", mix.time().minutes()),
+                    Placeholder.parsed("ingredients", mix.ingredients().entrySet()
+                            .stream()
+                            .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
+                            .collect(Collectors.joining(", "))
+                    )
+            );
+        };
+        return TagResolver.resolver(resolver, Placeholder.styling("partial_quality_color", resolveQualityColor(BrewScore.quality(score))));
     }
 
     private static @NotNull StyleBuilderApplicable[] resolveQualityColor(@Nullable BrewQuality quality) {
@@ -82,14 +96,7 @@ public class MessageUtil {
     public static TagResolver recipeTagResolver(Recipe<ItemStack, PotionMeta> recipe) {
         return TagResolver.resolver(
                 Placeholder.parsed("recipe_name", recipe.getRecipeName()),
-                Formatter.number("recipe_brew_time", recipe.getBrewTime()),
-                Placeholder.parsed("recipe_ingredients", formatIngredients(recipe.getIngredients())),
-                Formatter.number("recipe_difficulty", recipe.getBrewDifficulty()),
-                Placeholder.parsed("recipe_barrel_type", recipe.getBarrelType().translation()),
-                Placeholder.parsed("recipe_cauldron_type", recipe.getCauldronType().translation()),
-                Formatter.number("recipe_aging_years", recipe.getAgingYears()),
-                Formatter.number("recipe_distill_runs", recipe.getDistillRuns()),
-                Formatter.number("distill_time", recipe.getDistillTime())
+                Formatter.number("recipe_difficulty", recipe.getBrewDifficulty())
         );
     }
 
@@ -117,4 +124,23 @@ public class MessageUtil {
                 .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
                 .collect(Collectors.joining(","));
     }
+
+    public static @NotNull Stream<Component> compileBrewInfo(Brew brew, BrewScore score, boolean detailed) {
+        List<BrewingStep> brewingSteps = brew.getSteps();
+        Stream.Builder<Component> streamBuilder = Stream.builder();
+        for (int i = 0; i < brewingSteps.size(); i++) {
+            BrewingStep brewingStep = brewingSteps.get(i);
+            String line = (detailed ? TranslationsConfig.DETAILED_BREW_TOOLTIP : TranslationsConfig.BREW_TOOLTIP).get(brewingStep.stepType().name().toLowerCase(Locale.ROOT));
+            streamBuilder.add(MiniMessage.miniMessage().deserialize(line, MessageUtil.getBrewStepTagResolver(brewingStep, score.getPartialScore(i))));
+        }
+        return streamBuilder.build();
+    }
+
+    public static @NotNull Stream<Component> compileBrewInfo(Brew brew, boolean detailed) {
+        BrewScore score = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry())
+                .map(brew::score)
+                .orElse(BrewScore.NONE);
+        return compileBrewInfo(brew, score, detailed);
+    }
+
 }

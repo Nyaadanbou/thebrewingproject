@@ -37,8 +37,8 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
     }
 
     /**
-     * @param ingredientStr A string with the format [ingredient-name]/[amount]. Allows not specifying amount, where it will default to 1
-     * @return An ingredient/amount pair
+     * @param ingredientStr A string with the format [ingredient-name]/[runs]. Allows not specifying runs, where it will default to 1
+     * @return An ingredient/runs pair
      * @throws IllegalArgumentException if the ingredients string is invalid
      */
     public Pair<@NotNull Ingredient<ItemStack>, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException {
@@ -63,10 +63,10 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
     }
 
     /**
-     * Parse a list of strings into a map of ingredients with amount
+     * Parse a list of strings into a map of ingredients with runs
      *
      * @param stringList A list of strings with valid formatting, see {@link #getIngredientWithAmount(String)}
-     * @return A map representing ingredients with amount
+     * @return A map representing ingredients with runs
      * @throws IllegalArgumentException if there's any invalid ingredient string
      */
     public Map<Ingredient<ItemStack>, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException {
@@ -79,5 +79,4 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
                 .forEach(ingredientAmountPair -> insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
         return ingredientMap;
     }
-
 }

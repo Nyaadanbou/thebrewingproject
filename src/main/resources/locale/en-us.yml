@@ -1,17 +1,21 @@
-brew.tooltip-ingredients: <ingredients_quality_color>Ingredients</ingredients_quality_color>
-brew.tooltip-aging: <aging_quality_color>Aged <aging_years> years</aging_quality_color>
-brew.tooltip-distilling: <distilling_quality_color>Distilled <distill_amount> times</distilling_quality_color>
-brew.tooltip-cooking: <cooking_quality_color>Cooked <cooking_time> minutes</cooking_quality_color>
-brew.tooltip-quality: <quality_color><quality></quality_color>
-brew.tooltip-sealed:
+brew.tooltip.age: <partial_quality_color>Aged <aging_years> years</partial_quality_color>
+brew.tooltip.distill: <partial_quality_color>Distilled <distill_runs> times</partial_quality_color>
+brew.tooltip.cook: <partial_quality_color>Cooked <cooking_time> minutes</partial_quality_color>
+brew.tooltip.quality: <quality_color><quality></quality_color>
+brew.detailed-tooltip.age: <partial_quality_color>Aged <aging_years> years in <barrel_type></partial_quality_color>
+brew.detailed-tooltip.distill: <partial_quality_color>Distilled <distill_runs> times</partial_quality_color>
+brew.detailed-tooltip.cook: <partial_quality_color><ingredients> cooked <cooking_time> minutes in a <cauldron_type> cauldron</partial_quality_color>
+brew.tooltip.sealed:
   - <gray><quality>
-brew.tooltip-volume: "<gray>Volume: <volume>"
+brew.tooltip.volume: "<gray>Volume: <volume>"
 brew.display-name.unfinished-aged: Aged <ingredient> brew
 brew.display-name.unfinished-aged-unknown: Aged brew
 brew.display-name.unfinished-distilled: <ingredient> distillate
 brew.display-name.unfinished-distilled-unknown: Distillate
 brew.display-name.unfinished-fermented: Fermented <ingredient> mesh
 brew.display-name.unfinished-fermented-unknown: Fermented mesh
+brew.display-name.unfinished-mixed: <ingredient> mixture
+brew.display-name.unfinished-mixed-unknown: Mixture
 distillery.create: <gray>Created a distillery
 distillery.create-denied: <red>You don't have enough permissions to create a distillery
 distillery.access-denied: <red>You don't have enough permissions to access a distillery
@@ -53,10 +57,7 @@ command.status.set.message: <gray>Set the drunk effect of <player_name> to <alco
 command.not-enough-permissions: <red>Not enough permissions
 command.info.message: |-
   <gray>----<quality_color><quality></quality_color>----
-  Ingredients: <ingredients_quality_color><ingredients></ingredients_quality_color>
-  Aged: <aging_quality_color><aging_years> years</aging_quality_color>
-  Distilled: <distilling_quality_color><distill_amount> times</distilling_quality_color>
-  Cooked: <cooking_quality_color><cooking_time> minutes</cooking_quality_color>
+  <brewing_step_info>
 command.info.effect-message: |-
   <gray>Potion effects: <potion_effects>
   Alcohol/Toxins: <gold><effect_alcohol></gold>/<red><effect_toxins></red>

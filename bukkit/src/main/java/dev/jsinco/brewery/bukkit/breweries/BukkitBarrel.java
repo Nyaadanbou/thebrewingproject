@@ -1,9 +1,10 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.Tickable;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
@@ -12,6 +13,7 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.Database;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -37,7 +39,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     private final BarrelType type;
     @Getter
     private final Location signLocation;
-    private Brew<ItemStack>[] brews;
+    private Brew[] brews;
 
     public BukkitBarrel(Location signLocation, PlacedBreweryStructure<BukkitBarrel> structure, int size, BarrelType type) {
         this.structure = structure;
@@ -134,24 +136,26 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                 brews[i] = null;
                 continue;
             }
-            Optional<Brew<ItemStack>> brewOptional = BrewAdapter.fromItem(itemStack);
+            Optional<Brew> brewOptional = BrewAdapter.fromItem(itemStack);
             final int iFinal = i;
             brewOptional
                     .map(brew -> {
                         long gameTime = getWorld().getGameTime();
-                        Brew<ItemStack> out = brew;
-                        if (brew.aging() instanceof Interval interval) {
-                            out = brew.withAging(interval.withStop(gameTime));
-                        } else if (brew.aging() == null) {
-                            out = brew.withAging(new Interval(gameTime, gameTime));
+                        if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
+                            return brew.withStep(new BrewingStep.Age(new Interval(gameTime, gameTime), type));
                         }
-                        return out.withBarrelType(type);
+                        return brew.witModifiedLastStep(brewStep -> {
+                            BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewStep);
+                            Moment moment = ageBrewStep.age();
+                            Interval interval = moment instanceof Interval interval1 ? interval1.withStop(gameTime) : new Interval(gameTime - moment.moment(), gameTime);
+                            return ageBrewStep.withAge(interval);
+                        });
                     })
                     .ifPresent(brew -> {
                         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                         BrewAdapter.applyMeta(potionMeta, brew);
                         itemStack.setItemMeta(potionMeta);
-                        if (Brew.sameValuesForAging(brew, brews[iFinal])) {
+                        if (Objects.equals(brew, brews[iFinal])) {
                             brews[iFinal] = brew;
                             return;
                         }
@@ -179,15 +183,15 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
         return signLocation.getWorld();
     }
 
-    public void setBrews(List<Pair<Brew<ItemStack>, Integer>> brews) {
+    public void setBrews(List<Pair<Brew, Integer>> brews) {
         this.brews = new Brew[9];
-        for (Pair<Brew<ItemStack>, Integer> brew : brews) {
+        for (Pair<Brew, Integer> brew : brews) {
             this.brews[brew.second()] = brew.first();
         }
     }
 
-    public List<Pair<Brew<ItemStack>, Integer>> getBrews() {
-        List<Pair<Brew<ItemStack>, Integer>> brewList = new ArrayList<>();
+    public List<Pair<Brew, Integer>> getBrews() {
+        List<Pair<Brew, Integer>> brewList = new ArrayList<>();
         for (int i = 0; i < brews.length; i++) {
             if (brews[i] == null) {
                 continue;

@@ -7,7 +7,4 @@ import java.util.Map;
 
 public interface Cauldron<I> extends Tickable, SinglePositionStructure {
 
-    long brewStart();
-
-    Map<Ingredient<I>, Integer> ingredients();
 }

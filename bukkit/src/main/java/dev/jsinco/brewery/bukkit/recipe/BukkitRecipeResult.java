@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.brews.Brew;
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.BrewQuality;
@@ -59,7 +59,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         this.appendBrewInfoLore = appendBrewInfoLore;
     }
 
-    public ItemStack newBrewItem(@NotNull BrewScore score, Brew<ItemStack> brew) {
+    public ItemStack newBrewItem(@NotNull BrewScore score, Brew brew) {
         ItemStack item = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         applyMeta(score, meta, brew);
@@ -67,13 +67,13 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         return item;
     }
 
-    public void applyMeta(BrewScore score, PotionMeta meta, Brew<ItemStack> brew) {
+    public void applyMeta(BrewScore score, PotionMeta meta, Brew brew) {
         BrewQuality quality = score.brewQuality();
         Preconditions.checkNotNull(quality);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.displayName(compileMessage(score, brew, names.get(quality), true).decoration(TextDecoration.ITALIC, false));
         meta.lore(Stream.concat(lore.get(quality).stream()
-                                        .map(line -> compileMessage(score, brew, line)),
+                                        .map(line -> compileMessage(score, brew, line, false)),
                                 compileExtraLore(score, brew)
                         )
                         .map(component -> component.decoration(TextDecoration.ITALIC, false))
@@ -90,33 +90,22 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
     }
 
-    private Stream<? extends Component> compileExtraLore(BrewScore score, Brew<ItemStack> brew) {
+    private Stream<? extends Component> compileExtraLore(BrewScore score, Brew brew) {
         if (!appendBrewInfoLore) {
             return Stream.empty();
         }
         Stream.Builder<Component> streamBuilder = Stream.builder();
         streamBuilder.add(Component.empty());
-        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_INGREDIENTS));
-        if (brew.aging() != null) {
-            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_AGING));
-        }
-        if (brew.distillRuns() > 0) {
-            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_DISTILLING));
-        }
-        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_COOKING));
-        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY));
+        MessageUtil.compileBrewInfo(brew, score, false).forEach(streamBuilder::add);
+        streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY, false));
         return streamBuilder.build();
     }
 
-    private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage) {
-        return MiniMessage.miniMessage().deserialize(serializedMiniMessage, getResolver(score, brew, false));
-    }
-
-    private Component compileMessage(BrewScore score, Brew<ItemStack> brew, String serializedMiniMessage, boolean isBrewName) {
+    private Component compileMessage(BrewScore score, Brew brew, String serializedMiniMessage, boolean isBrewName) {
         return MiniMessage.miniMessage().deserialize(serializedMiniMessage, getResolver(score, brew, isBrewName));
     }
 
-    private @NotNull TagResolver getResolver(BrewScore score, Brew<ItemStack> brew, boolean isBrewName) {
+    private @NotNull TagResolver getResolver(BrewScore score, Brew brew, boolean isBrewName) {
         BrewQuality quality = score.brewQuality();
         TagResolver.Builder output = TagResolver.builder();
         if (!isBrewName) {
@@ -124,8 +113,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         }
         output.resolvers(
                 Formatter.number("alcohol", this.getRecipeEffects().get(quality).getAlcohol()),
-                MessageUtil.getScoreTagResolver(score),
-                MessageUtil.getBrewTagResolver(brew)
+                MessageUtil.getScoreTagResolver(score)
         );
 
         return output.build();

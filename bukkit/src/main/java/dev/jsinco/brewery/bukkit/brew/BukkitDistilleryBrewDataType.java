@@ -1,20 +1,16 @@
 package dev.jsinco.brewery.bukkit.brew;
 
-import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.brews.Brew;
+import com.google.gson.JsonParser;
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.database.FindableStoredData;
 import dev.jsinco.brewery.database.InsertableStoredData;
 import dev.jsinco.brewery.database.RemovableStoredData;
 import dev.jsinco.brewery.database.UpdateableStoredData;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.moment.PassedMoment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
-import org.bukkit.inventory.ItemStack;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,18 +18,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class BukkitDistilleryBrewDataType implements
-        InsertableStoredData<Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext>>, RemovableStoredData<Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext>>,
-        FindableStoredData<Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext>, BreweryLocation>, UpdateableStoredData<Pair<Brew<ItemStack>, BukkitDistilleryBrewDataType.DistilleryContext>> {
+        InsertableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>, RemovableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>,
+        FindableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>, BreweryLocation>, UpdateableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>> {
 
     public static final BukkitDistilleryBrewDataType INSTANCE = new BukkitDistilleryBrewDataType();
 
     @Override
-    public List<Pair<Brew<ItemStack>, DistilleryContext>> find(BreweryLocation searchObject, Connection connection) throws SQLException {
-        List<Pair<Brew<ItemStack>, DistilleryContext>> output = new ArrayList<>();
+    public List<Pair<Brew, DistilleryContext>> find(BreweryLocation searchObject, Connection connection) throws SQLException {
+        List<Pair<Brew, DistilleryContext>> output = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_find.sql"))) {
             preparedStatement.setInt(1, searchObject.x());
             preparedStatement.setInt(2, searchObject.y());
@@ -43,39 +38,31 @@ public class BukkitDistilleryBrewDataType implements
             while (resultSet.next()) {
                 int pos = resultSet.getInt("pos");
                 boolean isDistillate = resultSet.getBoolean("is_distillate");
-                CauldronType cauldronType = Registry.CAULDRON_TYPE.get(resultSet.getString("cauldron_type"));
-                int brewTime = resultSet.getInt("brew_time");
-                int runs = resultSet.getInt("distillery_runs");
-                Map<Ingredient<ItemStack>, Integer> ingredients = Ingredient.ingredientsFromJson(resultSet.getString("ingredients_json"), BukkitIngredientManager.INSTANCE);
-                DistilleryContext distilleryContext = new DistilleryContext(searchObject.x(), searchObject.y(), searchObject.z(), searchObject.worldUuid(), pos, isDistillate);
-                Brew<ItemStack> brew = new Brew<>(new PassedMoment(brewTime), ingredients, null, runs, cauldronType, null);
-                output.add(new Pair<>(brew, distilleryContext));
+                Brew brew = Brew.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
+                output.add(new Pair<>(brew, new DistilleryContext(searchObject.x(), searchObject.y(), searchObject.z(), searchObject.worldUuid(), pos, isDistillate)));
             }
         }
         return output;
     }
 
     @Override
-    public void insert(Pair<Brew<ItemStack>, DistilleryContext> value, Connection connection) throws SQLException {
+    public void insert(Pair<Brew, DistilleryContext> value, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_insert.sql"))) {
             DistilleryContext distilleryContext = value.second();
-            Brew<ItemStack> brew = value.first();
+            Brew brew = value.first();
             preparedStatement.setInt(1, distilleryContext.uniqueX());
             preparedStatement.setInt(2, distilleryContext.uniqueY());
             preparedStatement.setInt(3, distilleryContext.uniqueZ());
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(distilleryContext.worldUuid()));
             preparedStatement.setInt(5, distilleryContext.inventoryPos());
             preparedStatement.setBoolean(6, distilleryContext.distillate());
-            preparedStatement.setString(7, brew.cauldronType().key().toString());
-            preparedStatement.setLong(8, brew.brewTime().moment());
-            preparedStatement.setInt(9, brew.distillRuns());
-            preparedStatement.setString(10, Ingredient.ingredientsToJson(brew.ingredients()));
+            preparedStatement.setString(7, Brew.SERIALIZER.serialize(brew).toString());
             preparedStatement.execute();
         }
     }
 
     @Override
-    public void remove(Pair<Brew<ItemStack>, DistilleryContext> toRemove, Connection connection) throws SQLException {
+    public void remove(Pair<Brew, DistilleryContext> toRemove, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_remove.sql"))) {
             DistilleryContext distilleryContext = toRemove.second();
             preparedStatement.setInt(1, distilleryContext.uniqueX());
@@ -89,20 +76,17 @@ public class BukkitDistilleryBrewDataType implements
     }
 
     @Override
-    public void update(Pair<Brew<ItemStack>, DistilleryContext> newValue, Connection connection) throws SQLException {
+    public void update(Pair<Brew, DistilleryContext> newValue, Connection connection) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_update.sql"))) {
-            Brew<ItemStack> brew = newValue.first();
+            Brew brew = newValue.first();
             DistilleryContext distilleryContext = newValue.second();
-            preparedStatement.setString(1, brew.cauldronType().key().toString());
-            preparedStatement.setLong(2, brew.brewTime().moment());
-            preparedStatement.setInt(3, brew.distillRuns());
-            preparedStatement.setString(4, Ingredient.ingredientsToJson(brew.ingredients()));
-            preparedStatement.setInt(5, distilleryContext.uniqueX());
-            preparedStatement.setInt(6, distilleryContext.uniqueY());
-            preparedStatement.setInt(7, distilleryContext.uniqueZ());
-            preparedStatement.setBytes(8, DecoderEncoder.asBytes(distilleryContext.worldUuid()));
-            preparedStatement.setInt(9, distilleryContext.inventoryPos());
-            preparedStatement.setBoolean(10, distilleryContext.distillate());
+            preparedStatement.setString(1, Brew.SERIALIZER.serialize(brew).toString());
+            preparedStatement.setInt(2, distilleryContext.uniqueX());
+            preparedStatement.setInt(3, distilleryContext.uniqueY());
+            preparedStatement.setInt(4, distilleryContext.uniqueZ());
+            preparedStatement.setBytes(5, DecoderEncoder.asBytes(distilleryContext.worldUuid()));
+            preparedStatement.setInt(6, distilleryContext.inventoryPos());
+            preparedStatement.setBoolean(7, distilleryContext.distillate());
             preparedStatement.execute();
         }
     }

@@ -11,25 +11,19 @@ import java.util.Map;
 
 public class TranslationsConfig extends AbstractConfig {
 
-    @Key("brew.tooltip-ingredients")
-    public static String BREW_TOOLTIP_INGREDIENTS;
+    @Key("brew.tooltip")
+    public static Map<String,String> BREW_TOOLTIP;
 
-    @Key("brew.tooltip-aging")
-    public static String BREW_TOOLTIP_AGING;
+    @Key("brew.detailed-tooltip")
+    public static Map<String,String> DETAILED_BREW_TOOLTIP;
 
-    @Key("brew.tooltip-distilling")
-    public static String BREW_TOOLTIP_DISTILLING;
-
-    @Key("brew.tooltip-cooking")
-    public static String BREW_TOOLTIP_COOKING;
-
-    @Key("brew.tooltip-quality")
+    @Key("brew.tooltip.quality")
     public static String BREW_TOOLTIP_QUALITY;
 
-    @Key("brew.tooltip-sealed")
+    @Key("brew.tooltip.sealed")
     public static List<String> BREW_TOOLTIP_SEALED;
 
-    @Key("brew.tooltip-volume")
+    @Key("brew.tooltip.volume")
     public static String BREW_TOOLTIP_VOLUME;
 
     @Key("brew.display-name.unfinished-aged")
@@ -49,6 +43,12 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("brew.display-name.unfinished-fermented-unknown")
     public static String BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN;
+
+    @Key("brew.display-name.unfinished-mixed")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_MIXED;
+
+    @Key("brew.display-name.unfinished-mixed-unknown")
+    public static String BREW_DISPLAY_NAME_UNFINISHED_MIXED_UNKNOWN;
 
     @Key("distillery.create")
     public static String DISTILLERY_CREATE;

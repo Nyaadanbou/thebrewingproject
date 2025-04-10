@@ -1,8 +1,9 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
@@ -62,8 +63,22 @@ class BarrelDataTypeTest {
                 .findFirst();
         BukkitBarrel barrel = new BukkitBarrel(new Location(world, 1, 2, 3), breweryStructureOptional.get().first(), 9, BarrelType.OAK);
         barrel.setBrews(List.of(
-                new Pair<>(new Brew<>(new PassedMoment(10), Map.of(), new Interval(10, 10), 0, CauldronType.WATER, BarrelType.OAK), 4),
-                new Pair<>(new Brew<>(new PassedMoment(10), Map.of(), new Interval(10, 10), 0, CauldronType.WATER, BarrelType.OAK), 5)
+                new Pair<>(
+                        new Brew(
+                                List.of(
+                                        new BrewingStep.Cook(new PassedMoment(10), Map.of(), CauldronType.WATER),
+                                        new BrewingStep.Age(new Interval(10, 10), BarrelType.OAK)
+                                )
+                        ), 4
+                ),
+                new Pair<>(
+                        new Brew(
+                                List.of(
+                                        new BrewingStep.Cook(new PassedMoment(10), Map.of(), CauldronType.WATER),
+                                        new BrewingStep.Age(new Interval(10, 10), BarrelType.OAK)
+                                )
+                        ), 5
+                )
         ));
         database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
         List<BukkitBarrel> retrievedBarrels = database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID());

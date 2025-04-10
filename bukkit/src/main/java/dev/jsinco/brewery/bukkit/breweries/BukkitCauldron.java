@@ -1,20 +1,19 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.brews.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
-import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
-import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Interval;
-import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
+import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -22,66 +21,56 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 
 public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<ItemStack> {
 
     private static final Random RANDOM = new Random();
 
-    private final Map<Ingredient<ItemStack>, Integer> ingredients;
     private final Block block;
-
-
-    private long brewStart;
-
-    // To determine the closest recipe:
-    // Every time @tick is run, check all reducedrecipes/recipes list and see if the ingredients match
-    // if they do, set the closest recipe to that recipe
-    private @Nullable Recipe<ItemStack, PotionMeta> closestRecipe = null;
-    // To determine particle effect color:
-    // Every time @tick is run and if closest recipe is NOT null, get color from the closest recipe
-    // and gradually shift color to it. If closest recipe becomes null, reset this back to AQUA
+    private final CauldronType cauldronType;
+    @Getter
+    private Brew brew;
     private Color particleColor = Color.AQUA;
 
 
     public BukkitCauldron(Block block) {
-        this.ingredients = new HashMap<>();
-        this.block = block;
-
-        TheBrewingProject.getInstance().getBreweryRegistry().addActiveCauldron(this);
+        this(new HashMap<>(), block, block.getWorld().getGameTime());
     }
 
-    // Generally for loading from persistent storage
     public BukkitCauldron(Map<Ingredient<ItemStack>, Integer> ingredients, Block block, long brewStart) {
-        this.ingredients = ingredients;
         this.block = block;
-        this.brewStart = brewStart;
-
-        TheBrewingProject.getInstance().getBreweryRegistry().addActiveCauldron(this);
+        this.cauldronType = findCauldronType(block);
+        this.brew = new Brew(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType));
     }
 
+    public BukkitCauldron(Brew brew, Block block) {
+        this.block = block;
+        this.cauldronType = findCauldronType(block);
+        this.brew = brew;
+    }
+
+    private static CauldronType findCauldronType(Block block) {
+        return Registry.CAULDRON_TYPE.values()
+                .stream()
+                .filter(cauldronType -> block.getType().getKey().toString().equals(cauldronType.materialKey()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Expected cauldron"));
+    }
 
     @Override
     public void tick() {
         if (!BlockUtil.isChunkLoaded(block)) {
             return;
         }
-
         if (!this.isOnHeatSource()) {
             this.remove();
             return;
         }
-        getBrew()
-                .flatMap(brew -> brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry()))
-                .ifPresent(reducedRecipe -> this.closestRecipe = reducedRecipe);
-        this.updateParticleColor();
         this.playBrewingEffects();
     }
 
@@ -97,25 +86,22 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_ACCESS_DENIED));
             return false;
         }
-        if (ingredients.isEmpty()) {
-            this.brewStart = block.getWorld().getGameTime();
+        long gameTime = block.getWorld().getGameTime();
+        if (!(brew.lastStep() instanceof BrewingStep.Cook)) {
+            brew = brew.withStep(new BrewingStep.Cook(new Interval(gameTime, gameTime), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType));
+            return true;
         }
-        Ingredient<ItemStack> ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
-        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
-        ingredients.put(ingredient, amount + 1);
-        item.setAmount(item.getAmount() - 1);
+        brew = brew.witModifiedLastStep(step -> {
+            BrewingStep.Cook cook = (BrewingStep.Cook) step;
+            Ingredient<ItemStack> ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
+            Map<Ingredient<?>, Integer> ingredients = new HashMap<>(cook.ingredients());
+            int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
+            ingredients.put(ingredient, amount + 1);
+            item.setAmount(item.getAmount() - 1);
+            return cook.withIngredients(ingredients);
+        });
         return true;
     }
-
-
-    public void updateParticleColor() {
-        if (this.closestRecipe == null && this.particleColor != Color.AQUA) {
-            this.particleColor = Color.AQUA;
-        } else if (this.closestRecipe != null) {
-            this.particleColor = ColorUtil.getNextColor(Color.AQUA, ((BukkitRecipeResult) this.closestRecipe.getRecipeResult()).getColor(), Math.max(block.getWorld().getGameTime() - brewStart, 0), this.closestRecipe.getBrewTime() * Moment.MINUTE);
-        }
-    }
-
 
     public boolean isOnHeatSource() {
         if (Config.HEAT_SOURCES.isEmpty()) {
@@ -130,14 +116,6 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
             return BlockUtil.isSource(blockBelow);
         }
         return Config.HEAT_SOURCES.contains(below.name().toLowerCase());
-    }
-
-
-    public boolean cauldronTypeMatchesRecipe() {
-        if (closestRecipe == null) {
-            return false;
-        }
-        return closestRecipe.getCauldronType().materialKey().equals(block.getType().getKey().toString());
     }
 
     public void playBrewingEffects() {
@@ -166,15 +144,6 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         }
     }
 
-    public Optional<Brew<ItemStack>> getBrew() {
-        if (ingredients.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(
-                new Brew<>(new Interval(brewStart, block.getWorld().getGameTime()), new HashMap<>(ingredients), null, 0, CauldronType.from(block.getType().getKey().toString()), null)
-        );
-    }
-
     public static boolean isValidStructure(Block cauldronBlock) {
         return Tag.CAULDRONS.isTagged(cauldronBlock.getType()) && isHeatSource(cauldronBlock.getRelative(BlockFace.DOWN).getType())
                 && cauldronBlock.getBlockData() instanceof Levelled levelled && levelled.getLevel() > 0;
@@ -187,15 +156,5 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
     @Override
     public BreweryLocation position() {
         return new BreweryLocation(block.getX(), block.getY(), block.getZ(), block.getWorld().getUID());
-    }
-
-    @Override
-    public long brewStart() {
-        return brewStart;
-    }
-
-    @Override
-    public Map<Ingredient<ItemStack>, Integer> ingredients() {
-        return ingredients;
     }
 }
