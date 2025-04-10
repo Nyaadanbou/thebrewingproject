@@ -50,11 +50,11 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
         this.signLocation = signLocation;
     }
 
-    public void open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
+    public boolean open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
         Player player = Bukkit.getPlayer(playerUuid);
         if (!player.hasPermission("brewery.barrel.access")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.BARREL_ACCESS_DENIED));
-            return;
+            return true;
         }
         if (inventory.getViewers().isEmpty()) {
             populateInventory();
@@ -64,6 +64,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             signLocation.getWorld().playSound(signLocation, Sound.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 0.5f, 0.8f + randPitch);
         }
         player.openInventory(inventory);
+        return true;
     }
 
     @Override
@@ -188,7 +189,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     public void setBrews(List<Pair<Brew, Integer>> brews) {
-        this.brews = new Brew[9];
+        this.brews = new Brew[size];
         for (Pair<Brew, Integer> brew : brews) {
             this.brews[brew.second()] = brew.first();
         }
