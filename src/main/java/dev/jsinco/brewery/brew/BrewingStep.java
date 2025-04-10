@@ -130,7 +130,7 @@ public sealed interface BrewingStep {
             if (!(other instanceof Age(Moment otherAge, BarrelType otherType))) {
                 return 0D;
             }
-            double barrelTypeScore = barrelType.equals(otherType) ? 1D : 0.9D;
+            double barrelTypeScore = barrelType.equals(BarrelType.ANY) || barrelType.equals(otherType) ? 1D : 0.9D;
             return barrelTypeScore * BrewingStep.nearbyValueScore(this.age.moment(), otherAge.moment());
         }
 

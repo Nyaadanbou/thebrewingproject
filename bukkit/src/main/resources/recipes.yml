@@ -423,7 +423,4 @@ default-recipes:
     name: 'Ruined brew'
     color: 'GRAY'
     lore:
-      - ""
-      - Cooked for <cooking_time> minutes
-      - Aged for <aging_years> years
-      - Distilled <distill_amount> times
+      - "<gray>I don't think it's drinkable"
