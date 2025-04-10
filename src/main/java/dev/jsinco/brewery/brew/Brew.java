@@ -83,7 +83,13 @@ public class Brew {
             scores.add(recipeStep.proximity(steps.get(i)));
         }
         boolean completed = steps.size() == recipeSteps.size();
-        return new BrewScore(scores, completed, recipe.getBrewDifficulty());
+        BrewScore brewScore = new BrewScore(scores, completed, recipe.getBrewDifficulty());
+        if (brewScore.brewQuality() == null && recipeSteps.get(steps.size() - 1).canGetCloserTo(steps.getLast())) {
+            scores.removeLast();
+            scores.add(1D);
+            return new BrewScore(scores, false, recipe.getBrewDifficulty());
+        }
+        return brewScore;
     }
 
     public Optional<BrewQuality> quality(Recipe<?, ?> recipe) {

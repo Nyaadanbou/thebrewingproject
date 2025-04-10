@@ -47,6 +47,14 @@ public sealed interface BrewingStep {
         return output;
     }
 
+    /**
+     * Whether other can get closer to this brewing step
+     *
+     * @param other
+     * @return
+     */
+    boolean canGetCloserTo(BrewingStep other);
+
     record Cook(Moment brewTime, Map<? extends Ingredient<?>, Integer> ingredients,
                 CauldronType cauldronType) implements BrewingStep {
 
@@ -73,6 +81,14 @@ public sealed interface BrewingStep {
         public StepType stepType() {
             return StepType.COOK;
         }
+
+        @Override
+        public boolean canGetCloserTo(BrewingStep other) {
+            if (!(other instanceof Cook cook)) {
+                return false;
+            }
+            return cauldronType.equals(cook.cauldronType) && this.brewTime.moment() > cook.brewTime.moment();
+        }
     }
 
     record Distill(int runs) implements BrewingStep {
@@ -92,6 +108,14 @@ public sealed interface BrewingStep {
         @Override
         public StepType stepType() {
             return StepType.DISTILL;
+        }
+
+        @Override
+        public boolean canGetCloserTo(BrewingStep other) {
+            if (!(other instanceof Distill distill)) {
+                return false;
+            }
+            return distill.runs < this.runs;
         }
     }
 
@@ -114,6 +138,14 @@ public sealed interface BrewingStep {
         public StepType stepType() {
             return StepType.AGE;
         }
+
+        @Override
+        public boolean canGetCloserTo(BrewingStep other) {
+            if (!(other instanceof Age age)) {
+                return false;
+            }
+            return age.age().moment() < this.age.moment();
+        }
     }
 
     record Mix(Moment time, Map<? extends Ingredient<?>, Integer> ingredients) implements BrewingStep {
@@ -132,6 +164,14 @@ public sealed interface BrewingStep {
         @Override
         public StepType stepType() {
             return StepType.MIX;
+        }
+
+        @Override
+        public boolean canGetCloserTo(BrewingStep other) {
+            if (!(other instanceof Mix mix)) {
+                return false;
+            }
+            return mix.time.moment() < this.time.moment();
         }
 
     }
