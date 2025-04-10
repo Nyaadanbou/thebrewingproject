@@ -32,6 +32,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
     private static final Random RANDOM = new Random();
 
     private final Block block;
+    @Getter
     private final CauldronType cauldronType;
     @Getter
     private Brew brew;

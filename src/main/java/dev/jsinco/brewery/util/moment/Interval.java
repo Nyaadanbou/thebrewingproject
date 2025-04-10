@@ -4,16 +4,19 @@ import dev.jsinco.brewery.util.Util;
 
 public record Interval(long start, long stop) implements Moment {
 
-    public Interval withStart(long start) {
-        return new Interval(start, stop);
-    }
-
-    public Interval withStop(long stop) {
-        return new Interval(start, stop);
-    }
-
+    @Override
     public long moment() {
         return stop - start;
+    }
+
+    @Override
+    public Interval withLastStep(long lastStep) {
+        return new Interval(start, lastStep);
+    }
+
+    @Override
+    public Interval withMovedEnding(long newEnd) {
+        return new Interval(newEnd - stop + start, newEnd);
     }
 
     public static Interval parse(String string) {

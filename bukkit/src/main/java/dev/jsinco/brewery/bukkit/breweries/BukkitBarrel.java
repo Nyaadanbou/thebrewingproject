@@ -138,40 +138,44 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             }
             Optional<Brew> brewOptional = BrewAdapter.fromItem(itemStack);
             final int iFinal = i;
-            brewOptional
-                    .map(brew -> {
-                        long gameTime = getWorld().getGameTime();
-                        if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
-                            return brew.withStep(new BrewingStep.Age(new Interval(gameTime, gameTime), type));
-                        }
-                        return brew.witModifiedLastStep(brewStep -> {
-                            BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewStep);
-                            Moment moment = ageBrewStep.age();
-                            Interval interval = moment instanceof Interval interval1 ? interval1.withStop(gameTime) : new Interval(gameTime - moment.moment(), gameTime);
-                            return ageBrewStep.withAge(interval);
-                        });
-                    })
-                    .ifPresent(brew -> {
-                        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-                        BrewAdapter.applyMeta(potionMeta, brew);
-                        itemStack.setItemMeta(potionMeta);
-                        if (Objects.equals(brew, brews[iFinal])) {
-                            brews[iFinal] = brew;
-                            return;
-                        }
-                        Database database = TheBrewingProject.getInstance().getDatabase();
-                        BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
-                        try {
-                            if (brews[iFinal] == null) {
-                                database.insertValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
-                            } else {
-                                database.updateValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        brews[iFinal] = brew;
+            brewOptional.ifPresent(brew -> {
+                long gameTime = getWorld().getGameTime();
+                if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
+                    brew = brew.withStep(new BrewingStep.Age(new Interval(gameTime, gameTime), type));
+                }
+                PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+                if (Objects.equals(brew, brews[iFinal])) {
+                    brews[iFinal] = brew.witModifiedLastStep(brewStep -> {
+                        BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewStep);
+                        Moment moment = ageBrewStep.age();
+                        Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(gameTime) : new Interval(gameTime - moment.moment(), gameTime);
+                        return ageBrewStep.withAge(interval);
                     });
+                    BrewAdapter.applyMeta(potionMeta, brews[iFinal]);
+                    itemStack.setItemMeta(potionMeta);
+                    return;
+                }
+                brew = brew.witModifiedLastStep(
+                        brewingStep -> {
+                            BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewingStep);
+                            return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(gameTime));
+                        }
+                );
+                BrewAdapter.applyMeta(potionMeta, brew);
+                itemStack.setItemMeta(potionMeta);
+                Database database = TheBrewingProject.getInstance().getDatabase();
+                BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
+                try {
+                    if (brews[iFinal] == null) {
+                        database.insertValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
+                    } else {
+                        database.updateValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                brews[iFinal] = brew;
+            });
         }
     }
 

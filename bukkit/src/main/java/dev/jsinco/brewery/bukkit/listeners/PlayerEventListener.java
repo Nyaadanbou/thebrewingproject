@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
@@ -18,6 +19,7 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -38,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -128,6 +131,12 @@ public class PlayerEventListener implements Listener {
         if (itemStack.getType() == Material.GLASS_BOTTLE) {
             cauldronOptional
                     .map(BukkitCauldron::getBrew)
+                    .map(brew -> brew.withLastStep(
+                                    BrewingStep.Cook.class,
+                                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(block.getWorld().getGameTime())),
+                                    () -> new BrewingStep.Cook(new PassedMoment(0), Map.of(), cauldronOptional.get().getCauldronType())
+                            )
+                    )
                     .map(BrewAdapter::toItem)
                     .ifPresent(brewItemStack -> {
                         decreaseItem(itemStack, event.getPlayer());

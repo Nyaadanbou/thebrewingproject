@@ -22,6 +22,10 @@ public sealed interface Moment permits Interval, PassedMoment {
         return (int) (moment() / AGING_YEAR);
     }
 
+    Interval withLastStep(long lastStep);
+
+    Interval withMovedEnding(long newStart);
+
     class Serializer {
 
         public JsonElement serialize(Moment moment) {
