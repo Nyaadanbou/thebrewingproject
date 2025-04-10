@@ -53,28 +53,29 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         this.distillate = new DistilleryInventory("Distillery Distillate", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), this);
     }
 
-    public void open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
+    public boolean open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
         checkDirty();
         Player player = Bukkit.getPlayer(playerUuid);
         if (mixtureContainerLocations.contains(location)) {
             if (!player.hasPermission("brewery.distillery.access")) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_ACCESS_DENIED));
-                return;
+                return true;
             }
             mixture.updateInventoryFromBrews();
             TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
             player.openInventory(mixture.getInventory());
-            return;
+            return true;
         }
         if (distillateContainerLocations.contains(location)) {
             if (!player.hasPermission("brewery.distillery.access")) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_ACCESS_DENIED));
-                return;
+                return true;
             }
             distillate.updateInventoryFromBrews();
             TheBrewingProject.getInstance().getBreweryRegistry().registerOpened(this);
             player.openInventory(distillate.getInventory());
         }
+        return false;
     }
 
     @Override

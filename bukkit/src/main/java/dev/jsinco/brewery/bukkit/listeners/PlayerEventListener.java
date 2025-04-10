@@ -63,7 +63,7 @@ public class PlayerEventListener implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPLayerInteract(PlayerInteractEvent playerInteractEvent) {
         if (playerInteractEvent.getAction() != Action.RIGHT_CLICK_BLOCK || playerInteractEvent.getPlayer().isSneaking()) {
             return;
@@ -73,8 +73,10 @@ public class PlayerEventListener implements Listener {
             return;
         }
         if (possibleStructureHolder.get() instanceof InventoryAccessible inventoryAccessible) {
-            inventoryAccessible.open(BukkitAdapter.toBreweryLocation(playerInteractEvent.getClickedBlock()), playerInteractEvent.getPlayer().getUniqueId());
-            breweryRegistry.registerOpened(inventoryAccessible);
+            if (inventoryAccessible.open(BukkitAdapter.toBreweryLocation(playerInteractEvent.getClickedBlock()), playerInteractEvent.getPlayer().getUniqueId())) {
+                playerInteractEvent.setUseItemInHand(Event.Result.DENY);
+                breweryRegistry.registerOpened(inventoryAccessible);
+            }
         }
     }
 

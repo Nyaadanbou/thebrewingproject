@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface InventoryAccessible<IS, I> {
 
-    void open(@NotNull BreweryLocation breweryLocation, @NotNull UUID playerUuid);
+    boolean open(@NotNull BreweryLocation breweryLocation, @NotNull UUID playerUuid);
 
     boolean inventoryAllows(@NotNull UUID playerUuid, @NotNull IS item);
 
