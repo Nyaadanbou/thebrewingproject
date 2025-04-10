@@ -16,7 +16,7 @@ public class BrewScore {
 
     private final List<Double> scores;
     private final boolean completed;
-    private final int brewDifficulty;
+    private final double brewDifficulty;
 
     public @Nullable BrewQuality brewQuality() {
         return quality(score());
@@ -32,7 +32,7 @@ public class BrewScore {
     public BrewScore(List<Double> scores, boolean completed, int brewDifficulty) {
         this.scores = scores;
         this.completed = completed;
-        this.brewDifficulty = brewDifficulty;
+        this.brewDifficulty = (double) brewDifficulty / 2;
     }
 
     public double getPartialScore(int stepIndex) {
@@ -45,7 +45,7 @@ public class BrewScore {
 
     private double applyDifficulty(double score) {
         // Avoid extreme point, log(0) is minus infinity
-        if (brewDifficulty == 0) {
+        if (brewDifficulty <= 0) {
             return 1D;
         }
         double scoreWithDifficulty;
@@ -53,8 +53,7 @@ public class BrewScore {
         if (brewDifficulty == 1) {
             scoreWithDifficulty = score;
         } else {
-            double logBrewDifficulty = Math.log(brewDifficulty);
-            scoreWithDifficulty = (Math.exp(score * logBrewDifficulty) / Math.exp(logBrewDifficulty) - 1D / brewDifficulty) / (1 - 1D / brewDifficulty);
+            scoreWithDifficulty = (Math.exp(score * Math.log(brewDifficulty)) - 1) / (brewDifficulty - 1);
         }
         return Math.max(scoreWithDifficulty - 0.3, 0.0) * 1 / 0.7;
     }

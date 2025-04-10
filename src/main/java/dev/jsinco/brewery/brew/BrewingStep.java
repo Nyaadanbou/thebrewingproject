@@ -28,8 +28,8 @@ public sealed interface BrewingStep {
     StepType stepType();
 
     private static double nearbyValueScore(long expected, long value) {
-        double sigmoid = 1D / (1D + Math.exp((double) (expected - value) / expected * 2));
-        return sigmoid * (1D - sigmoid) * 4D;
+        double maxValue = Math.max(expected, value);
+        return 1 - Math.abs(expected - value) / maxValue;
     }
 
     private static double getIngredientsScore(Map<Ingredient<?>, Integer> target, Map<Ingredient<?>, Integer> actual) {
