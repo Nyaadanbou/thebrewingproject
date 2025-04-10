@@ -129,7 +129,7 @@ public class DrunksManager {
         }
         int cumulativeSum = RandomUtil.cumulativeSum(drunkEvents);
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
-        double value = (double) 10000 / cumulativeSum;
+        double value = (double) 10000 * (125 - drunkState.alcohol()) / cumulativeSum / 25;
         long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(value, value / 2)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
