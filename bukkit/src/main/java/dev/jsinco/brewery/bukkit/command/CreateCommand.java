@@ -32,11 +32,11 @@ public class CreateCommand {
             return true;
         }
         if (args.length == 1) {
-            Optional<Recipe<ItemStack, PotionMeta>> recipeOptional = TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(args[0]);
+            Optional<Recipe<ItemStack>> recipeOptional = TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(args[0]);
             if (recipeOptional.isEmpty()) {
                 return false;
             }
-            Recipe<ItemStack, PotionMeta> recipe = recipeOptional.get();
+            Recipe<ItemStack> recipe = recipeOptional.get();
             ItemStack brewItem = BrewAdapter.toItem(new Brew(recipe.getSteps()));
             player.getWorld().dropItem(player.getLocation(), brewItem);
             return true;

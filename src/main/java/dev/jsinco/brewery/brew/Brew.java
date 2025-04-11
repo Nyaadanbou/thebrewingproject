@@ -59,10 +59,10 @@ public class Brew {
         return withStep(stepSupplier.get());
     }
 
-    public <I, M> Optional<Recipe<I, M>> closestRecipe(RecipeRegistry<I, M> registry) {
+    public <I> Optional<Recipe<I>> closestRecipe(RecipeRegistry<I> registry) {
         double bestScore = 0;
-        Recipe<I, M> bestMatch = null;
-        for (Recipe<I, M> recipe : registry.getRecipes()) {
+        Recipe<I> bestMatch = null;
+        for (Recipe<I> recipe : registry.getRecipes()) {
             double score = score(recipe).rawScore();
             if (score > bestScore) {
                 bestScore = score;
@@ -72,7 +72,7 @@ public class Brew {
         return Optional.ofNullable(bestMatch);
     }
 
-    public @NotNull BrewScore score(Recipe<?, ?> recipe) {
+    public @NotNull BrewScore score(Recipe<?> recipe) {
         List<BrewingStep> recipeSteps = recipe.getSteps();
         List<Double> scores = new ArrayList<>();
         if (steps.size() > recipeSteps.size()) {
@@ -92,7 +92,7 @@ public class Brew {
         return brewScore;
     }
 
-    public Optional<BrewQuality> quality(Recipe<?, ?> recipe) {
+    public Optional<BrewQuality> quality(Recipe<?> recipe) {
         return Optional.ofNullable(score(recipe).brewQuality());
     }
 

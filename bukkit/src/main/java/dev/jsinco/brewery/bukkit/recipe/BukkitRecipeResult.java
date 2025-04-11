@@ -2,12 +2,15 @@ package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
+import io.th0rgal.oraxen.OraxenPlugin;
+import io.th0rgal.oraxen.api.OraxenItems;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,17 +21,20 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
+public class BukkitRecipeResult implements RecipeResult<ItemStack> {
 
     public static final BukkitRecipeResult GENERIC = new Builder()
             .names(QualityData.equalValue("Unknown brew"))
@@ -37,6 +43,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
             .build();
     private final boolean glint;
     private final int customModelData;
+    private final @Nullable NamespacedKey customId;
 
     @Getter
     private final QualityData<String> names;
@@ -49,7 +56,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
     private final Color color;
     private final boolean appendBrewInfoLore;
 
-    private BukkitRecipeResult(boolean glint, int customModelData, QualityData<RecipeEffects> recipeEffects, QualityData<String> names, QualityData<List<String>> lore, Color color, boolean appendBrewInfoLore) {
+    private BukkitRecipeResult(boolean glint, int customModelData, QualityData<RecipeEffects> recipeEffects, QualityData<String> names, QualityData<List<String>> lore, Color color, boolean appendBrewInfoLore, @Nullable NamespacedKey customId) {
         this.glint = glint;
         this.customModelData = customModelData;
         this.recipeEffects = recipeEffects;
@@ -57,6 +64,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         this.lore = lore;
         this.color = color;
         this.appendBrewInfoLore = appendBrewInfoLore;
+        this.customId = customId;
     }
 
     public ItemStack newBrewItem(@NotNull BrewScore score, Brew brew) {
@@ -68,6 +76,11 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
     }
 
     public void applyMeta(BrewScore score, PotionMeta meta, Brew brew) {
+        if (customId != null) {
+            if(customId.getNamespace().equals("oraxen")) {
+                ItemStack itemStack = OraxenWrapper.build(customId.getKey());
+            }
+        }
         BrewQuality quality = score.brewQuality();
         Preconditions.checkNotNull(quality);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
@@ -128,6 +141,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
         private QualityData<RecipeEffects> recipeEffects;
         private Color color = Color.BLUE;
         private boolean appendBrewInfoLore = true;
+        private NamespacedKey customId;
 
         public Builder glint(boolean glint) {
             this.glint = glint;
@@ -164,11 +178,27 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack, PotionMeta> {
             return this;
         }
 
+        public Builder customId(@Nullable String customId) {
+            if (customId == null) {
+                this.customId = null;
+                return this;
+            }
+            NamespacedKey namespacedKey = NamespacedKey.fromString(customId.toLowerCase(Locale.ROOT));
+            if (namespacedKey == null) {
+                throw new IllegalArgumentException("Invalid namespace!");
+            }
+            if (namespacedKey.getNamespace().equals("oraxen") && OraxenWrapper.isOraxen(namespacedKey.getKey())) {
+                this.customId = namespacedKey;
+                return this;
+            }
+            throw new IllegalArgumentException("Unknown custom namespace!");
+        }
+
         public BukkitRecipeResult build() {
             Objects.requireNonNull(names, "Names not initialized, a recipe has to have names");
             Objects.requireNonNull(lore, "Lore not initialized, a recipe has to have lore");
             Objects.requireNonNull(recipeEffects, "Effects not initialized, a recipe has to have effects");
-            return new BukkitRecipeResult(glint, customModelData, recipeEffects, names, lore, color, appendBrewInfoLore);
+            return new BukkitRecipeResult(glint, customModelData, recipeEffects, names, lore, color, appendBrewInfoLore, customId);
         }
 
         public Builder name(String name) {

@@ -93,7 +93,7 @@ public class MessageUtil {
         return quality != null ? new StyleBuilderApplicable[]{TextColor.color(quality.getColor())} : new StyleBuilderApplicable[]{NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH};
     }
 
-    public static TagResolver recipeTagResolver(Recipe<ItemStack, PotionMeta> recipe) {
+    public static TagResolver recipeTagResolver(Recipe<ItemStack> recipe) {
         return TagResolver.resolver(
                 Placeholder.parsed("recipe_name", recipe.getRecipeName()),
                 Formatter.number("recipe_difficulty", recipe.getBrewDifficulty())

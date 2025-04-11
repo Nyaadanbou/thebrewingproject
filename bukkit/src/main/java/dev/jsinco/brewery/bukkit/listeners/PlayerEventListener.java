@@ -51,9 +51,9 @@ public class PlayerEventListener implements Listener {
     private final Database database;
     private final DrunksManager drunksManager;
     private final DrunkTextRegistry drunkTextRegistry;
-    private final RecipeRegistry<ItemStack, PotionMeta> recipeRegistry;
+    private final RecipeRegistry<ItemStack> recipeRegistry;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack, PotionMeta> recipeRegistry) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack> recipeRegistry) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;

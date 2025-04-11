@@ -42,37 +42,29 @@ public class BrewAdapter {
     private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
 
     public static ItemStack toItem(Brew brew) {
-        ItemStack itemStack = new ItemStack(Material.POTION);
-        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-        applyMeta(potionMeta, brew);
-        itemStack.setItemMeta(potionMeta);
+        RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
+        Optional<Recipe<ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
+        Optional<BrewScore> score = recipe.map(brew::score);
+        Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
+            ItemStack itemStack;
+        if (quality.isEmpty()) {
+            RecipeResult<ItemStack> randomDefault = recipeRegistry.getRandomDefaultRecipe();
+            //TODO Refactor this weird implementation for default recipes
+            itemStack = randomDefault.newBrewItem(BrewScore.EXCELLENT, brew);
+        } else if (!score.map(BrewScore::completed).get()) {
+            itemStack = incompletePotion(brew);
+        } else {
+            itemStack = recipe.get().getRecipeResult().newBrewItem(score.get(), brew);
+        }
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        fillPersistentData(itemMeta, brew);
+        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 
-    public static void applyMeta(PotionMeta meta, Brew brew) {
-        RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
-        Optional<Recipe<ItemStack, PotionMeta>> recipe = brew.closestRecipe(recipeRegistry);
-        Optional<BrewScore> score = recipe.map(brew::score);
-        Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
-
-        if (quality.isEmpty()) {
-            RecipeResult<ItemStack, PotionMeta> randomDefault = recipeRegistry.getRandomDefaultRecipe();
-            boolean hasPreviousData = fillPersistentData(meta, brew);
-            if (hasPreviousData) {
-                return;
-            }
-            //TODO Refactor this weird implementation for default recipes
-            randomDefault.applyMeta(BrewScore.EXCELLENT, meta, brew);
-        } else if (!score.map(BrewScore::completed).get()) {
-            fillPersistentData(meta, brew);
-            incompletePotion(meta, brew, recipe.get());
-        } else {
-            fillPersistentData(meta, brew);
-            recipe.get().getRecipeResult().applyMeta(score.get(), meta, brew);
-        }
-    }
-
-    private static void incompletePotion(PotionMeta meta, Brew brew, Recipe<ItemStack, PotionMeta> recipe) {
+    private static ItemStack incompletePotion(Brew brew) {
+        ItemStack itemStack = new ItemStack(Material.POTION);
+        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
         Map<Ingredient<ItemStack>, Integer> ingredients = new HashMap<>();
         for (BrewingStep brewingStep : brew.getSteps()) {
             if (brewingStep instanceof BrewingStep.Cook cook) {
@@ -113,16 +105,18 @@ public class BrewAdapter {
             case MIX ->
                     topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED.replace("<ingredient>", topIngredient.displayName());
         };
-        meta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
+        potionMeta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
         if (amount != 0) {
-            meta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
+            potionMeta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
         } else {
-            meta.setColor(org.bukkit.Color.YELLOW);
+            potionMeta.setColor(org.bukkit.Color.YELLOW);
         }
+        itemStack.setItemMeta(potionMeta);
+        return itemStack;
     }
 
-    private static boolean fillPersistentData(PotionMeta potionMeta, Brew brew) {
-        PersistentDataContainer data = potionMeta.getPersistentDataContainer();
+    private static boolean fillPersistentData(ItemMeta itemMeta, Brew brew) {
+        PersistentDataContainer data = itemMeta.getPersistentDataContainer();
         Integer dataVersion = data.get(BREWERY_DATA_VERSION, PersistentDataType.INTEGER);
         boolean previouslyStored = dataVersion != null;
         data.set(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST, brew.getSteps());
@@ -148,9 +142,9 @@ public class BrewAdapter {
         if (meta == null) {
             return;
         }
-        RecipeRegistry<ItemStack, PotionMeta> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
+        RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
         Optional<Brew> brewOptional = fromItem(itemStack);
-        Optional<Recipe<ItemStack, PotionMeta>> closestRecipe = brewOptional.flatMap(brew -> brew.closestRecipe(recipeRegistry));
+        Optional<Recipe<ItemStack>> closestRecipe = brewOptional.flatMap(brew -> brew.closestRecipe(recipeRegistry));
         Optional<BrewScore> score = closestRecipe.map(recipe -> brewOptional.get().score(recipe));
         score.filter(BrewScore::completed)
                 .filter(brewScore -> brewScore.brewQuality() != null)
@@ -160,7 +154,7 @@ public class BrewAdapter {
                 );
     }
 
-    private static void setSealedLore(Component volume, Recipe<ItemStack, PotionMeta> closestRecipe, BrewScore score, TagResolver tagResolver, ItemStack itemStack) {
+    private static void setSealedLore(Component volume, Recipe<ItemStack> closestRecipe, BrewScore score, TagResolver tagResolver, ItemStack itemStack) {
         MiniMessage miniMessage = MiniMessage.miniMessage();
         Stream<Component> extraLore = Stream.concat(
                 volume == null ? Stream.of(Component.empty()) :

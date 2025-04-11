@@ -22,7 +22,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("org.jetbrains:annotations:24.0.0")
-    compileOnly("io.th0rgal:oraxen:1.163.0")
+    compileOnly("io.th0rgal:oraxen:1.189.0")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")

@@ -1,9 +1,9 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
+import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.Pair;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,26 +14,15 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
     public static final BukkitIngredientManager INSTANCE = new BukkitIngredientManager();
 
     public Ingredient<ItemStack> getIngredient(@NotNull ItemStack itemStack) {
-        Ingredient<ItemStack> ingredient = PluginIngredient.of(itemStack);
-        if (ingredient == null) {
-            ingredient = SimpleIngredient.of(itemStack);
-        }
-        return ingredient;
+        return OraxenPluginIngredient.from(itemStack)
+                .orElse(SimpleIngredient.of(itemStack));
     }
 
 
     public Optional<Ingredient<ItemStack>> getIngredient(@NotNull String ingredientStr) {
-        NamespacedKey namespacedKey = NamespacedKey.fromString(ingredientStr.toLowerCase(Locale.ROOT));
-        if (namespacedKey != null && !NamespacedKey.MINECRAFT.equals(namespacedKey.getNamespace()) && !NamespacedKey.BUKKIT.equals(namespacedKey.getNamespace())) {
-            String[] p2 = ingredientStr.split(":");
-            String type = p2[0];
-            String itemId = p2[1];
-            return PluginIngredient.of(type, itemId)
-                    .map(Ingredient.class::cast);
-        } else {
-            return SimpleIngredient.of(ingredientStr)
-                    .map(Ingredient.class::cast);
-        }
+        String id = ingredientStr.toLowerCase(Locale.ROOT);
+        return OraxenPluginIngredient.from(id)
+                .or(() -> SimpleIngredient.of(id));
     }
 
     /**

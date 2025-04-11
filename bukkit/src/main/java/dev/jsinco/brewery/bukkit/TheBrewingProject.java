@@ -11,8 +11,6 @@ import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.effect.event.CustomDrunkEventReader;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
-import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.bukkit.listeners.BlockEventListener;
 import dev.jsinco.brewery.bukkit.listeners.InventoryEventListener;
 import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
@@ -58,7 +56,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private PlacedStructureRegistry placedStructureRegistry;
     @Getter
-    private RecipeRegistry<ItemStack, PotionMeta> recipeRegistry;
+    private RecipeRegistry<ItemStack> recipeRegistry;
     @Getter
     private BreweryRegistry breweryRegistry;
     @Getter
@@ -105,7 +103,7 @@ public class TheBrewingProject extends JavaPlugin {
         }
         this.drunksManager.reset(200, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
         worldEventListener.init();
-        RecipeReader<ItemStack, PotionMeta> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
+        RecipeReader<ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
@@ -162,7 +160,7 @@ public class TheBrewingProject extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(worldEventListener, this);
         Bukkit.getScheduler().runTaskTimer(this, this::updateStructures, 0, 1);
         Bukkit.getScheduler().runTaskTimer(this, this::otherTicking, 0, 1);
-        RecipeReader<ItemStack, PotionMeta> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
+        RecipeReader<ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
         this.recipeRegistry.registerRecipes(recipeReader.readRecipes());
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
@@ -195,9 +193,5 @@ public class TheBrewingProject extends JavaPlugin {
 
     private void otherTicking() {
         drunksManager.tick(DrunkEventExecutor::doDrunkEvent);
-    }
-
-    public void registerPluginIngredients() {
-        PluginIngredient.registerPluginIngredient("Oraxen", OraxenPluginIngredient::new);
     }
 }

@@ -17,7 +17,7 @@ import org.simpleyaml.configuration.ConfigurationSection;
 import java.util.List;
 import java.util.Locale;
 
-public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, PotionMeta> {
+public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack> {
     @Override
     public BukkitRecipeResult readRecipeResult(ConfigurationSection configurationSection) {
         return new BukkitRecipeResult.Builder()
@@ -28,6 +28,7 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack, P
                 .names(QualityData.readQualityFactoredString(configurationSection.getString("potion-attributes.name")))
                 .color(ColorUtil.parseColorString(configurationSection.getString("potion-attributes.color")))
                 .appendBrewInfoLore(configurationSection.getBoolean("potion-attributes.append-brew-info-lore", true))
+                .customId(configurationSection.getString("potion-attributes.custom-id", null))
                 .build();
     }
 

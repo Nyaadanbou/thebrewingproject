@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockBukkitExtension.class)
 class BrewTest {
-    RecipeRegistry<ItemStack, PotionMeta> registry;
+    RecipeRegistry<ItemStack> registry;
 
     @BeforeEach
     void setUp() {
@@ -62,7 +62,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe2").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -88,7 +88,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe3").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -114,7 +114,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe4").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -140,7 +140,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe5").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -166,7 +166,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe6").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -192,7 +192,7 @@ class BrewTest {
                         )
                 )
         );
-        Recipe<ItemStack, PotionMeta> closest = brew.closestRecipe(registry).get();
+        Recipe<ItemStack> closest = brew.closestRecipe(registry).get();
         assertEquals(registry.getRecipe("recipe7").get(), closest);
         assertTrue(brew.score(closest).completed());
         assertEquals(BrewQuality.EXCELLENT, brew.quality(closest).get());
@@ -201,7 +201,7 @@ class BrewTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
     void quality_differingDifficulties(int difficulty) {
-        Recipe<ItemStack, PotionMeta> recipe = new Recipe.Builder<ItemStack, PotionMeta>("test")
+        Recipe<ItemStack> recipe = new Recipe.Builder<ItemStack>("test")
                 .brewDifficulty(difficulty)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -237,7 +237,7 @@ class BrewTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
     void quality_increasingIngredient(int difficulty) {
-        Recipe<ItemStack, PotionMeta> recipe = new Recipe.Builder<ItemStack, PotionMeta>("test")
+        Recipe<ItemStack> recipe = new Recipe.Builder<ItemStack>("test")
                 .brewDifficulty(difficulty)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -280,7 +280,7 @@ class BrewTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
     void quality_decreasingIngredient(int difficulty) {
-        Recipe<ItemStack, PotionMeta> recipe = new Recipe.Builder<ItemStack, PotionMeta>("test")
+        Recipe<ItemStack> recipe = new Recipe.Builder<ItemStack>("test")
                 .brewDifficulty(difficulty)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -321,7 +321,7 @@ class BrewTest {
     }
 
     void setupRecipes() {
-        Recipe<ItemStack, PotionMeta> recipe1 = new Recipe.Builder<ItemStack, PotionMeta>("recipe1")
+        Recipe<ItemStack> recipe1 = new Recipe.Builder<ItemStack>("recipe1")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -342,7 +342,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe2 = new Recipe.Builder<ItemStack, PotionMeta>("recipe2")
+        Recipe<ItemStack> recipe2 = new Recipe.Builder<ItemStack>("recipe2")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -363,7 +363,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe3 = new Recipe.Builder<ItemStack, PotionMeta>("recipe3")
+        Recipe<ItemStack> recipe3 = new Recipe.Builder<ItemStack>("recipe3")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -384,7 +384,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe4 = new Recipe.Builder<ItemStack, PotionMeta>("recipe4")
+        Recipe<ItemStack> recipe4 = new Recipe.Builder<ItemStack>("recipe4")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -405,7 +405,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe5 = new Recipe.Builder<ItemStack, PotionMeta>("recipe5")
+        Recipe<ItemStack> recipe5 = new Recipe.Builder<ItemStack>("recipe5")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -426,7 +426,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe6 = new Recipe.Builder<ItemStack, PotionMeta>("recipe6")
+        Recipe<ItemStack> recipe6 = new Recipe.Builder<ItemStack>("recipe6")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -447,7 +447,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Recipe<ItemStack, PotionMeta> recipe7 = new Recipe.Builder<ItemStack, PotionMeta>("recipe7")
+        Recipe<ItemStack> recipe7 = new Recipe.Builder<ItemStack>("recipe7")
                 .brewDifficulty(10)
                 .recipeResult(BukkitRecipeResult.GENERIC)
                 .steps(
@@ -468,7 +468,7 @@ class BrewTest {
                         )
                 )
                 .build();
-        Map<String, Recipe<ItemStack, PotionMeta>> recipeMap = new HashMap<>();
+        Map<String, Recipe<ItemStack>> recipeMap = new HashMap<>();
         Stream.of(recipe1, recipe2, recipe3, recipe4, recipe5, recipe6, recipe7)
                 .forEach(recipe -> recipeMap.put(recipe.getRecipeName(), recipe));
         registry.registerRecipes(recipeMap);

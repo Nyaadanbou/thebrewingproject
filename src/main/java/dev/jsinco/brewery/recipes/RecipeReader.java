@@ -17,19 +17,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class RecipeReader<I, M> {
+public class RecipeReader<I> {
 
     private final File folder;
-    private final RecipeResultReader<I, M> recipeResultReader;
+    private final RecipeResultReader<I> recipeResultReader;
     private final IngredientManager<I> ingredientManager;
 
-    public RecipeReader(File folder, RecipeResultReader<I, M> recipeResultReader, IngredientManager<I> ingredientManager) {
+    public RecipeReader(File folder, RecipeResultReader<I> recipeResultReader, IngredientManager<I> ingredientManager) {
         this.folder = folder;
         this.recipeResultReader = recipeResultReader;
         this.ingredientManager = ingredientManager;
     }
 
-    public Map<String, Recipe<I, M>> readRecipes() {
+    public Map<String, Recipe<I>> readRecipes() {
         Path mainDir = folder.toPath();
         YamlFile recipesFile = new YamlFile(mainDir.resolve("recipes.yml").toFile());
 
@@ -40,7 +40,7 @@ public class RecipeReader<I, M> {
         }
 
         ConfigurationSection recipesSection = recipesFile.getConfigurationSection("recipes");
-        ImmutableMap.Builder<String, Recipe<I, M>> recipes = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<String, Recipe<I>> recipes = new ImmutableMap.Builder<>();
         for (String recipeName : recipesSection.getKeys(false)) {
             recipes.put(recipeName, getRecipe(recipesSection.getConfigurationSection(recipeName), recipeName));
         }
@@ -53,8 +53,8 @@ public class RecipeReader<I, M> {
      * @param recipeName The name/id of the recipe to obtain. Ex: 'example_recipe'
      * @return A Recipe object with all the attributes of the recipe.
      */
-    private Recipe<I, M> getRecipe(ConfigurationSection recipe, String recipeName) {
-        return new Recipe.Builder<I, M>(recipeName)
+    private Recipe<I> getRecipe(ConfigurationSection recipe, String recipeName) {
+        return new Recipe.Builder<I>(recipeName)
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
                 .recipeResult(recipeResultReader.readRecipeResult(recipe))
                 .steps(parseSteps(recipe.getMapList("steps")))

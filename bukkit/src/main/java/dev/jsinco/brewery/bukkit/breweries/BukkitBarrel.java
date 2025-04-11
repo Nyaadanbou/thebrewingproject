@@ -144,7 +144,6 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                 if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
                     brew = brew.withStep(new BrewingStep.Age(new Interval(gameTime, gameTime), type));
                 }
-                PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                 if (Objects.equals(brew, brews[iFinal])) {
                     brews[iFinal] = brew.witModifiedLastStep(brewStep -> {
                         BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewStep);
@@ -152,8 +151,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                         Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(gameTime) : new Interval(gameTime - moment.moment(), gameTime);
                         return ageBrewStep.withAge(interval);
                     });
-                    BrewAdapter.applyMeta(potionMeta, brews[iFinal]);
-                    itemStack.setItemMeta(potionMeta);
+                    inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal]));
                     return;
                 }
                 brew = brew.witModifiedLastStep(
@@ -162,8 +160,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                             return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(gameTime));
                         }
                 );
-                BrewAdapter.applyMeta(potionMeta, brew);
-                itemStack.setItemMeta(potionMeta);
+                inventory.setItem(iFinal, BrewAdapter.toItem(brew));
                 Database database = TheBrewingProject.getInstance().getDatabase();
                 BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
                 try {

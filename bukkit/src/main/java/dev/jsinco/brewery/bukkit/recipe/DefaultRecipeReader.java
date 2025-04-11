@@ -16,7 +16,7 @@ import java.util.Map;
 public class DefaultRecipeReader {
 
 
-    public static Map<String, RecipeResult<ItemStack, PotionMeta>> readDefaultRecipes(File folder) {
+    public static Map<String, RecipeResult<ItemStack>> readDefaultRecipes(File folder) {
         Path mainDir = folder.toPath();
         YamlFile recipesFile = new YamlFile(mainDir.resolve("recipes.yml").toFile());
 
@@ -27,7 +27,7 @@ public class DefaultRecipeReader {
         }
 
         ConfigurationSection recipesSection = recipesFile.getConfigurationSection("default-recipes");
-        ImmutableMap.Builder<String, RecipeResult<ItemStack, PotionMeta>> recipes = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<String, RecipeResult<ItemStack>> recipes = new ImmutableMap.Builder<>();
         for (String recipeName : recipesSection.getKeys(false)) {
             recipes.put(recipeName, getDefaultRecipe(recipesSection.getConfigurationSection(recipeName)));
         }

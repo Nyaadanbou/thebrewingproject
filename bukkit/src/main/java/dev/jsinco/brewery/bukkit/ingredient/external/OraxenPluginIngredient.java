@@ -1,27 +1,51 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
-import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
-import io.th0rgal.oraxen.api.OraxenItems;
+import com.google.common.base.Preconditions;
+import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
+import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import io.th0rgal.oraxen.items.ItemBuilder;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 // PluginIngredient usage example using Oraxen
-public class OraxenPluginIngredient extends PluginIngredient {
+public class OraxenPluginIngredient implements Ingredient<ItemStack> {
+
+    private final String itemId;
+
+    private OraxenPluginIngredient(@NotNull String itemId) {
+        Preconditions.checkNotNull(itemId, "itemId cannot be null");
+        this.itemId = itemId;
+    }
+
     @Override
     public boolean matches(ItemStack itemStack) {
-        String itemId = this.getItemIdByItemStack(itemStack);
-        if (itemId == null) {
-            return false;
-        }
-        return itemId.equals(this.getItemId());
+        return this.itemId.equals(OraxenWrapper.oraxenId(itemStack));
+    }
+
+    @Override
+    public String getKey() {
+        return "oraxen:" + itemId;
     }
 
     @Override
     public String displayName() {
-        return OraxenItems.getItemById(this.getItemId()).getDisplayName();
+        ItemBuilder itemBuilder = OraxenWrapper.itemBuilder(itemId);
+        return itemBuilder == null ? null : itemBuilder.getDisplayName();
     }
 
-    @Override
-    public String getItemIdByItemStack(ItemStack itemStack) {
-        return OraxenItems.getIdByItem(itemStack);
+    public static Optional<Ingredient<ItemStack>> from(String oraxenId) {
+        NamespacedKey namespacedKey = NamespacedKey.fromString(oraxenId);
+        if (namespacedKey == null || !namespacedKey.getNamespace().equals("oraxen") || !OraxenWrapper.isOraxen(oraxenId)) {
+            return Optional.empty();
+        }
+        return Optional.of(new OraxenPluginIngredient(namespacedKey.getKey()));
+    }
+
+    public static Optional<Ingredient<ItemStack>> from(ItemStack itemStack) {
+        return Optional.ofNullable(OraxenWrapper.oraxenId(itemStack))
+                .map(OraxenPluginIngredient::new);
     }
 }
