@@ -26,15 +26,15 @@ public class OraxenWrapper {
         return ENABLED ? OraxenItems.getIdByItem(itemStack) : null;
     }
 
-    public static @Nullable ItemBuilder itemBuilder(String oraxenId) {
-        return ENABLED ? OraxenItems.getItemById(oraxenId) : null;
+    public static @Nullable String displayName(String oraxenId) {
+        return ENABLED && OraxenItems.exists(oraxenId) ? OraxenItems.getItemById(oraxenId).getDisplayName() : null;
     }
 
     public static @Nullable ItemStack build(String oraxenId) {
         if (!ENABLED) {
             return null;
         }
-        ItemBuilder itemBuilder = itemBuilder(oraxenId);
+        ItemBuilder itemBuilder = OraxenItems.getItemById(oraxenId);
         return itemBuilder == null ? null : itemBuilder.build();
     }
 

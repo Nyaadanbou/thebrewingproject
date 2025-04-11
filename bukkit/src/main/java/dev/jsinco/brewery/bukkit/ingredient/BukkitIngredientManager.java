@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
+import dev.jsinco.brewery.bukkit.ingredient.external.ItemsAdderPluginIngredient;
 import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
@@ -15,6 +16,7 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
 
     public Ingredient<ItemStack> getIngredient(@NotNull ItemStack itemStack) {
         return OraxenPluginIngredient.from(itemStack)
+                .or(() -> ItemsAdderPluginIngredient.from(itemStack))
                 .orElse(SimpleIngredient.of(itemStack));
     }
 
@@ -22,6 +24,7 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
     public Optional<Ingredient<ItemStack>> getIngredient(@NotNull String ingredientStr) {
         String id = ingredientStr.toLowerCase(Locale.ROOT);
         return OraxenPluginIngredient.from(id)
+                .or(() -> ItemsAdderPluginIngredient.from(id))
                 .or(() -> SimpleIngredient.of(id));
     }
 

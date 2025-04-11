@@ -3,7 +3,6 @@ package dev.jsinco.brewery.bukkit.ingredient.external;
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import io.th0rgal.oraxen.items.ItemBuilder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +31,7 @@ public class OraxenPluginIngredient implements Ingredient<ItemStack> {
 
     @Override
     public String displayName() {
-        ItemBuilder itemBuilder = OraxenWrapper.itemBuilder(itemId);
-        return itemBuilder == null ? null : itemBuilder.getDisplayName();
+        return OraxenWrapper.displayName(itemId);
     }
 
     public static Optional<Ingredient<ItemStack>> from(String oraxenId) {

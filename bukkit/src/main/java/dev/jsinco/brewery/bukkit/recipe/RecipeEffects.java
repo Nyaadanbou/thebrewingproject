@@ -82,9 +82,11 @@ public class RecipeEffects {
                 .toList();
     }
 
-    public void applyTo(PotionMeta meta, BrewScore score) {
-        for (RecipeEffect recipeEffect : effects) {
-            meta.addCustomEffect(recipeEffect.newPotionEffect(), true);
+    public void applyTo(ItemMeta meta, BrewScore score) {
+        if(meta instanceof PotionMeta potionMeta) {
+            for (RecipeEffect recipeEffect : effects) {
+                potionMeta.addCustomEffect(recipeEffect.newPotionEffect(), true);
+            }
         }
         PersistentDataContainer container = meta.getPersistentDataContainer();
         PDC_TYPES.forEach(container::remove);

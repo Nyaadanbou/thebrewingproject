@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.bukkit.integration.ItemsAdderWrapper;
 import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
@@ -9,8 +10,6 @@ import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
-import io.th0rgal.oraxen.OraxenPlugin;
-import io.th0rgal.oraxen.api.OraxenItems;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -25,6 +24,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,20 +68,26 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
     }
 
     public ItemStack newBrewItem(@NotNull BrewScore score, Brew brew) {
-        ItemStack item = new ItemStack(Material.POTION);
-        PotionMeta meta = (PotionMeta) item.getItemMeta();
-        applyMeta(score, meta, brew);
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    public void applyMeta(BrewScore score, PotionMeta meta, Brew brew) {
-        if (customId != null) {
-            if(customId.getNamespace().equals("oraxen")) {
-                ItemStack itemStack = OraxenWrapper.build(customId.getKey());
-            }
-        }
         BrewQuality quality = score.brewQuality();
+        if (customId != null) {
+            ItemStack itemStack;
+            if (customId.getNamespace().equals("oraxen")) {
+                itemStack = OraxenWrapper.build(customId.getKey());
+            } else if (customId.getNamespace().equals("itemsadder")) {
+                itemStack = ItemsAdderWrapper.build(customId.getKey());
+            } else {
+                throw new IllegalStateException("Namespace should be within the supported items plugins");
+            }
+            if (itemStack == null) {
+                throw new IllegalStateException("Unreachable code, this value should have been checked before");
+            }
+            ItemMeta meta = itemStack.getItemMeta();
+            recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
+            itemStack.setItemMeta(meta);
+            return itemStack;
+        }
+        ItemStack itemStack = new ItemStack(Material.POTION);
+        PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
         Preconditions.checkNotNull(quality);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.displayName(compileMessage(score, brew, names.get(quality), true).decoration(TextDecoration.ITALIC, false));
@@ -100,7 +106,8 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
-        recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 
     private Stream<? extends Component> compileExtraLore(BrewScore score, Brew brew) {
@@ -188,6 +195,10 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
                 throw new IllegalArgumentException("Invalid namespace!");
             }
             if (namespacedKey.getNamespace().equals("oraxen") && OraxenWrapper.isOraxen(namespacedKey.getKey())) {
+                this.customId = namespacedKey;
+                return this;
+            }
+            if (namespacedKey.getNamespace().equals("itemsadder") && ItemsAdderWrapper.isItemsAdder(namespacedKey.getKey())) {
                 this.customId = namespacedKey;
                 return this;
             }
