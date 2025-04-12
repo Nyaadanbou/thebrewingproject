@@ -50,10 +50,6 @@ recipes:
         cook-time: 16
         ingredients:
           - Apple/12
-          - Diamond/300
-          - Barrel/20
-          - bedrock/2
-          - egg/3
         type: cook
       - runs: 3
         type: distill
