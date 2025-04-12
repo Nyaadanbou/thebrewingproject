@@ -55,6 +55,7 @@ command.status.consume.message: <gray><player_name> consumed <alcohol> alcohol w
 command.status.clear.message: <gray>Cleared all drunk effects on <player_name>
 command.status.set.message: <gray>Set the drunk effect of <player_name> to <alcohol> alcohol and <toxins> toxins
 command.not-enough-permissions: <red>Not enough permissions
+command.illegal-argument: <red>Illegal argument
 command.info.message: |-
   <gray>----<quality_color><quality></quality_color>----
   <brewing_step_info>
