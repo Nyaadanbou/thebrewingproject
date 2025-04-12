@@ -17,6 +17,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.oraxen.com/releases")
     maven("https://maven.devs.beer/")
+    maven("https://repo.nexomc.com/releases")
 }
 
 dependencies {
@@ -25,6 +26,7 @@ dependencies {
     compileOnly("org.jetbrains:annotations:24.0.0")
     compileOnly("io.th0rgal:oraxen:1.189.0")
     compileOnly("dev.lone:api-itemsadder:4.0.10")
+    compileOnly("com.nexomc:nexo:1.1.0")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
@@ -113,4 +115,5 @@ bukkit {
             children = listOf("brewery.command", "brewery.structure.create")
         }
     }
+    softDepend = listOf("oraxen", "itemsadder", "nexo")
 }

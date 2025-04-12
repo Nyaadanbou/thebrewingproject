@@ -18,7 +18,7 @@ public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
 
     @Override
     public boolean matches(ItemStack itemStack) {
-        return ItemsAdderWrapper.itemsAdderId(itemStack) != null;
+        return itemId.equals(ItemsAdderWrapper.itemsAdderId(itemStack));
     }
 
     @Override
@@ -31,9 +31,9 @@ public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
         return ItemsAdderWrapper.displayName(itemId);
     }
 
-    public static Optional<Ingredient<ItemStack>> from(String oraxenId) {
-        NamespacedKey namespacedKey = NamespacedKey.fromString(oraxenId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder") || !OraxenWrapper.isOraxen(oraxenId)) {
+    public static Optional<Ingredient<ItemStack>> from(String itemsAdderId) {
+        NamespacedKey namespacedKey = NamespacedKey.fromString(itemsAdderId);
+        if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder") || !OraxenWrapper.isOraxen(namespacedKey.getKey())) {
             return Optional.empty();
         }
         return Optional.of(new ItemsAdderPluginIngredient(namespacedKey.getKey()));

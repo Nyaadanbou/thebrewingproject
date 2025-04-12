@@ -36,7 +36,7 @@ public class OraxenPluginIngredient implements Ingredient<ItemStack> {
 
     public static Optional<Ingredient<ItemStack>> from(String oraxenId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(oraxenId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("oraxen") || !OraxenWrapper.isOraxen(oraxenId)) {
+        if (namespacedKey == null || !namespacedKey.getNamespace().equals("oraxen") || !OraxenWrapper.isOraxen(namespacedKey.getKey())) {
             return Optional.empty();
         }
         return Optional.of(new OraxenPluginIngredient(namespacedKey.getKey()));

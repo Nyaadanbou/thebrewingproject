@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.recipe;
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.integration.ItemsAdderWrapper;
+import dev.jsinco.brewery.bukkit.integration.NexoWrapper;
 import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
@@ -70,14 +71,12 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
     public ItemStack newBrewItem(@NotNull BrewScore score, Brew brew) {
         BrewQuality quality = score.brewQuality();
         if (customId != null) {
-            ItemStack itemStack;
-            if (customId.getNamespace().equals("oraxen")) {
-                itemStack = OraxenWrapper.build(customId.getKey());
-            } else if (customId.getNamespace().equals("itemsadder")) {
-                itemStack = ItemsAdderWrapper.build(customId.getKey());
-            } else {
-                throw new IllegalStateException("Namespace should be within the supported items plugins");
-            }
+            ItemStack itemStack = switch (customId.getNamespace()) {
+                case "oraxen" -> OraxenWrapper.build(customId.getKey());
+                case "itemsadder" -> ItemsAdderWrapper.build(customId.getKey());
+                case "nexo" -> NexoWrapper.build(customId.getKey());
+                default -> throw new IllegalStateException("Namespace should be within the supported items plugins");
+            };
             if (itemStack == null) {
                 throw new IllegalStateException("Unreachable code, this value should have been checked before");
             }
@@ -200,6 +199,10 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
                 return this;
             }
             if (namespacedKey.getNamespace().equals("itemsadder") && ItemsAdderWrapper.isItemsAdder(namespacedKey.getKey())) {
+                this.customId = namespacedKey;
+                return this;
+            }
+            if (namespacedKey.getNamespace().equals("nexo") && NexoWrapper.isNexo(namespacedKey.getKey())) {
                 this.customId = namespacedKey;
                 return this;
             }
