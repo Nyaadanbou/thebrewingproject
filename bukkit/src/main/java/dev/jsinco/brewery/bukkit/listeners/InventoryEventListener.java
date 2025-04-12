@@ -3,16 +3,17 @@ package dev.jsinco.brewery.bukkit.listeners;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.database.Database;
-import dev.jsinco.brewery.util.Logging;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -64,6 +65,21 @@ public class InventoryEventListener implements Listener {
                 .filter(item -> !item.getType().isAir());
         if (itemsToCheck.anyMatch(item -> !inventoryAccessible.inventoryAllows(event.getWhoClicked().getUniqueId(), item))) {
             event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onInventoryDrag(InventoryDragEvent dragEvent) {
+        InventoryAccessible<ItemStack, Inventory> inventoryAccessible = registry.getFromInventory(dragEvent.getInventory());
+        if (inventoryAccessible == null) {
+            return;
+        }
+        InventoryView inventoryView = dragEvent.getView();
+        if (!dragEvent.getNewItems().entrySet().stream()
+                .filter(entry -> dragEvent.getInventory() == inventoryView.getInventory(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .allMatch(itemStack -> inventoryAccessible.inventoryAllows(dragEvent.getWhoClicked().getUniqueId(), itemStack))) {
+            dragEvent.setResult(Event.Result.DENY);
         }
     }
 }
