@@ -84,9 +84,9 @@ public class Brew {
         }
         boolean completed = steps.size() == recipeSteps.size();
         BrewScore brewScore = new BrewScore(scores, completed, recipe.getBrewDifficulty());
-        if (brewScore.brewQuality() == null && recipeSteps.get(steps.size() - 1).canGetCloserTo(steps.getLast())) {
+        if (brewScore.brewQuality() == null) {
             scores.removeLast();
-            scores.add(1D);
+            scores.add(recipeSteps.get(steps.size() - 1).maximumScore(steps.getLast()));
             return new BrewScore(scores, false, recipe.getBrewDifficulty());
         }
         return brewScore;

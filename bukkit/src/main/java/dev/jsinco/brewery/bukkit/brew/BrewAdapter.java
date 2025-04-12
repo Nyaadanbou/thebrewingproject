@@ -46,7 +46,7 @@ public class BrewAdapter {
         Optional<Recipe<ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
         Optional<BrewScore> score = recipe.map(brew::score);
         Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
-            ItemStack itemStack;
+        ItemStack itemStack;
         if (quality.isEmpty()) {
             RecipeResult<ItemStack> randomDefault = recipeRegistry.getRandomDefaultRecipe();
             //TODO Refactor this weird implementation for default recipes

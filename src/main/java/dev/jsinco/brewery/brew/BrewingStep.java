@@ -47,13 +47,7 @@ public sealed interface BrewingStep {
         return output;
     }
 
-    /**
-     * Whether other can get closer to this brewing step
-     *
-     * @param other
-     * @return
-     */
-    boolean canGetCloserTo(BrewingStep other);
+    double maximumScore(BrewingStep other);
 
     record Cook(Moment brewTime, Map<? extends Ingredient<?>, Integer> ingredients,
                 CauldronType cauldronType) implements BrewingStep {
@@ -83,11 +77,12 @@ public sealed interface BrewingStep {
         }
 
         @Override
-        public boolean canGetCloserTo(BrewingStep other) {
+        public double maximumScore(BrewingStep other) {
             if (!(other instanceof Cook cook)) {
-                return false;
+                return 0D;
             }
-            return cauldronType.equals(cook.cauldronType) && this.brewTime.moment() > cook.brewTime.moment();
+            double maximumCookTimeScore = cauldronType.equals(cook.cauldronType) && this.brewTime.moment() > cook.brewTime.moment() ? 1D : BrewingStep.nearbyValueScore(this.brewTime.moment(), cook.brewTime.moment());
+            return BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) cook.ingredients) * maximumCookTimeScore;
         }
     }
 
@@ -111,11 +106,11 @@ public sealed interface BrewingStep {
         }
 
         @Override
-        public boolean canGetCloserTo(BrewingStep other) {
-            if (!(other instanceof Distill distill)) {
-                return false;
+        public double maximumScore(BrewingStep other) {
+            if (!(other instanceof Distill(int runs1))) {
+                return 0D;
             }
-            return distill.runs < this.runs;
+            return runs1 < this.runs ? 1D : BrewingStep.nearbyValueScore(this.runs, runs1);
         }
     }
 
@@ -140,11 +135,11 @@ public sealed interface BrewingStep {
         }
 
         @Override
-        public boolean canGetCloserTo(BrewingStep other) {
+        public double maximumScore(BrewingStep other) {
             if (!(other instanceof Age age)) {
-                return false;
+                return 0D;
             }
-            return age.age().moment() < this.age.moment();
+            return age.age.moment() < this.age.moment() ? 1D : BrewingStep.nearbyValueScore(this.age.moment(), age.age.moment());
         }
     }
 
@@ -167,11 +162,12 @@ public sealed interface BrewingStep {
         }
 
         @Override
-        public boolean canGetCloserTo(BrewingStep other) {
-            if (!(other instanceof Mix mix)) {
-                return false;
+        public double maximumScore(BrewingStep other) {
+            if (!(other instanceof Mix(Moment time1, Map<? extends Ingredient<?>, Integer> ingredients1))) {
+                return 0D;
             }
-            return mix.time.moment() < this.time.moment();
+            double mixTimeScore = time1.moment() < this.time.moment() ? 1D : BrewingStep.nearbyValueScore(this.time.moment(), time1.moment());
+            return BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) ingredients1) * mixTimeScore;
         }
 
     }
