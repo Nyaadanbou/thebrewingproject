@@ -12,10 +12,10 @@ import java.util.Map;
 public class TranslationsConfig extends AbstractConfig {
 
     @Key("brew.tooltip")
-    public static Map<String,String> BREW_TOOLTIP;
+    public static Map<String, String> BREW_TOOLTIP;
 
     @Key("brew.detailed-tooltip")
-    public static Map<String,String> DETAILED_BREW_TOOLTIP;
+    public static Map<String, String> DETAILED_BREW_TOOLTIP;
 
     @Key("brew.tooltip.quality")
     public static String BREW_TOOLTIP_QUALITY;
@@ -83,9 +83,6 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("cauldron.type.none")
     public static String CAULDRON_TYPE_NONE;
 
-    @Key("command.create.unique-argument")
-    public static String COMMAND_CREATE_UNIQUE_ARGUMENT;
-
     @Key("command.create.unknown-argument")
     public static String COMMAND_CREATE_UNKNOWN_ARGUMENT;
 
@@ -121,6 +118,12 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("command.reload-message")
     public static String COMMAND_RELOAD_MESSAGE;
+
+    @Key("command.missing-argument")
+    public static String COMMAND_MISSING_ARGUMENT;
+
+    @Key("command.illegal-argument")
+    public static String COMMAND_ILLEGAL_ARGUMENT;
 
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;

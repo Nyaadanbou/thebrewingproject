@@ -2,8 +2,8 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.Component;
@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class StatusCommand {
     public static boolean onCommand(Player player, @NotNull String[] args) {
@@ -136,5 +138,30 @@ public class StatusCommand {
                 Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunksManager.getDrunkManagerTime()),
                 Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
         );
+    }
+
+    public static @Nullable List<String> tabComplete(@NotNull String[] args) {
+        if (args.length == 1) {
+            return Stream.of("info", "consume", "set", "clear")
+                    .filter(subCommand -> subCommand.startsWith(args[0]))
+                    .toList();
+        }
+        return switch (args[0]) {
+            case "info" -> {
+                if (args.length == 2) {
+                    yield null;
+                }
+                yield List.of();
+            }
+            case "consume", "set" -> {
+                if (args.length == 2) {
+                    yield List.of("<integer-alcohol>");
+                } else if (args.length == 3) {
+                    yield List.of("<integer-toxins>");
+                }
+                yield List.of();
+            }
+            default -> List.of();
+        };
     }
 }

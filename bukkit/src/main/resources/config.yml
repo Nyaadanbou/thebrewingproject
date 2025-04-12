@@ -9,7 +9,7 @@ events:
     - stumble
     - chicken
     - teleport
-    - message
+    - drunk_message
     - nausea
   # In minutes
   pass-out-time: 5
