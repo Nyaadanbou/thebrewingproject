@@ -32,7 +32,7 @@ public class NexoPluginIngredient implements Ingredient<ItemStack> {
 
     public static Optional<Ingredient<ItemStack>> from(String nexoId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(nexoId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("nexo") || !NexoWrapper.isNexo(namespacedKey.getKey())) {
+        if (namespacedKey == null || !namespacedKey.getNamespace().equals("nexo")) {
             return Optional.empty();
         }
         return Optional.of(new NexoPluginIngredient(namespacedKey.getKey()));

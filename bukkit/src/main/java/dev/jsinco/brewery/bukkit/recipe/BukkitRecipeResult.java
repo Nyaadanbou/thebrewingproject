@@ -11,6 +11,7 @@ import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeResult;
+import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -77,13 +78,14 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
                 case "nexo" -> NexoWrapper.build(customId.getKey());
                 default -> throw new IllegalStateException("Namespace should be within the supported items plugins");
             };
-            if (itemStack == null) {
-                throw new IllegalStateException("Unreachable code, this value should have been checked before");
+            if (itemStack != null) {
+                ItemMeta meta = itemStack.getItemMeta();
+                recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
+                itemStack.setItemMeta(meta);
+                return itemStack;
+            } else {
+                Logging.warning("Invalid item id '" + customId + "' for recipe: " + names.getOrDefault(quality, "unknown"));
             }
-            ItemMeta meta = itemStack.getItemMeta();
-            recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
-            itemStack.setItemMeta(meta);
-            return itemStack;
         }
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) itemStack.getItemMeta();
@@ -194,17 +196,11 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
             if (namespacedKey == null) {
                 throw new IllegalArgumentException("Invalid namespace!");
             }
-            if (namespacedKey.getNamespace().equals("oraxen") && OraxenWrapper.isOraxen(namespacedKey.getKey())) {
-                this.customId = namespacedKey;
-                return this;
-            }
-            if (namespacedKey.getNamespace().equals("itemsadder") && ItemsAdderWrapper.isItemsAdder(namespacedKey.getKey())) {
-                this.customId = namespacedKey;
-                return this;
-            }
-            if (namespacedKey.getNamespace().equals("nexo") && NexoWrapper.isNexo(namespacedKey.getKey())) {
-                this.customId = namespacedKey;
-                return this;
+            switch (namespacedKey.getNamespace()) {
+                case "oraxen", "itemsadder", "nexo" -> {
+                    this.customId = namespacedKey;
+                    return this;
+                }
             }
             throw new IllegalArgumentException("Unknown custom namespace!");
         }

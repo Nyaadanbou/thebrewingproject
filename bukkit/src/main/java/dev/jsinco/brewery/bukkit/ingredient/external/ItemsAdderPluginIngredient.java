@@ -33,7 +33,7 @@ public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
 
     public static Optional<Ingredient<ItemStack>> from(String itemsAdderId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(itemsAdderId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder") || !OraxenWrapper.isOraxen(namespacedKey.getKey())) {
+        if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder")) {
             return Optional.empty();
         }
         return Optional.of(new ItemsAdderPluginIngredient(namespacedKey.getKey()));
