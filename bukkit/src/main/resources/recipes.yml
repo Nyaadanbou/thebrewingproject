@@ -23,9 +23,9 @@ recipes:
       - WATER_BREATHING/1-2/150
     potion-attributes.color: ORANGE
     potion-attributes.lore:
-      - Is there any Apple in this?
-      - Refreshing taste of Apple
-      - Sweetest hint of Apple
+      - +Is there any Apple in this?
+      - ++Refreshing taste of Apple
+      - +++Sweetest hint of Apple
     potion-attributes.name: Apple Mead/Sweet Apple Mead/<gold>Sweet Golden Apple Mead
     steps:
       - cauldron-type: water
@@ -43,7 +43,7 @@ recipes:
     potion-attributes.color: BRIGHT_RED
     potion-attributes.lore:
       - +Sour like Acid
-      - +++ Good Apple Liquor
+      - +++Good Apple Liquor
     potion-attributes.name: Sour Apple Liquor/Apple Liquor/Calvados
     steps:
       - cauldron-type: water
@@ -61,7 +61,7 @@ recipes:
     brew-difficulty: 1
     potion-attributes.color: ffd333
     potion-attributes.lore:
-      - +++ <dark_gray>Crisp taste
+      - +++<dark_gray>Crisp taste
     potion-attributes.name: Skunky Beer/Beer/Fine Beer
     steps:
       - cauldron-type: water
@@ -94,7 +94,7 @@ recipes:
       - SPEED/1/30-140
     potion-attributes.color: BLACK
     potion-attributes.lore:
-      - + <dark_gray>Probably a week old
+      - +<dark_gray>Probably a week old
     potion-attributes.name: Stale Coffee/Coffee/Strong Coffee
     steps:
       - cauldron-type: water
@@ -108,7 +108,7 @@ recipes:
     brew-difficulty: 2
     potion-attributes.color: '650013'
     potion-attributes.lore:
-      - +++ <dark_gray>Roasted taste
+      - +++<dark_gray>Roasted taste
     potion-attributes.name: Skunky Darkbeer/Darkbeer/Fine Darkbeer
     steps:
       - cauldron-type: water
@@ -177,10 +177,10 @@ recipes:
     brew-difficulty: 6
     potion-attributes.color: 99ddff
     potion-attributes.lore:
-      - ++ With the
-      - ++ taste of juniper
-      - +++ Perfectly finished off
-      - +++ with juniper
+      - ++With the
+      - ++taste of juniper
+      - +++Perfectly finished off
+      - +++with juniper
     potion-attributes.name: Pale Gin/Gin/Old Tom Gin
     steps:
       - cauldron-type: water
@@ -245,7 +245,7 @@ recipes:
     brew-difficulty: 2
     potion-attributes.color: ORANGE
     potion-attributes.lore:
-      - +++ Has a golden shine
+      - +++Has a golden shine
     potion-attributes.name: Awkward Mead/Mead/<gold>Golden Mead
     steps:
       - cauldron-type: water
@@ -277,9 +277,9 @@ recipes:
       - POISON/1-0/30-0
     potion-attributes.color: DARK_RED
     potion-attributes.lore:
-      - + <dark_gray>Too bitter to drink
-      - ++ <dark_gray>Spiced by the barrel
-      - +++ <yellow>Spiced Gold
+      - +<dark_gray>Too bitter to drink
+      - ++<dark_gray>Spiced by the barrel
+      - +++<yellow>Spiced Gold
     potion-attributes.name: Bitter Rum/Spicy Rum/<gold>Golden Rum
     steps:
       - cauldron-type: water
@@ -341,7 +341,7 @@ recipes:
       - POISON/10
     potion-attributes.color: WHITE
     potion-attributes.lore:
-      - + <dark_gray>Almost undrinkable
+      - +<dark_gray>Almost undrinkable
     potion-attributes.name: Lousy Vodka/Vodka/Russian Vodka
     steps:
       - cauldron-type: water
@@ -356,7 +356,7 @@ recipes:
     brew-difficulty: 1
     potion-attributes.color: ffb84d
     potion-attributes.lore:
-      - +++ <dark_gray>Refreshing
+      - +++<dark_gray>Refreshing
     potion-attributes.name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
     steps:
       - cauldron-type: water
@@ -390,10 +390,10 @@ recipes:
     brew-difficulty: 4
     potion-attributes.color: RED
     potion-attributes.lore:
-      - + <dark_gray>Harsh
-      - + <dark_gray>Corked
-      - ++ <dark_gray>Mellow
-      - +++ <dark_gray>Full-Bodied
+      - +<dark_gray>Harsh
+      - +<dark_gray>Corked
+      - ++<dark_gray>Mellow
+      - +++<dark_gray>Full-Bodied
     potion-attributes.name: Red Wine
     steps:
       - cauldron-type: water

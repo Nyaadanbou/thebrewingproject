@@ -106,6 +106,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         if (customModelData > 0) {
             meta.setCustomModelData(customModelData);
         }
+        recipeEffects.getOrDefault(quality, RecipeEffects.GENERIC).applyTo(meta, score);
         itemStack.setItemMeta(meta);
         return itemStack;
     }

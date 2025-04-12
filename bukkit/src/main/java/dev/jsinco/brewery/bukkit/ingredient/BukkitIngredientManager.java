@@ -71,4 +71,13 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
                 .forEach(ingredientAmountPair -> insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
         return ingredientMap;
     }
+
+    public boolean isValidIngredient(@NotNull String ingredientWithAmount) {
+        try {
+            this.getIngredientWithAmount(ingredientWithAmount);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

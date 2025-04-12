@@ -43,8 +43,7 @@ cauldron.type:
   snow: snow
   none: none
 command.unknown-player: <red>Unknown player <player_name>
-command.create.unique-argument: <gray>Each argument has to be unique
-command.create.unknown-argument: <gray>Unknown argument '<argument>'
+command.create.unknown-argument: <red>Unknown argument(s) '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>
 command.status.info.message: |-
   <gray>----<player_name>----

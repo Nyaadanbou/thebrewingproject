@@ -6,13 +6,14 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.util.ItemColorUtil;
+import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,9 +28,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class BrewAdapter {
@@ -74,27 +73,8 @@ public class BrewAdapter {
                 BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient<ItemStack>, Integer>) mix.ingredients());
             }
         }
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int amount = 0;
-        Ingredient<ItemStack> topIngredient = null;
-        int topIngredientAmount = 0;
-        for (Map.Entry<Ingredient<ItemStack>, Integer> ingredient : ingredients.entrySet()) {
-            if (topIngredientAmount < ingredient.getValue()) {
-                topIngredient = ingredient.getKey();
-                topIngredientAmount = ingredient.getValue();
-            }
-            String key = ingredient.getKey().getKey();
-            Color color = ItemColorUtil.getItemColor(key);
-            if (color == null) {
-                continue;
-            }
-            r += color.getRed() * ingredient.getValue();
-            g += color.getGreen() * ingredient.getValue();
-            b += color.getBlue() * ingredient.getValue();
-            amount += ingredient.getValue();
-        }
+        Pair<org.bukkit.Color, Ingredient<ItemStack>> itemsInfo = IngredientUtil.ingredientData(ingredients);
+        Ingredient<ItemStack> topIngredient = itemsInfo.second();
         String displayName = switch (brew.getSteps().getLast().stepType()) {
             case COOK ->
                     topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());
@@ -106,11 +86,7 @@ public class BrewAdapter {
                     topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_MIXED.replace("<ingredient>", topIngredient.displayName());
         };
         potionMeta.displayName(MiniMessage.miniMessage().deserialize(displayName).decoration(TextDecoration.ITALIC, false));
-        if (amount != 0) {
-            potionMeta.setColor(org.bukkit.Color.fromRGB(r / amount, g / amount, b / amount));
-        } else {
-            potionMeta.setColor(org.bukkit.Color.YELLOW);
-        }
+        potionMeta.setColor(itemsInfo.first());
         itemStack.setItemMeta(potionMeta);
         return itemStack;
     }

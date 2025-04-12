@@ -7,8 +7,11 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
+import dev.jsinco.brewery.bukkit.util.ColorUtil;
+import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Interval;
@@ -25,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<ItemStack> {
@@ -71,6 +75,14 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         if (!this.isOnHeatSource()) {
             this.remove();
             return;
+        }
+        Optional<Recipe<ItemStack>> recipeOptional = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry());
+        if (brew.lastStep() instanceof BrewingStep.Cook cook && recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
+            brew = brew.witModifiedLastStep(brewingStep -> {
+                BrewingStep.Cook cookingStep = ((BrewingStep.Cook) brewingStep);
+                return cookingStep.withBrewTime(cookingStep.brewTime().withLastStep(block.getWorld().getGameTime()));
+            });
+            this.particleColor = ColorUtil.getNextColor(Color.AQUA, IngredientUtil.ingredientData(cook.ingredients()).first(), cook.brewTime().moment(), recipeCook.brewTime().moment());
         }
         this.playBrewingEffects();
     }
