@@ -44,7 +44,7 @@ public class BreweryCommand implements TabExecutor {
                         NamedDrunkEventExecutor.doDrunkEvent(player.getUniqueId(), namedDrunkEvent);
                         yield true;
                     }
-                    DrunkEventExecutor.doDrunkEvent(player.getUniqueId(), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().getCustomEvent(BreweryKey.parse(args[1])));
+                    TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(player.getUniqueId(), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().getCustomEvent(BreweryKey.parse(args[1])));
                     yield true;
                 }
                 case STATUS -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));

@@ -49,7 +49,11 @@ public class CustomDrunkEventReader {
                 String command = Preconditions.checkNotNull(step.get("command"), "Command can not be null in event step for event: " + eventName);
                 builder.addStep(new SendCommand(command, senderType));
             } else if (stepType.equals("wait")) {
-                builder.addStep(WaitStep.parse(step.get("duration")));
+                if (step.containsKey("duration")) {
+                    builder.addStep(WaitStep.parse(step.get("duration")));
+                } else {
+                    builder.addStep(ConditionalWaitStep.parse(step.get("condition")));
+                }
             } else if (stepType.equals("potion")) {
                 String effect = step.get("effect");
                 Interval amplifier = Interval.parse(step.get("amplifier"));

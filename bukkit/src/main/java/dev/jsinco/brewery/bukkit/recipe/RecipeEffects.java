@@ -152,7 +152,7 @@ public class RecipeEffects {
                     )
             );
         }
-        DrunkEventExecutor.doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
+        TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
     }
 
     private String compileUnparsedEffectMessage(String message, Player player, DrunksManager drunksManager) {

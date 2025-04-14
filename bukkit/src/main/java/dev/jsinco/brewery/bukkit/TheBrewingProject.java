@@ -37,7 +37,6 @@ import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -68,6 +67,8 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private CustomEventRegistry customDrunkEventRegistry;
     private WorldEventListener worldEventListener;
+    @Getter
+    private DrunkEventExecutor drunkEventExecutor;
 
     @Override
     public void onLoad() {
@@ -81,6 +82,7 @@ public class TheBrewingProject extends JavaPlugin {
         this.recipeRegistry = new RecipeRegistry<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
         this.customDrunkEventRegistry = new CustomEventRegistry();
+        this.drunkEventExecutor = new DrunkEventExecutor();
         CustomDrunkEventReader.read(Config.CUSTOM_EVENTS).forEach(customDrunkEventRegistry::registerCustomEvent);
     }
 
@@ -93,6 +95,7 @@ public class TheBrewingProject extends JavaPlugin {
         loadStructures();
         this.drunkTextRegistry.clear();
         this.customDrunkEventRegistry.clear();
+        this.drunkEventExecutor.clear();
         CustomDrunkEventReader.read(Config.CUSTOM_EVENTS).forEach(customDrunkEventRegistry::registerCustomEvent);
         saveResources();
         this.database = new Database(DatabaseDriver.SQLITE);
@@ -153,7 +156,7 @@ public class TheBrewingProject extends JavaPlugin {
         }
         this.drunksManager = new DrunksManager(200, customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry, drunkEventExecutor), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
         this.worldEventListener = new WorldEventListener(this.database, this.placedStructureRegistry, this.breweryRegistry);
         worldEventListener.init();
@@ -192,6 +195,6 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
     private void otherTicking() {
-        drunksManager.tick(DrunkEventExecutor::doDrunkEvent);
+        drunksManager.tick(drunkEventExecutor::doDrunkEvent);
     }
 }

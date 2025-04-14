@@ -7,6 +7,7 @@ import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
+import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
@@ -52,14 +53,16 @@ public class PlayerEventListener implements Listener {
     private final DrunksManager drunksManager;
     private final DrunkTextRegistry drunkTextRegistry;
     private final RecipeRegistry<ItemStack> recipeRegistry;
+    private final DrunkEventExecutor drunkEventExecutor;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack> recipeRegistry) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack> recipeRegistry, DrunkEventExecutor drunkEventExecutor) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
         this.drunksManager = drunksManager;
         this.drunkTextRegistry = drunkTextRegistry;
         this.recipeRegistry = recipeRegistry;
+        this.drunkEventExecutor = drunkEventExecutor;
     }
 
 
@@ -211,11 +214,16 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerJoin(PlayerLoginEvent event) {
+    public void onPlayerLogin(PlayerLoginEvent event) {
         if (drunksManager.isPassedOut(event.getPlayer().getUniqueId())) {
             event.setResult(PlayerLoginEvent.Result.KICK_FULL);
             event.kickMessage(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, event.getPlayer(), drunksManager, 0));
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        drunkEventExecutor.onPlayerJoin(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(ignoreCancelled = true)

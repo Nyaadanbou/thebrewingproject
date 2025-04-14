@@ -5,10 +5,9 @@ config-version: 1
 events:
   enabled-random-events:
     - puke
-    - pass_out
+    - memory_loss
     - stumble
     - chicken
-    - teleport
     - drunk_message
     - nausea
   # In minutes
@@ -21,13 +20,12 @@ events:
     - Watch this!
     - I'm not drunk. You're drunk.
   custom-events:
-    example-event:
+    # Example
+    memory_loss:
       steps:
-        - type: command
-          command: say hello world
+        - type: pass_out
         - type: wait
-          duration: 5s
-        - type: drunk_message
+          condition: join
         - type: teleport
   teleport-destinations:
     - world, 0, 80, 0

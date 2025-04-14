@@ -10,22 +10,32 @@ import org.bukkit.Registry;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class DrunkEventExecutor {
 
-    public static void doDrunkEvent(UUID playerUuid, EventStep event) {
+    private Map<UUID, List<EventStep>> onJoinExecutions = new HashMap<>();
+
+    public void doDrunkEvent(UUID playerUuid, EventStep event) {
         doDrunkEvents(playerUuid, List.of(event));
     }
 
-    public static void doDrunkEvents(UUID playerUuid, List<EventStep> events) {
-        Player player = Bukkit.getPlayer(playerUuid);
-        if (player == null) {
-            return;
-        }
+    public void doDrunkEvents(UUID playerUuid, List<EventStep> events) {
         for (int i = 0; i < events.size(); i++) {
             EventStep event = events.get(i);
+
+            Player player = Bukkit.getPlayer(playerUuid);
+            if (player == null) {
+                if (event instanceof ConditionalWaitStep(
+                        ConditionalWaitStep.Condition condition
+                ) && condition == ConditionalWaitStep.Condition.JOIN && i + 1 >= events.size()) {
+                    onJoinExecutions.put(playerUuid, events.subList(i + 1, events.size()));
+                }
+                return;
+            }
             switch (event) {
                 case ApplyPotionEffect applyPotionEffect -> {
                     PotionEffect potionEffect = new RecipeEffect(
@@ -46,6 +56,11 @@ public class DrunkEventExecutor {
                     }
                 }
                 case Teleport teleport -> player.teleport(BukkitAdapter.toLocation(teleport.location()));
+                case ConditionalWaitStep conditionalWaitStep -> {
+                    if (conditionalWaitStep.condition() == ConditionalWaitStep.Condition.JOIN) {
+                        // NO-OP, player already joined
+                    }
+                }
                 case WaitStep waitStep -> {
                     if (i + 1 >= events.size()) {
                         return;
@@ -60,5 +75,21 @@ public class DrunkEventExecutor {
                 }
             }
         }
+    }
+
+    public void onPlayerJoin(UUID playerUuid) {
+        List<EventStep> eventSteps = onJoinExecutions.get(playerUuid);
+        if (eventSteps == null) {
+            return;
+        }
+        doDrunkEvents(playerUuid, eventSteps);
+    }
+
+    public void clear(UUID playerUuid) {
+        onJoinExecutions.remove(playerUuid);
+    }
+
+    public void clear() {
+        onJoinExecutions.clear();
     }
 }
