@@ -12,7 +12,7 @@ events:
     - nausea
   # In minutes
   pass-out-time: 5
-  teleport-locations: []
+  teleport-locations: [ ]
   messages:
     - I love you <random_player_name>, you're my best friend.
     - I could do one more.
@@ -27,6 +27,10 @@ events:
         - type: wait
           condition: join
         - type: teleport
+      alcohol: 90
+      toxins: 60
+      probability-weight: 25
+
   teleport-destinations:
     - world, 0, 80, 0
 # Settings for cauldrons
@@ -37,4 +41,4 @@ cauldrons:
   # What blocks cauldrons must have below them to be able to brew.
   # Campfires must be lit and lava must be a source block.
   # If this list is empty, cauldrons will brew regardless of the block below them.
-  heat-sources: [campfire, soul_campfire, lava, fire, soul_fire, magma_block]
+  heat-sources: [ campfire, soul_campfire, lava, fire, soul_fire, magma_block ]
