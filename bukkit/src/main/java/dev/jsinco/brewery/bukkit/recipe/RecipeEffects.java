@@ -102,7 +102,7 @@ public class RecipeEffects {
             container.set(ACTION_BAR, PersistentDataType.STRING, actionBar);
         }
         container.set(ALCOHOL, PersistentDataType.INTEGER, alcohol);
-        container.set(TOXINS, PersistentDataType.INTEGER, (int) (alcohol * (1.5 - score.score()) / 2));
+        container.set(TOXINS, PersistentDataType.INTEGER, (int) (alcohol * (1.5 - score.score())));
         container.set(EVENTS, ListPersistentDataType.STRING_LIST, events.stream().map(BreweryKey::toString).toList());
     }
 
@@ -136,7 +136,7 @@ public class RecipeEffects {
     }
 
     public void applyTo(Player player, DrunksManager drunksManager) {
-        drunksManager.consume(player.getUniqueId(), alcohol / 2, toxins / 2);
+        drunksManager.consume(player.getUniqueId(), alcohol, toxins);
         if (title != null) {
             player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunksManager, this.alcohol), Component.empty()));
         }
