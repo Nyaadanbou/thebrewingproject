@@ -77,6 +77,14 @@ public final class Config extends AbstractConfig {
     @Key("events.default")
     public static Map<String, Object> DEFAULT_EVENTS = Map.of();
 
+    @Key("decay-rates.alcohol")
+    @Comment("How many ticks until alcohol level decays by 1%")
+    public static int ALCOHOL_DECAY_RATE = 200;
+
+    @Key("decay-rates.toxin")
+    @Comment("How many ticks until toxin level decays by 1%")
+    public static int TOXIN_DECAY_RATE = 400;
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {

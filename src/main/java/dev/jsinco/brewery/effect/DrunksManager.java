@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 public class DrunksManager {
 
-    private int inverseDecayRate;
     private final CustomEventRegistry eventRegistry;
     private Set<BreweryKey> allowedEvents;
     private Map<UUID, DrunkState> drunks = new HashMap<>();
@@ -30,8 +29,7 @@ public class DrunksManager {
     private static final Random RANDOM = new Random();
     private final Map<UUID, Long> passedOut = new HashMap<>();
 
-    public DrunksManager(int inverseDecayRate, CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
-        this.inverseDecayRate = inverseDecayRate;
+    public DrunksManager(CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
         this.eventRegistry = registry;
         this.allowedEvents = allowedEvents;
     }
@@ -48,7 +46,7 @@ public class DrunksManager {
     public void consume(UUID playerUuid, int alcohol, int toxins, long timestamp) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         DrunkState drunkState = alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(inverseDecayRate, timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, 0, timestamp);
+                drunks.get(playerUuid).recalculate(timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, 0, timestamp);
         if (drunkState.alcohol() <= 0) {
             drunks.remove(playerUuid);
             return;
@@ -60,17 +58,16 @@ public class DrunksManager {
     public @Nullable DrunkState getDrunkState(UUID playerUuid) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         return alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(inverseDecayRate, drunkManagerTime) : null;
+                drunks.get(playerUuid).recalculate(drunkManagerTime) : null;
 
     }
 
-    public void reset(int inverseDecayRate, Set<BreweryKey> allowedEvents) {
+    public void reset(Set<BreweryKey> allowedEvents) {
         plannedEvents.clear();
         passedOut.clear();
         drunks.clear();
         this.allowedEvents = allowedEvents;
         events.clear();
-        this.inverseDecayRate = inverseDecayRate;
     }
 
     public void clear(UUID playerUuid) {

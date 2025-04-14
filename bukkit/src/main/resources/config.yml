@@ -1,7 +1,9 @@
 # Config version, don't change this
 config-version: 1
 
-
+decay-rates:
+  alcohol: 200
+  toxin: 400
 events:
   enabled-random-events:
     - puke

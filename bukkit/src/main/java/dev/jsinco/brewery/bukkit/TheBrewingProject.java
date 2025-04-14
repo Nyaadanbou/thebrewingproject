@@ -104,7 +104,7 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        this.drunksManager.reset(200, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
+        this.drunksManager.reset(Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
         worldEventListener.init();
         RecipeReader<ItemStack> recipeReader = new RecipeReader<>(this.getDataFolder(), new BukkitRecipeResultReader(), BukkitIngredientManager.INSTANCE);
 
@@ -154,7 +154,7 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        this.drunksManager = new DrunksManager(200, customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
+        this.drunksManager = new DrunksManager(customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry, drunkEventExecutor), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
