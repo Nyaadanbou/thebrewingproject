@@ -140,6 +140,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("events.teleport-message")
     public static String TELEPORT_MESSAGE;
 
+    @Key("info.after-drink")
+    public static String INFO_AFTER_DRINK;
+
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 
     public static void reload(File dataFolder) {

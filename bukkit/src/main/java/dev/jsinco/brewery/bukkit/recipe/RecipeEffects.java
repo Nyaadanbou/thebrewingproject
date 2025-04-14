@@ -6,6 +6,7 @@ import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
+import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.event.CustomEventRegistry;
@@ -16,6 +17,7 @@ import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.NamespacedKey;
@@ -83,7 +85,7 @@ public class RecipeEffects {
     }
 
     public void applyTo(ItemMeta meta, BrewScore score) {
-        if(meta instanceof PotionMeta potionMeta) {
+        if (meta instanceof PotionMeta potionMeta) {
             for (RecipeEffect recipeEffect : effects) {
                 potionMeta.addCustomEffect(recipeEffect.newPotionEffect(), true);
             }
@@ -143,6 +145,12 @@ public class RecipeEffects {
         }
         if (actionBar != null) {
             player.sendActionBar(MessageUtil.compilePlayerMessage(actionBar, player, drunksManager, this.alcohol));
+        } else {
+            player.sendActionBar(
+                    MiniMessage.miniMessage().deserialize(TranslationsConfig.INFO_AFTER_DRINK,
+                            MessageUtil.getDrunkStateTagResolver(drunksManager.getDrunkState(player.getUniqueId()))
+                    )
+            );
         }
         DrunkEventExecutor.doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
     }

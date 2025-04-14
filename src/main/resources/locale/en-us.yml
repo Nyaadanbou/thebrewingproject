@@ -79,3 +79,4 @@ events.types:
 events.chicken-message: <gray>How did this chicken get here?
 events.nothing-planned: do nothing
 events.teleport-message: <gray>What? Huh? <red>Where am I</red>?
+info.after-drink: "Drunkenness: <gray>[<alcohol_level>] <red>[<toxins_level>]"

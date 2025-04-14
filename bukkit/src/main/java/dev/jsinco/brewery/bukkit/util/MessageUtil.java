@@ -13,6 +13,7 @@ import dev.jsinco.brewery.recipes.BrewScore;
 import dev.jsinco.brewery.recipes.Recipe;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.StyleBuilderApplicable;
 import net.kyori.adventure.text.format.TextColor;
@@ -23,7 +24,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MessageUtil {
+
+    private static final char SKULL = '\u2620';
 
     public static Component compilePlayerMessage(String message, Player player, DrunksManager drunksManager, int alcohol) {
         DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
@@ -143,4 +145,34 @@ public class MessageUtil {
         return compileBrewInfo(brew, score, detailed);
     }
 
+    public static @NotNull TagResolver getDrunkStateTagResolver(@Nullable DrunkState drunkState) {
+        return TagResolver.resolver(
+                Placeholder.component("alcohol_level", compileAlcoholLevel(drunkState == null ? 0 : drunkState.alcohol())),
+                Placeholder.component("toxins_level", compileToxinsLevel(drunkState == null ? 0 : drunkState.toxins()))
+        );
+    }
+
+    private static @NotNull ComponentLike compileToxinsLevel(int level) {
+        int partition = level / 20;
+        StringBuilder skulls = new StringBuilder();
+        skulls.repeat(SKULL, partition);
+        skulls.repeat("  ", 5 - partition);
+        return Component.text(skulls.toString()).color(NamedTextColor.GREEN);
+    }
+
+    private static @NotNull ComponentLike compileAlcoholLevel(int level) {
+        int partitionedLevel = level / 5;
+        StringBuilder okLevel = new StringBuilder();
+        okLevel.repeat("|", Math.min(partitionedLevel, 4));
+        StringBuilder warningLevel = new StringBuilder();
+        warningLevel.repeat("|", Math.max(Math.min(partitionedLevel, 16) - 4, 0));
+        StringBuilder severeLevel = new StringBuilder();
+        severeLevel.repeat("|", Math.max(partitionedLevel - 16, 0));
+        StringBuilder remainder = new StringBuilder();
+        remainder.repeat("|", 20 - partitionedLevel);
+        return Component.text(okLevel.toString()).color(NamedTextColor.GREEN)
+                .append(Component.text(warningLevel.toString()).color(NamedTextColor.YELLOW))
+                .append(Component.text(severeLevel.toString()).color(NamedTextColor.GOLD))
+                .append(Component.text(remainder.toString()).color(NamedTextColor.BLACK));
+    }
 }
