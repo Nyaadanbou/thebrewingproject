@@ -24,18 +24,13 @@ public class DrunkEventExecutor {
     }
 
     public void doDrunkEvents(UUID playerUuid, List<EventStep> events) {
+        Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) {
+            return;
+        }
         for (int i = 0; i < events.size(); i++) {
             EventStep event = events.get(i);
 
-            Player player = Bukkit.getPlayer(playerUuid);
-            if (player == null) {
-                if (event instanceof ConditionalWaitStep(
-                        ConditionalWaitStep.Condition condition
-                ) && condition == ConditionalWaitStep.Condition.JOIN && i + 1 >= events.size()) {
-                    onJoinExecutions.put(playerUuid, events.subList(i + 1, events.size()));
-                }
-                return;
-            }
             switch (event) {
                 case ApplyPotionEffect applyPotionEffect -> {
                     PotionEffect potionEffect = new RecipeEffect(
@@ -57,9 +52,10 @@ public class DrunkEventExecutor {
                 }
                 case Teleport teleport -> player.teleport(BukkitAdapter.toLocation(teleport.location()));
                 case ConditionalWaitStep conditionalWaitStep -> {
-                    if (conditionalWaitStep.condition() == ConditionalWaitStep.Condition.JOIN) {
-                        // NO-OP, player already joined
+                    if (conditionalWaitStep.condition() == ConditionalWaitStep.Condition.JOIN && i + 1 < events.size()) {
+                        onJoinExecutions.put(playerUuid, events.subList(i + 1, events.size()));
                     }
+                    return;
                 }
                 case WaitStep waitStep -> {
                     if (i + 1 >= events.size()) {
