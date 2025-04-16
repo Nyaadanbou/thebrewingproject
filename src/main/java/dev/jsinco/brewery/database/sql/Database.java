@@ -1,7 +1,8 @@
-package dev.jsinco.brewery.database;
+package dev.jsinco.brewery.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.jsinco.brewery.database.*;
 import dev.jsinco.brewery.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,9 +15,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
-public class Database {
+public class Database implements PersistenceHandler<Connection> {
 
     private static final int BREWERY_DATABASE_VERSION = 0;
     private final DatabaseDriver driver;
@@ -53,7 +53,7 @@ public class Database {
         return hikariConfig;
     }
 
-    private void createTables(Connection connection) throws IOException, SQLException {
+    private void createTables(Connection connection) throws SQLException {
         for (String statement : FileUtil.readInternalResource("/database/" + driver.name().toLowerCase(Locale.ROOT) + "/create_all_tables.sql").split(";")) {
             connection.prepareStatement(statement + ";").execute();
         }
@@ -67,34 +67,44 @@ public class Database {
         preparedStatement.execute();
     }
 
-    public <T> List<T> retrieveAll(RetrievableStoredData<T> dataType, UUID world) throws SQLException, IOException {
+    @Override
+    public <T> List<T> retrieveAll(RetrievableStoredData<T, Connection> dataType) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
-            return dataType.retrieveAll(connection, world);
+            return dataType.retrieveAll(connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
-    public <T> void remove(RemovableStoredData<T> dataType, T toRemove) throws SQLException {
+    @Override
+    public <T> void remove(RemovableStoredData<T, Connection> dataType, T toRemove) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
             dataType.remove(toRemove, connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
-    public <T> void updateValue(UpdateableStoredData<T> dataType, T newValue) throws SQLException {
+    @Override
+    public <T> void updateValue(UpdateableStoredData<T, Connection> dataType, T newValue) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
             dataType.update(newValue, connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
-    public <T> void updateValues(UpdateableStoredData<T> dataType, Collection<T> newValues) throws SQLException {
+    @Override
+    public <T> void updateValues(UpdateableStoredData<T, Connection> dataType, Collection<T> newValues) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
@@ -102,24 +112,56 @@ public class Database {
             for (T value : newValues) {
                 dataType.update(value, connection);
             }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
-    public <T> void insertValue(InsertableStoredData<T> dataType, T value) throws SQLException {
+    @Override
+    public <T> void insertValue(InsertableStoredData<T, Connection> dataType, T value) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
             dataType.insert(value, connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
-    public <T, U> List<T> find(FindableStoredData<T, U> dataType, U searchObject) throws SQLException {
+    @Override
+    public <T, U> List<T> find(FindableStoredData<T, U, Connection> dataType, U searchObject) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
         try (Connection connection = hikariDataSource.getConnection()) {
             return dataType.find(searchObject, connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public <T> T getSingleton(SingletonStoredData<T, Connection> dataType) throws PersistenceException {
+        if (hikariDataSource == null) {
+            throw new IllegalStateException("Not initialized");
+        }
+        try (Connection connection = hikariDataSource.getConnection()) {
+            return dataType.value(connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public <T> void setSingleton(SingletonStoredData<T, Connection> dataType, T t) throws PersistenceException {
+        if (hikariDataSource == null) {
+            throw new IllegalStateException("Not initialized");
+        }
+        try (Connection connection = hikariDataSource.getConnection()) {
+            dataType.update(t, connection);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 }

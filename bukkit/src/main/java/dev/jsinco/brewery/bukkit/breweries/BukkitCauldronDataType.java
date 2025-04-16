@@ -3,10 +3,8 @@ package dev.jsinco.brewery.bukkit.breweries;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.RetrievableStoredData;
-import dev.jsinco.brewery.database.UpdateableStoredData;
+import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
@@ -20,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BukkitCauldronDataType implements RetrievableStoredData<BukkitCauldron>, InsertableStoredData<BukkitCauldron>, UpdateableStoredData<BukkitCauldron>, RemovableStoredData<BukkitCauldron> {
+public class BukkitCauldronDataType implements SqlStoredData.Findable<BukkitCauldron, UUID>, SqlStoredData.Insertable<BukkitCauldron>, SqlStoredData.Updateable<BukkitCauldron>, SqlStoredData.Removable<BukkitCauldron> {
 
     public static final BukkitCauldronDataType INSTANCE = new BukkitCauldronDataType();
 
     @Override
-    public void insert(BukkitCauldron value, Connection connection) throws SQLException {
+    public void insert(BukkitCauldron value, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/cauldrons_insert.sql"))) {
             BreweryLocation location = value.position();
             preparedStatement.setInt(1, location.x());
@@ -34,11 +32,13 @@ public class BukkitCauldronDataType implements RetrievableStoredData<BukkitCauld
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(location.worldUuid()));
             preparedStatement.setString(5, Brew.SERIALIZER.serialize(value.getBrew()).toString());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void update(BukkitCauldron newValue, Connection connection) throws SQLException {
+    public void update(BukkitCauldron newValue, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/cauldrons_update.sql"))) {
             BreweryLocation location = newValue.position();
             preparedStatement.setString(1, Brew.SERIALIZER.serialize(newValue.getBrew()).toString());
@@ -47,11 +47,13 @@ public class BukkitCauldronDataType implements RetrievableStoredData<BukkitCauld
             preparedStatement.setInt(4, location.z());
             preparedStatement.setBytes(5, DecoderEncoder.asBytes(location.worldUuid()));
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void remove(BukkitCauldron toRemove, Connection connection) throws SQLException {
+    public void remove(BukkitCauldron toRemove, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/cauldrons_remove.sql"))) {
             BreweryLocation location = toRemove.position();
             preparedStatement.setInt(1, location.x());
@@ -59,11 +61,13 @@ public class BukkitCauldronDataType implements RetrievableStoredData<BukkitCauld
             preparedStatement.setInt(3, location.z());
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(location.worldUuid()));
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public List<BukkitCauldron> retrieveAll(Connection connection, UUID world) throws SQLException {
+    public List<BukkitCauldron> find(UUID world, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/cauldrons_select_all.sql"))) {
             preparedStatement.setBytes(1, DecoderEncoder.asBytes(world));
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -76,6 +80,8 @@ public class BukkitCauldronDataType implements RetrievableStoredData<BukkitCauld
                 cauldrons.add(new BukkitCauldron(brew, Bukkit.getWorld(world).getBlockAt(x, y, z)));
             }
             return cauldrons;
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 }

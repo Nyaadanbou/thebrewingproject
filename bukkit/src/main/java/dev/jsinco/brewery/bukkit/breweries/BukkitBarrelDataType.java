@@ -1,21 +1,18 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.brew.BarrelBrewDataType;
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
-import dev.jsinco.brewery.brew.Brew;
-import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.RetrievableStoredData;
 import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 import org.joml.Matrix3d;
 
 import java.sql.Connection;
@@ -27,12 +24,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>, RemovableStoredData<BukkitBarrel>, InsertableStoredData<BukkitBarrel> {
+public class BukkitBarrelDataType implements SqlStoredData.Findable<BukkitBarrel, UUID>, SqlStoredData.Removable<BukkitBarrel>, SqlStoredData.Insertable<BukkitBarrel> {
     public static final BukkitBarrelDataType INSTANCE = new BukkitBarrelDataType();
 
     @Override
-    public void insert(BukkitBarrel value, Connection connection) throws SQLException {
-       PlacedBreweryStructure<BukkitBarrel>placedStructure = value.getStructure();
+    public void insert(BukkitBarrel value, Connection connection) throws PersistenceException {
+
+        PlacedBreweryStructure<BukkitBarrel> placedStructure = value.getStructure();
         BreweryStructure structure = placedStructure.getStructure();
         Location origin = placedStructure.getWorldOrigin();
         UUID worldUuid = value.getWorld().getUID();
@@ -50,6 +48,8 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
             preparedStatement.setString(10, value.getType().key().toString());
             preparedStatement.setInt(11, value.getSize());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
         for (Pair<Brew, Integer> brew : value.getBrews()) {
             BarrelBrewDataType.BarrelContext context = new BarrelBrewDataType.BarrelContext(signLocation.getBlockX(),
@@ -59,7 +59,7 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
     }
 
     @Override
-    public void remove(BukkitBarrel toRemove, Connection connection) throws SQLException {
+    public void remove(BukkitBarrel toRemove, Connection connection) throws PersistenceException {
         UUID worldUuid = toRemove.getWorld().getUID();
         Location signLocation = toRemove.getSignLocation();
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrels_remove.sql"))) {
@@ -68,11 +68,13 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
             preparedStatement.setInt(3, signLocation.getBlockZ());
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(worldUuid));
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public List<BukkitBarrel> retrieveAll(Connection connection, UUID world) throws SQLException {
+    public List<BukkitBarrel> find(UUID world, Connection connection) throws PersistenceException {
         List<BukkitBarrel> output = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrels_select_all.sql"))) {
             preparedStatement.setBytes(1, DecoderEncoder.asBytes(world));
@@ -95,6 +97,8 @@ public class BukkitBarrelDataType implements RetrievableStoredData<BukkitBarrel>
                 structure.setHolder(barrel);
                 output.add(barrel);
             }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
         for (BukkitBarrel barrel : output) {
             barrel.setBrews(BukkitBarrelBrewDataType.INSTANCE.find(BukkitAdapter.toBreweryLocation(barrel.getSignLocation()), connection));

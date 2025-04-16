@@ -15,7 +15,6 @@ import dev.jsinco.brewery.util.moment.Moment;
 import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -270,7 +269,7 @@ class BrewTest {
                     )
             );
             BrewQuality brewQuality = brew.quality(recipe).orElse(null);
-            if (brewQuality == null) {
+            if (brewQuality == null || !brew.score(recipe).completed()) {
                 hasHadNullQuality = true;
             }
         }

@@ -8,6 +8,7 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
+import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
 import dev.jsinco.brewery.bukkit.effect.event.CustomDrunkEventReader;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
@@ -20,10 +21,12 @@ import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.StructureReader;
 import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
+import dev.jsinco.brewery.bukkit.util.BreweryTimeDataType;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.database.Database;
-import dev.jsinco.brewery.database.DatabaseDriver;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
+import dev.jsinco.brewery.database.sql.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
@@ -42,6 +45,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,12 +67,14 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private DrunkTextRegistry drunkTextRegistry;
     @Getter
-    private DrunksManager drunksManager;
+    private DrunksManager<Connection> drunksManager;
     @Getter
     private CustomEventRegistry customDrunkEventRegistry;
     private WorldEventListener worldEventListener;
     @Getter
     private DrunkEventExecutor drunkEventExecutor;
+    @Getter
+    private long time;
 
     @Override
     public void onLoad() {
@@ -151,10 +157,11 @@ public class TheBrewingProject extends JavaPlugin {
         this.database = new Database(DatabaseDriver.SQLITE);
         try {
             database.init(this.getDataFolder());
-        } catch (IOException | SQLException e) {
+            this.time = database.getSingleton(BreweryTimeDataType.INSTANCE);
+        } catch (IOException | PersistenceException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        this.drunksManager = new DrunksManager(customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()));
+        this.drunksManager = new DrunksManager<>(customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()), () -> this.time, database, SqlDrunkStateDataType.INSTANCE);
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry, drunkEventExecutor), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);
@@ -172,6 +179,15 @@ public class TheBrewingProject extends JavaPlugin {
             drunkTextRegistry.load(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        try {
+            database.setSingleton(BreweryTimeDataType.INSTANCE, time);
+        } catch (PersistenceException e) {
+            e.printStackTrace();
         }
     }
 
@@ -196,5 +212,12 @@ public class TheBrewingProject extends JavaPlugin {
 
     private void otherTicking() {
         drunksManager.tick(drunkEventExecutor::doDrunkEvent);
+        try {
+            if (time % 200 == 0) {
+                database.setSingleton(BreweryTimeDataType.INSTANCE, ++time);
+            }
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
     }
 }

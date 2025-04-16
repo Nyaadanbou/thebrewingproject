@@ -1,10 +1,7 @@
 package dev.jsinco.brewery.database;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+public interface RemovableStoredData<T, C> {
 
-public interface RemovableStoredData<T> {
-
-    void remove(T toRemove, Connection connection) throws SQLException;
+    void remove(T toRemove, C connection) throws PersistenceException;
 
 }

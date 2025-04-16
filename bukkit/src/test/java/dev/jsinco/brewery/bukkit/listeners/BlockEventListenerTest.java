@@ -4,6 +4,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistilleryDataType;
 import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.database.PersistenceException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,15 +42,15 @@ public class BlockEventListenerTest {
     }
 
     @Test
-    void distilleryTest() throws SQLException, IOException {
+    void distilleryTest() throws PersistenceException {
         StructurePlacerUtils.constructBambooDistillery(world);
         PlayerSimulation playerSimulation = new PlayerSimulation(player);
         Location potLocation = new Location(world, 0, 1, 0);
         playerSimulation.simulateBlockPlace(Material.DECORATED_POT, potLocation);
         assertTrue(plugin.getPlacedStructureRegistry().getStructure(BukkitAdapter.toBreweryLocation(potLocation)).isPresent());
-        assertEquals(1, plugin.getDatabase().retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
+        assertEquals(1, plugin.getDatabase().find(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
         playerSimulation.simulateBlockBreak(potLocation.getBlock());
         assertFalse(plugin.getPlacedStructureRegistry().getStructure(BukkitAdapter.toBreweryLocation(potLocation)).isPresent());
-        assertEquals(0, plugin.getDatabase().retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
+        assertEquals(0, plugin.getDatabase().find(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
     }
 }

@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.listeners;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
@@ -13,7 +14,8 @@ import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.DrunksManager;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
@@ -129,7 +131,7 @@ public class PlayerEventListener implements Listener {
             cauldron.addIngredient(itemStack, event.getPlayer());
             try {
                 database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
-            } catch (SQLException e) {
+            } catch (PersistenceException e) {
                 e.printStackTrace();
             }
         }
@@ -138,7 +140,7 @@ public class PlayerEventListener implements Listener {
                     .map(BukkitCauldron::getBrew)
                     .map(brew -> brew.withLastStep(
                                     BrewingStep.Cook.class,
-                                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(block.getWorld().getGameTime())),
+                                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(TheBrewingProject.getInstance().getTime())),
                                     () -> new BrewingStep.Cook(new PassedMoment(0), Map.of(), cauldronOptional.get().getCauldronType())
                             )
                     )
@@ -166,7 +168,7 @@ public class PlayerEventListener implements Listener {
         BukkitCauldron newCauldron = new BukkitCauldron(block);
         try {
             database.insertValue(BukkitCauldronDataType.INSTANCE, newCauldron);
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
         }
         breweryRegistry.addActiveCauldron(newCauldron);

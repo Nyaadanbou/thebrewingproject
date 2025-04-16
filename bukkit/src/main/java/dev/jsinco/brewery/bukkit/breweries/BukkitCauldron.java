@@ -44,7 +44,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
 
 
     public BukkitCauldron(Block block) {
-        this(new HashMap<>(), block, block.getWorld().getGameTime());
+        this(new HashMap<>(), block, TheBrewingProject.getInstance().getTime());
     }
 
     public BukkitCauldron(Map<Ingredient<ItemStack>, Integer> ingredients, Block block, long brewStart) {
@@ -80,7 +80,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         if (brew.lastStep() instanceof BrewingStep.Cook cook && recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
             brew = brew.witModifiedLastStep(brewingStep -> {
                 BrewingStep.Cook cookingStep = ((BrewingStep.Cook) brewingStep);
-                return cookingStep.withBrewTime(cookingStep.brewTime().withLastStep(block.getWorld().getGameTime()));
+                return cookingStep.withBrewTime(cookingStep.brewTime().withLastStep(TheBrewingProject.getInstance().getTime()));
             });
             this.particleColor = ColorUtil.getNextColor(Color.AQUA, IngredientUtil.ingredientData(cook.ingredients()).first(), cook.brewTime().moment(), recipeCook.brewTime().moment());
         }
@@ -99,9 +99,9 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_ACCESS_DENIED));
             return false;
         }
-        long gameTime = block.getWorld().getGameTime();
+        long time = TheBrewingProject.getInstance().getTime();
         if (!(brew.lastStep() instanceof BrewingStep.Cook)) {
-            brew = brew.withStep(new BrewingStep.Cook(new Interval(gameTime, gameTime), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType));
+            brew = brew.withStep(new BrewingStep.Cook(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType));
             return true;
         }
         brew = brew.witModifiedLastStep(step -> {

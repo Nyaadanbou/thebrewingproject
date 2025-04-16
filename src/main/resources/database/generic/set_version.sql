@@ -1,2 +1,4 @@
-UPDATE version
-SET version=?;
+INSERT OR
+REPLACE
+INTO version
+VALUES(?);

@@ -3,10 +3,8 @@ package dev.jsinco.brewery.bukkit.brew;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.database.FindableStoredData;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.UpdateableStoredData;
+import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
@@ -21,13 +19,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class BukkitDistilleryBrewDataType implements
-        InsertableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>, RemovableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>,
-        FindableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>, BreweryLocation>, UpdateableStoredData<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>> {
+        SqlStoredData.Insertable<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>, SqlStoredData.Removable<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>>,
+        SqlStoredData.Findable<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>, BreweryLocation>, SqlStoredData.Updateable<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>> {
 
     public static final BukkitDistilleryBrewDataType INSTANCE = new BukkitDistilleryBrewDataType();
 
     @Override
-    public List<Pair<Brew, DistilleryContext>> find(BreweryLocation searchObject, Connection connection) throws SQLException {
+    public List<Pair<Brew, DistilleryContext>> find(BreweryLocation searchObject, Connection connection) throws PersistenceException {
         List<Pair<Brew, DistilleryContext>> output = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_find.sql"))) {
             preparedStatement.setInt(1, searchObject.x());
@@ -41,12 +39,14 @@ public class BukkitDistilleryBrewDataType implements
                 Brew brew = Brew.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
                 output.add(new Pair<>(brew, new DistilleryContext(searchObject.x(), searchObject.y(), searchObject.z(), searchObject.worldUuid(), pos, isDistillate)));
             }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
         return output;
     }
 
     @Override
-    public void insert(Pair<Brew, DistilleryContext> value, Connection connection) throws SQLException {
+    public void insert(Pair<Brew, DistilleryContext> value, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_insert.sql"))) {
             DistilleryContext distilleryContext = value.second();
             Brew brew = value.first();
@@ -58,11 +58,13 @@ public class BukkitDistilleryBrewDataType implements
             preparedStatement.setBoolean(6, distilleryContext.distillate());
             preparedStatement.setString(7, Brew.SERIALIZER.serialize(brew).toString());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void remove(Pair<Brew, DistilleryContext> toRemove, Connection connection) throws SQLException {
+    public void remove(Pair<Brew, DistilleryContext> toRemove, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_remove.sql"))) {
             DistilleryContext distilleryContext = toRemove.second();
             preparedStatement.setInt(1, distilleryContext.uniqueX());
@@ -72,11 +74,13 @@ public class BukkitDistilleryBrewDataType implements
             preparedStatement.setInt(5, distilleryContext.inventoryPos());
             preparedStatement.setBoolean(6, distilleryContext.distillate());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void update(Pair<Brew, DistilleryContext> newValue, Connection connection) throws SQLException {
+    public void update(Pair<Brew, DistilleryContext> newValue, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_update.sql"))) {
             Brew brew = newValue.first();
             DistilleryContext distilleryContext = newValue.second();
@@ -88,6 +92,8 @@ public class BukkitDistilleryBrewDataType implements
             preparedStatement.setInt(6, distilleryContext.inventoryPos());
             preparedStatement.setBoolean(7, distilleryContext.distillate());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 

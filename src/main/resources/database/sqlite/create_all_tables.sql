@@ -70,3 +70,20 @@ CREATE TABLE IF NOT EXISTS version
 (
     version INTEGER DEFAULT -1
 );
+
+CREATE TABLE IF NOT EXISTS drunk_states
+(
+    player_uuid      BINARY(16),
+    alcohol_level    INTEGER,
+    toxin_level      INTEGER,
+    kicked_timestamp INTEGER DEFAULT -1,
+    time_stamp       INTEGER,
+    PRIMARY KEY (player_uuid)
+);
+
+CREATE TABLE IF NOT EXISTS time
+(
+    time INTEGER    DEFAULT 0,
+    singleton_value DEFAULT 0,
+    PRIMARY KEY (singleton_value)
+);

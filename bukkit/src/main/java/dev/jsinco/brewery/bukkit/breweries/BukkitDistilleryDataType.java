@@ -6,10 +6,8 @@ import dev.jsinco.brewery.bukkit.brew.BukkitDistilleryBrewDataType;
 import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.RetrievableStoredData;
-import dev.jsinco.brewery.database.UpdateableStoredData;
+import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Logging;
@@ -18,7 +16,6 @@ import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
 import org.joml.Matrix3d;
 
 import java.sql.Connection;
@@ -30,12 +27,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDistillery>, InsertableStoredData<BukkitDistillery>, RemovableStoredData<BukkitDistillery>, UpdateableStoredData<BukkitDistillery> {
+public class BukkitDistilleryDataType implements SqlStoredData.Findable<BukkitDistillery, UUID>, SqlStoredData.Insertable<BukkitDistillery>, SqlStoredData.Removable<BukkitDistillery>, SqlStoredData.Updateable<BukkitDistillery> {
 
     public static final BukkitDistilleryDataType INSTANCE = new BukkitDistilleryDataType();
 
     @Override
-    public void insert(BukkitDistillery value, Connection connection) throws SQLException {
+    public void insert(BukkitDistillery value, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distilleries_insert.sql"))) {
             PlacedBreweryStructure<BukkitDistillery> structure = value.getStructure();
             BreweryLocation origin = BukkitAdapter.toBreweryLocation(structure.getWorldOrigin());
@@ -51,11 +48,13 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
             preparedStatement.setString(9, structure.getStructure().getName());
             preparedStatement.setLong(10, value.getStartTime());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void remove(BukkitDistillery toRemove, Connection connection) throws SQLException {
+    public void remove(BukkitDistillery toRemove, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distilleries_remove.sql"))) {
             BreweryLocation unique = toRemove.getStructure().getUnique();
             preparedStatement.setInt(1, unique.x());
@@ -63,11 +62,13 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
             preparedStatement.setInt(3, unique.z());
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(unique.worldUuid()));
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public List<BukkitDistillery> retrieveAll(Connection connection, UUID worldUuid) throws SQLException {
+    public List<BukkitDistillery> find(UUID worldUuid, Connection connection) throws PersistenceException {
         List<BukkitDistillery> output = new ArrayList<>();
         World world = Bukkit.getWorld(worldUuid);
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distilleries_select_all.sql"))) {
@@ -91,6 +92,8 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
                 placedBreweryStructure.setHolder(bukkitDistillery);
                 output.add(bukkitDistillery);
             }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
         for (BukkitDistillery distillery : output) {
             List<Pair<Brew, BukkitDistilleryBrewDataType.DistilleryContext>> contents = BukkitDistilleryBrewDataType.INSTANCE.find(distillery.getStructure().getUnique(), connection);
@@ -104,7 +107,7 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
     }
 
     @Override
-    public void update(BukkitDistillery newValue, Connection connection) throws SQLException {
+    public void update(BukkitDistillery newValue, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distilleries_update.sql"))) {
             long startTime = newValue.getStartTime();
             BreweryLocation unique = newValue.getStructure().getUnique();
@@ -114,6 +117,8 @@ public class BukkitDistilleryDataType implements RetrievableStoredData<BukkitDis
             preparedStatement.setInt(4, unique.z());
             preparedStatement.setBytes(5, DecoderEncoder.asBytes(unique.worldUuid()));
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 }

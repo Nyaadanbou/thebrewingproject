@@ -8,7 +8,8 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistilleryDataType;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.PassedMoment;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
@@ -24,7 +25,6 @@ import org.mockbukkit.mockbukkit.MockBukkitExtension;
 import org.mockbukkit.mockbukkit.MockBukkitInject;
 import org.mockbukkit.mockbukkit.ServerMock;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ class BukkitDistilleryBrewDataTypeTest {
     }
 
     @Test
-    void checkPersistence() throws SQLException, IOException {
+    void checkPersistence() throws SQLException, PersistenceException {
         BukkitDistillery bukkitDistillery = prepareDistillery();
         BreweryLocation searchObject = bukkitDistillery.getStructure().getUnique();
         Brew brew1 = new Brew(
@@ -84,7 +84,7 @@ class BukkitDistilleryBrewDataTypeTest {
         assertFalse(database.find(BukkitDistilleryBrewDataType.INSTANCE, searchObject).contains(data1));
     }
 
-    private BukkitDistillery prepareDistillery() throws SQLException {
+    private BukkitDistillery prepareDistillery() throws PersistenceException {
         BukkitDistillery output = new BukkitDistillery(new PlacedBreweryStructure<>(theBrewingProject.getStructureRegistry().getStructure("bamboo_distillery").get(), new Matrix3d(), new Location(world, 3, 3, 3)));
         database.insertValue(BukkitDistilleryDataType.INSTANCE, output);
         return output;

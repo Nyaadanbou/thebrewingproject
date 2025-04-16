@@ -1,0 +1,82 @@
+package dev.jsinco.brewery.bukkit.effect;
+
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunkStateDataType;
+import dev.jsinco.brewery.util.DecoderEncoder;
+import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.Pair;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class SqlDrunkStateDataType implements DrunkStateDataType<Connection> {
+
+    public static final SqlDrunkStateDataType INSTANCE = new SqlDrunkStateDataType();
+
+    @Override
+    public void update(Pair<DrunkState, UUID> newValue, Connection connection) throws PersistenceException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/drunk_state_update.sql"))) {
+            DrunkState drunkState = newValue.first();
+            preparedStatement.setInt(1, drunkState.alcohol());
+            preparedStatement.setInt(2, drunkState.toxins());
+            preparedStatement.setLong(3, drunkState.kickedTimestamp());
+            preparedStatement.setLong(4, drunkState.timestamp());
+            preparedStatement.setBytes(5, DecoderEncoder.asBytes(newValue.second()));
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public void insert(Pair<DrunkState, UUID> value, Connection connection) throws PersistenceException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/drunk_state_insert.sql"))) {
+            DrunkState drunkState = value.first();
+            preparedStatement.setBytes(1, DecoderEncoder.asBytes(value.second()));
+            preparedStatement.setInt(2, drunkState.alcohol());
+            preparedStatement.setInt(3, drunkState.toxins());
+            preparedStatement.setLong(4, drunkState.kickedTimestamp());
+            preparedStatement.setLong(5, drunkState.timestamp());
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public void remove(UUID toRemove, Connection connection) throws PersistenceException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/drunk_state_remove.sql"))) {
+            preparedStatement.setBytes(1, DecoderEncoder.asBytes(toRemove));
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
+    @Override
+    public List<Pair<DrunkState, UUID>> retrieveAll(Connection connection) throws PersistenceException {
+        List<Pair<DrunkState, UUID>> drunks = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/"))) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                drunks.add(new Pair<>(
+                        new DrunkState(resultSet.getInt("alcohol_level"),
+                                resultSet.getInt("toxin_level"),
+                                0,
+                                resultSet.getLong("time_stamp"),
+                                resultSet.getLong("kicked_timestamp")),
+                        DecoderEncoder.asUuid(resultSet.getBytes("player_uuid"))
+                ));
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+        return drunks;
+    }
+}

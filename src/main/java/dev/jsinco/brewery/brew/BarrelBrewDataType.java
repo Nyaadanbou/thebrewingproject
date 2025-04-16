@@ -1,10 +1,8 @@
 package dev.jsinco.brewery.brew;
 
 import com.google.gson.JsonParser;
-import dev.jsinco.brewery.database.FindableStoredData;
-import dev.jsinco.brewery.database.InsertableStoredData;
-import dev.jsinco.brewery.database.RemovableStoredData;
-import dev.jsinco.brewery.database.UpdateableStoredData;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
@@ -20,13 +18,13 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class BarrelBrewDataType<I> implements
-        InsertableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>, RemovableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
-        FindableStoredData<Pair<Brew, Integer>, BreweryLocation>, UpdateableStoredData<Pair<Brew, BarrelBrewDataType.BarrelContext>> {
+        SqlStoredData.Insertable<Pair<Brew, BarrelBrewDataType.BarrelContext>>, SqlStoredData.Removable<Pair<Brew, BarrelBrewDataType.BarrelContext>>,
+        SqlStoredData.Findable<Pair<Brew, Integer>, BreweryLocation>, SqlStoredData.Updateable<Pair<Brew, BarrelBrewDataType.BarrelContext>> {
     protected BarrelBrewDataType() {
     }
 
     @Override
-    public void insert(Pair<Brew, BarrelContext> value, Connection connection) throws SQLException {
+    public void insert(Pair<Brew, BarrelContext> value, Connection connection) throws PersistenceException {
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_insert.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = value.second();
@@ -38,11 +36,13 @@ public abstract class BarrelBrewDataType<I> implements
             preparedStatement.setInt(5, context.inventoryPos);
             preparedStatement.setString(6, Brew.SERIALIZER.serialize(brew).toString());
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void remove(Pair<Brew, BarrelContext> toRemove, Connection connection) throws SQLException {
+    public void remove(Pair<Brew, BarrelContext> toRemove, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrel_brews_remove.sql"))) {
             BarrelContext context = toRemove.second();
             preparedStatement.setInt(1, context.uniqueX);
@@ -51,6 +51,8 @@ public abstract class BarrelBrewDataType<I> implements
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(context.worldUuid));
             preparedStatement.setInt(5, context.inventoryPos);
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
@@ -65,7 +67,7 @@ public abstract class BarrelBrewDataType<I> implements
     }
 
     @Override
-    public List<Pair<Brew, Integer>> find(BreweryLocation signLocation, Connection connection) throws SQLException {
+    public List<Pair<Brew, Integer>> find(BreweryLocation signLocation, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/barrel_brews_find.sql"))) {
             preparedStatement.setInt(1, signLocation.x());
             preparedStatement.setInt(2, signLocation.y());
@@ -77,11 +79,13 @@ public abstract class BarrelBrewDataType<I> implements
                 output.add(new Pair<>(brewFromResultSet(resultSet), resultSet.getInt("pos")));
             }
             return output;
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 
     @Override
-    public void update(Pair<Brew, BarrelContext> newValue, Connection connection) throws SQLException {
+    public void update(Pair<Brew, BarrelContext> newValue, Connection connection) throws PersistenceException {
         String statementString = FileUtil.readInternalResource("/database/generic/barrel_brews_update.sql");
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = newValue.second();
@@ -93,6 +97,8 @@ public abstract class BarrelBrewDataType<I> implements
             preparedStatement.setBytes(5, DecoderEncoder.asBytes(context.worldUuid));
             preparedStatement.setInt(6, context.inventoryPos);
             preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
         }
     }
 

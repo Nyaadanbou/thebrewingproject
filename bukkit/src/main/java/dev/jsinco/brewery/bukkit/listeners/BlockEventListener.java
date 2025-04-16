@@ -7,7 +7,8 @@ import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.bukkit.structure.*;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.structure.MultiBlockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
@@ -81,7 +82,7 @@ public class BlockEventListener implements Listener {
         breweryRegistry.registerInventory(barrel);
         try {
             database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
         }
     }
@@ -116,7 +117,7 @@ public class BlockEventListener implements Listener {
         try {
             database.insertValue(BukkitDistilleryDataType.INSTANCE, bukkitDistillery);
             breweryRegistry.registerInventory(bukkitDistillery);
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
         }
     }
@@ -232,7 +233,7 @@ public class BlockEventListener implements Listener {
             if (holder instanceof BukkitDistillery distillery) {
                 database.remove(BukkitDistilleryDataType.INSTANCE, distillery);
             }
-        } catch (SQLException e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
         }
     }

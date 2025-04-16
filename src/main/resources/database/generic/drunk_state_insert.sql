@@ -1,0 +1,2 @@
+INSERT INTO drunk_states
+VALUES (?, ?, ?, ?, ?);

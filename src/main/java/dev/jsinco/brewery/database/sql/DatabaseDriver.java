@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.database;
+package dev.jsinco.brewery.database.sql;
 
 import com.google.common.collect.Streams;
 import org.jetbrains.annotations.Nullable;

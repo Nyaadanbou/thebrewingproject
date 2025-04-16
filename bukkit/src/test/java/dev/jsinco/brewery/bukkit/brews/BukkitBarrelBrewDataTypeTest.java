@@ -7,7 +7,8 @@ import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
@@ -24,7 +25,6 @@ import org.mockbukkit.mockbukkit.MockBukkitExtension;
 import org.mockbukkit.mockbukkit.MockBukkitInject;
 import org.mockbukkit.mockbukkit.ServerMock;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -43,14 +43,14 @@ class BukkitBarrelBrewDataTypeTest {
     private World world;
 
     @BeforeEach
-    void setUp() throws SQLException, IOException {
+    void setUp() {
         TheBrewingProject theBrewingProject = MockBukkit.load(TheBrewingProject.class);
         this.database = theBrewingProject.getDatabase();
         this.world = serverMock.addSimpleWorld("hello_world!");
     }
 
     @Test
-    void checkPersistence() throws SQLException, IOException {
+    void checkPersistence() throws SQLException, PersistenceException {
         prepareBarrel();
         BreweryLocation searchObject = new BreweryLocation(1, 2, 3, world.getUID());
         Brew brew1 = new Brew(

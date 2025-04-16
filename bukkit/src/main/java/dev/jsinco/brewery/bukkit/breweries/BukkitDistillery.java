@@ -9,6 +9,7 @@ import dev.jsinco.brewery.bukkit.brew.BukkitDistilleryBrewDataType;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
@@ -43,7 +44,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
 
 
     public BukkitDistillery(@NotNull PlacedBreweryStructure<BukkitDistillery> structure) {
-        this(structure, structure.getWorldOrigin().getWorld().getGameTime());
+        this(structure, TheBrewingProject.getInstance().getTime());
     }
 
     public BukkitDistillery(@NotNull PlacedBreweryStructure<BukkitDistillery> structure, long startTime) {
@@ -141,7 +142,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         if (distillate.getInventory().getViewers().isEmpty() && mixture.getInventory().getViewers().isEmpty()) {
             TheBrewingProject.getInstance().getBreweryRegistry().unregisterOpened(this);
         }
-        if (structure.getWorldOrigin().getWorld().getGameTime() - startTime < getStructure().getStructure().getMeta(StructureMeta.PROCESS_TIME) || mixture.isEmpty()) {
+        if (TheBrewingProject.getInstance().getTime() - startTime < getStructure().getStructure().getMeta(StructureMeta.PROCESS_TIME) || mixture.isEmpty()) {
             return;
         }
         transferItems(mixture, distillate);
@@ -155,7 +156,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     private void resetStartTime() {
-        startTime = Bukkit.getWorld(getStructure().getUnique().worldUuid()).getGameTime();
+        startTime = TheBrewingProject.getInstance().getTime();
     }
 
     private void transferItems(DistilleryInventory inventory1, DistilleryInventory inventory2) {
@@ -243,7 +244,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
                     return;
                 }
                 TheBrewingProject.getInstance().getDatabase().updateValue(BukkitDistilleryBrewDataType.INSTANCE, data);
-            } catch (SQLException e) {
+            } catch (PersistenceException e) {
                 e.printStackTrace();
             }
 

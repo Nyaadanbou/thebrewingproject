@@ -1,0 +1,1 @@
+SELECT * FROM drunk_states;

@@ -1,7 +1,8 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import dev.jsinco.brewery.bukkit.breweries.*;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -11,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -42,19 +42,19 @@ public class WorldEventListener implements Listener {
 
     private void loadWorld(World world) {
         try {
-            List<BukkitBarrel> barrelList = database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID());
+            List<BukkitBarrel> barrelList = database.find(BukkitBarrelDataType.INSTANCE, world.getUID());
             for (BukkitBarrel barrel : barrelList) {
                 placedStructureRegistry.registerStructure(barrel.getStructure());
                 registry.registerInventory(barrel);
             }
-            List<BukkitCauldron> cauldrons = database.retrieveAll(BukkitCauldronDataType.INSTANCE, world.getUID());
+            List<BukkitCauldron> cauldrons = database.find(BukkitCauldronDataType.INSTANCE, world.getUID());
             cauldrons.forEach(registry::addActiveCauldron);
-            List<BukkitDistillery> distilleries = database.retrieveAll(BukkitDistilleryDataType.INSTANCE, world.getUID());
+            List<BukkitDistillery> distilleries = database.find(BukkitDistilleryDataType.INSTANCE, world.getUID());
             distilleries.stream()
                     .map(BukkitDistillery::getStructure)
                     .forEach(placedStructureRegistry::registerStructure);
             distilleries.forEach(registry::registerInventory);
-        } catch (SQLException | IOException e) {
+        } catch (PersistenceException e) {
             e.printStackTrace();
         }
     }

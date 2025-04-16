@@ -135,7 +135,7 @@ public class StatusCommand {
                 Formatter.number("alcohol", drunkState == null ? 0 : drunkState.alcohol()),
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
                 Placeholder.unparsed("player_name", target.getName()),
-                Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - drunksManager.getDrunkManagerTime()),
+                Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - TheBrewingProject.getInstance().getTime()),
                 Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
         );
     }

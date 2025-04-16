@@ -8,7 +8,8 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
@@ -48,7 +49,7 @@ class BarrelDataTypeTest {
     }
 
     @Test
-    void checkPersistence() throws IOException, SQLException {
+    void checkPersistence() throws PersistenceException {
         StructurePlacerUtils.constructSmallOakBarrel(world);
         Location barrelBlock = new Location(world, -3, 1, 2);
         Optional<Pair<PlacedBreweryStructure<BukkitBarrel>, BarrelType>> breweryStructureOptional = TheBrewingProject.getInstance()
@@ -81,12 +82,12 @@ class BarrelDataTypeTest {
                 )
         ));
         database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
-        List<BukkitBarrel> retrievedBarrels = database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID());
+        List<BukkitBarrel> retrievedBarrels = database.find(BukkitBarrelDataType.INSTANCE, world.getUID());
         assertEquals(1, retrievedBarrels.size());
         BukkitBarrel retrievedBarrel = retrievedBarrels.get(0);
         assertEquals(2, retrievedBarrel.getBrews().size());
         database.remove(BukkitBarrelDataType.INSTANCE, barrel);
-        assertTrue(database.retrieveAll(BukkitBarrelDataType.INSTANCE, world.getUID()).isEmpty());
+        assertTrue(database.find(BukkitBarrelDataType.INSTANCE, world.getUID()).isEmpty());
     }
 
 }

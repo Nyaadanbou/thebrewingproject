@@ -10,7 +10,8 @@ import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.database.Database;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.moment.Moment;
@@ -22,7 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -130,7 +130,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                 if (brews[i] != null) {
                     try {
                         TheBrewingProject.getInstance().getDatabase().remove(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brews[i], getContext(i)));
-                    } catch (SQLException e) {
+                    } catch (PersistenceException e) {
                         e.printStackTrace();
                     }
                 }
@@ -140,15 +140,15 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             Optional<Brew> brewOptional = BrewAdapter.fromItem(itemStack);
             final int iFinal = i;
             brewOptional.ifPresent(brew -> {
-                long gameTime = getWorld().getGameTime();
+                long time = TheBrewingProject.getInstance().getTime();
                 if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
-                    brew = brew.withStep(new BrewingStep.Age(new Interval(gameTime, gameTime), type));
+                    brew = brew.withStep(new BrewingStep.Age(new Interval(time, time), type));
                 }
                 if (Objects.equals(brew, brews[iFinal])) {
                     brews[iFinal] = brew.witModifiedLastStep(brewStep -> {
                         BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewStep);
                         Moment moment = ageBrewStep.age();
-                        Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(gameTime) : new Interval(gameTime - moment.moment(), gameTime);
+                        Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(time) : new Interval(time - moment.moment(), time);
                         return ageBrewStep.withAge(interval);
                     });
                     inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal]));
@@ -157,7 +157,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                 brew = brew.witModifiedLastStep(
                         brewingStep -> {
                             BrewingStep.Age ageBrewStep = ((BrewingStep.Age) brewingStep);
-                            return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(gameTime));
+                            return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(time));
                         }
                 );
                 inventory.setItem(iFinal, BrewAdapter.toItem(brew));
@@ -169,7 +169,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                     } else {
                         database.updateValue(BukkitBarrelBrewDataType.INSTANCE, new Pair<>(brew, context));
                     }
-                } catch (SQLException e) {
+                } catch (PersistenceException e) {
                     e.printStackTrace();
                 }
                 brews[iFinal] = brew;

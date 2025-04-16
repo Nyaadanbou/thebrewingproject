@@ -1,6 +1,8 @@
 package dev.jsinco.brewery.effect;
 
 import dev.jsinco.brewery.configuration.Config;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.PersistenceHandler;
 import dev.jsinco.brewery.effect.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
@@ -14,28 +16,44 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.LongSupplier;
 import java.util.stream.Stream;
 
-public class DrunksManager {
+public class DrunksManager<C> {
 
     private final CustomEventRegistry eventRegistry;
+    private final PersistenceHandler<C> persistenceHandler;
+    private final DrunkStateDataType<C> drunkStateDataType;
     private Set<BreweryKey> allowedEvents;
     private Map<UUID, DrunkState> drunks = new HashMap<>();
     @Getter
-    private long drunkManagerTime = 0;
+    private LongSupplier timeSupplier;
     private Map<Long, Map<UUID, DrunkEvent>> events = new HashMap<>();
     private Map<UUID, Long> plannedEvents = new HashMap<>();
 
     private static final Random RANDOM = new Random();
-    private final Map<UUID, Long> passedOut = new HashMap<>();
 
-    public DrunksManager(CustomEventRegistry registry, Set<BreweryKey> allowedEvents) {
+    public DrunksManager(CustomEventRegistry registry, Set<BreweryKey> allowedEvents, LongSupplier timeSupplier,
+                         PersistenceHandler<C> persistenceHandler, DrunkStateDataType<C> drunkStateDataType) {
         this.eventRegistry = registry;
         this.allowedEvents = allowedEvents;
+        this.timeSupplier = timeSupplier;
+        this.persistenceHandler = persistenceHandler;
+        this.drunkStateDataType = drunkStateDataType;
+        loadDrunkStates();
     }
 
-    public void consume(UUID playerUuid, int alcohol, int toxins) {
-        this.consume(playerUuid, alcohol, toxins, drunkManagerTime);
+    private void loadDrunkStates() {
+        try {
+            persistenceHandler.retrieveAll(drunkStateDataType)
+                    .forEach(pair -> drunks.put(pair.second(), pair.first()));
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public @Nullable DrunkState consume(UUID playerUuid, int alcohol, int toxins) {
+        return this.consume(playerUuid, alcohol, toxins, timeSupplier.getAsLong());
     }
 
     /**
@@ -43,37 +61,54 @@ public class DrunksManager {
      * @param alcohol
      * @param timestamp  Should be in relation to the internal clock in drunk manager
      */
-    public void consume(UUID playerUuid, int alcohol, int toxins, long timestamp) {
+    public @Nullable DrunkState consume(UUID playerUuid, int alcohol, int toxins, long timestamp) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         DrunkState drunkState = alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, 0, timestamp);
-        if (drunkState.alcohol() <= 0) {
+                drunks.get(playerUuid).recalculate(timestamp).addAlcohol(alcohol, toxins) : new DrunkState(alcohol, toxins, 0, timestamp, -1);
+
+        if (drunkState.alcohol() <= 0 && !isPassedOut(drunkState)) {
             drunks.remove(playerUuid);
-            return;
+            if (alreadyDrunk) {
+                try {
+                    persistenceHandler.remove(drunkStateDataType, playerUuid);
+                } catch (PersistenceException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
         }
         drunks.put(playerUuid, drunkState);
         planEvent(playerUuid);
+        try {
+            if (alreadyDrunk) {
+                persistenceHandler.updateValue(drunkStateDataType, new Pair<>(drunkState, playerUuid));
+            } else {
+                persistenceHandler.insertValue(drunkStateDataType, new Pair<>(drunkState, playerUuid));
+            }
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+        return drunkState;
     }
 
     public @Nullable DrunkState getDrunkState(UUID playerUuid) {
         boolean alreadyDrunk = drunks.containsKey(playerUuid);
         return alreadyDrunk ?
-                drunks.get(playerUuid).recalculate(drunkManagerTime) : null;
+                drunks.get(playerUuid).recalculate(timeSupplier.getAsLong()) : null;
 
     }
 
     public void reset(Set<BreweryKey> allowedEvents) {
         plannedEvents.clear();
-        passedOut.clear();
         drunks.clear();
         this.allowedEvents = allowedEvents;
         events.clear();
+        loadDrunkStates();
     }
 
     public void clear(UUID playerUuid) {
         Long plannedEventTime = plannedEvents.remove(playerUuid);
         drunks.remove(playerUuid);
-        passedOut.remove(playerUuid);
         if (plannedEventTime == null) {
             return;
         }
@@ -83,13 +118,7 @@ public class DrunksManager {
     }
 
     public void tick(BiConsumer<UUID, DrunkEvent> action) {
-        Map<UUID, DrunkEvent> currentEvents = events.remove(drunkManagerTime++);
-        List<UUID> wokenUp = passedOut.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() + (long) Config.PASS_OUT_TIME * Moment.MINUTE < drunkManagerTime)
-                .map(Map.Entry::getKey)
-                .toList();
-        wokenUp.forEach(passedOut::remove);
+        Map<UUID, DrunkEvent> currentEvents = events.remove(timeSupplier.getAsLong());
         if (currentEvents == null) {
             return;
         }
@@ -127,17 +156,21 @@ public class DrunksManager {
         int cumulativeSum = RandomUtil.cumulativeSum(drunkEvents);
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents);
         double value = (double) 10000 * (125 - drunkState.alcohol()) / cumulativeSum / 25;
-        long time = (long) (drunkManagerTime + Math.max(1, RANDOM.nextGaussian(value, value / 2)));
+        long time = (long) (timeSupplier.getAsLong() + Math.max(1, RANDOM.nextGaussian(value, value / 2)));
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
     }
 
     public void registerPassedOut(@NotNull UUID playerUUID) {
-        this.passedOut.put(playerUUID, drunkManagerTime);
+        drunks.computeIfPresent(playerUUID, (ignored, drunkState) -> drunkState.withPassOut(timeSupplier.getAsLong()));
     }
 
-    public boolean isPassedOut(@NotNull UUID uniqueId) {
-        return passedOut.containsKey(uniqueId);
+    public boolean isPassedOut(@NotNull UUID playerUUID) {
+        return drunks.containsKey(playerUUID) && isPassedOut(drunks.get(playerUUID));
+    }
+
+    private boolean isPassedOut(DrunkState drunkState) {
+        return drunkState.kickedTimestamp() + (long) Config.PASS_OUT_TIME * Moment.MINUTE < timeSupplier.getAsLong();
     }
 
     public @Nullable Pair<DrunkEvent, Long> getPlannedEvent(UUID playerUUID) {
