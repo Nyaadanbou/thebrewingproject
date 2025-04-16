@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,13 +25,14 @@ class DrunksManagerTest {
 
     private DrunksManager<Connection> drunksManager;
     private UUID playerUuid = UUID.randomUUID();
+    private AtomicLong time = new AtomicLong();
 
     @BeforeEach
     void setup() {
         this.drunksManager = new DrunksManager<>(new CustomEventRegistry(), Arrays.stream(NamedDrunkEvent.values())
                 .map(NamedDrunkEvent::key)
                 .collect(Collectors.toSet()),
-                () -> 0L,
+                time::get,
                 MockBukkit.load(TheBrewingProject.class).getDatabase(),
                 SqlDrunkStateDataType.INSTANCE
         );
@@ -41,7 +43,7 @@ class DrunksManagerTest {
         drunksManager.consume(playerUuid, 10, 0, 0);
         assertEquals(new DrunkState(10, 0, 0, 0, -1), drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, 0, 0, 400);
-        assertEquals(new DrunkState(8, 0, 0, 20, -1), drunksManager.getDrunkState(playerUuid));
+        assertEquals(new DrunkState(8, 0, 0, 400, -1), drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, -9, 0, 0);
         assertNull(drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, -10, 20, 0);
@@ -59,6 +61,7 @@ class DrunksManagerTest {
         drunksManager.consume(playerUuid, 100, 0);
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         for (int i = 0; i < 100000; i++) {
+            time.incrementAndGet();
             drunksManager.tick((uuid, event) -> {
                 atomicBoolean.set(true);
             });
@@ -71,6 +74,7 @@ class DrunksManagerTest {
         drunksManager.consume(playerUuid, 1, 0);
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         for (int i = 0; i < 100000; i++) {
+            time.incrementAndGet();
             drunksManager.tick((uuid, event) -> {
                 atomicBoolean.set(true);
             });
@@ -85,6 +89,7 @@ class DrunksManagerTest {
         assertNull(drunksManager.getDrunkState(playerUuid));
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
         for (int i = 0; i < 100000; i++) {
+            time.incrementAndGet();
             drunksManager.tick((uuid, event) -> {
                 atomicBoolean.set(true);
             });

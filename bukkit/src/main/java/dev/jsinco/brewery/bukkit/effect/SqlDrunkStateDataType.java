@@ -62,7 +62,7 @@ public class SqlDrunkStateDataType implements DrunkStateDataType<Connection> {
     @Override
     public List<Pair<DrunkState, UUID>> retrieveAll(Connection connection) throws PersistenceException {
         List<Pair<DrunkState, UUID>> drunks = new ArrayList<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/"))) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/drunk_states_retrieve.sql"))) {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 drunks.add(new Pair<>(
