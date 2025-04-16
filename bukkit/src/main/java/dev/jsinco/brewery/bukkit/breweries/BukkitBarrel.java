@@ -9,6 +9,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
@@ -117,7 +118,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             if (brews[i] == null) {
                 continue;
             }
-            ItemStack brewItem = BrewAdapter.toItem(brews[i]);
+            ItemStack brewItem = BrewAdapter.toItem(brews[i], Brew.State.BREWING);
             this.inventory.setItem(i, brewItem);
         }
     }
@@ -151,7 +152,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                         Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(time) : new Interval(time - moment.moment(), time);
                         return ageBrewStep.withAge(interval);
                     });
-                    inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal]));
+                    inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal], Brew.State.BREWING));
                     return;
                 }
                 brew = brew.witModifiedLastStep(
@@ -160,7 +161,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                             return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(time));
                         }
                 );
-                inventory.setItem(iFinal, BrewAdapter.toItem(brew));
+                inventory.setItem(iFinal, BrewAdapter.toItem(brew, Brew.State.BREWING));
                 Database database = TheBrewingProject.getInstance().getDatabase();
                 BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
                 try {

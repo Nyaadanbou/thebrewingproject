@@ -11,11 +11,23 @@ import java.util.Map;
 
 public class TranslationsConfig extends AbstractConfig {
 
+    @Key("brew.tooltip-brewing")
+    public static Map<String, String> BREW_TOOLTIP_BREWING;
+
     @Key("brew.tooltip")
     public static Map<String, String> BREW_TOOLTIP;
 
     @Key("brew.detailed-tooltip")
     public static Map<String, String> DETAILED_BREW_TOOLTIP;
+
+    @Key("brew.tooltip.alcoholic")
+    public static String ALCOHOLIC;
+
+    @Key("brew.tooltip.detailed-alcoholic")
+    public static String DETAILED_ALCOHOLIC;
+
+    @Key("brew.tooltip.quality-brewing")
+    public static String BREW_TOOLTIP_QUALITY_BREWING;
 
     @Key("brew.tooltip.quality")
     public static String BREW_TOOLTIP_QUALITY;

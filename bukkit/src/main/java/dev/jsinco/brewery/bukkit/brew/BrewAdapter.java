@@ -41,7 +41,7 @@ public class BrewAdapter {
     private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
 
-    public static ItemStack toItem(Brew brew) {
+    public static ItemStack toItem(Brew brew, Brew.State state) {
         RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
         Optional<Recipe<ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
         Optional<BrewScore> score = recipe.map(brew::score);
@@ -50,11 +50,11 @@ public class BrewAdapter {
         if (quality.isEmpty()) {
             RecipeResult<ItemStack> randomDefault = recipeRegistry.getRandomDefaultRecipe();
             //TODO Refactor this weird implementation for default recipes
-            itemStack = randomDefault.newBrewItem(BrewScore.EXCELLENT, brew);
+            itemStack = randomDefault.newBrewItem(BrewScore.EXCELLENT, brew, state);
         } else if (!score.map(BrewScore::completed).get()) {
             itemStack = incompletePotion(brew);
         } else {
-            itemStack = recipe.get().getRecipeResult().newBrewItem(score.get(), brew);
+            itemStack = recipe.get().getRecipeResult().newBrewItem(score.get(), brew, state);
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         fillPersistentData(itemMeta, brew);

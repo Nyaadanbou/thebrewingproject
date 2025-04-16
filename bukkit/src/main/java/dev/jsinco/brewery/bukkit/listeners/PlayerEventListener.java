@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
@@ -42,7 +43,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -144,7 +144,7 @@ public class PlayerEventListener implements Listener {
                                     () -> new BrewingStep.Cook(new PassedMoment(0), Map.of(), cauldronOptional.get().getCauldronType())
                             )
                     )
-                    .map(BrewAdapter::toItem)
+                    .map(brew -> BrewAdapter.toItem(brew, Brew.State.OTHER))
                     .ifPresent(brewItemStack -> {
                         decreaseItem(itemStack, event.getPlayer());
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);

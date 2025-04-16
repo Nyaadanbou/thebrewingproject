@@ -126,4 +126,9 @@ public class Brew {
             return new Brew(jsonArray.asList().stream().map(jsonElement -> BrewingStep.SERIALIZER.deserialize(jsonElement, ingredientManager)).toList());
         }
     }
+
+    public enum State {
+        BREWING,
+        OTHER
+    }
 }

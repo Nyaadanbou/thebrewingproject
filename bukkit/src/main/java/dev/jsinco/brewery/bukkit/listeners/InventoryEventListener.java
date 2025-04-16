@@ -1,6 +1,8 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
+import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.database.sql.Database;
 import org.bukkit.event.Event;
@@ -47,11 +49,20 @@ public class InventoryEventListener implements Listener {
         if (!upperInventoryIsClicked && CLICKED_INVENTORY_ITEM_MOVE.contains(action)) {
             return;
         }
+        InventoryView view = event.getView();
+        ItemStack hotbarItem = event.getHotbarButton() == -1 ? null : view.getBottomInventory().getItem(event.getHotbarButton());
+        ItemStack hoveredItem = event.getCurrentItem();
         Stream<ItemStack> relatedItems;
+        if (upperInventoryIsClicked) {
+            int slot = event.getRawSlot();
+            ItemStack initial = view.getItem(slot);
+            if (initial != null) {
+                view.setItem(slot, BrewAdapter.fromItem(initial)
+                        .map(brew -> BrewAdapter.toItem(brew, Brew.State.OTHER))
+                        .orElse(initial));
+            }
+        }
         if (TRANSFER_HOVERED_ITEM.contains(action)) {
-            InventoryView view = event.getView();
-            ItemStack hotbarItem = event.getHotbarButton() == -1 ? null : view.getBottomInventory().getItem(event.getHotbarButton());
-            ItemStack hoveredItem = event.getCurrentItem();
             if (upperInventoryIsClicked && hotbarItem == null) {
                 return;
             }

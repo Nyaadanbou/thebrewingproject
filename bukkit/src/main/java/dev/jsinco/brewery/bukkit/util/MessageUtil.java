@@ -132,7 +132,7 @@ public class MessageUtil {
         Stream.Builder<Component> streamBuilder = Stream.builder();
         for (int i = 0; i < brewingSteps.size(); i++) {
             BrewingStep brewingStep = brewingSteps.get(i);
-            String line = (detailed ? TranslationsConfig.DETAILED_BREW_TOOLTIP : TranslationsConfig.BREW_TOOLTIP).get(brewingStep.stepType().name().toLowerCase(Locale.ROOT));
+            String line = (detailed ? TranslationsConfig.DETAILED_BREW_TOOLTIP : TranslationsConfig.BREW_TOOLTIP_BREWING).get(brewingStep.stepType().name().toLowerCase(Locale.ROOT));
             streamBuilder.add(MiniMessage.miniMessage().deserialize(line, MessageUtil.getBrewStepTagResolver(brewingStep, score.getPartialScore(i))));
         }
         return streamBuilder.build();

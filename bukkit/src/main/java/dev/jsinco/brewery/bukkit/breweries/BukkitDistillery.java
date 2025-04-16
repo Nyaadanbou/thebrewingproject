@@ -257,7 +257,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
                     inventory.setItem(i, null);
                     continue;
                 }
-                inventory.setItem(i, BrewAdapter.toItem(brew));
+                inventory.setItem(i, BrewAdapter.toItem(brew, Brew.State.BREWING));
             }
         }
 
