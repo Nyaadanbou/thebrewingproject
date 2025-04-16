@@ -213,8 +213,8 @@ public class TheBrewingProject extends JavaPlugin {
     private void otherTicking() {
         drunksManager.tick(drunkEventExecutor::doDrunkEvent);
         try {
-            if (time % 200 == 0) {
-                database.setSingleton(BreweryTimeDataType.INSTANCE, ++time);
+            if (++time % 200 == 0) {
+                database.setSingleton(BreweryTimeDataType.INSTANCE, time);
             }
         } catch (PersistenceException e) {
             e.printStackTrace();
