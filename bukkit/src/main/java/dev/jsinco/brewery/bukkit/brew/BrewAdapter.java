@@ -21,6 +21,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -64,7 +65,7 @@ public class BrewAdapter {
     private static ItemStack incompletePotion(Brew brew) {
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-        potionMeta.
+        potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         Map<Ingredient<ItemStack>, Integer> ingredients = new HashMap<>();
         for (BrewingStep brewingStep : brew.getSteps()) {
             if (brewingStep instanceof BrewingStep.Cook cook) {
