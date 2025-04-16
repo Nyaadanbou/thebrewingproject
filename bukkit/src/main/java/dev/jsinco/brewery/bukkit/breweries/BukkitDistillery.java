@@ -16,8 +16,10 @@ import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -25,7 +27,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.SQLException;
 import java.util.*;
 
 public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack, Inventory> {
@@ -186,8 +187,18 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
     }
 
     @Override
-    public void destroy() {
-        //TODO
+    public void destroy(BreweryLocation breweryLocation) {
+        Location location = BukkitAdapter.toLocation(breweryLocation).add(0.5, 0, 0.5);
+        for (DistilleryInventory distilleryInventory : List.of(distillate, mixture)) {
+            List.copyOf(distilleryInventory.getInventory().getViewers()).forEach(HumanEntity::closeInventory);
+            distilleryInventory.getInventory().clear();
+            for (Brew brew : distilleryInventory.getBrews()) {
+                if (brew == null) {
+                    continue;
+                }
+                location.getWorld().dropItem(location, BrewAdapter.toItem(brew, Brew.State.OTHER));
+            }
+        }
     }
 
     public static class DistilleryInventory implements InventoryHolder {

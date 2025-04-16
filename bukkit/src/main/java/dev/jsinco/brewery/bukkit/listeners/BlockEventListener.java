@@ -27,7 +27,6 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -189,7 +188,7 @@ public class BlockEventListener implements Listener {
         }
         multiBlockStructures.forEach(placedStructureRegistry::unregisterStructure);
         for (StructureHolder<?> holder : holders) {
-            holder.destroy();
+            holder.destroy(BukkitAdapter.toBreweryLocation(locationList.getFirst()));
             remove(holder);
         }
     }
@@ -216,7 +215,7 @@ public class BlockEventListener implements Listener {
         multiBlockStructure
                 .map(MultiBlockStructure::getHolder)
                 .ifPresent(holder -> {
-                    holder.destroy();
+                    holder.destroy(breweryLocation);
                     remove(holder);
                     if (holder instanceof InventoryAccessible inventoryAccessible) {
                         breweryRegistry.unregisterInventory(inventoryAccessible);

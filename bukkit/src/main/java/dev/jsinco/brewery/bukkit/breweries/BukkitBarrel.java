@@ -20,17 +20,17 @@ import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.util.*;
 
 @Getter
-public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>, Tickable, InventoryHolder {
+public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>, InventoryHolder {
     private final PlacedBreweryStructure<BukkitBarrel> structure;
     @Getter
     private final @NotNull Inventory inventory;
@@ -51,6 +51,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
         this.signLocation = signLocation;
     }
 
+    @Override
     public boolean open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {
         Player player = Bukkit.getPlayer(playerUuid);
         if (!player.hasPermission("brewery.barrel.access")) {
@@ -104,8 +105,16 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
     }
 
     @Override
-    public void destroy() {
-        // TODO: What should be done when this barrel is destroyed? Probably drop all the brews, right?
+    public void destroy(BreweryLocation breweryLocation) {
+        Location location = BukkitAdapter.toLocation(breweryLocation).add(0.5, 0, 0.5);
+        List.copyOf(inventory.getViewers()).forEach(HumanEntity::closeInventory);
+        this.inventory.clear();
+        for (Brew brew : brews) {
+            if (brew == null) {
+                continue;
+            }
+            location.getWorld().dropItem(location, BrewAdapter.toItem(brew, Brew.State.OTHER));
+        }
     }
 
     @Override
