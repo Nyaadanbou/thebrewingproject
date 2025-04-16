@@ -18,7 +18,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -33,11 +32,7 @@ public class CreateCommand {
             "-c", "--cook"
     );
 
-    public static boolean onCommand(Player player, String[] args) {
-        if (!player.hasPermission("brewery.command.create")) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
-            return true;
-        }
+    public static boolean onCommand(Player target, CommandSender sender, String[] args) {
         Map<String, BiFunction<Queue<String>, CommandSender, BrewingStep>> operators = Map.of(
                 "--age", CreateCommand::getAge,
                 "--distill", CreateCommand::getDistill,
@@ -54,18 +49,18 @@ public class CreateCommand {
             }
             BiFunction<Queue<String>, CommandSender, BrewingStep> operator = operators.get(operatorName);
             if (operator == null) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNKNOWN_ARGUMENT, Placeholder.unparsed("argument", operatorName)));
+                sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNKNOWN_ARGUMENT, Placeholder.unparsed("argument", operatorName)));
                 return false;
             }
-            steps.add(operator.apply(arguments, player));
+            steps.add(operator.apply(arguments, sender));
             mandatory.remove(operatorName);
         }
         if (!mandatory.isEmpty()) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT, Placeholder.unparsed("arguments", mandatory.toString())));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT, Placeholder.unparsed("arguments", mandatory.toString())));
             return false;
         }
         ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), Brew.State.OTHER);
-        player.getWorld().dropItem(player.getLocation(), brewItem);
+        target.getWorld().dropItem(target.getLocation(), brewItem);
         return true;
     }
 
@@ -99,50 +94,40 @@ public class CreateCommand {
         return new BrewingStep.Age(new PassedMoment(age), barrelType);
     }
 
-    public static @Nullable List<String> tabComplete(@NotNull String @NotNull [] args) {
+    public static List<String> tabComplete(@NotNull String @NotNull [] args) {
         for (int i = args.length - 2; i >= 0; i--) {
             if (TAB_COMPLETIONS.contains(args[i])) {
-                String[] precedingArgs = Arrays.copyOfRange(args, i + 1, args.length);
+                int precedingArgsLength = args.length - i - 1;
                 return switch (REPLACEMENTS.getOrDefault(args[i], args[i])) {
                     case "--age" -> {
-                        if (precedingArgs.length == 1) {
-                            yield List.of("<number>");
-                        } else if (precedingArgs.length == 2) {
+                        if (precedingArgsLength == 1) {
+                            yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
+                        } else if (precedingArgsLength == 2) {
                             yield Registry.BARREL_TYPE.values().stream()
                                     .map(BarrelType::key)
                                     .map(BreweryKey::key)
-                                    .filter(barrelType -> barrelType.startsWith(precedingArgs[1]))
                                     .toList();
-                        } else if (precedingArgs.length == 3) {
-                            yield TAB_COMPLETIONS.stream()
-                                    .filter(tabCompletion -> tabCompletion.startsWith(precedingArgs[2]))
-                                    .toList();
+                        } else if (precedingArgsLength == 3) {
+                            yield TAB_COMPLETIONS;
                         }
                         yield List.of();
                     }
                     case "--cook" -> {
-                        if (precedingArgs.length == 1) {
-                            yield List.of("<number>");
-                        } else if (precedingArgs.length == 2) {
+                        if (precedingArgsLength == 1) {
+                            yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
+                        } else if (precedingArgsLength == 2) {
                             yield Registry.CAULDRON_TYPE.values().stream()
                                     .map(CauldronType::key)
                                     .map(BreweryKey::key)
-                                    .filter(cauldronType -> cauldronType.startsWith(precedingArgs[1]))
                                     .toList();
                         }
-                        yield Stream.concat(
-                                Stream.of("<ingredient/amount>"),
-                                TAB_COMPLETIONS.stream()
-                                        .filter(tabCompletion -> tabCompletion.startsWith(precedingArgs[precedingArgs.length - 1]))
-                        ).toList();
+                        yield Stream.concat(Stream.of("<ingredient/amount>"), TAB_COMPLETIONS.stream()).toList();
                     }
                     case "--distill" -> {
-                        if (precedingArgs.length == 1) {
-                            yield List.of("<integer>");
-                        } else if (precedingArgs.length == 2) {
-                            yield TAB_COMPLETIONS.stream()
-                                    .filter(tabCompletion -> tabCompletion.startsWith(precedingArgs[1]))
-                                    .toList();
+                        if (precedingArgsLength == 1) {
+                            yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
+                        } else if (precedingArgsLength == 2) {
+                            yield TAB_COMPLETIONS;
                         }
                         yield List.of();
                     }

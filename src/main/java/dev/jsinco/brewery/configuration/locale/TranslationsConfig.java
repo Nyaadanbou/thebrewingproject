@@ -116,6 +116,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.unknown-player")
     public static String COMMAND_UNKNOWN_PLAYER;
 
+    @Key("command.undefined-player")
+    public static String COMMAND_UNDEFINED_PLAYER;
+
     @Key("command.not-enough-permissions")
     public static String COMMAND_NOT_ENOUGH_PERMISSIONS;
 

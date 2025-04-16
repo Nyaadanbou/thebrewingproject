@@ -2,7 +2,6 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
-import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.event.DrunkEvent;
@@ -10,7 +9,10 @@ import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -18,52 +20,67 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
 public class BreweryCommand implements TabExecutor {
+
+    public static final List<String> INTEGER_TAB_COMPLETIONS = compileIntegerTabCompletions();
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("You can only run brewery commands as a player");
-            return true;
-        }
         try {
             SubCommand subCommand = SubCommand.valueOf(args[0].toUpperCase(Locale.ROOT));
             if (!sender.hasPermission(subCommand.getPermissionNode())) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+                sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+                return true;
+            }
+            OfflinePlayer target;
+            if (args.length > 1 && args[1].equals("for")) {
+                if (args.length > 2) {
+                    target = Bukkit.getOfflinePlayerIfCached(args[2]);
+                    if (target == null) {
+                        sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[2])));
+                        return true;
+                    }
+                } else {
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT, Placeholder.unparsed("argument_type", "<player-name>")));
+                    return true;
+                }
+                args = Arrays.copyOfRange(args, 2, args.length);
+            } else if (sender instanceof OfflinePlayer player) {
+                target = player;
+            } else {
+                target = null;
+            }
+            if ((subCommand.isRequiresOfflinePlayer() && target == null) || (!(target instanceof Player) && subCommand.isRequiresPlayer())) {
+                sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNDEFINED_PLAYER));
                 return true;
             }
             return switch (subCommand) {
-                case CREATE -> CreateCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
+                case CREATE ->
+                        CreateCommand.onCommand((Player) target, sender, Arrays.copyOfRange(args, 1, args.length));
                 case EVENT -> {
                     NamedDrunkEvent namedDrunkEvent = Registry.DRUNK_EVENT.get(BreweryKey.parse(args[1]));
                     if (namedDrunkEvent != null) {
-                        NamedDrunkEventExecutor.doDrunkEvent(player.getUniqueId(), namedDrunkEvent);
+                        NamedDrunkEventExecutor.doDrunkEvent(target.getUniqueId(), namedDrunkEvent);
                         yield true;
                     }
-                    TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(player.getUniqueId(), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().getCustomEvent(BreweryKey.parse(args[1])));
+                    TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(target.getUniqueId(), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().getCustomEvent(BreweryKey.parse(args[1])));
                     yield true;
                 }
-                case STATUS -> StatusCommand.onCommand(player, Arrays.copyOfRange(args, 1, args.length));
-                case INFO -> InfoCommand.onCommand(player);
+                case STATUS -> StatusCommand.onCommand(target, sender, Arrays.copyOfRange(args, 1, args.length));
+                case INFO -> InfoCommand.onCommand((Player) target, sender, Arrays.copyOfRange(args, 1, args.length));
                 case RELOAD -> {
-                    if (!player.hasPermission("brewery.command.reload")) {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
-                        yield true;
-                    }
                     TheBrewingProject.getInstance().reload();
-                    player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_RELOAD_MESSAGE));
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_RELOAD_MESSAGE));
                     yield true;
                 }
                 case SEAL -> {
-                    if (!player.hasPermission("brewery.command.seal")) {
-                        player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
-                        yield true;
-                    }
-                    BrewAdapter.seal(player.getInventory().getItemInMainHand(), args.length > 1 ? LegacyComponentSerializer.legacyAmpersand().deserialize(
+                    BrewAdapter.seal(((Player) target).getInventory().getItemInMainHand(), args.length > 1 ? LegacyComponentSerializer.legacyAmpersand().deserialize(
                             String.join(" ", Arrays.copyOfRange(args, 1, args.length))
                     ) : null);
                     yield true;
@@ -73,7 +90,7 @@ public class BreweryCommand implements TabExecutor {
             // Lazy handling
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT));
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_ILLEGAL_ARGUMENT));
             return true;
         }
@@ -85,11 +102,12 @@ public class BreweryCommand implements TabExecutor {
             return List.of();
         }
         if (args.length == 1) {
+            final String[] finalArgs = args;
             return Arrays.stream(SubCommand.values())
                     .filter(subCommand -> sender.hasPermission(subCommand.getPermissionNode()))
                     .map(SubCommand::name)
                     .map(subCommand -> subCommand.toLowerCase(Locale.ROOT))
-                    .filter(subCommand -> subCommand.startsWith(args[0]))
+                    .filter(subCommand -> subCommand.startsWith(finalArgs[0]))
                     .toList();
         }
         SubCommand subCommand;
@@ -98,7 +116,18 @@ public class BreweryCommand implements TabExecutor {
         } catch (IllegalArgumentException e) {
             return List.of();
         }
-        return switch (subCommand) {
+        List<String> tabCompletions = new ArrayList<>();
+        if (args.length == 2 && subCommand.isRequiresOfflinePlayer()) {
+            tabCompletions.add("for");
+        }
+        if (args[1].equals("for") && subCommand.isRequiresOfflinePlayer()) {
+            if (args.length == 3) {
+                return null;
+            } else if (args.length > 3) {
+                args = Arrays.copyOfRange(args, 2, args.length);
+            }
+        }
+        tabCompletions.addAll(switch (subCommand) {
             case CREATE -> CreateCommand.tabComplete(Arrays.copyOfRange(args, 1, args.length));
             case EVENT -> {
                 if (args.length > 2) {
@@ -107,10 +136,9 @@ public class BreweryCommand implements TabExecutor {
                 yield Stream.concat(Arrays.stream(NamedDrunkEvent.values()), TheBrewingProject.getInstance().getCustomDrunkEventRegistry().events().stream())
                         .map(DrunkEvent::key)
                         .map(BreweryKey::key)
-                        .filter(drunkEvent -> drunkEvent.startsWith(args[1]))
                         .toList();
             }
-            case INFO -> List.of();
+            case INFO -> INTEGER_TAB_COMPLETIONS;
             case SEAL -> {
                 if (args.length == 2) {
                     yield List.of("<volume>");
@@ -119,6 +147,19 @@ public class BreweryCommand implements TabExecutor {
             }
             case STATUS -> StatusCommand.tabComplete(Arrays.copyOfRange(args, 1, args.length));
             case RELOAD -> List.of();
-        };
+        });
+        final String[] finalArgs = args;
+        return tabCompletions.
+                stream()
+                .filter(string -> string.startsWith(finalArgs[finalArgs.length - 1]))
+                .toList();
+    }
+
+    private static List<String> compileIntegerTabCompletions() {
+        List<String> strings = new ArrayList<>();
+        for (int i = 0; i < 101; i++) {
+            strings.add(String.valueOf(i));
+        }
+        return List.copyOf(strings);
     }
 }

@@ -49,6 +49,7 @@ cauldron.type:
   snow: snow
   none: none
 command.unknown-player: <red>Unknown player <player_name>
+command.undefined-player: <red>You need to define a player
 command.create.unknown-argument: <red>Unknown argument(s) '<argument>'
 command.create.missing-mandatory-argument: <gray>Missing mandatory argument(s) <arguments>
 command.status.info.message: |-
@@ -61,6 +62,7 @@ command.status.clear.message: <gray>Cleared all drunk effects on <player_name>
 command.status.set.message: <gray>Set the drunk effect of <player_name> to <alcohol> alcohol and <toxins> toxins
 command.not-enough-permissions: <red>Not enough permissions
 command.illegal-argument: <red>Illegal argument
+command.missing-argument: <red>Missing argument <argument_type>
 command.info.message: |-
   <gray>----<quality_color><quality></quality_color>----
   <brewing_step_info>

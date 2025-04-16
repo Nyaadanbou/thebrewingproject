@@ -10,154 +10,96 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class StatusCommand {
-    public static boolean onCommand(Player player, @NotNull String[] args) {
-        if (!player.hasPermission("brewery.command.status")) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
-            return true;
-        }
-        DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+    public static boolean onCommand(OfflinePlayer player, CommandSender sender, @NotNull String[] args) {
+        DrunksManager<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
         return switch (args[0]) {
-            case "info" -> StatusCommand.info(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
-            case "consume" -> StatusCommand.consume(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
-            case "clear" -> StatusCommand.clear(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
-            case "set" -> StatusCommand.set(player, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "info" -> StatusCommand.info(player, sender, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "consume" ->
+                    StatusCommand.consume(player, sender, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "clear" ->
+                    StatusCommand.clear(player, sender, drunksManager, Arrays.copyOfRange(args, 1, args.length));
+            case "set" -> StatusCommand.set(player, sender, drunksManager, Arrays.copyOfRange(args, 1, args.length));
             default -> false;
         };
     }
 
-    private static @Nullable OfflinePlayer getTarget(Player requester, String[] args) {
-        if (args.length == 0) {
-            return requester;
-        } else {
-            return Bukkit.getOfflinePlayerIfCached(args[0]);
-        }
-    }
-
-    private static boolean set(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
-        if (args.length < 2) {
-            return false;
-        }
-        OfflinePlayer target;
-        String[] subArgs;
-        try {
-            Integer.parseInt(args[0]);
-            target = requester;
-            subArgs = args;
-        } catch (NumberFormatException e) {
-            target = Bukkit.getOfflinePlayerIfCached(args[0]);
-            if (target == null) {
-                requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
-                return true;
-            }
-            subArgs = Arrays.copyOfRange(args, 1, args.length);
+    private static boolean set(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+        if (args.length < 1) {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT, Placeholder.unparsed("argument_type", "<alcohol>")));
+            return true;
         }
         drunksManager.clear(target.getUniqueId());
-        int alcohol = Integer.parseInt(subArgs[0]);
+        return consume(target, sender, drunksManager, args);
+    }
+
+    private static boolean clear(@NotNull OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+        drunksManager.clear(target.getUniqueId());
+        sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE, Placeholder.unparsed("player_name", target.getName())));
+        return true;
+    }
+
+    private static boolean consume(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+        if (args.length < 1) {
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT, Placeholder.unparsed("argument_type", "<alcohol>")));
+            return true;
+        }
+        drunksManager.clear(target.getUniqueId());
+        int alcohol = Integer.parseInt(args[0]);
         int toxins;
-        if (subArgs.length == 2) {
-            toxins = Integer.parseInt(subArgs[1]);
+        if (args.length == 2) {
+            toxins = Integer.parseInt(args[1]);
         } else {
             toxins = 0;
         }
         drunksManager.consume(target.getUniqueId(), alcohol, toxins);
-        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_SET_MESSAGE));
+        sender.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_SET_MESSAGE));
         return true;
     }
 
-    private static boolean clear(@NotNull Player requester, DrunksManager drunksManager, @NotNull String[] args) {
-        OfflinePlayer target = getTarget(requester, args);
+    private static boolean info(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
         if (target == null) {
-            requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
             return true;
         }
-        drunksManager.clear(target.getUniqueId());
-        requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE, Placeholder.unparsed("player_name", target.getName())));
+        sender.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_INFO_MESSAGE));
         return true;
     }
 
-    private static boolean consume(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
-        if (args.length < 2) {
-            return false;
-        }
-        OfflinePlayer target;
-        String[] subArgs;
-        try {
-            Integer.parseInt(args[0]);
-            target = requester;
-            subArgs = args;
-        } catch (NumberFormatException e) {
-            target = Bukkit.getOfflinePlayerIfCached(args[0]);
-            if (target == null) {
-                requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
-                return true;
-            }
-            subArgs = Arrays.copyOfRange(args, 1, args.length);
-        }
-        int alcohol = Integer.parseInt(subArgs[0]);
-        int toxins;
-        if (subArgs.length == 2) {
-            toxins = Integer.parseInt(subArgs[1]);
-        } else {
-            toxins = 0;
-        }
-        drunksManager.consume(target.getUniqueId(), alcohol, toxins);
-        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_CONSUME_MESSAGE));
-        return true;
-    }
-
-    private static boolean info(Player requester, DrunksManager drunksManager, @NotNull String[] args) {
-        OfflinePlayer target = getTarget(requester, args);
-        if (target == null) {
-            requester.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
-            return true;
-        }
-        requester.sendMessage(compileStatusMessage(target, drunksManager, TranslationsConfig.COMMAND_STATUS_INFO_MESSAGE));
-        return true;
-    }
-
-    private static Component compileStatusMessage(OfflinePlayer target, DrunksManager drunksManager, String message) {
+    private static Component compileStatusMessage(OfflinePlayer target, DrunksManager<?> drunksManager, String message) {
         DrunkState drunkState = drunksManager.getDrunkState(target.getUniqueId());
         Pair<DrunkEvent, Long> nextEvent = drunksManager.getPlannedEvent(target.getUniqueId());
         drunksManager.getPlannedEvent(target.getUniqueId());
+        String targetName = target.getName();
         return MiniMessage.miniMessage().deserialize(
                 message,
                 Formatter.number("alcohol", drunkState == null ? 0 : drunkState.alcohol()),
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
-                Placeholder.unparsed("player_name", target.getName()),
+                Placeholder.unparsed("player_name", targetName == null ? "null" : targetName),
                 Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - TheBrewingProject.getInstance().getTime()),
                 Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
         );
     }
 
-    public static @Nullable List<String> tabComplete(@NotNull String[] args) {
+    public static List<String> tabComplete(@NotNull String[] args) {
         if (args.length == 1) {
             return Stream.of("info", "consume", "set", "clear")
-                    .filter(subCommand -> subCommand.startsWith(args[0]))
                     .toList();
         }
         return switch (args[0]) {
-            case "info" -> {
-                if (args.length == 2) {
-                    yield null;
-                }
-                yield List.of();
-            }
             case "consume", "set" -> {
                 if (args.length == 2) {
-                    yield List.of("<integer-alcohol>");
+                    yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
                 } else if (args.length == 3) {
-                    yield List.of("<integer-toxins>");
+                    yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
                 }
                 yield List.of();
             }
