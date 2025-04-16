@@ -112,7 +112,8 @@ public class BrewAdapter {
         if (!Objects.equals(dataVersion, DATA_VERSION)) {
             return Optional.empty();
         }
-        return Optional.of(new Brew(data.get(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST)));
+        return Optional.ofNullable(data.get(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST))
+                .map(Brew::new);
     }
 
     public static void seal(ItemStack itemStack, @Nullable Component volume) {
