@@ -55,7 +55,7 @@ public class BrewScore {
         } else {
             scoreWithDifficulty = (Math.exp(score * Math.log(brewDifficulty)) - 1) / (brewDifficulty - 1);
         }
-        return Math.max(scoreWithDifficulty - 0.3, 0.0) * 1 / 0.7;
+        return Math.max(Math.min(scoreWithDifficulty + 0.05, 1D) - 0.3, 0.0) * 1 / 0.7;
     }
 
     public String displayName() {

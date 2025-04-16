@@ -64,6 +64,7 @@ public class BrewAdapter {
     private static ItemStack incompletePotion(Brew brew) {
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+        potionMeta.
         Map<Ingredient<ItemStack>, Integer> ingredients = new HashMap<>();
         for (BrewingStep brewingStep : brew.getSteps()) {
             if (brewingStep instanceof BrewingStep.Cook cook) {
