@@ -40,6 +40,10 @@ public class BreweryCommand implements TabExecutor {
             }
             OfflinePlayer target;
             if (args.length > 1 && args[1].equals("for")) {
+                if (!sender.hasPermission("brewery.command.other")) {
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_NOT_ENOUGH_PERMISSIONS));
+                    return true;
+                }
                 if (args.length > 2) {
                     target = Bukkit.getOfflinePlayerIfCached(args[2]);
                     if (target == null) {
@@ -116,15 +120,20 @@ public class BreweryCommand implements TabExecutor {
         } catch (IllegalArgumentException e) {
             return List.of();
         }
-        List<String> tabCompletions = new ArrayList<>();
-        if (args.length == 2 && subCommand.isRequiresOfflinePlayer()) {
-            tabCompletions.add("for");
+        if (!sender.hasPermission(subCommand.getPermissionNode())) {
+            return List.of();
         }
-        if (args[1].equals("for") && subCommand.isRequiresOfflinePlayer()) {
-            if (args.length == 3) {
-                return null;
-            } else if (args.length > 3) {
-                args = Arrays.copyOfRange(args, 2, args.length);
+        List<String> tabCompletions = new ArrayList<>();
+        if (subCommand.isRequiresOfflinePlayer() && sender.hasPermission("brewery.command.other")) {
+            if (args.length == 2) {
+                tabCompletions.add("for");
+            }
+            if (args[1].equals("for")) {
+                if (args.length == 3) {
+                    return null;
+                } else if (args.length > 3) {
+                    args = Arrays.copyOfRange(args, 2, args.length);
+                }
             }
         }
         tabCompletions.addAll(switch (subCommand) {
@@ -141,7 +150,7 @@ public class BreweryCommand implements TabExecutor {
             case INFO -> INTEGER_TAB_COMPLETIONS;
             case SEAL -> {
                 if (args.length == 2) {
-                    yield List.of("<volume>");
+                    yield List.of("<volume-info>");
                 }
                 yield List.of();
             }

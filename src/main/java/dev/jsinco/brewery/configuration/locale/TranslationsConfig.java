@@ -101,6 +101,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.create.missing-mandatory-argument")
     public static String COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT;
 
+    @Key("command.create.success")
+    public static String COMMAND_CREATE_SUCCESS;
+
     @Key("command.status.info.message")
     public static String COMMAND_STATUS_INFO_MESSAGE;
 

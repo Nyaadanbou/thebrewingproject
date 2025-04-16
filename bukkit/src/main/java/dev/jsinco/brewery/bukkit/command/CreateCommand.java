@@ -61,6 +61,7 @@ public class CreateCommand {
         }
         ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), Brew.State.OTHER);
         target.getWorld().dropItem(target.getLocation(), brewItem);
+        sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_SUCCESS, Placeholder.component("brew_name", brewItem.effectiveName())));
         return true;
     }
 
