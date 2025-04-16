@@ -170,7 +170,7 @@ public class DrunksManager<C> {
     }
 
     private boolean isPassedOut(DrunkState drunkState) {
-        return drunkState.kickedTimestamp() + (long) Config.PASS_OUT_TIME * Moment.MINUTE < timeSupplier.getAsLong();
+        return drunkState.kickedTimestamp() + (long) Config.PASS_OUT_TIME * Moment.MINUTE > timeSupplier.getAsLong();
     }
 
     public @Nullable Pair<DrunkEvent, Long> getPlannedEvent(UUID playerUUID) {

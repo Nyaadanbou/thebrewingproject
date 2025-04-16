@@ -29,9 +29,12 @@ events:
         - type: wait
           condition: join
         - type: teleport
+        - type: consume
+          alcohol: -30
+          toxins: -15
       alcohol: 90
       toxins: 60
-      probability-weight: 25
+      probability-weight: 15
 
   teleport-destinations:
     - world, 0, 80, 0

@@ -69,6 +69,9 @@ public class DrunkEventExecutor {
                     );
                     return;
                 }
+                case ConsumeStep consumeStep -> {
+                    TheBrewingProject.getInstance().getDrunksManager().consume(playerUuid, consumeStep.alcohol(), consumeStep.toxins());
+                }
             }
         }
     }
