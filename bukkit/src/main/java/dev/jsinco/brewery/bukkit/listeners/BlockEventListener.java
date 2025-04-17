@@ -89,22 +89,21 @@ public class BlockEventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent placeEvent) {
         Block placed = placeEvent.getBlockPlaced();
-        if (!trackedDistilleryBlocks.contains(placed.getType())) {
-            return;
-        }
-        for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
-            Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), DistilleryBlockDataMatcher.INSTANCE, new Void[1]);
-            if (placedBreweryStructureOptional.isPresent()) {
-                if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
-                    continue;
-                }
-                if (!placeEvent.getPlayer().hasPermission("brewery.distillery.create")) {
-                    placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE_DENIED));
+        if (trackedDistilleryBlocks.contains(placed.getType())) {
+            for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
+                Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), GenericBlockDataMatcher.INSTANCE, new Void[1]);
+                if (placedBreweryStructureOptional.isPresent()) {
+                    if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
+                        continue;
+                    }
+                    if (!placeEvent.getPlayer().hasPermission("brewery.distillery.create")) {
+                        placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE_DENIED));
+                        return;
+                    }
+                    registerDistillery(placedBreweryStructureOptional.get().first());
+                    placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
                     return;
                 }
-                registerDistillery(placedBreweryStructureOptional.get().first());
-                placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
-                return;
             }
         }
     }
@@ -184,7 +183,7 @@ public class BlockEventListener implements Listener {
                     breweryRegistry.unregisterInventory(inventoryAccessible);
                 }
             });
-            breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
+            breweryRegistry.getActiveSinglePositionStructure(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database));
         }
         multiBlockStructures.forEach(placedStructureRegistry::unregisterStructure);
         for (StructureHolder<?> holder : holders) {
@@ -221,7 +220,7 @@ public class BlockEventListener implements Listener {
                         breweryRegistry.unregisterInventory(inventoryAccessible);
                     }
                 });
-        breweryRegistry.getActiveCauldron(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
+        breweryRegistry.getActiveSinglePositionStructure(breweryLocation).ifPresent(cauldron -> ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database));
     }
 
     private void remove(StructureHolder<?> holder) {

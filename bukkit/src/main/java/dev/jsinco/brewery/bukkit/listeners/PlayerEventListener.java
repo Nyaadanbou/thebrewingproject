@@ -9,6 +9,7 @@ import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
+import dev.jsinco.brewery.bukkit.breweries.BukkitMixer;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
@@ -52,7 +53,7 @@ public class PlayerEventListener implements Listener {
     private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
-    private final DrunksManager drunksManager;
+    private final DrunksManager<?> drunksManager;
     private final DrunkTextRegistry drunkTextRegistry;
     private final RecipeRegistry<ItemStack> recipeRegistry;
     private final DrunkEventExecutor drunkEventExecutor;
@@ -95,7 +96,13 @@ public class PlayerEventListener implements Listener {
             return;
         }
         if (Tag.CAULDRONS.isTagged(block.getType())) {
-            handleCauldron(event, block);
+            if (!BukkitCauldron.isValidStructure(block)) {
+                breweryRegistry.getActiveSinglePositionStructure(BukkitAdapter.toBreweryLocation(block))
+                        .ifPresent(cauldron -> ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database));
+                handleMixer(event, block);
+            } else {
+                handleCauldron(event, block);
+            }
         }
         PlayerInventory inventory = event.getPlayer().getInventory();
         ItemStack offHand = inventory.getItemInOffHand();
@@ -111,6 +118,12 @@ public class PlayerEventListener implements Listener {
 
     }
 
+    private void handleMixer(PlayerInteractEvent event, Block block) {
+        Optional<BukkitMixer> mixerOptional = breweryRegistry.getActiveSinglePositionStructure(BukkitAdapter.toBreweryLocation(block))
+                .filter(BukkitMixer.class::isInstance)
+                .map(BukkitMixer.class::cast);
+    }
+
     private void decreaseItem(ItemStack itemStack, Player player) {
         if (player.getGameMode() != GameMode.CREATIVE) {
             itemStack.setAmount(itemStack.getAmount() - 1);
@@ -118,12 +131,9 @@ public class PlayerEventListener implements Listener {
     }
 
     private void handleCauldron(PlayerInteractEvent event, @NotNull Block block) {
-        if (!BukkitCauldron.isValidStructure(block)) {
-            breweryRegistry.getActiveCauldron(BukkitAdapter.toBreweryLocation(block))
-                    .ifPresent(cauldron -> ListenerUtil.removeCauldron(cauldron, breweryRegistry, database));
-            return;
-        }
-        Optional<BukkitCauldron> cauldronOptional = breweryRegistry.getActiveCauldron(BukkitAdapter.toBreweryLocation(block));
+        Optional<BukkitCauldron> cauldronOptional = breweryRegistry.getActiveSinglePositionStructure(BukkitAdapter.toBreweryLocation(block))
+                .filter(BukkitCauldron.class::isInstance)
+                .map(BukkitCauldron.class::cast);
         ItemStack itemStack = event.getItem();
         if (isIngredient(itemStack)) {
             BukkitCauldron cauldron = cauldronOptional
@@ -150,7 +160,7 @@ public class PlayerEventListener implements Listener {
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);
                         Levelled cauldron = (Levelled) block.getBlockData();
                         if (cauldron.getLevel() == 1) {
-                            ListenerUtil.removeCauldron(cauldronOptional.get(), breweryRegistry, database);
+                            ListenerUtil.removeActiveSinglePositionStructure(cauldronOptional.get(), breweryRegistry, database);
                             block.setType(Material.CAULDRON);
                             return;
                         }
@@ -171,7 +181,7 @@ public class PlayerEventListener implements Listener {
         } catch (PersistenceException e) {
             e.printStackTrace();
         }
-        breweryRegistry.addActiveCauldron(newCauldron);
+        breweryRegistry.addActiveSinglePositionStructure(newCauldron);
         return newCauldron;
     }
 

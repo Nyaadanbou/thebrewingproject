@@ -39,6 +39,8 @@ public class BrewAdapter {
 
     private static final NamespacedKey BREWING_STEPS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("steps"));
     private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
+    public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
+    public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
@@ -55,6 +57,9 @@ public class BrewAdapter {
             itemStack = incompletePotion(brew);
         } else {
             itemStack = recipe.get().getRecipeResult().newBrewItem(score.get(), brew, state);
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.getPersistentDataContainer().set(BREWERY_TAG, PersistentDataType.STRING, BreweryKey.parse(recipe.get().getRecipeName()).toString());
+            meta.getPersistentDataContainer().set(BREWERY_SCORE, PersistentDataType.DOUBLE, score.get().score());
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         fillPersistentData(itemMeta, brew);
@@ -66,17 +71,17 @@ public class BrewAdapter {
         ItemStack itemStack = new ItemStack(Material.POTION);
         PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
         potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
-        Map<Ingredient<ItemStack>, Integer> ingredients = new HashMap<>();
+        Map<Ingredient, Integer> ingredients = new HashMap<>();
         for (BrewingStep brewingStep : brew.getSteps()) {
             if (brewingStep instanceof BrewingStep.Cook cook) {
-                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient<ItemStack>, Integer>) cook.ingredients());
+                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient, Integer>) cook.ingredients());
             }
             if (brewingStep instanceof BrewingStep.Mix mix) {
-                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient<ItemStack>, Integer>) mix.ingredients());
+                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient, Integer>) mix.ingredients());
             }
         }
-        Pair<org.bukkit.Color, Ingredient<ItemStack>> itemsInfo = IngredientUtil.ingredientData(ingredients);
-        Ingredient<ItemStack> topIngredient = itemsInfo.second();
+        Pair<org.bukkit.Color, Ingredient> itemsInfo = IngredientUtil.ingredientData(ingredients);
+        Ingredient topIngredient = itemsInfo.second();
         String displayName = switch (brew.getSteps().getLast().stepType()) {
             case COOK ->
                     topIngredient == null ? TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED_UNKNOWN : TranslationsConfig.BREW_DISPLAY_NAME_UNFINISHED_FERMENTED.replace("<ingredient>", topIngredient.displayName().toLowerCase());

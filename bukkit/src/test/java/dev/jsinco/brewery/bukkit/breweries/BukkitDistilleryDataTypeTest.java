@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.structure.DistilleryBlockDataMatcher;
+import dev.jsinco.brewery.bukkit.structure.GenericBlockDataMatcher;
 import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
 import dev.jsinco.brewery.database.PersistenceException;
@@ -17,8 +17,6 @@ import org.mockbukkit.mockbukkit.MockBukkitInject;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +43,7 @@ class BukkitDistilleryDataTypeTest {
     void insertAndFetch() throws PersistenceException {
         Block block = world.getBlockAt(0, 1, 0);
         StructurePlacerUtils.constructBambooDistillery(world);
-        Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> optional = PlacedBreweryStructure.findValid(plugin.getStructureRegistry().getStructure("bamboo_distillery").get(), block.getLocation(), DistilleryBlockDataMatcher.INSTANCE, new Void[1]);
+        Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> optional = PlacedBreweryStructure.findValid(plugin.getStructureRegistry().getStructure("bamboo_distillery").get(), block.getLocation(), GenericBlockDataMatcher.INSTANCE, new Void[1]);
         BukkitDistillery distillery = new BukkitDistillery(optional.get().first(), 100);
         database.insertValue(BukkitDistilleryDataType.INSTANCE, distillery);
         List<BukkitDistillery> distilleries = database.find(BukkitDistilleryDataType.INSTANCE, world.getUID());

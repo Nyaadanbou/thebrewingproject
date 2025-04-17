@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 public class Recipe<I> {
 
+    @Getter
     private final String recipeName;
 
     private final int brewDifficulty;

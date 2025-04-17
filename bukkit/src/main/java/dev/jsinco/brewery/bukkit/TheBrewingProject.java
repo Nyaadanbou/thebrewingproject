@@ -3,9 +3,9 @@ package dev.jsinco.brewery.bukkit;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.Distillery;
+import dev.jsinco.brewery.breweries.Tickable;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
-import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
@@ -205,7 +205,10 @@ public class TheBrewingProject extends JavaPlugin {
     }
 
     private void updateStructures() {
-        breweryRegistry.getActiveCauldrons().forEach(BukkitCauldron::tick);
+        breweryRegistry.getActiveSinglePositionStructure().stream()
+                .filter(Tickable.class::isInstance)
+                .map(Tickable.class::cast)
+                .forEach(Tickable::tick);
         breweryRegistry.<BukkitBarrel>getOpened(StructureType.BARREL).forEach(Barrel::tick);
         breweryRegistry.<BukkitDistillery>getOpened(StructureType.DISTILLERY).forEach(Distillery::tick);
     }

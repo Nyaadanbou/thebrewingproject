@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
 import dev.jsinco.brewery.bukkit.ingredient.external.ItemsAdderPluginIngredient;
+import dev.jsinco.brewery.bukkit.ingredient.external.NexoPluginIngredient;
 import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
@@ -14,18 +15,22 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
 
     public static final BukkitIngredientManager INSTANCE = new BukkitIngredientManager();
 
-    public Ingredient<ItemStack> getIngredient(@NotNull ItemStack itemStack) {
+    public Ingredient getIngredient(@NotNull ItemStack itemStack) {
         return OraxenPluginIngredient.from(itemStack)
+                .or(() -> NexoPluginIngredient.from(itemStack))
                 .or(() -> ItemsAdderPluginIngredient.from(itemStack))
-                .orElse(SimpleIngredient.of(itemStack));
+                .or(() -> BreweryIngredient.from(itemStack))
+                .orElse(SimpleIngredient.from(itemStack));
     }
 
 
-    public Optional<Ingredient<ItemStack>> getIngredient(@NotNull String ingredientStr) {
+    public Optional<Ingredient> getIngredient(@NotNull String ingredientStr) {
         String id = ingredientStr.toLowerCase(Locale.ROOT);
         return OraxenPluginIngredient.from(id)
+                .or(() -> NexoPluginIngredient.from(id))
                 .or(() -> ItemsAdderPluginIngredient.from(id))
-                .or(() -> SimpleIngredient.of(id));
+                .or(() -> SimpleIngredient.from(id))
+                .or(() -> BreweryIngredient.from(id));
     }
 
     /**
@@ -33,7 +38,7 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
      * @return An ingredient/runs pair
      * @throws IllegalArgumentException if the ingredients string is invalid
      */
-    public Pair<@NotNull Ingredient<ItemStack>, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException {
+    public Pair<@NotNull Ingredient, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException {
         String[] ingredientSplit = ingredientStr.split("/");
         if (ingredientSplit.length > 2) {
             throw new IllegalArgumentException("To many '/' separators for ingredientString, was: " + ingredientStr);
@@ -49,7 +54,7 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid ingredient string '" + ingredientStr + "' could not parse type"));
     }
 
-    public void insertIngredientIntoMap(Map<Ingredient<ItemStack>, Integer> mutableIngredientsMap, Pair<Ingredient<ItemStack>, Integer> ingredient) {
+    public void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient) {
         int amount = mutableIngredientsMap.computeIfAbsent(ingredient.first(), ignored -> 0);
         mutableIngredientsMap.put(ingredient.first(), amount + ingredient.second());
     }
@@ -61,11 +66,11 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
      * @return A map representing ingredients with runs
      * @throws IllegalArgumentException if there's any invalid ingredient string
      */
-    public Map<Ingredient<ItemStack>, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException {
+    public Map<Ingredient, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException {
         if (stringList == null || stringList.isEmpty()) {
             return new HashMap<>();
         }
-        Map<Ingredient<ItemStack>, Integer> ingredientMap = new HashMap<>();
+        Map<Ingredient, Integer> ingredientMap = new HashMap<>();
         stringList.stream()
                 .map(this::getIngredientWithAmount)
                 .forEach(ingredientAmountPair -> insertIngredientIntoMap(ingredientMap, ingredientAmountPair));

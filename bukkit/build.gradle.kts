@@ -51,6 +51,11 @@ tasks {
 
     runServer {
         minecraftVersion("1.21.4")
+        /*
+        downloadPlugins {
+            modrinth("worldedit","DlD8WKr9")
+        }
+        */
     }
 
     shadowJar {

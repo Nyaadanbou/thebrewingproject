@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 // PluginIngredient usage example using Oraxen
-public class OraxenPluginIngredient implements Ingredient<ItemStack> {
+public class OraxenPluginIngredient implements Ingredient {
 
     private final String itemId;
 
@@ -34,7 +34,7 @@ public class OraxenPluginIngredient implements Ingredient<ItemStack> {
         return OraxenWrapper.displayName(itemId);
     }
 
-    public static Optional<Ingredient<ItemStack>> from(String oraxenId) {
+    public static Optional<Ingredient> from(String oraxenId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(oraxenId);
         if (namespacedKey == null || !namespacedKey.getNamespace().equals("oraxen")) {
             return Optional.empty();
@@ -42,7 +42,7 @@ public class OraxenPluginIngredient implements Ingredient<ItemStack> {
         return Optional.of(new OraxenPluginIngredient(namespacedKey.getKey()));
     }
 
-    public static Optional<Ingredient<ItemStack>> from(ItemStack itemStack) {
+    public static Optional<Ingredient> from(ItemStack itemStack) {
         return Optional.ofNullable(OraxenWrapper.oraxenId(itemStack))
                 .map(OraxenPluginIngredient::new);
     }

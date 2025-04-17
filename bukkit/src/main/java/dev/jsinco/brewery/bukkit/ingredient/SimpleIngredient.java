@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * Represents a simple ingredient that only consists of a material and an runs
  */
-public class SimpleIngredient implements Ingredient<ItemStack> {
+public class SimpleIngredient implements Ingredient {
 
     private final Material material;
 
@@ -60,7 +60,7 @@ public class SimpleIngredient implements Ingredient<ItemStack> {
         return "SimpleIngredient(" + getKey() + ")";
     }
 
-    public static SimpleIngredient of(@NotNull ItemStack itemStack) {
+    public static SimpleIngredient from(@NotNull ItemStack itemStack) {
         return new SimpleIngredient(itemStack.getType());
     }
 
@@ -72,7 +72,7 @@ public class SimpleIngredient implements Ingredient<ItemStack> {
      * @param materialStr A string representing the material
      * @return An optional simple ingredient
      */
-    public static Optional<SimpleIngredient> of(String materialStr) {
+    public static Optional<SimpleIngredient> from(String materialStr) {
         return Optional.ofNullable(NamespacedKey.fromString(materialStr.toLowerCase(Locale.ROOT)))
                 .flatMap(namespacedKey -> Optional.ofNullable(Registry.MATERIAL.get(namespacedKey)))
                 .map(SimpleIngredient::new);

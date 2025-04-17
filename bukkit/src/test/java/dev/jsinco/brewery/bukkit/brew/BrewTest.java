@@ -25,7 +25,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 1),
+                                Map.of(SimpleIngredient.from("wheat").get(), 1),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(
@@ -41,7 +41,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 1),
+                                Map.of(SimpleIngredient.from("wheat").get(), 1),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(
@@ -62,7 +62,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 1),
+                                Map.of(SimpleIngredient.from("wheat").get(), 1),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(
@@ -78,7 +78,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 1),
+                                Map.of(SimpleIngredient.from("wheat").get(), 1),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(
@@ -99,7 +99,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 1),
+                                Map.of(SimpleIngredient.from("wheat").get(), 1),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(
@@ -115,7 +115,7 @@ public class BrewTest {
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
-                                Map.of(SimpleIngredient.of("wheat").get(), 2),
+                                Map.of(SimpleIngredient.from("wheat").get(), 2),
                                 CauldronType.LAVA
                         ),
                         new BrewingStep.Distill(

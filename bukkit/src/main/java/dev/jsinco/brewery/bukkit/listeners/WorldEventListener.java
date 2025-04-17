@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class WorldEventListener implements Listener {
@@ -48,7 +47,7 @@ public class WorldEventListener implements Listener {
                 registry.registerInventory(barrel);
             }
             List<BukkitCauldron> cauldrons = database.find(BukkitCauldronDataType.INSTANCE, world.getUID());
-            cauldrons.forEach(registry::addActiveCauldron);
+            cauldrons.forEach(registry::addActiveSinglePositionStructure);
             List<BukkitDistillery> distilleries = database.find(BukkitDistilleryDataType.INSTANCE, world.getUID());
             distilleries.stream()
                     .map(BukkitDistillery::getStructure)

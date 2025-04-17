@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
-public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
+public class ItemsAdderPluginIngredient implements Ingredient {
 
     private final String itemId;
 
@@ -31,7 +31,7 @@ public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
         return ItemsAdderWrapper.displayName(itemId);
     }
 
-    public static Optional<Ingredient<ItemStack>> from(String itemsAdderId) {
+    public static Optional<Ingredient> from(String itemsAdderId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(itemsAdderId);
         if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder")) {
             return Optional.empty();
@@ -39,7 +39,7 @@ public class ItemsAdderPluginIngredient implements Ingredient<ItemStack> {
         return Optional.of(new ItemsAdderPluginIngredient(namespacedKey.getKey()));
     }
 
-    public static Optional<Ingredient<ItemStack>> from(ItemStack itemStack) {
+    public static Optional<Ingredient> from(ItemStack itemStack) {
         return Optional.ofNullable(ItemsAdderWrapper.itemsAdderId(itemStack))
                 .map(ItemsAdderPluginIngredient::new);
     }

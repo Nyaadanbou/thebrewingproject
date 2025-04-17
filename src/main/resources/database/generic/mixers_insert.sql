@@ -1,0 +1,2 @@
+INSERT INTO mixers
+VALUES (?, ?, ?, ?, ?);

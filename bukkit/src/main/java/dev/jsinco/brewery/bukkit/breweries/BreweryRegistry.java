@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.breweries.InventoryAccessible;
+import dev.jsinco.brewery.structure.SinglePositionStructure;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
@@ -12,24 +13,24 @@ import java.util.*;
 
 public final class BreweryRegistry {
 
-    private final Map<BreweryLocation, BukkitCauldron> activeCauldrons = new HashMap<>();
+    private final Map<BreweryLocation, SinglePositionStructure> activeSingleBlockStructures = new HashMap<>();
     private final Map<StructureType, Set<InventoryAccessible<ItemStack, Inventory>>> opened = new HashMap<>();
     private final Map<Inventory, InventoryAccessible<ItemStack, Inventory>> inventories = new HashMap<>();
 
-    public Optional<BukkitCauldron> getActiveCauldron(BreweryLocation position) {
-        return Optional.ofNullable(activeCauldrons.get(position));
+    public Optional<SinglePositionStructure> getActiveSinglePositionStructure(BreweryLocation position) {
+        return Optional.ofNullable(activeSingleBlockStructures.get(position));
     }
 
-    public void addActiveCauldron(BukkitCauldron cauldron) {
-        activeCauldrons.put(cauldron.position(), cauldron);
+    public void addActiveSinglePositionStructure(SinglePositionStructure cauldron) {
+        activeSingleBlockStructures.put(cauldron.position(), cauldron);
     }
 
-    public void removeActiveCauldron(BukkitCauldron cauldron) {
-        activeCauldrons.remove(cauldron.position());
+    public void removeActiveSinglePositionStructure(SinglePositionStructure cauldron) {
+        activeSingleBlockStructures.remove(cauldron.position());
     }
 
-    public Collection<BukkitCauldron> getActiveCauldrons() {
-        return activeCauldrons.values();
+    public Collection<SinglePositionStructure> getActiveSinglePositionStructure() {
+        return activeSingleBlockStructures.values();
     }
 
     public <H extends InventoryAccessible<ItemStack, Inventory>> Collection<H> getOpened(StructureType structureType) {
@@ -68,7 +69,7 @@ public final class BreweryRegistry {
     }
 
     public void clear() {
-        activeCauldrons.clear();
+        activeSingleBlockStructures.clear();
         opened.clear();
         inventories.clear();
     }

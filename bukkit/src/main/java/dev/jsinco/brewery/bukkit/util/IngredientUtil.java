@@ -11,16 +11,16 @@ import java.util.Map;
 
 public class IngredientUtil {
 
-    public static Pair<org.bukkit.Color, @Nullable Ingredient<ItemStack>> ingredientData(Map<? extends Ingredient<?>, Integer> ingredients) {
+    public static Pair<org.bukkit.Color, @Nullable Ingredient> ingredientData(Map<? extends Ingredient, Integer> ingredients) {
         int r = 0;
         int g = 0;
         int b = 0;
         int amount = 0;
-        Ingredient<ItemStack> topIngredient = null;
+        Ingredient topIngredient = null;
         int topIngredientAmount = 0;
-        for (Map.Entry<? extends Ingredient<?>, Integer> ingredient : ingredients.entrySet()) {
+        for (Map.Entry<? extends Ingredient, Integer> ingredient : ingredients.entrySet()) {
             if (topIngredientAmount < ingredient.getValue()) {
-                topIngredient = (Ingredient<ItemStack>) ingredient.getKey();
+                topIngredient = (Ingredient) ingredient.getKey();
                 topIngredientAmount = ingredient.getValue();
             }
             String key = ingredient.getKey().getKey();

@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
-public class NexoPluginIngredient implements Ingredient<ItemStack> {
+public class NexoPluginIngredient implements Ingredient {
 
     private final String nexoId;
 
@@ -30,7 +30,7 @@ public class NexoPluginIngredient implements Ingredient<ItemStack> {
         return NexoWrapper.displayName(nexoId);
     }
 
-    public static Optional<Ingredient<ItemStack>> from(String nexoId) {
+    public static Optional<Ingredient> from(String nexoId) {
         NamespacedKey namespacedKey = NamespacedKey.fromString(nexoId);
         if (namespacedKey == null || !namespacedKey.getNamespace().equals("nexo")) {
             return Optional.empty();
@@ -38,7 +38,7 @@ public class NexoPluginIngredient implements Ingredient<ItemStack> {
         return Optional.of(new NexoPluginIngredient(namespacedKey.getKey()));
     }
 
-    public static Optional<Ingredient<ItemStack>> from(ItemStack itemStack) {
+    public static Optional<Ingredient> from(ItemStack itemStack) {
         return Optional.ofNullable(NexoWrapper.nexoId(itemStack))
                 .map(NexoPluginIngredient::new);
     }

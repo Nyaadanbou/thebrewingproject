@@ -80,7 +80,7 @@ public class CreateCommand {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNKNOWN_ARGUMENT, Placeholder.unparsed("argument", invalidIngredients)));
             throw new IllegalArgumentException("Could not find the ingredient(s): " + invalidIngredients);
         }
-        Map<Ingredient<ItemStack>, Integer> ingredients = BukkitIngredientManager.INSTANCE.getIngredientsWithAmount(ingredientStrings);
+        Map<Ingredient, Integer> ingredients = BukkitIngredientManager.INSTANCE.getIngredientsWithAmount(ingredientStrings);
         return new BrewingStep.Cook(new PassedMoment(cookTime), ingredients, cauldronType);
     }
 

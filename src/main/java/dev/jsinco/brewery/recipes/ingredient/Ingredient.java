@@ -11,23 +11,15 @@ import java.util.Map;
 /**
  * Represents an ingredient in a recipe.
  */
-public interface Ingredient<I> {
-
-    /**
-     * Check if the itemStack matches the ingredient.
-     *
-     * @param itemStack The itemStack to check.
-     * @return True if the itemStack matches the ingredient, false otherwise.
-     */
-    boolean matches(I itemStack);
+public interface Ingredient {
 
     String getKey();
 
     String displayName();
 
 
-    static Map<Ingredient<?>, Integer> ingredientsFromJson(JsonObject json, IngredientManager<?> ingredientManager) {
-        ImmutableMap.Builder<Ingredient<?>, Integer> output = new ImmutableMap.Builder<>();
+    static Map<Ingredient, Integer> ingredientsFromJson(JsonObject json, IngredientManager<?> ingredientManager) {
+        ImmutableMap.Builder<Ingredient, Integer> output = new ImmutableMap.Builder<>();
         for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
             ingredientManager.getIngredient(entry.getKey())
                     .ifPresentOrElse(ingredient -> output.put(ingredient, entry.getValue().getAsInt()),
@@ -36,9 +28,9 @@ public interface Ingredient<I> {
         return output.build();
     }
 
-    static JsonObject ingredientsToJson(Map<Ingredient<?>, Integer> ingredients) {
+    static JsonObject ingredientsToJson(Map<Ingredient, Integer> ingredients) {
         JsonObject output = new JsonObject();
-        for (Map.Entry<Ingredient<?>, Integer> entry : ingredients.entrySet()) {
+        for (Map.Entry<Ingredient, Integer> entry : ingredients.entrySet()) {
             output.add(entry.getKey().getKey(), new JsonPrimitive(entry.getValue()));
         }
         return output;

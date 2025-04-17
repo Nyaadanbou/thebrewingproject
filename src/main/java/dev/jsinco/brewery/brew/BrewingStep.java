@@ -32,12 +32,12 @@ public sealed interface BrewingStep {
         return 1 - Math.abs(expected - value) / maxValue;
     }
 
-    private static double getIngredientsScore(Map<Ingredient<?>, Integer> target, Map<Ingredient<?>, Integer> actual) {
+    private static double getIngredientsScore(Map<Ingredient, Integer> target, Map<Ingredient, Integer> actual) {
         double output = 1;
         if (target.size() != actual.size()) {
             return 0;
         }
-        for (Map.Entry<Ingredient<?>, Integer> targetEntry : target.entrySet()) {
+        for (Map.Entry<Ingredient, Integer> targetEntry : target.entrySet()) {
             Integer actualAmount = actual.get(targetEntry.getKey());
             if (actualAmount == null || actualAmount == 0) {
                 return 0;
@@ -49,26 +49,26 @@ public sealed interface BrewingStep {
 
     double maximumScore(BrewingStep other);
 
-    record Cook(Moment brewTime, Map<? extends Ingredient<?>, Integer> ingredients,
+    record Cook(Moment brewTime, Map<? extends Ingredient, Integer> ingredients,
                 CauldronType cauldronType) implements BrewingStep {
 
         public Cook withBrewTime(Moment brewTime) {
             return new Cook(brewTime, this.ingredients, this.cauldronType);
         }
 
-        public Cook withIngredients(Map<Ingredient<?>, Integer> ingredients) {
+        public Cook withIngredients(Map<Ingredient, Integer> ingredients) {
             return new Cook(this.brewTime, ingredients, this.cauldronType);
         }
 
         @Override
         public double proximity(BrewingStep other) {
             if (!(other instanceof Cook(
-                    Moment otherTime, Map<? extends Ingredient<?>, Integer> otherIngredients, CauldronType otherType
+                    Moment otherTime, Map<? extends Ingredient, Integer> otherIngredients, CauldronType otherType
             ))) {
                 return 0D;
             }
             double cauldronTypeScore = cauldronType.equals(otherType) ? 1D : 0D;
-            return cauldronTypeScore * BrewingStep.nearbyValueScore(this.brewTime.moment(), otherTime.moment()) * BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) otherIngredients);
+            return cauldronTypeScore * BrewingStep.nearbyValueScore(this.brewTime.moment(), otherTime.moment()) * BrewingStep.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
         }
 
         @Override
@@ -82,7 +82,7 @@ public sealed interface BrewingStep {
                 return 0D;
             }
             double maximumCookTimeScore = cauldronType.equals(cook.cauldronType) && this.brewTime.moment() > cook.brewTime.moment() ? 1D : BrewingStep.nearbyValueScore(this.brewTime.moment(), cook.brewTime.moment());
-            return BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) cook.ingredients) * maximumCookTimeScore;
+            return BrewingStep.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) cook.ingredients) * maximumCookTimeScore;
         }
     }
 
@@ -143,17 +143,17 @@ public sealed interface BrewingStep {
         }
     }
 
-    record Mix(Moment time, Map<? extends Ingredient<?>, Integer> ingredients) implements BrewingStep {
-        public Mix withIngredients(Map<Ingredient<?>, Integer> ingredients) {
+    record Mix(Moment time, Map<? extends Ingredient, Integer> ingredients) implements BrewingStep {
+        public Mix withIngredients(Map<Ingredient, Integer> ingredients) {
             return new Mix(this.time, ingredients);
         }
 
         @Override
         public double proximity(BrewingStep other) {
-            if (!(other instanceof Mix(Moment otherTime, Map<? extends Ingredient<?>, Integer> otherIngredients))) {
+            if (!(other instanceof Mix(Moment otherTime, Map<? extends Ingredient, Integer> otherIngredients))) {
                 return 0D;
             }
-            return BrewingStep.nearbyValueScore(this.time.moment(), otherTime.moment()) * BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) otherIngredients);
+            return BrewingStep.nearbyValueScore(this.time.moment(), otherTime.moment()) * BrewingStep.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
         }
 
         @Override
@@ -163,11 +163,11 @@ public sealed interface BrewingStep {
 
         @Override
         public double maximumScore(BrewingStep other) {
-            if (!(other instanceof Mix(Moment time1, Map<? extends Ingredient<?>, Integer> ingredients1))) {
+            if (!(other instanceof Mix(Moment time1, Map<? extends Ingredient, Integer> ingredients1))) {
                 return 0D;
             }
             double mixTimeScore = time1.moment() < this.time.moment() ? 1D : BrewingStep.nearbyValueScore(this.time.moment(), time1.moment());
-            return BrewingStep.getIngredientsScore((Map<Ingredient<?>, Integer>) this.ingredients, (Map<Ingredient<?>, Integer>) ingredients1) * mixTimeScore;
+            return BrewingStep.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) ingredients1) * mixTimeScore;
         }
 
     }
@@ -190,18 +190,18 @@ public sealed interface BrewingStep {
                     object.addProperty("barrel_type", type.key().toString());
                 }
                 case Cook(
-                        Moment brewTime, Map<? extends Ingredient<?>, Integer> ingredients,
+                        Moment brewTime, Map<? extends Ingredient, Integer> ingredients,
                         CauldronType cauldronType
                 ) -> {
                     object.add("brew_time", Moment.SERIALIZER.serialize(brewTime));
                     object.addProperty("cauldron_type", cauldronType.key().toString());
-                    object.add("ingredients", Ingredient.ingredientsToJson((Map<Ingredient<?>, Integer>) ingredients));
+                    object.add("ingredients", Ingredient.ingredientsToJson((Map<Ingredient, Integer>) ingredients));
                 }
                 case Distill(int runs) -> {
                     object.addProperty("runs", runs);
                 }
-                case Mix(Moment time, Map<? extends Ingredient<?>, Integer> ingredients) -> {
-                    object.add("ingredients", Ingredient.ingredientsToJson((Map<Ingredient<?>, Integer>) ingredients));
+                case Mix(Moment time, Map<? extends Ingredient, Integer> ingredients) -> {
+                    object.add("ingredients", Ingredient.ingredientsToJson((Map<Ingredient, Integer>) ingredients));
                     object.add("mix_time", Moment.SERIALIZER.serialize(time));
                 }
             }

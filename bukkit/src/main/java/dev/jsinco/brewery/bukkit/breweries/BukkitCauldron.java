@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<ItemStack> {
+public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
 
     private static final Random RANDOM = new Random();
 
@@ -47,7 +47,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         this(new HashMap<>(), block, TheBrewingProject.getInstance().getTime());
     }
 
-    public BukkitCauldron(Map<Ingredient<ItemStack>, Integer> ingredients, Block block, long brewStart) {
+    public BukkitCauldron(Map<Ingredient, Integer> ingredients, Block block, long brewStart) {
         this.block = block;
         this.cauldronType = findCauldronType(block);
         this.brew = new Brew(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType));
@@ -89,7 +89,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
 
 
     public void remove() {
-        ListenerUtil.removeCauldron(this, TheBrewingProject.getInstance().getBreweryRegistry(), TheBrewingProject.getInstance().getDatabase());
+        ListenerUtil.removeActiveSinglePositionStructure(this, TheBrewingProject.getInstance().getBreweryRegistry(), TheBrewingProject.getInstance().getDatabase());
     }
 
 
@@ -106,8 +106,8 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron<Ite
         }
         brew = brew.witModifiedLastStep(step -> {
             BrewingStep.Cook cook = (BrewingStep.Cook) step;
-            Ingredient<ItemStack> ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
-            Map<Ingredient<?>, Integer> ingredients = new HashMap<>(cook.ingredients());
+            Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
+            Map<Ingredient, Integer> ingredients = new HashMap<>(cook.ingredients());
             int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
             ingredients.put(ingredient, amount + 1);
             item.setAmount(item.getAmount() - 1);

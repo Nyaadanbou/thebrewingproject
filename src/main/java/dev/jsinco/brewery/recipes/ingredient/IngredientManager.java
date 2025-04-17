@@ -14,19 +14,19 @@ import java.util.Optional;
 public interface IngredientManager<I> {
 
 
-    Ingredient<I> getIngredient(@NotNull I itemStack);
+    Ingredient getIngredient(@NotNull I itemStack);
 
 
-    Optional<Ingredient<I>> getIngredient(@NotNull String ingredientStr);
+    Optional<Ingredient> getIngredient(@NotNull String ingredientStr);
 
     /**
      * @param ingredientStr A string with the format [ingredient-name]/[runs]. Allows not specifying runs, where it will default to 1
      * @return An ingredient/runs pair
      * @throws IllegalArgumentException if the ingredients string is invalid
      */
-    Pair<@NotNull Ingredient<I>, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException;
+    Pair<@NotNull Ingredient, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException;
 
-    void insertIngredientIntoMap(Map<Ingredient<I>, Integer> mutableIngredientsMap, Pair<Ingredient<I>, Integer> ingredient);
+    void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient);
 
     /**
      * Parse a list of strings into a map of ingredients with runs
@@ -35,10 +35,10 @@ public interface IngredientManager<I> {
      * @return A map representing ingredients with runs
      * @throws IllegalArgumentException if there's any invalid ingredient string
      */
-    Map<Ingredient<I>, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException;
+    Map<Ingredient, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException;
 
-    default void merge(Map<Ingredient<I>, Integer> mutableIngredientsMap, Map<Ingredient<I>, Integer> ingredients) {
-        for (Map.Entry<Ingredient<I>, Integer> ingredient : ingredients.entrySet()) {
+    default void merge(Map<Ingredient, Integer> mutableIngredientsMap, Map<Ingredient, Integer> ingredients) {
+        for (Map.Entry<Ingredient, Integer> ingredient : ingredients.entrySet()) {
             insertIngredientIntoMap(mutableIngredientsMap, new Pair<>(ingredient.getKey(), ingredient.getValue()));
         }
     }

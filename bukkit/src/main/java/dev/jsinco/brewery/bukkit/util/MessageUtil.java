@@ -119,7 +119,7 @@ public class MessageUtil {
         );
     }
 
-    public static String formatIngredients(Map<Ingredient<ItemStack>, Integer> ingredients) {
+    public static String formatIngredients(Map<Ingredient, Integer> ingredients) {
         return ingredients
                 .entrySet()
                 .stream()
