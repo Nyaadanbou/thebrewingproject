@@ -24,11 +24,6 @@ public class SimpleIngredient implements Ingredient {
     }
 
     @Override
-    public boolean matches(ItemStack itemStack) {
-        return itemStack.getType() == material;
-    }
-
-    @Override
     public String getKey() {
         return material.getKey().toString();
     }

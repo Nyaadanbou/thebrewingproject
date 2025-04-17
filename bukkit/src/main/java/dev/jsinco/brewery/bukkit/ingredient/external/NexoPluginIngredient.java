@@ -16,11 +16,6 @@ public class NexoPluginIngredient implements Ingredient {
     }
 
     @Override
-    public boolean matches(ItemStack itemStack) {
-        return nexoId.equals(NexoWrapper.nexoId(itemStack));
-    }
-
-    @Override
     public String getKey() {
         return "nexo:" + nexoId;
     }

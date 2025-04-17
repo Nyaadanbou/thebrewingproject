@@ -18,19 +18,6 @@ public class BreweryIngredient implements Ingredient {
     }
 
     @Override
-    public boolean matches(ItemStack itemStack) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return false;
-        }
-        String key = meta.getPersistentDataContainer().get(BrewAdapter.BREWERY_TAG, PersistentDataType.STRING);
-        if (key == null) {
-            return false;
-        }
-        return ingredientKey.equals(BreweryKey.parse(key));
-    }
-
-    @Override
     public String getKey() {
         return ingredientKey.toString();
     }

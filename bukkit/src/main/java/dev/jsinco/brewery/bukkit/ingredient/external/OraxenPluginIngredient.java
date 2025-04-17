@@ -20,11 +20,6 @@ public class OraxenPluginIngredient implements Ingredient {
     }
 
     @Override
-    public boolean matches(ItemStack itemStack) {
-        return this.itemId.equals(OraxenWrapper.oraxenId(itemStack));
-    }
-
-    @Override
     public String getKey() {
         return "oraxen:" + itemId;
     }

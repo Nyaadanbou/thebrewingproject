@@ -17,11 +17,6 @@ public class ItemsAdderPluginIngredient implements Ingredient {
     }
 
     @Override
-    public boolean matches(ItemStack itemStack) {
-        return itemId.equals(ItemsAdderWrapper.itemsAdderId(itemStack));
-    }
-
-    @Override
     public String getKey() {
         return "itemsadder:" + itemId;
     }

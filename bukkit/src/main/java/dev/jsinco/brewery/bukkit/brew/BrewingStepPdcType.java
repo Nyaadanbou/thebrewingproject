@@ -109,7 +109,7 @@ public class BrewingStepPdcType implements PersistentDataType<byte[], BrewingSte
 
     public void encodeIngredients(@NotNull Map<? extends Ingredient, Integer> ingredients, OutputStream outputStream) {
         byte[][] bytesArray = ingredients.entrySet().stream()
-                .map(entry -> entry.getKey().getKey().toString() + "/" + entry.getValue())
+                .map(entry -> entry.getKey().getKey() + "/" + entry.getValue())
                 .map(string -> string.getBytes(StandardCharsets.UTF_8))
                 .toArray(byte[][]::new);
         try {
