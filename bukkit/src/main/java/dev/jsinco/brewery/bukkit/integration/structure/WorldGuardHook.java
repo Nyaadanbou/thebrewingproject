@@ -23,6 +23,9 @@ public class WorldGuardHook {
     }
 
     public static boolean hasAccess(Block block, Player player) {
+        if (!ENABLED) {
+            return true;
+        }
         WorldGuard worldGuard = WorldGuard.getInstance();
         WorldGuardPlugin instance = WorldGuardPlugin.inst();
         if (worldGuard == null || instance == null || !instance.isEnabled()) {

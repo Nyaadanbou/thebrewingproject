@@ -19,6 +19,7 @@ repositories {
     maven("https://maven.devs.beer/")
     maven("https://repo.nexomc.com/releases")
     maven("https://maven.enginehub.org/repo/")
+    maven("https://repo.codemc.org/repository/maven-public/")
 }
 
 dependencies {
@@ -29,6 +30,7 @@ dependencies {
     compileOnly("dev.lone:api-itemsadder:4.0.10")
     compileOnly("com.nexomc:nexo:1.1.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.13")
+    compileOnly("com.github.GriefPrevention:GriefPrevention:17.0.0")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
