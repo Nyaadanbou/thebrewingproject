@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
+import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +27,7 @@ public class OraxenPluginIngredient implements Ingredient {
 
     @Override
     public String displayName() {
-        return OraxenWrapper.displayName(itemId);
+        return OraxenHook.displayName(itemId);
     }
 
     public static Optional<Ingredient> from(String oraxenId) {
@@ -56,7 +56,7 @@ public class OraxenPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {
-        return Optional.ofNullable(OraxenWrapper.oraxenId(itemStack))
+        return Optional.ofNullable(OraxenHook.oraxenId(itemStack))
                 .map(OraxenPluginIngredient::new);
     }
 }

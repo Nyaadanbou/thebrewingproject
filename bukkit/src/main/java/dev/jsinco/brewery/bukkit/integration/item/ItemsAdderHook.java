@@ -1,14 +1,14 @@
-package dev.jsinco.brewery.bukkit.integration;
+package dev.jsinco.brewery.bukkit.integration.item;
 
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemsAdderWrapper {
+public class ItemsAdderHook {
 
     private static final boolean ENABLED = checkAvailable();
 
-    private ItemsAdderWrapper() {
+    private ItemsAdderHook() {
         throw new IllegalStateException("Utility class");
     }
 

@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
-import dev.jsinco.brewery.bukkit.integration.ItemsAdderWrapper;
+import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderHook;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public class ItemsAdderPluginIngredient implements Ingredient {
 
     @Override
     public String displayName() {
-        return ItemsAdderWrapper.displayName(itemId);
+        return ItemsAdderHook.displayName(itemId);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ItemsAdderPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {
-        return Optional.ofNullable(ItemsAdderWrapper.itemsAdderId(itemStack))
+        return Optional.ofNullable(ItemsAdderHook.itemsAdderId(itemStack))
                 .map(ItemsAdderPluginIngredient::new);
     }
 }

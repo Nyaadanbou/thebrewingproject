@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.bukkit.integration;
+package dev.jsinco.brewery.bukkit.integration.item;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
@@ -7,11 +7,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class NexoWrapper {
+public class NexoHook {
 
     private static final boolean ENABLED = checkAvailable();
 
-    private NexoWrapper() {
+    private NexoHook() {
         throw new IllegalStateException("Utility class");
     }
 

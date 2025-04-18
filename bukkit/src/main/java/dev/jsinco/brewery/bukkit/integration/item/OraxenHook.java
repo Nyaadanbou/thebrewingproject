@@ -1,11 +1,11 @@
-package dev.jsinco.brewery.bukkit.integration;
+package dev.jsinco.brewery.bukkit.integration.item;
 
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class OraxenWrapper {
+public class OraxenHook {
 
     private static final boolean ENABLED = checkAvailable();
 
@@ -18,7 +18,7 @@ public class OraxenWrapper {
         }
     }
 
-    private OraxenWrapper() {
+    private OraxenHook() {
         throw new IllegalAccessError("Utility class");
     }
 
@@ -39,6 +39,6 @@ public class OraxenWrapper {
     }
 
     public static boolean isOraxen(String oraxenId) {
-        return ENABLED && OraxenWrapper.isOraxen(oraxenId);
+        return ENABLED && OraxenHook.isOraxen(oraxenId);
     }
 }

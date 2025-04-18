@@ -9,6 +9,7 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
+import dev.jsinco.brewery.bukkit.integration.structure.StructureAccessHook;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
@@ -88,6 +89,9 @@ public class PlayerEventListener implements Listener {
         }
         Block block = event.getClickedBlock();
         if (block == null) {
+            return;
+        }
+        if (!StructureAccessHook.hasAccess(event.getClickedBlock(), event.getPlayer())) {
             return;
         }
         if (Tag.CAULDRONS.isTagged(block.getType())) {

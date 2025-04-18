@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
-import dev.jsinco.brewery.bukkit.integration.NexoWrapper;
+import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public class NexoPluginIngredient implements Ingredient {
 
     @Override
     public String displayName() {
-        return NexoWrapper.displayName(nexoId);
+        return NexoHook.displayName(nexoId);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class NexoPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {
-        return Optional.ofNullable(NexoWrapper.nexoId(itemStack))
+        return Optional.ofNullable(NexoHook.nexoId(itemStack))
                 .map(NexoPluginIngredient::new);
     }
 }

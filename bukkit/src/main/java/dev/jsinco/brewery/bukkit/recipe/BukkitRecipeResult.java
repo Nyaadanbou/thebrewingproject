@@ -3,9 +3,9 @@ package dev.jsinco.brewery.bukkit.recipe;
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
-import dev.jsinco.brewery.bukkit.integration.ItemsAdderWrapper;
-import dev.jsinco.brewery.bukkit.integration.NexoWrapper;
-import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
+import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderHook;
+import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
+import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.BrewQuality;
@@ -75,9 +75,9 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         BrewQuality quality = score.brewQuality();
         if (customId != null) {
             ItemStack itemStack = switch (customId.getNamespace()) {
-                case "oraxen" -> OraxenWrapper.build(customId.getKey());
-                case "itemsadder" -> ItemsAdderWrapper.build(customId.getKey());
-                case "nexo" -> NexoWrapper.build(customId.getKey());
+                case "oraxen" -> OraxenHook.build(customId.getKey());
+                case "itemsadder" -> ItemsAdderHook.build(customId.getKey());
+                case "nexo" -> NexoHook.build(customId.getKey());
                 default -> throw new IllegalStateException("Namespace should be within the supported items plugins");
             };
             if (itemStack != null) {
