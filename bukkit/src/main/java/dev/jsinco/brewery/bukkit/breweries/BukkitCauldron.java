@@ -151,7 +151,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         block.getWorld().spawnParticle(Particle.ENTITY_EFFECT, particleLoc, 0, particleColor);
 
 
-        if (!Config.MINIMAL_PARTICLES) {
+        if (!Config.MINIMAL_PARTICLES || !hot) {
             return;
         }
 
@@ -168,10 +168,6 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
             // Two hovering pixely dust clouds, a bit of offset and with DustOptions to give some color and size
             block.getWorld().spawnParticle(Particle.DUST_PLUME, particleLoc, 2, 0.15, 0.2, 0.15, new Particle.DustOptions(particleColor, 1.5f));
         }
-    }
-
-    private static boolean canBoil(Block cauldronBlock) {
-        return cauldronBlock.getBlockData() instanceof Levelled levelled && levelled.getLevel() > 0;
     }
 
     public static boolean isHeatSource(Block block) {

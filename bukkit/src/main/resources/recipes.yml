@@ -192,18 +192,6 @@ recipes:
         type: cook
       - runs: 2
         type: distill
-  gin_and_tonic:
-    alcohol: 18
-    brew-difficulty: 1
-    potion-attributes.color: 70a0b8
-    potion-attributes.name: Pale Gin With Tonic/Gin And Tonic/Old Tom Gin With Tonic
-    steps:
-      - type: mix
-        mix-time: 3
-        ingredients:
-          - gin/3
-          - chorus_fruit/6
-
   gr_absinthe:
     alcohol: 46
     brew-difficulty: 9
@@ -415,6 +403,79 @@ recipes:
       - age-years: 20
         barrel-type: any
         type: age
+  brandy:
+    alcohol: 35
+    brew-difficulty: 8
+    potion-attributes.color: cc7241
+    potion-attributes.lore:
+      - With a hint of grapes
+    potion-attributes.name: Unsightly Brandy/Brandy/French Brandy
+    steps:
+      - type: cook
+        cauldron-type: water
+        cook-time: 5
+        ingredients:
+          - Sweet_Berries/5
+      - type: distill
+        runs: 4
+      - type: age
+        age-years: 12
+        barrel-type: dark_oak
+  apple_juice:
+    brew-difficulty: 1
+    potion-attributes.color: af2a2d
+    potion-attributes.name: Apple Juice
+    steps:
+      - type: cook
+        cook-time: 6
+        cauldron-type: water
+        ingredients:
+          - apple/9
+          - sugar/6
+  # Some mixed drinks
+  gin_and_tonic:
+    alcohol: 16
+    brew-difficulty: 1
+    potion-attributes.color: 70a0b8
+    potion-attributes.name: Pale Gin With Tonic/Gin And Tonic/Old Tom Gin With Tonic
+    steps:
+      - type: mix
+        mix-time: 3
+        ingredients:
+          - gin/3
+          - chorus_fruit/6
+  red_sangria:
+    alcohol: 25
+    brew-difficulty: 5
+    potion-attributes.color: 4a0408
+    potion-attributes.name: Red Sangria
+    steps:
+      - type: mix
+        mix-time: 4
+        ingredients:
+          - wine/1
+          - apple_liquor/1
+          - brandy/1
+          - sugar/6
+          - apple/1
+      - type: age
+        age-years: 1
+        barrel-type: copper
+  french_75:
+    alcohol: 20
+    brew-difficulty: 3
+    potion-attributes.color: ffe491
+    potion-attributes.name: French 75
+    steps:
+      - type: mix
+        mix-time: 3
+        ingredients:
+         - apple_juice/1
+         - gin/2
+         - sugar/4
+
+
+
 
 # These recipes are used randomly when a player has brewed a potion with ingredients
 # that don't match with any recipes under the "recipes" category.
