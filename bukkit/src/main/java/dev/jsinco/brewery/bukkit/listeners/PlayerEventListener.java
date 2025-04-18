@@ -150,6 +150,9 @@ public class PlayerEventListener implements Listener {
         if (itemStack.getType() == Material.POTION) {
             BukkitCauldron.incrementLevel(block);
         }
+        if (block.getType() == Material.CAULDRON) {
+            return;
+        }
         if (cauldron == null) {
             cauldron = this.initCauldron(block);
         }
