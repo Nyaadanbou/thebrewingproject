@@ -17,7 +17,6 @@ public interface Ingredient {
 
     String displayName();
 
-
     static Map<Ingredient, Integer> ingredientsFromJson(JsonObject json, IngredientManager<?> ingredientManager) {
         ImmutableMap.Builder<Ingredient, Integer> output = new ImmutableMap.Builder<>();
         for (Map.Entry<String, JsonElement> entry : json.entrySet()) {

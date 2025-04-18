@@ -107,10 +107,15 @@ public class PlayerEventListener implements Listener {
 
     }
 
-    private void decreaseItem(ItemStack itemStack, Player player) {
-        if (player.getGameMode() != GameMode.CREATIVE) {
-            itemStack.setAmount(itemStack.getAmount() - 1);
+    private ItemStack decreaseItem(ItemStack itemStack, Player player) {
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            return itemStack;
         }
+        if (itemStack.getType() == Material.POTION) {
+            return new ItemStack(Material.GLASS_BOTTLE);
+        }
+        itemStack.setAmount(itemStack.getAmount() - 1);
+        return itemStack;
     }
 
     private void handleCauldron(PlayerInteractEvent event, @NotNull Block block) {
@@ -128,7 +133,7 @@ public class PlayerEventListener implements Listener {
             cauldronOptional
                     .map(BukkitCauldron::extractBrew)
                     .ifPresent(brewItemStack -> {
-                        decreaseItem(itemStack, event.getPlayer());
+                        event.getPlayer().getInventory().setItemInMainHand(decreaseItem(itemStack, event.getPlayer()));
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);
                         if (BukkitCauldron.decrementLevel(block)) {
                             ListenerUtil.removeActiveSinglePositionStructure(cauldronOptional.get(), breweryRegistry, database);
@@ -154,7 +159,7 @@ public class PlayerEventListener implements Listener {
                 ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database);
             }
         } else {
-            decreaseItem(itemStack, player);
+            player.getInventory().setItemInMainHand(decreaseItem(itemStack, player));
             try {
                 database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
             } catch (PersistenceException e) {

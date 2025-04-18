@@ -54,11 +54,6 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid ingredient string '" + ingredientStr + "' could not parse type"));
     }
 
-    public void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient) {
-        int amount = mutableIngredientsMap.computeIfAbsent(ingredient.first(), ignored -> 0);
-        mutableIngredientsMap.put(ingredient.first(), amount + ingredient.second());
-    }
-
     /**
      * Parse a list of strings into a map of ingredients with runs
      *
@@ -73,7 +68,7 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
         Map<Ingredient, Integer> ingredientMap = new HashMap<>();
         stringList.stream()
                 .map(this::getIngredientWithAmount)
-                .forEach(ingredientAmountPair -> insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
+                .forEach(ingredientAmountPair -> IngredientManager.insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
         return ingredientMap;
     }
 

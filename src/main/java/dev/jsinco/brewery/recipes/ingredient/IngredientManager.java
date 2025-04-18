@@ -26,8 +26,6 @@ public interface IngredientManager<I> {
      */
     Pair<@NotNull Ingredient, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException;
 
-    void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient);
-
     /**
      * Parse a list of strings into a map of ingredients with runs
      *
@@ -37,9 +35,14 @@ public interface IngredientManager<I> {
      */
     Map<Ingredient, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException;
 
-    default void merge(Map<Ingredient, Integer> mutableIngredientsMap, Map<Ingredient, Integer> ingredients) {
+    static void merge(Map<Ingredient, Integer> mutableIngredientsMap, Map<Ingredient, Integer> ingredients) {
         for (Map.Entry<Ingredient, Integer> ingredient : ingredients.entrySet()) {
             insertIngredientIntoMap(mutableIngredientsMap, new Pair<>(ingredient.getKey(), ingredient.getValue()));
         }
+    }
+
+    static void insertIngredientIntoMap(Map<Ingredient, Integer> mutableIngredientsMap, Pair<Ingredient, Integer> ingredient) {
+        int amount = mutableIngredientsMap.computeIfAbsent(ingredient.first(), ignored -> 0);
+        mutableIngredientsMap.put(ingredient.first(), amount + ingredient.second());
     }
 }

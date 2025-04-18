@@ -12,6 +12,7 @@ import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.Component;
@@ -41,6 +42,7 @@ public class BrewAdapter {
     private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
     public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
     public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
+    public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
@@ -60,6 +62,9 @@ public class BrewAdapter {
             ItemMeta meta = itemStack.getItemMeta();
             meta.getPersistentDataContainer().set(BREWERY_TAG, PersistentDataType.STRING, BreweryKey.parse(recipe.get().getRecipeName()).toString());
             meta.getPersistentDataContainer().set(BREWERY_SCORE, PersistentDataType.DOUBLE, score.get().score());
+            if (recipe.get().getRecipeResult() instanceof BukkitRecipeResult recipeResult) {
+                meta.getPersistentDataContainer().set(BREWERY_DISPLAY_NAME, PersistentDataType.STRING, recipeResult.getNames().get(quality.get()));
+            }
             itemStack.setItemMeta(meta);
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -75,10 +80,10 @@ public class BrewAdapter {
         Map<Ingredient, Integer> ingredients = new HashMap<>();
         for (BrewingStep brewingStep : brew.getSteps()) {
             if (brewingStep instanceof BrewingStep.Cook cook) {
-                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient, Integer>) cook.ingredients());
+                IngredientManager.merge(ingredients, (Map<Ingredient, Integer>) cook.ingredients());
             }
             if (brewingStep instanceof BrewingStep.Mix mix) {
-                BukkitIngredientManager.INSTANCE.merge(ingredients, (Map<Ingredient, Integer>) mix.ingredients());
+                IngredientManager.merge(ingredients, (Map<Ingredient, Integer>) mix.ingredients());
             }
         }
         Pair<org.bukkit.Color, Ingredient> itemsInfo = IngredientUtil.ingredientData(ingredients);

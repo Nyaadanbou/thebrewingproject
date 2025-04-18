@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.brew;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.Registry;
@@ -131,7 +132,7 @@ public class BrewingStepPdcType implements PersistentDataType<byte[], BrewingSte
         Arrays.stream(bytesArray)
                 .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
                 .map(BukkitIngredientManager.INSTANCE::getIngredientWithAmount)
-                .forEach(ingredientAmountPair -> BukkitIngredientManager.INSTANCE.insertIngredientIntoMap(ingredients, ingredientAmountPair));
+                .forEach(ingredientAmountPair -> IngredientManager.insertIngredientIntoMap(ingredients, ingredientAmountPair));
         return ingredients;
     }
 }
