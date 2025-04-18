@@ -192,6 +192,18 @@ recipes:
         type: cook
       - runs: 2
         type: distill
+  gin_and_tonic:
+    alcohol: 18
+    brew-difficulty: 1
+    potion-attributes.color: 70a0b8
+    potion-attributes.name: Pale Gin With Tonic/Gin And Tonic/Old Tom Gin With Tonic
+    steps:
+      - type: mix
+        mix-time: 3
+        ingredients:
+          - gin/3
+          - chorus_fruit/6
+
   gr_absinthe:
     alcohol: 46
     brew-difficulty: 9

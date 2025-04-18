@@ -4,6 +4,7 @@ import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
@@ -17,10 +18,16 @@ import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.util.moment.Interval;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockType;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -39,8 +46,12 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     @Getter
     private final CauldronType cauldronType;
     @Getter
+    @Setter
+    private boolean hot;
+    @Getter
     private Brew brew;
     private Color particleColor = Color.AQUA;
+    private boolean brewExtracted = false;
 
 
     public BukkitCauldron(Block block) {
@@ -50,11 +61,15 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     public BukkitCauldron(Map<Ingredient, Integer> ingredients, Block block, long brewStart) {
         this.block = block;
         this.cauldronType = findCauldronType(block);
-        this.brew = new Brew(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType));
+        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
+        this.brew = hot ?
+                new Brew(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType))
+                : new Brew(new BrewingStep.Mix(new Interval(brewStart, brewStart), ingredients));
     }
 
     public BukkitCauldron(Brew brew, Block block) {
         this.block = block;
+        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
         this.cauldronType = findCauldronType(block);
         this.brew = brew;
     }
@@ -72,17 +87,16 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         if (!BlockUtil.isChunkLoaded(block)) {
             return;
         }
-        if (!this.isOnHeatSource()) {
-            this.remove();
-            return;
-        }
+        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
         Optional<Recipe<ItemStack>> recipeOptional = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry());
-        if (brew.lastStep() instanceof BrewingStep.Cook cook && recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
-            brew = brew.witModifiedLastStep(brewingStep -> {
-                BrewingStep.Cook cookingStep = ((BrewingStep.Cook) brewingStep);
-                return cookingStep.withBrewTime(cookingStep.brewTime().withLastStep(TheBrewingProject.getInstance().getTime()));
-            });
-            this.particleColor = ColorUtil.getNextColor(Color.AQUA, IngredientUtil.ingredientData(cook.ingredients()).first(), cook.brewTime().moment(), recipeCook.brewTime().moment());
+        if (recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
+            recalculateBrewTime();
+            if (hot) {
+                BrewingStep.Cook cook = (BrewingStep.Cook) brew.lastStep();
+                this.particleColor = ColorUtil.getNextColor(Color.AQUA, IngredientUtil.ingredientData(cook.ingredients()).first(), cook.brewTime().moment(), recipeCook.brewTime().moment());
+            } else {
+                this.particleColor = Color.AQUA;
+            }
         }
         this.playBrewingEffects();
     }
@@ -99,36 +113,35 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_ACCESS_DENIED));
             return false;
         }
+        if (brewExtracted) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_CANT_ADD_MORE_INGREDIENTS));
+            return false;
+        }
+        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
         long time = TheBrewingProject.getInstance().getTime();
-        if (!(brew.lastStep() instanceof BrewingStep.Cook)) {
-            brew = brew.withStep(new BrewingStep.Cook(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType));
-            return true;
+        Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
+        if (hot) {
+            brew = brew.withLastStep(BrewingStep.Cook.class,
+                    cook -> {
+                        Map<Ingredient, Integer> ingredients = new HashMap<>(cook.ingredients());
+                        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
+                        ingredients.put(ingredient, amount + 1);
+                        return cook.withIngredients(ingredients);
+                    },
+                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType)
+            );
+        } else {
+            brew = brew.withLastStep(BrewingStep.Mix.class,
+                    mix -> {
+                        Map<Ingredient, Integer> ingredients = new HashMap<>(mix.ingredients());
+                        int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
+                        ingredients.put(ingredient, amount + 1);
+                        return mix.withIngredients(ingredients);
+                    },
+                    () -> new BrewingStep.Mix(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1))
+            );
         }
-        brew = brew.witModifiedLastStep(step -> {
-            BrewingStep.Cook cook = (BrewingStep.Cook) step;
-            Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
-            Map<Ingredient, Integer> ingredients = new HashMap<>(cook.ingredients());
-            int amount = ingredients.computeIfAbsent(ingredient, ignored -> 0);
-            ingredients.put(ingredient, amount + 1);
-            item.setAmount(item.getAmount() - 1);
-            return cook.withIngredients(ingredients);
-        });
         return true;
-    }
-
-    public boolean isOnHeatSource() {
-        if (Config.HEAT_SOURCES.isEmpty()) {
-            return true;
-        }
-
-        Block blockBelow = block.getRelative(0, -1, 0);
-        Material below = blockBelow.getType();
-        if (below == Material.CAMPFIRE || below == Material.SOUL_CAMPFIRE) {
-            return BlockUtil.isLitCampfire(blockBelow);
-        } else if (below == Material.LAVA || below == Material.WATER) {
-            return BlockUtil.isSource(blockBelow);
-        }
-        return Config.HEAT_SOURCES.contains(below.name().toLowerCase());
     }
 
     public void playBrewingEffects() {
@@ -157,17 +170,73 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         }
     }
 
-    public static boolean isValidStructure(Block cauldronBlock) {
-        return Tag.CAULDRONS.isTagged(cauldronBlock.getType()) && isHeatSource(cauldronBlock.getRelative(BlockFace.DOWN).getType())
-                && cauldronBlock.getBlockData() instanceof Levelled levelled && levelled.getLevel() > 0;
+    private static boolean canBoil(Block cauldronBlock) {
+        return cauldronBlock.getBlockData() instanceof Levelled levelled && levelled.getLevel() > 0;
     }
 
-    private static boolean isHeatSource(Material material) {
-        return Tag.FIRE.isTagged(material) || Tag.CAMPFIRES.isTagged(material) || material == Material.LAVA;
+    public static boolean isHeatSource(Block block) {
+        if (Config.HEAT_SOURCES.isEmpty()) {
+            return true;
+        }
+        Material material = block.getType();
+        if (!Config.HEAT_SOURCES.contains(material.name().toLowerCase())) {
+            return false;
+        }
+        if (material == Material.CAMPFIRE || material == Material.SOUL_CAMPFIRE) {
+            return BlockUtil.isLitCampfire(block);
+        } else if (material == Material.LAVA) {
+            return BlockUtil.isSource(block);
+        }
+        return true;
     }
 
     @Override
     public BreweryLocation position() {
         return new BreweryLocation(block.getX(), block.getY(), block.getZ(), block.getWorld().getUID());
+    }
+
+    public ItemStack extractBrew() {
+        recalculateBrewTime();
+        this.brewExtracted = true;
+        return BrewAdapter.toItem(brew, Brew.State.OTHER);
+    }
+
+    private void recalculateBrewTime() {
+        long time = TheBrewingProject.getInstance().getTime();
+        if (hot) {
+            brew = brew.withLastStep(BrewingStep.Cook.class,
+                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(time)),
+                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(), this.cauldronType));
+        } else {
+            brew = brew.withLastStep(BrewingStep.Mix.class,
+                    mix -> mix.withTime(mix.time().withLastStep(time)),
+                    () -> new BrewingStep.Mix(new Interval(time, time), Map.of())
+            );
+        }
+    }
+
+    public static void incrementLevel(Block block) {
+        BlockData blockData = block.getBlockData();
+        if (blockData instanceof Levelled levelled) {
+            levelled.setLevel(Math.min(levelled.getLevel() + 1, levelled.getMaximumLevel()));
+            block.setBlockData(levelled);
+        } else {
+            Levelled waterCauldron = BlockType.WATER_CAULDRON.createBlockData();
+            waterCauldron.setLevel(1);
+            block.setBlockData(waterCauldron);
+        }
+    }
+
+    public static boolean decrementLevel(Block block) {
+        if (!(block.getBlockData() instanceof Levelled levelled)) {
+            return true;
+        }
+        if (levelled.getLevel() == 1) {
+            block.setType(Material.CAULDRON);
+            return true;
+        }
+        levelled.setLevel(levelled.getLevel() - 1);
+        block.setBlockData(levelled);
+        return false;
     }
 }

@@ -48,6 +48,7 @@ cauldron.type:
   lava: lava
   snow: snow
   none: none
+cauldron.cant-add-more-ingredients: <red>Can't add more ingredients
 mixer.create: <gray>Successfully created a mixer
 mixer.create-denied: <gray>Successfully created a mixer
 mixer.access-denied: <gray>Successfully created a mixer

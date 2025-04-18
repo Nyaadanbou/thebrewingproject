@@ -60,6 +60,7 @@ public class BrewAdapter {
             ItemMeta meta = itemStack.getItemMeta();
             meta.getPersistentDataContainer().set(BREWERY_TAG, PersistentDataType.STRING, BreweryKey.parse(recipe.get().getRecipeName()).toString());
             meta.getPersistentDataContainer().set(BREWERY_SCORE, PersistentDataType.DOUBLE, score.get().score());
+            itemStack.setItemMeta(meta);
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         fillPersistentData(itemMeta, brew);

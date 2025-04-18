@@ -3,12 +3,13 @@ package dev.jsinco.brewery.bukkit.breweries;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.vector.BreweryLocation;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -67,17 +68,18 @@ public class BukkitCauldronDataType implements SqlStoredData.Findable<BukkitCaul
     }
 
     @Override
-    public List<BukkitCauldron> find(UUID world, Connection connection) throws PersistenceException {
+    public List<BukkitCauldron> find(UUID worldUuid, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/cauldrons_select_all.sql"))) {
-            preparedStatement.setBytes(1, DecoderEncoder.asBytes(world));
+            preparedStatement.setBytes(1, DecoderEncoder.asBytes(worldUuid));
             ResultSet resultSet = preparedStatement.executeQuery();
             List<BukkitCauldron> cauldrons = new ArrayList<>();
+            World world = Bukkit.getWorld(worldUuid);
             while (resultSet.next()) {
                 int x = resultSet.getInt("cauldron_x");
                 int y = resultSet.getInt("cauldron_y");
                 int z = resultSet.getInt("cauldron_z");
                 Brew brew = Brew.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
-                cauldrons.add(new BukkitCauldron(brew, Bukkit.getWorld(world).getBlockAt(x, y, z)));
+                cauldrons.add(new BukkitCauldron(brew, world.getBlockAt(x, y, z)));
             }
             return cauldrons;
         } catch (SQLException e) {

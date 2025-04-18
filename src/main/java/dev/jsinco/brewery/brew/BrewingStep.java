@@ -170,6 +170,9 @@ public sealed interface BrewingStep {
             return BrewingStep.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) ingredients1) * mixTimeScore;
         }
 
+        public Mix withTime(Moment time) {
+            return new Mix(time, this.ingredients);
+        }
     }
 
     enum StepType {

@@ -89,6 +89,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("cauldron.access-denied")
     public static String CAULDRON_ACCESS_DENIED;
 
+    @Key("cauldron.cant-add-more-ingredients")
+    public static String CAULDRON_CANT_ADD_MORE_INGREDIENTS;
+
     @Key("cauldron.type")
     public static Map<String, String> CAULDRON_TYPE;
 

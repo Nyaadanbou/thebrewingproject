@@ -1,16 +1,14 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.brew.Brew;
-import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
-import dev.jsinco.brewery.bukkit.breweries.BukkitMixer;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
+import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
+import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
@@ -24,12 +22,10 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
-import dev.jsinco.brewery.util.moment.PassedMoment;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -44,7 +40,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -96,13 +91,7 @@ public class PlayerEventListener implements Listener {
             return;
         }
         if (Tag.CAULDRONS.isTagged(block.getType())) {
-            if (!BukkitCauldron.isValidStructure(block)) {
-                breweryRegistry.getActiveSinglePositionStructure(BukkitAdapter.toBreweryLocation(block))
-                        .ifPresent(cauldron -> ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database));
-                handleMixer(event, block);
-            } else {
-                handleCauldron(event, block);
-            }
+            handleCauldron(event, block);
         }
         PlayerInventory inventory = event.getPlayer().getInventory();
         ItemStack offHand = inventory.getItemInOffHand();
@@ -118,12 +107,6 @@ public class PlayerEventListener implements Listener {
 
     }
 
-    private void handleMixer(PlayerInteractEvent event, Block block) {
-        Optional<BukkitMixer> mixerOptional = breweryRegistry.getActiveSinglePositionStructure(BukkitAdapter.toBreweryLocation(block))
-                .filter(BukkitMixer.class::isInstance)
-                .map(BukkitMixer.class::cast);
-    }
-
     private void decreaseItem(ItemStack itemStack, Player player) {
         if (player.getGameMode() != GameMode.CREATIVE) {
             itemStack.setAmount(itemStack.getAmount() - 1);
@@ -135,43 +118,49 @@ public class PlayerEventListener implements Listener {
                 .filter(BukkitCauldron.class::isInstance)
                 .map(BukkitCauldron.class::cast);
         ItemStack itemStack = event.getItem();
+        if (itemStack == null) {
+            return;
+        }
         if (isIngredient(itemStack)) {
-            BukkitCauldron cauldron = cauldronOptional
-                    .orElseGet(() -> this.initCauldron(block));
-            cauldron.addIngredient(itemStack, event.getPlayer());
-            try {
-                database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
-            } catch (PersistenceException e) {
-                e.printStackTrace();
-            }
+            handleIngredientAddition(itemStack, block, cauldronOptional.orElse(null), event.getPlayer());
         }
         if (itemStack.getType() == Material.GLASS_BOTTLE) {
             cauldronOptional
-                    .map(BukkitCauldron::getBrew)
-                    .map(brew -> brew.withLastStep(
-                                    BrewingStep.Cook.class,
-                                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(TheBrewingProject.getInstance().getTime())),
-                                    () -> new BrewingStep.Cook(new PassedMoment(0), Map.of(), cauldronOptional.get().getCauldronType())
-                            )
-                    )
-                    .map(brew -> BrewAdapter.toItem(brew, Brew.State.OTHER))
+                    .map(BukkitCauldron::extractBrew)
                     .ifPresent(brewItemStack -> {
                         decreaseItem(itemStack, event.getPlayer());
                         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), brewItemStack);
-                        Levelled cauldron = (Levelled) block.getBlockData();
-                        if (cauldron.getLevel() == 1) {
+                        if (BukkitCauldron.decrementLevel(block)) {
                             ListenerUtil.removeActiveSinglePositionStructure(cauldronOptional.get(), breweryRegistry, database);
-                            block.setType(Material.CAULDRON);
-                            return;
                         }
-                        cauldron.setLevel(cauldron.getLevel() - 1);
-                        block.setBlockData(cauldron);
                     });
         }
         cauldronOptional.ifPresent(ignored -> {
             event.setUseInteractedBlock(Event.Result.DENY);
             event.setUseItemInHand(Event.Result.DENY);
         });
+    }
+
+    private void handleIngredientAddition(ItemStack itemStack, Block block, @Nullable BukkitCauldron cauldron, Player player) {
+        if (itemStack.getType() == Material.POTION) {
+            BukkitCauldron.incrementLevel(block);
+        }
+        if (cauldron == null) {
+            cauldron = this.initCauldron(block);
+        }
+        boolean cancelled = !cauldron.addIngredient(itemStack, player);
+        if (cancelled) {
+            if (BukkitCauldron.decrementLevel(block)) {
+                ListenerUtil.removeActiveSinglePositionStructure(cauldron, breweryRegistry, database);
+            }
+        } else {
+            decreaseItem(itemStack, player);
+            try {
+                database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
+            } catch (PersistenceException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private BukkitCauldron initCauldron(Block block) {
@@ -189,6 +178,9 @@ public class PlayerEventListener implements Listener {
     private boolean isIngredient(@Nullable ItemStack itemStack) {
         if (itemStack == null) {
             return false;
+        }
+        if (!(BukkitIngredientManager.INSTANCE.getIngredient(itemStack) instanceof SimpleIngredient)) {
+            return true;
         }
         if (1 == itemStack.getMaxStackSize()) {
             // Probably equipment

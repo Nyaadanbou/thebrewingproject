@@ -17,12 +17,5 @@ public class ListenerUtil {
                 e.printStackTrace();
             }
         }
-        if (structure instanceof BukkitMixer mixer) {
-            try {
-                database.remove(BukkitMixerDataType.INSTANCE, mixer);
-            } catch (PersistenceException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
