@@ -21,6 +21,7 @@ repositories {
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.codemc.org/repository/maven-public/")
     maven("https://repo.glaremasters.me/repository/towny/")
+    maven("https://repo.minebench.de/")
 }
 
 dependencies {
@@ -36,6 +37,7 @@ dependencies {
     compileOnly("com.github.GriefPrevention:GriefPrevention:17.0.0")
     compileOnly("com.palmergames.bukkit.towny:towny:0.100.1.9")
     compileOnly("com.github.Angeschossen:LandsAPI:7.13.1")
+    compileOnly("com.acrobot.chestshop:chestshop:3.12.2")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
@@ -60,11 +62,11 @@ tasks {
 
     runServer {
         minecraftVersion("1.21.4")
-        /*
         downloadPlugins {
             modrinth("worldedit","DlD8WKr9")
+            url("https://dev.bukkit.org/projects/chestshop/files/latest")
+            url("https://dev.bukkit.org/projects/vault/files/latest")
         }
-        */
     }
 
     shadowJar {
@@ -132,5 +134,5 @@ bukkit {
             children = listOf("brewery.command", "brewery.structure.create")
         }
     }
-    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny")
+    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny", "ChestShop")
 }
