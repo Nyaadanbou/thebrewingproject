@@ -1,20 +1,57 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
+import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.ingredient.ScoredIngredient;
 import dev.jsinco.brewery.util.BreweryKey;
-import lombok.Getter;
 
-public class ScoredBreweryIngredient extends BreweryIngredient {
+import java.util.Objects;
 
-    @Getter
+public class ScoredBreweryIngredient implements ScoredIngredient {
+
     private final double score;
+    private final BreweryKey ingredientKey;
+    private final String displayName;
 
-    public ScoredBreweryIngredient(BreweryKey ingredientKey, double score) {
-        super(ingredientKey);
+    public ScoredBreweryIngredient(BreweryKey ingredientKey, double score, String displayName) {
+        this.ingredientKey = ingredientKey;
         this.score = score;
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String getKey() {
+        return ingredientKey.toString();
     }
 
     @Override
     public String displayName() {
-        return super.displayName() + "-" + score;
+        return displayName + "-" + score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ScoredBreweryIngredient that = (ScoredBreweryIngredient) o;
+        return Objects.equals(ingredientKey, that.ingredientKey) && Objects.equals(score, that.score);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ingredientKey, score);
+    }
+
+    @Override
+    public double score() {
+        return score;
+    }
+
+    @Override
+    public Ingredient baseIngredient() {
+        return new BreweryIngredient(ingredientKey, displayName);
     }
 }

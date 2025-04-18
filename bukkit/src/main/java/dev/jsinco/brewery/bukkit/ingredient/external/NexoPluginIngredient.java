@@ -5,6 +5,7 @@ import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class NexoPluginIngredient implements Ingredient {
@@ -23,6 +24,23 @@ public class NexoPluginIngredient implements Ingredient {
     @Override
     public String displayName() {
         return NexoWrapper.displayName(nexoId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NexoPluginIngredient that = (NexoPluginIngredient) o;
+        return Objects.equals(nexoId, that.nexoId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(nexoId);
     }
 
     public static Optional<Ingredient> from(String nexoId) {

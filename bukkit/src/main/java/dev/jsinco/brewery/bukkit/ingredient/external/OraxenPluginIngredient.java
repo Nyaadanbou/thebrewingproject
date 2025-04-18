@@ -7,6 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 
 // PluginIngredient usage example using Oraxen
@@ -35,6 +36,23 @@ public class OraxenPluginIngredient implements Ingredient {
             return Optional.empty();
         }
         return Optional.of(new OraxenPluginIngredient(namespacedKey.getKey()));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OraxenPluginIngredient that = (OraxenPluginIngredient) o;
+        return Objects.equals(itemId, that.itemId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(itemId);
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {

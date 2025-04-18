@@ -8,13 +8,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class BreweryIngredient implements Ingredient {
     protected final BreweryKey ingredientKey;
+    private final String displayName;
 
-    public BreweryIngredient(BreweryKey ingredientKey) {
+    public BreweryIngredient(BreweryKey ingredientKey, String displayName) {
         this.ingredientKey = ingredientKey;
+        this.displayName = displayName;
     }
 
     @Override
@@ -24,7 +27,24 @@ public class BreweryIngredient implements Ingredient {
 
     @Override
     public String displayName() {
-        return ingredientKey.key();
+        return displayName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BreweryIngredient that = (BreweryIngredient) o;
+        return Objects.equals(ingredientKey, that.ingredientKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(ingredientKey);
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {
@@ -38,13 +58,17 @@ public class BreweryIngredient implements Ingredient {
             return Optional.empty();
         }
         Double score = dataContainer.get(BrewAdapter.BREWERY_SCORE, PersistentDataType.DOUBLE);
+        String displayName = dataContainer.get(BrewAdapter.BREWERY_DISPLAY_NAME, PersistentDataType.STRING);
+        BreweryKey breweryKey = BreweryKey.parse(key);
+        displayName = displayName == null ? breweryKey.key() : displayName;
         if (score != null) {
-            return Optional.of(new ScoredBreweryIngredient(BreweryKey.parse(key), score));
+            return Optional.of(new ScoredBreweryIngredient(breweryKey, score, displayName));
         }
-        return Optional.of(new BreweryIngredient(BreweryKey.parse(key)));
+        return Optional.of(new BreweryIngredient(breweryKey, displayName));
     }
 
     public static Optional<Ingredient> from(String id) {
-        return Optional.of(new BreweryIngredient(BreweryKey.parse(id)));
+        BreweryKey breweryKey = BreweryKey.parse(id);
+        return Optional.of(new BreweryIngredient(breweryKey, breweryKey.key()));
     }
 }

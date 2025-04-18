@@ -1,11 +1,11 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import dev.jsinco.brewery.bukkit.integration.ItemsAdderWrapper;
-import dev.jsinco.brewery.bukkit.integration.OraxenWrapper;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class ItemsAdderPluginIngredient implements Ingredient {
@@ -24,6 +24,23 @@ public class ItemsAdderPluginIngredient implements Ingredient {
     @Override
     public String displayName() {
         return ItemsAdderWrapper.displayName(itemId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ItemsAdderPluginIngredient that = (ItemsAdderPluginIngredient) o;
+        return Objects.equals(itemId, that.itemId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(itemId);
     }
 
     public static Optional<Ingredient> from(String itemsAdderId) {
