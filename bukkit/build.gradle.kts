@@ -27,12 +27,15 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     compileOnly("org.jetbrains:annotations:24.0.0")
+
+    // Integration
     compileOnly("io.th0rgal:oraxen:1.189.0")
     compileOnly("dev.lone:api-itemsadder:4.0.10")
     compileOnly("com.nexomc:nexo:1.1.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.13")
     compileOnly("com.github.GriefPrevention:GriefPrevention:17.0.0")
     compileOnly("com.palmergames.bukkit.towny:towny:0.100.1.9")
+    compileOnly("com.github.Angeschossen:LandsAPI:7.13.1")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
@@ -129,5 +132,5 @@ bukkit {
             children = listOf("brewery.command", "brewery.structure.create")
         }
     }
-    softDepend = listOf("oraxen", "itemsadder", "nexo", "WorldGuard")
+    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny")
 }

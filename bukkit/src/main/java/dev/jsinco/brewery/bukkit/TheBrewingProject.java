@@ -12,6 +12,7 @@ import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
 import dev.jsinco.brewery.bukkit.effect.event.CustomDrunkEventReader;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
+import dev.jsinco.brewery.bukkit.integration.structure.StructureAccessHook;
 import dev.jsinco.brewery.bukkit.listeners.BlockEventListener;
 import dev.jsinco.brewery.bukkit.listeners.InventoryEventListener;
 import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
@@ -180,6 +181,7 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        StructureAccessHook.initiate(this);
     }
 
     @Override
