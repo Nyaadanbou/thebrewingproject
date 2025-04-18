@@ -20,6 +20,7 @@ repositories {
     maven("https://repo.nexomc.com/releases")
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.codemc.org/repository/maven-public/")
+    maven("https://repo.glaremasters.me/repository/towny/")
 }
 
 dependencies {
@@ -31,6 +32,7 @@ dependencies {
     compileOnly("com.nexomc:nexo:1.1.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.13")
     compileOnly("com.github.GriefPrevention:GriefPrevention:17.0.0")
+    compileOnly("com.palmergames.bukkit.towny:towny:0.100.1.9")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
