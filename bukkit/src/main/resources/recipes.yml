@@ -234,7 +234,7 @@ recipes:
     potion-attributes.name: Watery Coffee/Iced Coffee/Strong Iced Coffee
     steps:
       - type: mix
-        cook-time: 1
+        mix-time: 1
         ingredients:
           - cookie/8
           - snowball/4

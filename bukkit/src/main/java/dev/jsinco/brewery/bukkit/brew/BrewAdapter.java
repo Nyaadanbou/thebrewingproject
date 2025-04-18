@@ -3,7 +3,6 @@ package dev.jsinco.brewery.bukkit.brew;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
@@ -43,7 +42,7 @@ public class BrewAdapter {
     public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
     public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
     public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
-    private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION);
+    private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION, BREWING_STEPS);
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
         RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
