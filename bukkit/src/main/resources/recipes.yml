@@ -245,13 +245,12 @@ recipes:
     potion-attributes.color: BLACK
     potion-attributes.name: Watery Coffee/Iced Coffee/Strong Iced Coffee
     steps:
-      - cauldron-type: water
+      - type: mix
         cook-time: 1
         ingredients:
           - cookie/8
           - snowball/4
           - milk_bucket/1
-        type: cook
   mead:
     alcohol: 9
     brew-difficulty: 2
