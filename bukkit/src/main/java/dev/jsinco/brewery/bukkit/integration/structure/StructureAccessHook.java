@@ -11,10 +11,12 @@ public class StructureAccessHook {
                 && GriefPreventionHook.hasAccess(block, player)
                 && TownyHook.hasAccess(block, player)
                 && LandsHook.hasAccess(block, player)
-                && HuskClaimsHook.hasAccess(block, player);
+                && HuskClaimsHook.hasAccess(block, player)
+                && BoltHook.hasAccess(block, player);
     }
 
     public static void initiate(TheBrewingProject plugin) {
         LandsHook.initiate(plugin);
+        BoltHook.initiate();
     }
 }

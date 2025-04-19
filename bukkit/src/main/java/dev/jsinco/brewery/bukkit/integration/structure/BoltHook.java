@@ -1,17 +1,18 @@
 package dev.jsinco.brewery.bukkit.integration.structure;
 
-import net.william278.huskclaims.api.BukkitHuskClaimsAPI;
-import net.william278.huskclaims.libraries.cloplib.operation.OperationType;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.popcraft.bolt.BoltAPI;
 
-public class HuskClaimsHook {
+public class BoltHook {
 
     private static final boolean ENABLED = checkAvailable();
+    private static BoltAPI boltAPI;
 
     private static boolean checkAvailable() {
         try {
-            Class.forName("net.william278.huskclaims.api.BukkitHuskClaimsAPI");
+            Class.forName("org.popcraft.bolt.BoltAPI");
             return true;
         } catch (ClassNotFoundException e) {
             return false;
@@ -22,7 +23,13 @@ public class HuskClaimsHook {
         if (!ENABLED) {
             return true;
         }
-        BukkitHuskClaimsAPI huskClaimsAPI = BukkitHuskClaimsAPI.getInstance();
-        return huskClaimsAPI.isOperationAllowed(huskClaimsAPI.getOnlineUser(player), OperationType.CONTAINER_OPEN, huskClaimsAPI.getPosition(block.getLocation()));
+        if (boltAPI == null) {
+            return true;
+        }
+        return boltAPI.canAccess(block, player);
+    }
+
+    public static void initiate() {
+        boltAPI = Bukkit.getServer().getServicesManager().load(BoltAPI.class);
     }
 }

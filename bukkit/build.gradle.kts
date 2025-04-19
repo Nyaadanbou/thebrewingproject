@@ -23,6 +23,7 @@ repositories {
     maven("https://repo.glaremasters.me/repository/towny/")
     maven("https://repo.minebench.de/")
     maven("https://repo.william278.net/releases")
+    maven("https://repo.codemc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -40,6 +41,8 @@ dependencies {
     compileOnly("com.github.Angeschossen:LandsAPI:7.13.1")
     compileOnly("com.acrobot.chestshop:chestshop:3.12.2")
     compileOnly("net.william278.huskclaims:huskclaims-bukkit:1.5.2")
+    compileOnly("org.popcraft:bolt-bukkit:1.1.33")
+    compileOnly("org.popcraft:bolt-common:1.1.33")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
