@@ -22,6 +22,7 @@ repositories {
     maven("https://repo.codemc.org/repository/maven-public/")
     maven("https://repo.glaremasters.me/repository/towny/")
     maven("https://repo.minebench.de/")
+    maven("https://repo.william278.net/releases")
 }
 
 dependencies {
@@ -38,6 +39,7 @@ dependencies {
     compileOnly("com.palmergames.bukkit.towny:towny:0.100.1.9")
     compileOnly("com.github.Angeschossen:LandsAPI:7.13.1")
     compileOnly("com.acrobot.chestshop:chestshop:3.12.2")
+    compileOnly("net.william278.huskclaims:huskclaims-bukkit:1.5.2")
 
     implementation(project(":"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
@@ -135,5 +137,5 @@ bukkit {
             children = listOf("brewery.command", "brewery.structure.create")
         }
     }
-    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny", "ChestShop")
+    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny", "ChestShop", "HuskClaims")
 }

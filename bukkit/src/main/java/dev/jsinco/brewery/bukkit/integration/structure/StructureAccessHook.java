@@ -10,7 +10,8 @@ public class StructureAccessHook {
         return WorldGuardHook.hasAccess(block, player)
                 && GriefPreventionHook.hasAccess(block, player)
                 && TownyHook.hasAccess(block, player)
-                && LandsHook.hasAccess(block, player);
+                && LandsHook.hasAccess(block, player)
+                && HuskClaimsHook.hasAccess(block, player);
     }
 
     public static void initiate(TheBrewingProject plugin) {
