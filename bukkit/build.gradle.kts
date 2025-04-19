@@ -66,6 +66,7 @@ tasks {
             modrinth("worldedit","DlD8WKr9")
             url("https://dev.bukkit.org/projects/chestshop/files/latest")
             url("https://dev.bukkit.org/projects/vault/files/latest")
+            url("https://github.com/EssentialsX/Essentials/releases/download/2.21.0/EssentialsX-2.21.0.jar")
         }
     }
 

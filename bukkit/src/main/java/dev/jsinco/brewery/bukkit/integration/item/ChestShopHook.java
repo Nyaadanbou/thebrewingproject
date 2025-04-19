@@ -1,15 +1,19 @@
 package dev.jsinco.brewery.bukkit.integration.item;
 
+import com.Acrobot.ChestShop.Events.ItemParseEvent;
 import com.Acrobot.ChestShop.Events.ItemStringQueryEvent;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
+import dev.jsinco.brewery.recipes.BrewQuality;
 import dev.jsinco.brewery.recipes.BrewScore;
-import dev.jsinco.brewery.recipes.Recipe;
-import org.bukkit.Bukkit;
+import dev.jsinco.brewery.util.BreweryKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Optional;
 
@@ -29,21 +33,49 @@ public class ChestShopHook implements Listener {
         if (!ENABLED) {
             return;
         }
-        Bukkit.getPluginManager().registerEvents(new ChestShopHook(), plugin);
+        // ChestShops api does currently not allow us to validate whether an item matches (2025/04/19)
+        // So going to void the implementation for now
+        // Bukkit.getPluginManager().registerEvents(new ChestShopHook(), plugin);
     }
 
     @EventHandler
     public void onItemStringQueryEvent(ItemStringQueryEvent event) {
-        Optional<Brew> brewOptional = BrewAdapter.fromItem(event.getItem());
-        Optional<Recipe<ItemStack>> recipeOptional = brewOptional.flatMap(brew -> brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry()));
-        brewOptional
-                .filter(brew -> {
-                    BrewScore score = brew.score(recipeOptional.get());
-                    return score.completed() && score.brewQuality() != null;
-                })
-                .ifPresent(brew -> {
-                    event.setItemString(recipeOptional.get().getRecipeName());
-                });
+        ItemMeta itemMeta = event.getItem().getItemMeta();
+        if (itemMeta == null) {
+            return;
+        }
+        PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
+        Optional<Brew> brew = BrewAdapter.fromItem(event.getItem());
+        if (brew.isPresent()) {
+            return;
+        }
+        if (!dataContainer.has(BrewAdapter.BREWERY_TAG)) {
+            return;
+        }
+        String output = BreweryKey.parse(dataContainer.get(BrewAdapter.BREWERY_TAG, PersistentDataType.STRING)).key();
+        if (dataContainer.has(BrewAdapter.BREWERY_SCORE)) {
+            BrewQuality quality = BrewScore.quality(dataContainer.get(BrewAdapter.BREWERY_SCORE, PersistentDataType.DOUBLE));
+            if (quality != null) {
+                String extra = switch (quality) {
+                    case BAD -> "+";
+                    case GOOD -> "++";
+                    case EXCELLENT -> "+++";
+                };
+                output = extra + output;
+            }
+        }
+        event.setItemString(output);
+    }
+
+    @EventHandler
+    public void onItemParse(ItemParseEvent event) {
+        TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(event.getItemString().replaceAll("^\\+{3}", ""))
+                .ifPresent(recipe -> {
+                            ItemStack itemStack = BrewAdapter.toItem(new Brew(recipe.getSteps()), Brew.State.OTHER);
+                            BrewAdapter.seal(itemStack, null);
+                            event.setItem(itemStack);
+                        }
+                );
     }
 }
 
