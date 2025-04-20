@@ -30,6 +30,9 @@ public class BoltHook {
     }
 
     public static void initiate() {
+        if (!ENABLED) {
+            return;
+        }
         boltAPI = Bukkit.getServer().getServicesManager().load(BoltAPI.class);
     }
 }
