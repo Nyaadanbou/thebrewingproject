@@ -49,9 +49,9 @@ dependencies {
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.43.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("net.kyori:adventure-nbt:4.17.0")
     testImplementation("org.xerial:sqlite-jdbc:3.47.2.0")
 
@@ -72,6 +72,7 @@ tasks {
             url("https://dev.bukkit.org/projects/chestshop/files/latest")
             url("https://dev.bukkit.org/projects/vault/files/latest")
             url("https://github.com/EssentialsX/Essentials/releases/download/2.21.0/EssentialsX-2.21.0.jar")
+            url("https://api.spiget.org/v2/resources/109679/download")
         }
     }
 
@@ -157,6 +158,7 @@ bukkit {
         "GriefPrevention",
         "Towny",
         "ChestShop",
-        "HuskClaims"
+        "HuskClaims",
+        "Bolt"
     )
 }
