@@ -9,8 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.MockBukkitExtension;
 
-import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockBukkitExtension.class)
@@ -26,8 +24,8 @@ class BreweryTimeDataTypeTest {
     @Test
     void checkPersistence() throws PersistenceException {
         this.database.setSingleton(BreweryTimeDataType.INSTANCE, 10L);
-        assertEquals(10L, this.database.getSingleton(BreweryTimeDataType.INSTANCE));
+        assertEquals(10L, this.database.getSingletonNow(BreweryTimeDataType.INSTANCE));
         this.database.setSingleton(BreweryTimeDataType.INSTANCE, 20L);
-        assertEquals(20L, this.database.getSingleton(BreweryTimeDataType.INSTANCE));
+        assertEquals(20L, this.database.getSingletonNow(BreweryTimeDataType.INSTANCE));
     }
 }

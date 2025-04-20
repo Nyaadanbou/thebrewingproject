@@ -18,8 +18,6 @@ import org.mockbukkit.mockbukkit.MockBukkitInject;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,19 +43,19 @@ class BukkitBukkitCauldronDataTypeTest {
         block.setType(Material.WATER_CAULDRON);
         BukkitCauldron cauldron = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 10), block, 103);
         database.insertValue(BukkitCauldronDataType.INSTANCE, cauldron);
-        List<BukkitCauldron> cauldrons = database.find(BukkitCauldronDataType.INSTANCE, world.getUID());
+        List<BukkitCauldron> cauldrons = database.findNow(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, cauldrons.size());
         BukkitCauldron retrievedCauldron = cauldrons.get(0);
         assertEquals(cauldron.getBrew(), retrievedCauldron.getBrew());
         assertEquals(cauldron.position(), retrievedCauldron.position());
         BukkitCauldron updatedValue = new BukkitCauldron(Map.of(new SimpleIngredient(Material.OAK_PLANKS), 11), block, 104);
         database.updateValue(BukkitCauldronDataType.INSTANCE, updatedValue);
-        List<BukkitCauldron> updatedCauldrons = database.find(BukkitCauldronDataType.INSTANCE, world.getUID());
+        List<BukkitCauldron> updatedCauldrons = database.findNow(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, updatedCauldrons.size());
         BrewingStep.Cook lastStep = (BrewingStep.Cook) updatedCauldrons.getFirst().getBrew().lastStep();
         assertEquals(new Interval(104, 104), lastStep.brewTime());
         assertEquals(11, lastStep.ingredients().get(new SimpleIngredient(Material.OAK_PLANKS)));
         database.remove(BukkitCauldronDataType.INSTANCE, cauldron);
-        assertEquals(0, database.find(BukkitCauldronDataType.INSTANCE, world.getUID()).size());
+        assertEquals(0, database.findNow(BukkitCauldronDataType.INSTANCE, world.getUID()).size());
     }
 }

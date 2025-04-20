@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.MockBukkitExtension;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,13 +32,13 @@ class DrunkStateDataTypeTest {
         UUID uuid = UUID.randomUUID();
         DrunkState drunkState = new DrunkState(10, 20, 0, 11, 22);
         database.insertValue(SqlDrunkStateDataType.INSTANCE, new Pair<>(drunkState, uuid));
-        assertTrue(database.retrieveAll(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));
+        assertTrue(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));
         DrunkState drunkState2 = new DrunkState(20, 30, 0, 22, 33);
         database.updateValue(SqlDrunkStateDataType.INSTANCE, new Pair<>(drunkState2, uuid));
-        assertTrue(database.retrieveAll(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState2, uuid)));
-        assertFalse(database.retrieveAll(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));
+        assertTrue(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState2, uuid)));
+        assertFalse(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));
         database.remove(SqlDrunkStateDataType.INSTANCE, uuid);
-        assertTrue(database.retrieveAll(SqlDrunkStateDataType.INSTANCE).isEmpty());
+        assertTrue(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).isEmpty());
     }
 
 }

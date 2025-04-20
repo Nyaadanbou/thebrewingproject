@@ -18,9 +18,6 @@ import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockbukkit.mockbukkit.simulate.entity.PlayerSimulation;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockBukkitExtension.class)
@@ -48,9 +45,9 @@ public class BlockEventListenerTest {
         Location potLocation = new Location(world, 0, 1, 0);
         playerSimulation.simulateBlockPlace(Material.DECORATED_POT, potLocation);
         assertTrue(plugin.getPlacedStructureRegistry().getStructure(BukkitAdapter.toBreweryLocation(potLocation)).isPresent());
-        assertEquals(1, plugin.getDatabase().find(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
+        assertEquals(1, plugin.getDatabase().findNow(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
         playerSimulation.simulateBlockBreak(potLocation.getBlock());
         assertFalse(plugin.getPlacedStructureRegistry().getStructure(BukkitAdapter.toBreweryLocation(potLocation)).isPresent());
-        assertEquals(0, plugin.getDatabase().find(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
+        assertEquals(0, plugin.getDatabase().findNow(BukkitDistilleryDataType.INSTANCE, world.getUID()).size());
     }
 }

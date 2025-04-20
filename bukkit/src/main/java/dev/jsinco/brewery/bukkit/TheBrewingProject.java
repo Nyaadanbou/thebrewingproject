@@ -159,7 +159,7 @@ public class TheBrewingProject extends JavaPlugin {
         this.database = new Database(DatabaseDriver.SQLITE);
         try {
             database.init(this.getDataFolder());
-            this.time = database.getSingleton(BreweryTimeDataType.INSTANCE);
+            this.time = database.getSingletonNow(BreweryTimeDataType.INSTANCE);
         } catch (IOException | PersistenceException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }

@@ -45,7 +45,7 @@ public class DrunksManager<C> {
 
     private void loadDrunkStates() {
         try {
-            persistenceHandler.retrieveAll(drunkStateDataType)
+            persistenceHandler.retrieveAllNow(drunkStateDataType)
                     .forEach(pair -> drunks.put(pair.second(), pair.first()));
         } catch (PersistenceException e) {
             e.printStackTrace();

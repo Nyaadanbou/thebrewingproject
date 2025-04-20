@@ -4,7 +4,6 @@ import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
-import dev.jsinco.brewery.breweries.Tickable;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.brew.BukkitBarrelBrewDataType;

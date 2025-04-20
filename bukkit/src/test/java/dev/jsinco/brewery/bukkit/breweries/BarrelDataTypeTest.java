@@ -25,8 +25,6 @@ import org.mockbukkit.mockbukkit.MockBukkitInject;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.world.WorldMock;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,12 +80,12 @@ class BarrelDataTypeTest {
                 )
         ));
         database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
-        List<BukkitBarrel> retrievedBarrels = database.find(BukkitBarrelDataType.INSTANCE, world.getUID());
+        List<BukkitBarrel> retrievedBarrels = database.findNow(BukkitBarrelDataType.INSTANCE, world.getUID());
         assertEquals(1, retrievedBarrels.size());
         BukkitBarrel retrievedBarrel = retrievedBarrels.get(0);
         assertEquals(2, retrievedBarrel.getBrews().size());
         database.remove(BukkitBarrelDataType.INSTANCE, barrel);
-        assertTrue(database.find(BukkitBarrelDataType.INSTANCE, world.getUID()).isEmpty());
+        assertTrue(database.findNow(BukkitBarrelDataType.INSTANCE, world.getUID()).isEmpty());
     }
 
 }

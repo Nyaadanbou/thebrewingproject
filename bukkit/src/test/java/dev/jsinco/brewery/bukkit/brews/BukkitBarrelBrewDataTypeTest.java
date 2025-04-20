@@ -70,11 +70,11 @@ class BukkitBarrelBrewDataTypeTest {
         Pair<Brew, BukkitBarrelBrewDataType.BarrelContext> data1 = new Pair<>(brew1, barrelContext1);
         Pair<Brew, BukkitBarrelBrewDataType.BarrelContext> data2 = new Pair<>(brew2, barrelContext2);
         database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data1);
-        assertTrue(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
+        assertTrue(database.findNow(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
         database.insertValue(BukkitBarrelBrewDataType.INSTANCE, data2);
-        assertTrue(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew2, 1)));
+        assertTrue(database.findNow(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew2, 1)));
         database.remove(BukkitBarrelBrewDataType.INSTANCE, data1);
-        assertFalse(database.find(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
+        assertFalse(database.findNow(BukkitBarrelBrewDataType.INSTANCE, searchObject).contains(new Pair<>(brew1, 0)));
     }
 
     private void prepareBarrel() throws SQLException {

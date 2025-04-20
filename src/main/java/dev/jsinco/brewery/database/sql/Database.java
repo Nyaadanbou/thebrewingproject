@@ -12,15 +12,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class Database implements PersistenceHandler<Connection> {
 
     private static final int BREWERY_DATABASE_VERSION = 0;
     private final DatabaseDriver driver;
     private HikariDataSource hikariDataSource;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public Database(DatabaseDriver databaseDriver) {
         this.driver = databaseDriver;
@@ -68,15 +71,21 @@ public class Database implements PersistenceHandler<Connection> {
     }
 
     @Override
-    public <T> List<T> retrieveAll(RetrievableStoredData<T, Connection> dataType) throws PersistenceException {
+    public <T> CompletableFuture<List<T>> retrieveAll(RetrievableStoredData<T, Connection> dataType) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            return dataType.retrieveAll(connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        CompletableFuture<List<T>> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                future.complete(dataType.retrieveAll(connection));
+            } catch (SQLException e) {
+                future.completeExceptionally(new PersistenceException(e));
+            } catch (PersistenceException e) {
+                future.completeExceptionally(e);
+            }
+        }, executor);
+        return future;
     }
 
     @Override
@@ -84,11 +93,13 @@ public class Database implements PersistenceHandler<Connection> {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            dataType.remove(toRemove, connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                dataType.remove(toRemove, connection);
+            } catch (SQLException | PersistenceException e) {
+                e.printStackTrace();
+            }
+        }, executor);
     }
 
     @Override
@@ -96,25 +107,13 @@ public class Database implements PersistenceHandler<Connection> {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            dataType.update(newValue, connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
-    }
-
-    @Override
-    public <T> void updateValues(UpdateableStoredData<T, Connection> dataType, Collection<T> newValues) throws PersistenceException {
-        if (hikariDataSource == null) {
-            throw new IllegalStateException("Not initialized");
-        }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            for (T value : newValues) {
-                dataType.update(value, connection);
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                dataType.update(newValue, connection);
+            } catch (SQLException | PersistenceException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        }, executor);
     }
 
     @Override
@@ -122,46 +121,62 @@ public class Database implements PersistenceHandler<Connection> {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            dataType.insert(value, connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                dataType.insert(value, connection);
+            } catch (SQLException | PersistenceException e) {
+                e.printStackTrace();
+            }
+        }, executor);
     }
 
     @Override
-    public <T, U> List<T> find(FindableStoredData<T, U, Connection> dataType, U searchObject) throws PersistenceException {
+    public <T, U> CompletableFuture<List<T>> find(FindableStoredData<T, U, Connection> dataType, U searchObject) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            return dataType.find(searchObject, connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        final CompletableFuture<List<T>> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                future.complete(dataType.find(searchObject, connection));
+            } catch (SQLException e) {
+                future.completeExceptionally(new PersistenceException(e));
+            } catch (PersistenceException e) {
+                future.completeExceptionally(e);
+            }
+        }, executor);
+        return future;
     }
 
     @Override
-    public <T> T getSingleton(SingletonStoredData<T, Connection> dataType) throws PersistenceException {
+    public <T> CompletableFuture<T> getSingleton(SingletonStoredData<T, Connection> dataType) throws PersistenceException {
         if (hikariDataSource == null) {
             throw new IllegalStateException("Not initialized");
         }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            return dataType.value(connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        final CompletableFuture<T> future = new CompletableFuture<>();
+        CompletableFuture.runAsync(() -> {
+            try (Connection connection = hikariDataSource.getConnection()) {
+                future.complete(dataType.value(connection));
+            } catch (SQLException e) {
+                future.completeExceptionally(new PersistenceException(e));
+            } catch (PersistenceException e) {
+                future.completeExceptionally(e);
+            }
+        }, executor);
+        return future;
     }
 
     @Override
     public <T> void setSingleton(SingletonStoredData<T, Connection> dataType, T t) throws PersistenceException {
-        if (hikariDataSource == null) {
-            throw new IllegalStateException("Not initialized");
-        }
-        try (Connection connection = hikariDataSource.getConnection()) {
-            dataType.update(t, connection);
-        } catch (SQLException e) {
-            throw new PersistenceException(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            if (hikariDataSource == null) {
+                throw new IllegalStateException("Not initialized");
+            }
+            try (Connection connection = hikariDataSource.getConnection()) {
+                dataType.update(t, connection);
+            } catch (SQLException | PersistenceException e) {
+                e.printStackTrace();
+            }
+        }, executor);
     }
 }
