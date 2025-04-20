@@ -164,6 +164,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("info.after-drink")
     public static String INFO_AFTER_DRINK;
 
+    @Key("test-value")
+    public static boolean TEST_VALUE;
+
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 
     public static void reload(File dataFolder) {
@@ -173,6 +176,6 @@ public class TranslationsConfig extends AbstractConfig {
         String fileName = "locale/" + Config.LANGUAGE + ".yml";
         FileUtil.extractFile(TranslationsConfig.class, fileName, mainDir, false);
 
-        TRANSLATIONS.reload(mainDir.resolve(fileName), TranslationsConfig.class);
+        TRANSLATIONS.reload(mainDir.resolve(fileName), fileName, TranslationsConfig.class);
     }
 }

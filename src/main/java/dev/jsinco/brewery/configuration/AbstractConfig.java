@@ -9,10 +9,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.comments.CommentType;
+import org.simpleyaml.configuration.file.YamlConfiguration;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,14 +26,20 @@ import java.util.Map;
 
 public abstract class AbstractConfig {
     private YamlFile config;
+    private YamlConfiguration backup;
 
     public @NotNull YamlFile getConfig() {
         return this.config;
     }
 
-    protected void reload(@NotNull Path path, @NotNull Class<? extends @NotNull AbstractConfig> clazz) {
+    protected void reload(@NotNull Path path, String defaultLocation, @NotNull Class<? extends @NotNull AbstractConfig> clazz) {
         // read yaml from file
         this.config = new YamlFile(path.toFile());
+        try (InputStream inputStream = AbstractConfig.class.getResourceAsStream("/" + defaultLocation)) {
+            this.backup = YamlConfiguration.loadConfiguration(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try {
             getConfig().createOrLoadWithComments();
         } catch (InvalidConfigurationException e) {
@@ -73,6 +81,9 @@ public abstract class AbstractConfig {
     }
 
     protected @Nullable Object getValue(@NotNull String path, @Nullable Object def) {
+        if (def == null) {
+            def = backup.get(path);
+        }
         if (getConfig().get(path) == null) {
             set(path, def);
         }

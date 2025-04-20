@@ -93,7 +93,7 @@ public final class Config extends AbstractConfig {
         // extract default config from jar
         FileUtil.extractFile(Config.class, "config.yml", mainDir, false);
 
-        CONFIG.reload(mainDir.resolve("config.yml"), Config.class);
+        CONFIG.reload(mainDir.resolve("config.yml"), "config.yml", Config.class);
     }
 
     private static void tryRenamePath(String oldPath, String newPath) {
