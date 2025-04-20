@@ -1,9 +1,15 @@
 package dev.jsinco.brewery.bukkit.integration.structure;
 
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
+import dev.jsinco.brewery.structure.MultiBlockStructure;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.popcraft.bolt.BoltAPI;
+
+import java.util.List;
+import java.util.Optional;
 
 public class BoltHook {
 
@@ -26,7 +32,14 @@ public class BoltHook {
         if (boltAPI == null) {
             return true;
         }
-        return boltAPI.canAccess(block, player);
+        Optional<MultiBlockStructure<?>> multiBlockStructureOptional = TheBrewingProject.getInstance().getPlacedStructureRegistry().getStructure(BukkitAdapter.toBreweryLocation(block));
+        return multiBlockStructureOptional
+                .stream()
+                .map(MultiBlockStructure::positions)
+                .flatMap(List::stream)
+                .map(BukkitAdapter::toBlock)
+                .allMatch(position -> boltAPI.canAccess(position, player))
+                && boltAPI.canAccess(block, player);
     }
 
     public static void initiate() {

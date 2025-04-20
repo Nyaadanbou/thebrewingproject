@@ -68,7 +68,7 @@ tasks {
     runServer {
         minecraftVersion("1.21.4")
         downloadPlugins {
-            modrinth("worldedit","DlD8WKr9")
+            modrinth("worldedit", "DlD8WKr9")
             url("https://dev.bukkit.org/projects/chestshop/files/latest")
             url("https://dev.bukkit.org/projects/vault/files/latest")
             url("https://github.com/EssentialsX/Essentials/releases/download/2.21.0/EssentialsX-2.21.0.jar")
@@ -104,11 +104,19 @@ bukkit {
         register("brewery.distillery.access")
         register("brewery.cauldron.access")
         register("brewery.structure.access") {
-            children = listOf("brewery.barrel.access", "brewery.distillery.access", "brewery.cauldron.access")
+            childrenMap = mapOf(
+                "brewery.barrel.access" to true,
+                "brewery.distillery.access" to true,
+                "brewery.cauldron.access" to true
+            )
         }
         register("brewery.structure.create") {
-            children = listOf("brewery.structure.access", "brewery.barrel.create", "brewery.distillery.create")
             default = BukkitPluginDescription.Permission.Default.TRUE
+            childrenMap = mapOf(
+                "brewery.structure.access" to true,
+                "brewery.barrel.create" to true,
+                "brewery.distillery.create" to true
+            )
         }
         register("brewery.command.create") {
         }
@@ -125,14 +133,14 @@ bukkit {
         register("brewery.command.other") {
         }
         register("brewery.command") {
-            children = listOf(
-                "brewery.command.create",
-                "brewery.command.status",
-                "brewery.command.event",
-                "brewery.command.reload",
-                "brewery.command.info",
-                "brewery.command.seal",
-                "brewery.command.other"
+            childrenMap = mapOf(
+                "brewery.command.create" to true,
+                "brewery.command.status" to true,
+                "brewery.command.event" to true,
+                "brewery.command.reload" to true,
+                "brewery.command.info" to true,
+                "brewery.command.seal" to true,
+                "brewery.command.other" to true
             )
             default = BukkitPluginDescription.Permission.Default.OP
         }
@@ -140,5 +148,15 @@ bukkit {
             children = listOf("brewery.command", "brewery.structure.create")
         }
     }
-    softDepend = listOf("Oraxen", "ItemsAdder", "Nexo", "WorldGuard", "Lands", "GriefPrevention", "Towny", "ChestShop", "HuskClaims")
+    softDepend = listOf(
+        "Oraxen",
+        "ItemsAdder",
+        "Nexo",
+        "WorldGuard",
+        "Lands",
+        "GriefPrevention",
+        "Towny",
+        "ChestShop",
+        "HuskClaims"
+    )
 }
