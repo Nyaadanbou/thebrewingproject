@@ -25,21 +25,22 @@ import java.util.stream.Stream;
 
 public class CreateCommand {
 
-    private static final List<String> TAB_COMPLETIONS = List.of("-a", "--age", "-d", "--distill", "-c", "--cook");
+    private static final List<String> TAB_COMPLETIONS = List.of("-a", "--age", "-d", "--distill", "-c", "--cook", "--mix", "-m");
     private static final Map<String, String> REPLACEMENTS = Map.of(
             "-a", "--age",
             "-d", "--distill",
-            "-c", "--cook"
+            "-c", "--cook",
+            "-m", "--mix"
     );
 
     public static boolean onCommand(Player target, CommandSender sender, String[] args) {
         Map<String, BiFunction<Queue<String>, CommandSender, BrewingStep>> operators = Map.of(
                 "--age", CreateCommand::getAge,
                 "--distill", CreateCommand::getDistill,
-                "--cook", CreateCommand::getCook
+                "--cook", CreateCommand::getCook,
+                "--mix", CreateCommand::getMix
         );
 
-        Set<String> mandatory = new HashSet<>(Set.of("--cook"));
         Queue<String> arguments = new LinkedList<>(Arrays.asList(args));
         List<BrewingStep> steps = new ArrayList<>();
         while (!arguments.isEmpty()) {
@@ -53,11 +54,6 @@ public class CreateCommand {
                 return false;
             }
             steps.add(operator.apply(arguments, sender));
-            mandatory.remove(operatorName);
-        }
-        if (!mandatory.isEmpty()) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT, Placeholder.unparsed("arguments", mandatory.toString())));
-            return false;
         }
         ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), new Brew.State.Other());
         target.getWorld().dropItem(target.getLocation(), brewItem);
@@ -65,9 +61,13 @@ public class CreateCommand {
         return true;
     }
 
-    private static BrewingStep getCook(Queue<String> arguments, CommandSender sender) {
+    private static BrewingStep getMix(Queue<String> arguments, CommandSender sender) {
         long cookTime = (long) (Double.parseDouble(arguments.poll()) * Moment.MINUTE);
-        CauldronType cauldronType = Registry.CAULDRON_TYPE.get(BreweryKey.parse(arguments.poll()));
+        Map<Ingredient, Integer> ingredients = retrieveIngredients(arguments, sender);
+        return new BrewingStep.Mix(new PassedMoment(cookTime), ingredients);
+    }
+
+    private static Map<Ingredient, Integer> retrieveIngredients(Queue<String> arguments, CommandSender sender) {
         List<String> ingredientStrings = new ArrayList<>();
         while (!arguments.isEmpty() && !arguments.peek().startsWith("-")) {
             ingredientStrings.add(arguments.poll());
@@ -80,8 +80,13 @@ public class CreateCommand {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_UNKNOWN_ARGUMENT, Placeholder.unparsed("argument", invalidIngredients)));
             throw new IllegalArgumentException("Could not find the ingredient(s): " + invalidIngredients);
         }
-        Map<Ingredient, Integer> ingredients = BukkitIngredientManager.INSTANCE.getIngredientsWithAmount(ingredientStrings);
-        return new BrewingStep.Cook(new PassedMoment(cookTime), ingredients, cauldronType);
+        return BukkitIngredientManager.INSTANCE.getIngredientsWithAmount(ingredientStrings);
+    }
+
+    private static BrewingStep getCook(Queue<String> arguments, CommandSender sender) {
+        long cookTime = (long) (Double.parseDouble(arguments.poll()) * Moment.MINUTE);
+        CauldronType cauldronType = Registry.CAULDRON_TYPE.get(BreweryKey.parse(arguments.poll()));
+        return new BrewingStep.Cook(new PassedMoment(cookTime), retrieveIngredients(arguments, sender), cauldronType);
     }
 
     private static BrewingStep getDistill(Queue<String> arguments, CommandSender sender) {
@@ -131,6 +136,12 @@ public class CreateCommand {
                             yield TAB_COMPLETIONS;
                         }
                         yield List.of();
+                    }
+                    case "--mix" -> {
+                        if (precedingArgsLength == 1) {
+                            yield BreweryCommand.INTEGER_TAB_COMPLETIONS;
+                        }
+                        yield Stream.concat(Stream.of("<ingredient/amount>"), TAB_COMPLETIONS.stream()).toList();
                     }
                     default ->
                             throw new IllegalStateException("Unexpected value: " + REPLACEMENTS.getOrDefault(args[i], args[i]));

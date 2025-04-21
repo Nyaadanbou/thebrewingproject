@@ -442,7 +442,7 @@ recipes:
       - type: mix
         mix-time: 3
         ingredients:
-          - gin/3
+          - brewery:gin/3
           - chorus_fruit/6
   red_sangria:
     alcohol: 25
@@ -453,9 +453,9 @@ recipes:
       - type: mix
         mix-time: 4
         ingredients:
-          - wine/1
-          - apple_liquor/1
-          - brandy/1
+          - brewery:wine/1
+          - brewery:apple_liquor/1
+          - brewery:brandy/1
           - sugar/6
           - apple/1
       - type: age
@@ -470,8 +470,8 @@ recipes:
       - type: mix
         mix-time: 3
         ingredients:
-         - apple_juice/1
-         - gin/2
+         - brewery:apple_juice/1
+         - brewery:gin/2
          - sugar/4
 
 

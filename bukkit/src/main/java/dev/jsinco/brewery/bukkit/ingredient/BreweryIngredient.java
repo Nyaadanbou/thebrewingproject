@@ -69,6 +69,9 @@ public class BreweryIngredient implements Ingredient {
 
     public static Optional<Ingredient> from(String id) {
         BreweryKey breweryKey = BreweryKey.parse(id);
+        if (!breweryKey.namespace().equals("brewery")) {
+            return Optional.empty();
+        }
         return Optional.of(new BreweryIngredient(breweryKey, breweryKey.key()));
     }
 }

@@ -29,8 +29,8 @@ public class BukkitIngredientManager implements IngredientManager<ItemStack> {
         return OraxenPluginIngredient.from(id)
                 .or(() -> NexoPluginIngredient.from(id))
                 .or(() -> ItemsAdderPluginIngredient.from(id))
-                .or(() -> SimpleIngredient.from(id))
-                .or(() -> BreweryIngredient.from(id));
+                .or(() -> BreweryIngredient.from(id))
+                .or(() -> SimpleIngredient.from(id));
     }
 
     /**
