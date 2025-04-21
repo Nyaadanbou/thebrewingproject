@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.command;
 
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
@@ -8,6 +9,7 @@ import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -17,6 +19,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,6 +67,7 @@ public class BreweryCommand implements TabExecutor {
                 sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNDEFINED_PLAYER));
                 return true;
             }
+            String @NotNull [] finalArgs = args;
             return switch (subCommand) {
                 case CREATE ->
                         CreateCommand.onCommand((Player) target, sender, Arrays.copyOfRange(args, 1, args.length));
@@ -84,9 +88,7 @@ public class BreweryCommand implements TabExecutor {
                     yield true;
                 }
                 case SEAL -> {
-                    BrewAdapter.seal(((Player) target).getInventory().getItemInMainHand(), args.length > 1 ? LegacyComponentSerializer.legacyAmpersand().deserialize(
-                            String.join(" ", Arrays.copyOfRange(args, 1, args.length))
-                    ) : null);
+
                     yield true;
                 }
             };
@@ -150,7 +152,7 @@ public class BreweryCommand implements TabExecutor {
             case INFO -> INTEGER_TAB_COMPLETIONS;
             case SEAL -> {
                 if (args.length == 2) {
-                    yield List.of("<volume-info>");
+                    yield List.of("<volume-info>", "all");
                 }
                 yield List.of();
             }

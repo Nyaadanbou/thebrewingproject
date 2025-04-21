@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
+import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
@@ -23,6 +24,7 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -102,8 +104,10 @@ public class PlayerEventListener implements Listener {
         if (block.getType() == Material.CRAFTING_TABLE && offHand.getType() == Material.PAPER && event.getPlayer().isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemMeta offHandMeta = offHand.getItemMeta();
             ItemStack mainHand = inventory.getItemInMainHand();
-            BrewAdapter.seal(mainHand, offHandMeta.hasCustomName() ? offHandMeta.customName() : null);
-            inventory.setItemInMainHand(mainHand);
+            ItemStack sealed = BrewAdapter.fromItem(mainHand)
+                    .map(brew -> BrewAdapter.toItem(brew, new Brew.State.Seal(offHandMeta.hasCustomName() ? MiniMessage.miniMessage().serialize(offHandMeta.customName()) : null)))
+                    .orElse(mainHand);
+            inventory.setItemInMainHand(sealed);
             event.setUseItemInHand(Event.Result.DENY);
             decreaseItem(offHand, event.getPlayer());
             inventory.setItemInOffHand(offHand);

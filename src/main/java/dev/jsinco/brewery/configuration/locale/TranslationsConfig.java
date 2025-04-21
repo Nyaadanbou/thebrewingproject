@@ -32,8 +32,8 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("brew.tooltip.quality")
     public static String BREW_TOOLTIP_QUALITY;
 
-    @Key("brew.tooltip.sealed")
-    public static List<String> BREW_TOOLTIP_SEALED;
+    @Key("brew.tooltip.quality-sealed")
+    public static String BREW_TOOLTIP_QUALITY_SEALED;
 
     @Key("brew.tooltip.volume")
     public static String BREW_TOOLTIP_VOLUME;
@@ -145,6 +145,12 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("command.illegal-argument")
     public static String COMMAND_ILLEGAL_ARGUMENT;
+
+    @Key("command.seal-success")
+    public static String COMMAND_SEAL_SUCCESS;
+
+    @Key("command.seal-failure")
+    public static String COMMAND_SEAL_FAILURE;
 
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;

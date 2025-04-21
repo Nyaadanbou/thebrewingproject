@@ -58,7 +58,7 @@ public class InventoryEventListener implements Listener {
             ItemStack initial = view.getItem(slot);
             if (initial != null) {
                 view.setItem(slot, BrewAdapter.fromItem(initial)
-                        .map(brew -> BrewAdapter.toItem(brew, Brew.State.OTHER))
+                        .map(brew -> BrewAdapter.toItem(brew, new Brew.State.Other()))
                         .orElse(initial));
             }
         }

@@ -42,7 +42,7 @@ public class BrewAdapter {
     public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
     public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
     public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
-    private static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION, BREWING_STEPS);
+    public static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION, BREWING_STEPS);
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
         RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
@@ -124,44 +124,5 @@ public class BrewAdapter {
         }
         return Optional.ofNullable(data.get(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST))
                 .map(Brew::new);
-    }
-
-    public static void seal(ItemStack itemStack, @Nullable Component volume) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) {
-            return;
-        }
-        RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
-        Optional<Brew> brewOptional = fromItem(itemStack);
-        Optional<Recipe<ItemStack>> closestRecipe = brewOptional.flatMap(brew -> brew.closestRecipe(recipeRegistry));
-        Optional<BrewScore> score = closestRecipe.map(recipe -> brewOptional.get().score(recipe));
-        score.filter(BrewScore::completed)
-                .filter(brewScore -> brewScore.brewQuality() != null)
-                .map(MessageUtil::getScoreTagResolver)
-                .ifPresent(
-                        tagResolver -> setSealedLore(volume, closestRecipe.get(), score.get(), tagResolver, itemStack)
-                );
-    }
-
-    private static void setSealedLore(Component volume, Recipe<ItemStack> closestRecipe, BrewScore score, TagResolver tagResolver, ItemStack itemStack) {
-        MiniMessage miniMessage = MiniMessage.miniMessage();
-        Stream<Component> extraLore = Stream.concat(
-                volume == null ? Stream.of(Component.empty()) :
-                        Stream.of(Component.empty(), miniMessage.deserialize(TranslationsConfig.BREW_TOOLTIP_VOLUME, Placeholder.component("volume", volume))),
-                TranslationsConfig.BREW_TOOLTIP_SEALED.stream()
-                        .map(line -> miniMessage.deserialize(line, tagResolver))
-        );
-        List<Component> lore = Stream.concat(
-                        ((BukkitRecipeResult) closestRecipe.getRecipeResult()).getLore().get(score.brewQuality())
-                                .stream()
-                                .map(line -> miniMessage.deserialize(line, tagResolver)),
-                        extraLore
-                ).map(component1 -> component1.decoration(TextDecoration.ITALIC, false))
-                .toList();
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.lore(lore);
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        PDC_TYPES.forEach(data::remove);
-        itemStack.setItemMeta(meta);
     }
 }

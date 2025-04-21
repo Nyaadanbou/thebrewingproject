@@ -112,7 +112,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             if (brew == null) {
                 continue;
             }
-            location.getWorld().dropItem(location, BrewAdapter.toItem(brew, Brew.State.OTHER));
+            location.getWorld().dropItem(location, BrewAdapter.toItem(brew, new Brew.State.Other()));
         }
     }
 
@@ -126,7 +126,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             if (brews[i] == null) {
                 continue;
             }
-            ItemStack brewItem = BrewAdapter.toItem(brews[i], Brew.State.BREWING);
+            ItemStack brewItem = BrewAdapter.toItem(brews[i], new Brew.State.Brewing());
             this.inventory.setItem(i, brewItem);
         }
     }
@@ -160,7 +160,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                         Interval interval = moment instanceof Interval interval1 ? interval1.withLastStep(time) : new Interval(time - moment.moment(), time);
                         return ageBrewStep.withAge(interval);
                     });
-                    inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal], Brew.State.BREWING));
+                    inventory.setItem(iFinal, BrewAdapter.toItem(brews[iFinal], new Brew.State.Brewing()));
                     return;
                 }
                 brew = brew.witModifiedLastStep(
@@ -169,7 +169,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                             return ageBrewStep.withAge(ageBrewStep.age().withMovedEnding(time));
                         }
                 );
-                inventory.setItem(iFinal, BrewAdapter.toItem(brew, Brew.State.BREWING));
+                inventory.setItem(iFinal, BrewAdapter.toItem(brew, new Brew.State.Brewing()));
                 Database database = TheBrewingProject.getInstance().getDatabase();
                 BukkitBarrelBrewDataType.BarrelContext context = getContext(iFinal);
                 try {

@@ -71,8 +71,7 @@ public class ChestShopHook implements Listener {
     public void onItemParse(ItemParseEvent event) {
         TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(event.getItemString().replaceAll("^\\+{3}", ""))
                 .ifPresent(recipe -> {
-                            ItemStack itemStack = BrewAdapter.toItem(new Brew(recipe.getSteps()), Brew.State.OTHER);
-                            BrewAdapter.seal(itemStack, null);
+                            ItemStack itemStack = BrewAdapter.toItem(new Brew(recipe.getSteps()), new Brew.State.Seal(null));
                             event.setItem(itemStack);
                         }
                 );

@@ -59,7 +59,7 @@ public class CreateCommand {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_MISSING_MANDATORY_ARGUMENT, Placeholder.unparsed("arguments", mandatory.toString())));
             return false;
         }
-        ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), Brew.State.OTHER);
+        ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), new Brew.State.Other());
         target.getWorld().dropItem(target.getLocation(), brewItem);
         sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_SUCCESS, Placeholder.component("brew_name", brewItem.effectiveName())));
         return true;

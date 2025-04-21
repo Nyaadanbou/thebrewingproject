@@ -3,15 +3,13 @@ package dev.jsinco.brewery.bukkit.recipe;
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.brew.BrewingStep;
+import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderHook;
 import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
 import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipes.BrewQuality;
-import dev.jsinco.brewery.recipes.BrewScore;
-import dev.jsinco.brewery.recipes.QualityData;
-import dev.jsinco.brewery.recipes.RecipeResult;
+import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -29,6 +27,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -120,25 +119,39 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         }
         Stream.Builder<Component> streamBuilder = Stream.builder();
         streamBuilder.add(Component.empty());
-        if (state == Brew.State.BREWING) {
-            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY_BREWING, false));
-            MessageUtil.compileBrewInfo(brew, score, false).forEach(streamBuilder::add);
-            int alcohol = recipeEffects.map(RecipeEffects::getAlcohol).getOrDefault(quality, 0);
-            if (alcohol > 0) {
-                streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.DETAILED_ALCOHOLIC, Formatter.number("alcohol", alcohol)));
+        switch (state) {
+            case Brew.State.Brewing brewing -> {
+                streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY_BREWING, false));
+                MessageUtil.compileBrewInfo(brew, score, false).forEach(streamBuilder::add);
+                int alcohol = recipeEffects.map(RecipeEffects::getAlcohol).getOrDefault(quality, 0);
+                if (alcohol > 0) {
+                    streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.DETAILED_ALCOHOLIC, Formatter.number("alcohol", alcohol)));
+                }
             }
-        } else {
-            streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY, false));
-            BrewingStep brewingStep = brew.lastStep();
-            streamBuilder.add(MiniMessage.miniMessage().deserialize(
-                    TranslationsConfig.BREW_TOOLTIP.get(brewingStep.stepType().name().toLowerCase(Locale.ROOT)),
-                    MessageUtil.getBrewStepTagResolver(brewingStep, score.getPartialScore(brew.getSteps().size() - 1)))
-            );
-            if (recipeEffects.get(quality).getAlcohol() > 0) {
-                streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.ALCOHOLIC));
+            case Brew.State.Other other -> {
+                streamBuilder.add(compileMessage(score, brew, TranslationsConfig.BREW_TOOLTIP_QUALITY, false));
+                addLastStepLore(brew, streamBuilder, quality, score);
+            }
+            case Brew.State.Seal seal -> {
+                if (seal.volumeMessage() != null) {
+                    streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.BREW_TOOLTIP_VOLUME, Placeholder.parsed("volume", seal.volumeMessage())));
+                }
+                streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.BREW_TOOLTIP_QUALITY_SEALED, MessageUtil.getScoreTagResolver(score)));
+                addLastStepLore(brew, streamBuilder, quality, score);
             }
         }
         return streamBuilder.build();
+    }
+
+    private void addLastStepLore(Brew brew, Stream.Builder<Component> streamBuilder, BrewQuality quality, BrewScore score) {
+        BrewingStep brewingStep = brew.lastStep();
+        streamBuilder.add(MiniMessage.miniMessage().deserialize(
+                TranslationsConfig.BREW_TOOLTIP.get(brewingStep.stepType().name().toLowerCase(Locale.ROOT)),
+                MessageUtil.getBrewStepTagResolver(brewingStep, score.getPartialScore(brew.getSteps().size() - 1)))
+        );
+        if (recipeEffects.get(quality).getAlcohol() > 0) {
+            streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.ALCOHOLIC));
+        }
     }
 
     private Component compileMessage(BrewScore score, Brew brew, String serializedMiniMessage, boolean isBrewName) {

@@ -6,6 +6,7 @@ brew.tooltip-brewing.age: <partial_quality_color>Aged <aging_years> years</parti
 brew.tooltip-brewing.distill: <partial_quality_color>Distilled <distill_runs> times</partial_quality_color>
 brew.tooltip-brewing.cook: <partial_quality_color>Cooked <cooking_time> minutes</partial_quality_color>
 brew.tooltip-brewing.mix: <partial_quality_color>Mixed <mixing_time> minutes</partial_quality_color>
+brew.tooltip.quality-sealed: <dark_gray>[<gray><quality></gray>]
 brew.tooltip.quality-brewing: <quality_color><quality></quality_color>
 brew.tooltip.quality: <quality>
 brew.tooltip.alcoholic: <dark_gray>Alcoholic
@@ -14,8 +15,6 @@ brew.detailed-tooltip.age: <partial_quality_color>Aged <aging_years> years in <b
 brew.detailed-tooltip.distill: <partial_quality_color>Distilled <distill_runs> times</partial_quality_color>
 brew.detailed-tooltip.cook: <partial_quality_color><ingredients> cooked <cooking_time> minutes in a <cauldron_type> cauldron</partial_quality_color>
 brew.detailed-tooltip.mix: <partial_quality_color><ingredients> Mixed <mixing_time> minutes</partial_quality_color>
-brew.tooltip.sealed:
-  - <dark_gray>[<gray><quality></gray>]
 brew.tooltip.volume: "<gray>Volume: <volume>"
 brew.display-name.unfinished-aged: Aged <ingredient> brew
 brew.display-name.unfinished-aged-unknown: Aged brew
@@ -83,6 +82,8 @@ command.info.effect-message: |-
   Effect events: <effect_events>
 command.info.not-a-brew: <red>You're not holding a brew!
 command.reload-message: <green>Reloaded <gold>The Brewing Project</gold>!
+command.seal-success: <gray>Successfully sealed item(s) for <player_name>!
+command.seal-failure: <red>Could not find any complete brew
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>
 events.types:
   puke: puke

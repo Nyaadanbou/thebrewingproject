@@ -9,6 +9,7 @@ import dev.jsinco.brewery.recipes.RecipeRegistry;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,8 +128,15 @@ public class Brew {
         }
     }
 
-    public enum State {
-        BREWING,
-        OTHER
+    public sealed interface State {
+
+        record Brewing() implements State {
+        }
+
+        record Other() implements State {
+        }
+
+        record Seal(@Nullable String volumeMessage) implements State {
+        }
     }
 }

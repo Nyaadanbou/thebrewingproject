@@ -194,7 +194,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     public ItemStack extractBrew() {
         recalculateBrewTime();
         this.brewExtracted = true;
-        return BrewAdapter.toItem(brew, Brew.State.OTHER);
+        return BrewAdapter.toItem(brew, new Brew.State.Other());
     }
 
     private void recalculateBrewTime() {

@@ -196,7 +196,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
                 if (brew == null) {
                     continue;
                 }
-                location.getWorld().dropItem(location, BrewAdapter.toItem(brew, Brew.State.OTHER));
+                location.getWorld().dropItem(location, BrewAdapter.toItem(brew, new Brew.State.Other()));
             }
         }
     }
@@ -268,7 +268,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
                     inventory.setItem(i, null);
                     continue;
                 }
-                inventory.setItem(i, BrewAdapter.toItem(brew, Brew.State.BREWING));
+                inventory.setItem(i, BrewAdapter.toItem(brew, new Brew.State.Brewing()));
             }
         }
 
