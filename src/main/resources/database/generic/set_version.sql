@@ -1,4 +1,4 @@
 INSERT OR
 REPLACE
 INTO version
-VALUES(?);
+VALUES (?, 0);

@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class Database implements PersistenceHandler<Connection> {
 
-    private static final int BREWERY_DATABASE_VERSION = 0;
+    private static final int BREWERY_DATABASE_VERSION = 1;
     private final DatabaseDriver driver;
     private HikariDataSource hikariDataSource;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -62,12 +62,29 @@ public class Database implements PersistenceHandler<Connection> {
         }
         ResultSet resultSet = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/get_version.sql")).executeQuery();
         resultSet.next();
-        if (resultSet.getInt("version") != BREWERY_DATABASE_VERSION) {
-            // Refactor whenever that is needed
+        int previousVersion = resultSet.getInt("version");
+        resultSet.close();
+        if (previousVersion < BREWERY_DATABASE_VERSION) {
+            for (int i = previousVersion; i < BREWERY_DATABASE_VERSION; i++) {
+                runMigration(i, connection);
+            }
+        } else if (previousVersion > BREWERY_DATABASE_VERSION) {
+            throw new IllegalStateException("Can not downgrade The Brewing Project!");
         }
         PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/set_version.sql"));
         preparedStatement.setInt(1, BREWERY_DATABASE_VERSION);
         preparedStatement.execute();
+    }
+
+    private void runMigration(int version, Connection connection) throws SQLException {
+        switch (version) {
+            case 0 -> {
+                for (String statement : FileUtil.readInternalResource("/database/migration/version_migration.sql").split(";")) {
+                    connection.prepareStatement(statement + ";").execute();
+                }
+            }
+            default -> throw new IllegalStateException("Unimplemented migration from version: " + version);
+        }
     }
 
     @Override

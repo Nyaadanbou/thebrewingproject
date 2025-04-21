@@ -68,7 +68,9 @@ CREATE TABLE IF NOT EXISTS distillery_brews
 
 CREATE TABLE IF NOT EXISTS version
 (
-    version INTEGER DEFAULT -1
+    version INTEGER DEFAULT -1,
+    singleton_value DEFAULT 0,
+    PRIMARY KEY (singleton_value)
 );
 
 CREATE TABLE IF NOT EXISTS drunk_states
