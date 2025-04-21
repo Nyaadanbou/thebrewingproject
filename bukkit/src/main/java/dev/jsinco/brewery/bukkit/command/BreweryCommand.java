@@ -1,25 +1,20 @@
 package dev.jsinco.brewery.bukkit.command;
 
-import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.event.DrunkEvent;
 import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,10 +82,7 @@ public class BreweryCommand implements TabExecutor {
                     sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_RELOAD_MESSAGE));
                     yield true;
                 }
-                case SEAL -> {
-
-                    yield true;
-                }
+                case SEAL -> SealCommand.onCommand((Player) target, sender, Arrays.copyOfRange(args, 1, args.length));
             };
         } catch (IndexOutOfBoundsException e) {
             // Lazy handling

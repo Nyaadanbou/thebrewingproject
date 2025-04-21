@@ -7,18 +7,14 @@ import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
-import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipes.*;
 import dev.jsinco.brewery.recipes.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
@@ -27,10 +23,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class BrewAdapter {
 
@@ -42,7 +36,6 @@ public class BrewAdapter {
     public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
     public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
     public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
-    public static final List<NamespacedKey> PDC_TYPES = List.of(BREWERY_DATA_VERSION, BREWING_STEPS);
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
         RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
@@ -66,9 +59,11 @@ public class BrewAdapter {
             }
             itemStack.setItemMeta(meta);
         }
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        fillPersistentData(itemMeta, brew);
-        itemStack.setItemMeta(itemMeta);
+        if (!(state instanceof Brew.State.Seal)) {
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            fillPersistentData(itemMeta, brew);
+            itemStack.setItemMeta(itemMeta);
+        }
         return itemStack;
     }
 

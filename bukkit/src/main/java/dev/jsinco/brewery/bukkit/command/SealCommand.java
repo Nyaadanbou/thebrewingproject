@@ -19,12 +19,12 @@ public class SealCommand {
 
     public static boolean onCommand(Player target, CommandSender sender, String[] args) {
         PlayerInventory targetInventory = target.getInventory();
-        boolean sealAll = args.length > 1 && args[1].equals("all");
+        boolean sealAll = args.length > 0 && args[0].equals("all");
         if (sealAll) {
             args = Arrays.copyOfRange(args, 1, args.length);
         }
-        Component volumeMessage = args.length > 1 ? LegacyComponentSerializer.legacyAmpersand().deserialize(
-                String.join(" ", Arrays.copyOfRange(args, 1, args.length))
+        Component volumeMessage = args.length > 0 ? LegacyComponentSerializer.legacyAmpersand().deserialize(
+                String.join(" ", args)
         ) : null;
         String serializedVolumeMessage = volumeMessage != null ? MiniMessage.miniMessage().serialize(volumeMessage) : null;
         if (!sealAll) {

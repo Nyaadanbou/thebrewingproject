@@ -83,7 +83,7 @@ command.info.effect-message: |-
 command.info.not-a-brew: <red>You're not holding a brew!
 command.reload-message: <green>Reloaded <gold>The Brewing Project</gold>!
 command.seal-success: <gray>Successfully sealed item(s) for <player_name>!
-command.seal-failure: <red>Could not find any complete brew
+command.seal-failure: <red>Could not find any brew to seal.
 events.default-kick-event-message: <rainbow>You passed out... ZZzzz</rainbow>
 events.types:
   puke: puke
