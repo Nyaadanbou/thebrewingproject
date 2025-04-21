@@ -122,6 +122,9 @@ public class PlayerEventListener implements Listener {
         if (itemStack.getType() == Material.POTION) {
             return new ItemStack(Material.GLASS_BOTTLE);
         }
+        if (itemStack.getType() == Material.MILK_BUCKET) {
+            return new ItemStack(Material.BUCKET);
+        }
         itemStack.setAmount(itemStack.getAmount() - 1);
         return itemStack;
     }
@@ -195,6 +198,10 @@ public class PlayerEventListener implements Listener {
         if (itemStack == null) {
             return false;
         }
+        Material type = itemStack.getType();
+        if (type == Material.MILK_BUCKET) {
+            return true;
+        }
         if (!(BukkitIngredientManager.INSTANCE.getIngredient(itemStack) instanceof SimpleIngredient)) {
             return true;
         }
@@ -202,7 +209,6 @@ public class PlayerEventListener implements Listener {
             // Probably equipment
             return false;
         }
-        Material type = itemStack.getType();
         if (type == Material.BUCKET) {
             return false;
         }
