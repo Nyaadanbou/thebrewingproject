@@ -10,11 +10,9 @@ events:
     - memory_loss
     - stumble
     - chicken
-    - drunk_message
     - nausea
   # In minutes
   pass-out-time: 5
-  teleport-locations: [ ]
   messages:
     - I love you <random_player_name>, you're my best friend.
     - I could do one more.
