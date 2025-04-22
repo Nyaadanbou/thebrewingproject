@@ -12,7 +12,7 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;

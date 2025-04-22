@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
@@ -58,7 +58,7 @@ public class InventoryEventListener implements Listener {
             ItemStack initial = view.getItem(slot);
             if (initial != null) {
                 view.setItem(slot, BrewAdapter.fromItem(initial)
-                        .map(brew -> BrewAdapter.toItem(brew, new Brew.State.Other()))
+                        .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Other()))
                         .orElse(initial));
             }
         }

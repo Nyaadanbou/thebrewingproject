@@ -1,10 +1,10 @@
 package dev.jsinco.brewery.bukkit.effect.event;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.effect.event.*;
+import dev.jsinco.brewery.event.*;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.moment.Interval;
 
 import java.util.*;
 import java.util.stream.Collectors;

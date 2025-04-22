@@ -29,11 +29,11 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.database.sql.DatabaseDriver;
-import dev.jsinco.brewery.effect.DrunksManager;
-import dev.jsinco.brewery.effect.event.CustomEventRegistry;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
+import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
-import dev.jsinco.brewery.recipes.RecipeRegistry;
+import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
@@ -61,7 +61,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private PlacedStructureRegistry placedStructureRegistry;
     @Getter
-    private RecipeRegistry<ItemStack> recipeRegistry;
+    private RecipeRegistryImpl<ItemStack> recipeRegistry;
     @Getter
     private BreweryRegistry breweryRegistry;
     @Getter
@@ -69,7 +69,7 @@ public class TheBrewingProject extends JavaPlugin {
     @Getter
     private DrunkTextRegistry drunkTextRegistry;
     @Getter
-    private DrunksManager<Connection> drunksManager;
+    private DrunksManagerImpl<Connection> drunksManager;
     @Getter
     private CustomEventRegistry customDrunkEventRegistry;
     private WorldEventListener worldEventListener;
@@ -87,7 +87,7 @@ public class TheBrewingProject extends JavaPlugin {
         this.placedStructureRegistry = new PlacedStructureRegistry();
         this.breweryRegistry = new BreweryRegistry();
         loadStructures();
-        this.recipeRegistry = new RecipeRegistry<>();
+        this.recipeRegistry = new RecipeRegistryImpl<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
         this.customDrunkEventRegistry = new CustomEventRegistry();
         this.drunkEventExecutor = new DrunkEventExecutor();
@@ -163,7 +163,7 @@ public class TheBrewingProject extends JavaPlugin {
         } catch (IOException | PersistenceException | SQLException e) {
             throw new RuntimeException(e); // Hard exit if any issues here
         }
-        this.drunksManager = new DrunksManager<>(customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()), () -> this.time, database, SqlDrunkStateDataType.INSTANCE);
+        this.drunksManager = new DrunksManagerImpl<>(customDrunkEventRegistry, Config.ENABLED_RANDOM_EVENTS.stream().map(BreweryKey::parse).collect(Collectors.toSet()), () -> this.time, database, SqlDrunkStateDataType.INSTANCE);
         Bukkit.getPluginManager().registerEvents(new BlockEventListener(this.structureRegistry, placedStructureRegistry, this.database, this.breweryRegistry), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this.placedStructureRegistry, this.breweryRegistry, this.database, this.drunksManager, this.drunkTextRegistry, recipeRegistry, drunkEventExecutor), this);
         Bukkit.getPluginManager().registerEvents(new InventoryEventListener(breweryRegistry, database), this);

@@ -1,7 +1,7 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
-    id("java")
+    `java-library`
     id("io.github.goooler.shadow") version "8.1.7"
     id("xyz.jpenilla.run-paper") version "2.3.0"
     id("de.eldoria.plugin-yml.bukkit") version "0.7.1"
@@ -45,6 +45,7 @@ dependencies {
     compileOnly("org.popcraft:bolt-common:1.1.33")
 
     implementation(project(":"))
+    api(project(":api"))
     implementation("dev.thorinwasher.schem:schem-reader:1.0.0")
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
 

@@ -1,9 +1,8 @@
 package dev.jsinco.brewery.bukkit.util;
 
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.util.ItemColorUtil;
 import dev.jsinco.brewery.util.Pair;
-import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.*;

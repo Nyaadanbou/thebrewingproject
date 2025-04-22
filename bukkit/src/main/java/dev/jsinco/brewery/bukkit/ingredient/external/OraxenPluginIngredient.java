@@ -2,7 +2,7 @@ package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

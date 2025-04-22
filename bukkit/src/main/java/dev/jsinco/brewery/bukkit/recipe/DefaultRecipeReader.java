@@ -3,9 +3,8 @@ package dev.jsinco.brewery.bukkit.recipe;
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.recipes.QualityData;
-import dev.jsinco.brewery.recipes.RecipeResult;
+import dev.jsinco.brewery.recipe.RecipeResult;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 

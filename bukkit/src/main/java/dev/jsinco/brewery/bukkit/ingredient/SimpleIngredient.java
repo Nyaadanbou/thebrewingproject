@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import net.md_5.bungee.chat.TranslationRegistry;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

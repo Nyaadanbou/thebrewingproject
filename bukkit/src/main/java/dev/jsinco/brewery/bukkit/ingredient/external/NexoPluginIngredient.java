@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 

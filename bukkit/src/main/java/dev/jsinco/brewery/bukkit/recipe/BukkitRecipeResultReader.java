@@ -6,11 +6,10 @@ import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.util.moment.Interval;
+import dev.jsinco.brewery.moment.Interval;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.simpleyaml.configuration.ConfigurationSection;
 

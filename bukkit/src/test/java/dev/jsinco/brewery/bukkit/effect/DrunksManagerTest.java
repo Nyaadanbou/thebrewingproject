@@ -1,10 +1,10 @@
 package dev.jsinco.brewery.bukkit.effect;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.effect.DrunksManager;
-import dev.jsinco.brewery.effect.event.CustomEventRegistry;
-import dev.jsinco.brewery.effect.event.NamedDrunkEvent;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
+import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,13 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockBukkitExtension.class)
 class DrunksManagerTest {
 
-    private DrunksManager<Connection> drunksManager;
+    private DrunksManagerImpl<Connection> drunksManager;
     private UUID playerUuid = UUID.randomUUID();
     private AtomicLong time = new AtomicLong();
 
     @BeforeEach
     void setup() {
-        this.drunksManager = new DrunksManager<>(new CustomEventRegistry(), Arrays.stream(NamedDrunkEvent.values())
+        this.drunksManager = new DrunksManagerImpl<>(new CustomEventRegistry(), Arrays.stream(NamedDrunkEvent.values())
                 .map(NamedDrunkEvent::key)
                 .collect(Collectors.toSet()),
                 time::get,
@@ -41,9 +41,9 @@ class DrunksManagerTest {
     @Test
     void consume() {
         drunksManager.consume(playerUuid, 10, 0, 0);
-        assertEquals(new DrunkState(10, 0, 0, 0, -1), drunksManager.getDrunkState(playerUuid));
+        assertEquals(new DrunkStateImpl(10, 0, 0, 0, -1), drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, 0, 0, 400);
-        assertEquals(new DrunkState(8, 0, 0, 400, -1), drunksManager.getDrunkState(playerUuid));
+        assertEquals(new DrunkStateImpl(8, 0, 0, 400, -1), drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, -9, 0, 0);
         assertNull(drunksManager.getDrunkState(playerUuid));
         drunksManager.consume(playerUuid, -10, 20, 0);

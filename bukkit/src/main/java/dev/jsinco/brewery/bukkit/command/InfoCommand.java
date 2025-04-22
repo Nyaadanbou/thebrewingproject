@@ -1,12 +1,13 @@
 package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipes.BrewScore;
+import dev.jsinco.brewery.recipes.BrewScoreImpl;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -29,7 +30,7 @@ public class InfoCommand {
                         MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_INFO_BREW_MESSAGE,
                                 MessageUtil.getScoreTagResolver(brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry())
                                         .map(brew::score)
-                                        .orElse(BrewScore.NONE)),
+                                        .orElse(BrewScoreImpl.NONE)),
                                 Placeholder.component("brewing_step_info", MessageUtil.compileBrewInfo(brew, true)
                                         .collect(Component.toComponent(Component.text("\n")))
                                 )

@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.ingredient;
 
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.recipes.ingredient.ScoredIngredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.ScoredIngredient;
 import dev.jsinco.brewery.util.BreweryKey;
 
 import java.util.Objects;

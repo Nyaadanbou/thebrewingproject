@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.bukkit.util;
 
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;

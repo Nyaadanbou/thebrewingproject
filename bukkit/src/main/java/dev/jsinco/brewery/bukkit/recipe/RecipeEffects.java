@@ -1,18 +1,18 @@
 package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
+import dev.jsinco.brewery.brew.BrewScore;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.effect.DrunksManager;
-import dev.jsinco.brewery.effect.event.CustomEventRegistry;
-import dev.jsinco.brewery.effect.event.DrunkEvent;
-import dev.jsinco.brewery.effect.event.EventStep;
-import dev.jsinco.brewery.recipes.BrewScore;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
+import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.DrunkEvent;
+import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.recipes.BrewScoreImpl;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
@@ -135,7 +135,7 @@ public class RecipeEffects {
         return Optional.of(builder.build());
     }
 
-    public void applyTo(Player player, DrunksManager<?> drunksManager) {
+    public void applyTo(Player player, DrunksManagerImpl<?> drunksManager) {
         drunksManager.consume(player.getUniqueId(), alcohol, toxins);
         if (title != null) {
             player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunksManager, this.alcohol), Component.empty()));
@@ -155,8 +155,8 @@ public class RecipeEffects {
         TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
     }
 
-    private String compileUnparsedEffectMessage(String message, Player player, DrunksManager<?> drunksManager) {
-        DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
+    private String compileUnparsedEffectMessage(String message, Player player, DrunksManagerImpl<?> drunksManager) {
+        DrunkStateImpl drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return message
                 .replace("<player_name>", player.getName())
                 .replace("<team_name>", PlainTextComponentSerializer.plainText().serialize(player.teamDisplayName()))

@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import net.kyori.adventure.text.Component;
@@ -29,7 +30,7 @@ public class SealCommand {
         String serializedVolumeMessage = volumeMessage != null ? MiniMessage.miniMessage().serialize(volumeMessage) : null;
         if (!sealAll) {
             BrewAdapter.fromItem(targetInventory.getItemInMainHand())
-                    .map(brew -> BrewAdapter.toItem(brew, new Brew.State.Seal(serializedVolumeMessage)))
+                    .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Seal(serializedVolumeMessage)))
                     .ifPresentOrElse(itemStack -> {
                         targetInventory.setItemInMainHand(itemStack);
                         sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_SEAL_SUCCESS, Placeholder.unparsed("player_name", target.getName())));
@@ -46,7 +47,7 @@ public class SealCommand {
                 Optional<Brew> brewOptional = BrewAdapter.fromItem(itemStack);
                 if (brewOptional.isPresent()) {
                     oneFound = true;
-                    targetInventory.setItem(i, BrewAdapter.toItem(brewOptional.get(), new Brew.State.Seal(serializedVolumeMessage)));
+                    targetInventory.setItem(i, BrewAdapter.toItem(brewOptional.get(), new BrewImpl.State.Seal(serializedVolumeMessage)));
                 }
             }
             if (oneFound) {

@@ -14,7 +14,7 @@ import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;

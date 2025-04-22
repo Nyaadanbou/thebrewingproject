@@ -12,7 +12,7 @@ import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Logging;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

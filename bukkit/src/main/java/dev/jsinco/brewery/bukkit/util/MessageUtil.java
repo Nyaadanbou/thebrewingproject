@@ -1,17 +1,15 @@
 package dev.jsinco.brewery.bukkit.util;
 
-import dev.jsinco.brewery.brew.Brew;
-import dev.jsinco.brewery.brew.BrewingStep;
+import dev.jsinco.brewery.brew.*;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.effect.DrunksManager;
-import dev.jsinco.brewery.effect.event.DrunkEvent;
-import dev.jsinco.brewery.recipes.BrewQuality;
-import dev.jsinco.brewery.recipes.BrewScore;
-import dev.jsinco.brewery.recipes.Recipe;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.recipes.BrewScoreImpl;
+import dev.jsinco.brewery.recipes.RecipeImpl;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,8 +35,8 @@ public class MessageUtil {
 
     private static final char SKULL = '\u2620';
 
-    public static Component compilePlayerMessage(String message, Player player, DrunksManager<?> drunksManager, int alcohol) {
-        DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
+    public static Component compilePlayerMessage(String message, Player player, DrunksManagerImpl<?> drunksManager, int alcohol) {
+        DrunkStateImpl drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return MiniMessage.miniMessage().deserialize(
                 message,
                 Placeholder.parsed("alcohol", String.valueOf(alcohol)),
@@ -67,7 +65,7 @@ public class MessageUtil {
         TagResolver resolver = switch (brewingStep) {
             case BrewingStep.Age age -> TagResolver.resolver(
                     Formatter.number("aging_years", age.age().agingYears()),
-                    Placeholder.parsed("barrel_type", age.barrelType().translation())
+                    Placeholder.parsed("barrel_type", TranslationsConfig.BARREL_TYPE.get(age.barrelType().translationKey()))
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
                     Formatter.number("cooking_time", cook.brewTime().minutes()),
@@ -76,7 +74,7 @@ public class MessageUtil {
                             .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
                             .collect(Collectors.joining(", "))
                     ),
-                    Placeholder.parsed("cauldron_type", cook.cauldronType().translation())
+                    Placeholder.parsed("cauldron_type", TranslationsConfig.CAULDRON_TYPE.get(cook.cauldronType().translationKey()))
             );
             case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
             case BrewingStep.Mix mix -> TagResolver.resolver(
@@ -88,14 +86,14 @@ public class MessageUtil {
                     )
             );
         };
-        return TagResolver.resolver(resolver, Placeholder.styling("partial_quality_color", resolveQualityColor(BrewScore.quality(score))));
+        return TagResolver.resolver(resolver, Placeholder.styling("partial_quality_color", resolveQualityColor(BrewScoreImpl.quality(score))));
     }
 
     private static @NotNull StyleBuilderApplicable[] resolveQualityColor(@Nullable BrewQuality quality) {
         return quality != null ? new StyleBuilderApplicable[]{TextColor.color(quality.getColor())} : new StyleBuilderApplicable[]{NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH};
     }
 
-    public static TagResolver recipeTagResolver(Recipe<ItemStack> recipe) {
+    public static TagResolver recipeTagResolver(RecipeImpl<ItemStack> recipe) {
         return TagResolver.resolver(
                 Placeholder.parsed("recipe_name", recipe.getRecipeName()),
                 Formatter.number("recipe_difficulty", recipe.getBrewDifficulty())
@@ -115,7 +113,12 @@ public class MessageUtil {
                 Placeholder.parsed("effect_title_message", effects.getTitle() == null ? "" : effects.getTitle()),
                 Placeholder.parsed("effect_message", effects.getMessage() == null ? "" : effects.getMessage()),
                 Placeholder.parsed("effect_action_bar", effects.getActionBar() == null ? "" : effects.getActionBar()),
-                Placeholder.parsed("effect_events", effects.getEvents().stream().map(DrunkEvent::getTranslation).collect(Collectors.joining(",")))
+                Placeholder.parsed("effect_events", effects.getEvents().stream().map(drunkEvent -> {
+                    if (drunkEvent instanceof NamedDrunkEvent namedDrunkEvent) {
+                        return TranslationsConfig.EVENT_TYPES.get(namedDrunkEvent.name().toLowerCase(Locale.ROOT));
+                    }
+                    return drunkEvent.displayName();
+                }).collect(Collectors.joining(",")))
         );
     }
 
@@ -141,11 +144,11 @@ public class MessageUtil {
     public static @NotNull Stream<Component> compileBrewInfo(Brew brew, boolean detailed) {
         BrewScore score = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry())
                 .map(brew::score)
-                .orElse(BrewScore.NONE);
+                .orElse(BrewScoreImpl.NONE);
         return compileBrewInfo(brew, score, detailed);
     }
 
-    public static @NotNull TagResolver getDrunkStateTagResolver(@Nullable DrunkState drunkState) {
+    public static @NotNull TagResolver getDrunkStateTagResolver(@Nullable DrunkStateImpl drunkState) {
         return TagResolver.resolver(
                 Placeholder.component("alcohol_level", compileAlcoholLevel(drunkState == null ? 0 : drunkState.alcohol())),
                 Placeholder.component("toxins_level", compileToxinsLevel(drunkState == null ? 0 : drunkState.toxins()))

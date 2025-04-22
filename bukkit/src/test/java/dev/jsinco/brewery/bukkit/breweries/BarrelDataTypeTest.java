@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
@@ -12,8 +12,8 @@ import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.moment.Interval;
-import dev.jsinco.brewery.util.moment.PassedMoment;
+import dev.jsinco.brewery.moment.Interval;
+import dev.jsinco.brewery.moment.PassedMoment;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class BarrelDataTypeTest {
         BukkitBarrel barrel = new BukkitBarrel(new Location(world, 1, 2, 3), breweryStructureOptional.get().first(), 9, BarrelType.OAK);
         barrel.setBrews(List.of(
                 new Pair<>(
-                        new Brew(
+                        new BrewImpl(
                                 List.of(
                                         new BrewingStep.Cook(new PassedMoment(10), Map.of(), CauldronType.WATER),
                                         new BrewingStep.Age(new Interval(10, 10), BarrelType.OAK)
@@ -71,7 +71,7 @@ class BarrelDataTypeTest {
                         ), 4
                 ),
                 new Pair<>(
-                        new Brew(
+                        new BrewImpl(
                                 List.of(
                                         new BrewingStep.Cook(new PassedMoment(10), Map.of(), CauldronType.WATER),
                                         new BrewingStep.Age(new Interval(10, 10), BarrelType.OAK)

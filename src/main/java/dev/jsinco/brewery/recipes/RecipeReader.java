@@ -3,12 +3,13 @@ package dev.jsinco.brewery.recipes;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import dev.jsinco.brewery.brew.BrewingStep;
-import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
+import dev.jsinco.brewery.ingredient.IngredientManager;
+import dev.jsinco.brewery.recipe.Recipe;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Logging;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.moment.Moment;
-import dev.jsinco.brewery.util.moment.PassedMoment;
+import dev.jsinco.brewery.moment.Moment;
+import dev.jsinco.brewery.moment.PassedMoment;
 import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -60,8 +61,8 @@ public class RecipeReader<I> {
      * @param recipeName The name/id of the recipe to obtain. Ex: 'example_recipe'
      * @return A Recipe object with all the attributes of the recipe.
      */
-    private Recipe<I> getRecipe(ConfigurationSection recipe, String recipeName) {
-        return new Recipe.Builder<I>(recipeName)
+    private RecipeImpl<I> getRecipe(ConfigurationSection recipe, String recipeName) {
+        return new RecipeImpl.Builder<I>(recipeName)
                 .brewDifficulty(recipe.getInt("brew-difficulty", 1))
                 .recipeResult(recipeResultReader.readRecipeResult(recipe))
                 .steps(parseSteps(recipe.getMapList("steps")))

@@ -2,13 +2,14 @@ package dev.jsinco.brewery.bukkit.brew;
 
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.database.*;
 import dev.jsinco.brewery.database.sql.SqlStoredData;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class BukkitDistilleryBrewDataType implements
             while (resultSet.next()) {
                 int pos = resultSet.getInt("pos");
                 boolean isDistillate = resultSet.getBoolean("is_distillate");
-                Brew brew = Brew.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
+                Brew brew = BrewImpl.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
                 output.add(new Pair<>(brew, new DistilleryContext(searchObject.x(), searchObject.y(), searchObject.z(), searchObject.worldUuid(), pos, isDistillate)));
             }
         } catch (SQLException e) {
@@ -56,7 +57,7 @@ public class BukkitDistilleryBrewDataType implements
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(distilleryContext.worldUuid()));
             preparedStatement.setInt(5, distilleryContext.inventoryPos());
             preparedStatement.setBoolean(6, distilleryContext.distillate());
-            preparedStatement.setString(7, Brew.SERIALIZER.serialize(brew).toString());
+            preparedStatement.setString(7, BrewImpl.SERIALIZER.serialize(brew).toString());
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -84,7 +85,7 @@ public class BukkitDistilleryBrewDataType implements
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/distillery_brews_update.sql"))) {
             Brew brew = newValue.first();
             DistilleryContext distilleryContext = newValue.second();
-            preparedStatement.setString(1, Brew.SERIALIZER.serialize(brew).toString());
+            preparedStatement.setString(1, BrewImpl.SERIALIZER.serialize(brew).toString());
             preparedStatement.setInt(2, distilleryContext.uniqueX());
             preparedStatement.setInt(3, distilleryContext.uniqueY());
             preparedStatement.setInt(4, distilleryContext.uniqueZ());

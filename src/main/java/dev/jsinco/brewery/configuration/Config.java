@@ -1,7 +1,7 @@
 package dev.jsinco.brewery.configuration;
 
 import dev.jsinco.brewery.util.FileUtil;
-import dev.jsinco.brewery.util.moment.Moment;
+import dev.jsinco.brewery.moment.Moment;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;

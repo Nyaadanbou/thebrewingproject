@@ -3,11 +3,11 @@ package dev.jsinco.brewery.brew;
 import com.google.gson.JsonParser;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.SqlStoredData;
-import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
+import dev.jsinco.brewery.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.DecoderEncoder;
 import dev.jsinco.brewery.util.FileUtil;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,7 +34,7 @@ public abstract class BarrelBrewDataType<I> implements
             preparedStatement.setInt(3, context.uniqueZ);
             preparedStatement.setBytes(4, DecoderEncoder.asBytes(context.worldUuid));
             preparedStatement.setInt(5, context.inventoryPos);
-            preparedStatement.setString(6, Brew.SERIALIZER.serialize(brew).toString());
+            preparedStatement.setString(6, BrewImpl.SERIALIZER.serialize(brew).toString());
             preparedStatement.execute();
         } catch (SQLException e) {
             throw new PersistenceException(e);
@@ -56,8 +56,8 @@ public abstract class BarrelBrewDataType<I> implements
         }
     }
 
-    private Brew brewFromResultSet(ResultSet resultSet) throws SQLException {
-        return Brew.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), getIngredientManager());
+    private BrewImpl brewFromResultSet(ResultSet resultSet) throws SQLException {
+        return BrewImpl.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), getIngredientManager());
     }
 
     protected abstract IngredientManager<I> getIngredientManager();
@@ -90,7 +90,7 @@ public abstract class BarrelBrewDataType<I> implements
         try (PreparedStatement preparedStatement = connection.prepareStatement(statementString)) {
             BarrelContext context = newValue.second();
             Brew brew = newValue.first();
-            preparedStatement.setString(1, Brew.SERIALIZER.serialize(brew).toString());
+            preparedStatement.setString(1, BrewImpl.SERIALIZER.serialize(brew).toString());
             preparedStatement.setInt(2, context.uniqueX);
             preparedStatement.setInt(3, context.uniqueY);
             preparedStatement.setInt(4, context.uniqueZ);

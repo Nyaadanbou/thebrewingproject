@@ -1,8 +1,8 @@
 package dev.jsinco.brewery.structure;
 
 import dev.jsinco.brewery.breweries.StructureHolder;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
-import dev.jsinco.brewery.util.vector.BreweryVector;
+import dev.jsinco.brewery.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryVector;
 
 import java.util.*;
 

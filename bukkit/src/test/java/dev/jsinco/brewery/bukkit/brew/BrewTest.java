@@ -1,11 +1,11 @@
 package dev.jsinco.brewery.bukkit.brew;
 
-import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
-import dev.jsinco.brewery.util.moment.PassedMoment;
+import dev.jsinco.brewery.moment.PassedMoment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockbukkit.mockbukkit.MockBukkitExtension;
@@ -21,7 +21,7 @@ public class BrewTest {
 
     @Test
     void equals() {
-        Brew brew1 = new Brew(
+        BrewImpl brew1 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
@@ -37,7 +37,7 @@ public class BrewTest {
                         )
                 )
         );
-        Brew brew2 = new Brew(
+        BrewImpl brew2 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
@@ -58,7 +58,7 @@ public class BrewTest {
 
     @Test
     void equals_notEqual() {
-        Brew brew1 = new Brew(
+        BrewImpl brew1 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
@@ -74,7 +74,7 @@ public class BrewTest {
                         )
                 )
         );
-        Brew brew2 = new Brew(
+        BrewImpl brew2 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
@@ -95,7 +95,7 @@ public class BrewTest {
 
     @Test
     void equals_notEquals2() {
-        Brew brew1 = new Brew(
+        BrewImpl brew1 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),
@@ -111,7 +111,7 @@ public class BrewTest {
                         )
                 )
         );
-        Brew brew2 = new Brew(
+        BrewImpl brew2 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(20),

@@ -1,17 +1,17 @@
 package dev.jsinco.brewery.bukkit.command;
 
-import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.moment.Moment;
-import dev.jsinco.brewery.util.moment.PassedMoment;
+import dev.jsinco.brewery.moment.Moment;
+import dev.jsinco.brewery.moment.PassedMoment;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
@@ -55,7 +55,7 @@ public class CreateCommand {
             }
             steps.add(operator.apply(arguments, sender));
         }
-        ItemStack brewItem = BrewAdapter.toItem(new Brew(steps), new Brew.State.Other());
+        ItemStack brewItem = BrewAdapter.toItem(new BrewImpl(steps), new BrewImpl.State.Other());
         target.getWorld().dropItem(target.getLocation(), brewItem);
         sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_CREATE_SUCCESS, Placeholder.component("brew_name", brewItem.effectiveName())));
         return true;

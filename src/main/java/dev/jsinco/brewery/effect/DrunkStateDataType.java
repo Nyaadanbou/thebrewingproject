@@ -8,6 +8,6 @@ import dev.jsinco.brewery.util.Pair;
 
 import java.util.UUID;
 
-public interface DrunkStateDataType<C> extends UpdateableStoredData<Pair<DrunkState, UUID>, C>, RemovableStoredData<UUID, C>,
-        InsertableStoredData<Pair<DrunkState, UUID>, C>, RetrievableStoredData<Pair<DrunkState, UUID>, C> {
+public interface DrunkStateDataType<C> extends UpdateableStoredData<Pair<DrunkStateImpl, UUID>, C>, RemovableStoredData<UUID, C>,
+        InsertableStoredData<Pair<DrunkStateImpl, UUID>, C>, RetrievableStoredData<Pair<DrunkStateImpl, UUID>, C> {
 }

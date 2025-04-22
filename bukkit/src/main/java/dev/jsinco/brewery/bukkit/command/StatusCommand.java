@@ -2,9 +2,9 @@ package dev.jsinco.brewery.bukkit.command;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.effect.DrunksManager;
-import dev.jsinco.brewery.effect.event.DrunkEvent;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
+import dev.jsinco.brewery.event.DrunkEvent;
 import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 public class StatusCommand {
     public static boolean onCommand(OfflinePlayer player, CommandSender sender, @NotNull String[] args) {
-        DrunksManager<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+        DrunksManagerImpl<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
         return switch (args[0]) {
             case "info" -> StatusCommand.info(player, sender, drunksManager, Arrays.copyOfRange(args, 1, args.length));
             case "consume" ->
@@ -32,7 +32,7 @@ public class StatusCommand {
         };
     }
 
-    private static boolean set(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+    private static boolean set(OfflinePlayer target, CommandSender sender, DrunksManagerImpl<?> drunksManager, @NotNull String[] args) {
         if (args.length < 1) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT, Placeholder.unparsed("argument_type", "<alcohol>")));
             return true;
@@ -41,13 +41,13 @@ public class StatusCommand {
         return consume(target, sender, drunksManager, args);
     }
 
-    private static boolean clear(@NotNull OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+    private static boolean clear(@NotNull OfflinePlayer target, CommandSender sender, DrunksManagerImpl<?> drunksManager, @NotNull String[] args) {
         drunksManager.clear(target.getUniqueId());
         sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_STATUS_CLEAR_MESSAGE, Placeholder.unparsed("player_name", target.getName())));
         return true;
     }
 
-    private static boolean consume(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+    private static boolean consume(OfflinePlayer target, CommandSender sender, DrunksManagerImpl<?> drunksManager, @NotNull String[] args) {
         if (args.length < 1) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_MISSING_ARGUMENT, Placeholder.unparsed("argument_type", "<alcohol>")));
             return true;
@@ -65,7 +65,7 @@ public class StatusCommand {
         return true;
     }
 
-    private static boolean info(OfflinePlayer target, CommandSender sender, DrunksManager<?> drunksManager, @NotNull String[] args) {
+    private static boolean info(OfflinePlayer target, CommandSender sender, DrunksManagerImpl<?> drunksManager, @NotNull String[] args) {
         if (target == null) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.COMMAND_UNKNOWN_PLAYER, Placeholder.unparsed("player_name", args[0])));
             return true;
@@ -74,8 +74,8 @@ public class StatusCommand {
         return true;
     }
 
-    private static Component compileStatusMessage(OfflinePlayer target, DrunksManager<?> drunksManager, String message) {
-        DrunkState drunkState = drunksManager.getDrunkState(target.getUniqueId());
+    private static Component compileStatusMessage(OfflinePlayer target, DrunksManagerImpl<?> drunksManager, String message) {
+        DrunkStateImpl drunkState = drunksManager.getDrunkState(target.getUniqueId());
         Pair<DrunkEvent, Long> nextEvent = drunksManager.getPlannedEvent(target.getUniqueId());
         drunksManager.getPlannedEvent(target.getUniqueId());
         String targetName = target.getName();
@@ -85,7 +85,7 @@ public class StatusCommand {
                 Formatter.number("toxins", drunkState == null ? 0 : drunkState.toxins()),
                 Placeholder.unparsed("player_name", targetName == null ? "null" : targetName),
                 Formatter.number("next_event_time", nextEvent == null ? 0 : nextEvent.second() - TheBrewingProject.getInstance().getTime()),
-                Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().getTranslation())
+                Placeholder.unparsed("next_event", nextEvent == null ? TranslationsConfig.NO_EVENT_PLANNED : nextEvent.first().displayName())
         );
     }
 

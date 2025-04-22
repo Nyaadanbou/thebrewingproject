@@ -7,7 +7,7 @@ buildscript {
 }
 
 plugins {
-    id("java")
+    `java-library`
     id("net.neoforged.gradle.common") version "7.0.181"
     id("org.ajoberstar.grgit") version "5.3.0"
 }
@@ -23,6 +23,7 @@ repositories {
 dependencies {
     implementation("com.github.Carleslc.Simple-YAML:Simple-Yaml:1.8.4")
     implementation("com.zaxxer:HikariCP:6.2.1")
+    api(project(":api"))
     compileOnly("org.xerial:sqlite-jdbc:3.47.2.0")
 
     compileOnly("org.jetbrains:annotations:24.0.0")

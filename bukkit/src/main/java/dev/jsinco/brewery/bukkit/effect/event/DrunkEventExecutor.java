@@ -3,7 +3,7 @@ package dev.jsinco.brewery.bukkit.effect.event;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffect;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.effect.event.*;
+import dev.jsinco.brewery.event.*;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;

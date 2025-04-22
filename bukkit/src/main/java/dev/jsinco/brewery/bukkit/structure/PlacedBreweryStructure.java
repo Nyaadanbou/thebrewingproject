@@ -3,7 +3,7 @@ package dev.jsinco.brewery.bukkit.structure;
 import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.structure.MultiBlockStructure;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;

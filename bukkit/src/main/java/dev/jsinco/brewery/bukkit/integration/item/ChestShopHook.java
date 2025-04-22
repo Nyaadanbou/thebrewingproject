@@ -3,10 +3,11 @@ package dev.jsinco.brewery.bukkit.integration.item;
 import com.Acrobot.ChestShop.Events.ItemParseEvent;
 import com.Acrobot.ChestShop.Events.ItemStringQueryEvent;
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
-import dev.jsinco.brewery.recipes.BrewQuality;
-import dev.jsinco.brewery.recipes.BrewScore;
+import dev.jsinco.brewery.brew.BrewQuality;
+import dev.jsinco.brewery.recipes.BrewScoreImpl;
 import dev.jsinco.brewery.util.BreweryKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -54,7 +55,7 @@ public class ChestShopHook implements Listener {
         }
         String output = BreweryKey.parse(dataContainer.get(BrewAdapter.BREWERY_TAG, PersistentDataType.STRING)).key();
         if (dataContainer.has(BrewAdapter.BREWERY_SCORE)) {
-            BrewQuality quality = BrewScore.quality(dataContainer.get(BrewAdapter.BREWERY_SCORE, PersistentDataType.DOUBLE));
+            BrewQuality quality = BrewScoreImpl.quality(dataContainer.get(BrewAdapter.BREWERY_SCORE, PersistentDataType.DOUBLE));
             if (quality != null) {
                 String extra = switch (quality) {
                     case BAD -> "+";
@@ -71,7 +72,7 @@ public class ChestShopHook implements Listener {
     public void onItemParse(ItemParseEvent event) {
         TheBrewingProject.getInstance().getRecipeRegistry().getRecipe(event.getItemString().replaceAll("^\\+{3}", ""))
                 .ifPresent(recipe -> {
-                            ItemStack itemStack = BrewAdapter.toItem(new Brew(recipe.getSteps()), new Brew.State.Seal(null));
+                            ItemStack itemStack = BrewAdapter.toItem(new BrewImpl(recipe.getSteps()), new BrewImpl.State.Seal(null));
                             event.setItem(itemStack);
                         }
                 );

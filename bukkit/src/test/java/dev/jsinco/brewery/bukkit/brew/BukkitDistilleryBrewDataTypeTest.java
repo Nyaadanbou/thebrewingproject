@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.brew;
 
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
@@ -11,8 +12,8 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.moment.PassedMoment;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.moment.PassedMoment;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -52,7 +53,7 @@ class BukkitDistilleryBrewDataTypeTest {
     void checkPersistence() throws SQLException, PersistenceException {
         BukkitDistillery bukkitDistillery = prepareDistillery();
         BreweryLocation searchObject = bukkitDistillery.getStructure().getUnique();
-        Brew brew1 = new Brew(
+        BrewImpl brew1 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(10),
@@ -61,7 +62,7 @@ class BukkitDistilleryBrewDataTypeTest {
                         )
                 )
         );
-        Brew brew2 = new Brew(
+        BrewImpl brew2 = new BrewImpl(
                 List.of(
                         new BrewingStep.Cook(
                                 new PassedMoment(10),

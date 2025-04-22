@@ -4,7 +4,7 @@ import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.structure.SinglePositionStructure;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;

@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
@@ -18,11 +18,11 @@ import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.effect.DrunkState;
-import dev.jsinco.brewery.effect.DrunksManager;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
-import dev.jsinco.brewery.recipes.RecipeRegistry;
+import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistry;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
@@ -51,12 +51,12 @@ public class PlayerEventListener implements Listener {
     private final PlacedStructureRegistry placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
-    private final DrunksManager<?> drunksManager;
+    private final DrunksManagerImpl<?> drunksManager;
     private final DrunkTextRegistry drunkTextRegistry;
-    private final RecipeRegistry<ItemStack> recipeRegistry;
+    private final RecipeRegistryImpl<ItemStack> recipeRegistry;
     private final DrunkEventExecutor drunkEventExecutor;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManager<?> drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistry<ItemStack> recipeRegistry, DrunkEventExecutor drunkEventExecutor) {
+    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManagerImpl<?> drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistryImpl<ItemStack> recipeRegistry, DrunkEventExecutor drunkEventExecutor) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;
@@ -105,7 +105,7 @@ public class PlayerEventListener implements Listener {
             ItemMeta offHandMeta = offHand.getItemMeta();
             ItemStack mainHand = inventory.getItemInMainHand();
             ItemStack sealed = BrewAdapter.fromItem(mainHand)
-                    .map(brew -> BrewAdapter.toItem(brew, new Brew.State.Seal(offHandMeta.hasCustomName() ? MiniMessage.miniMessage().serialize(offHandMeta.customName()) : null)))
+                    .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Seal(offHandMeta.hasCustomName() ? MiniMessage.miniMessage().serialize(offHandMeta.customName()) : null)))
                     .orElse(mainHand);
             inventory.setItemInMainHand(sealed);
             event.setUseItemInHand(Event.Result.DENY);
@@ -221,7 +221,7 @@ public class PlayerEventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onAsyncChat(AsyncPlayerChatEvent event) {
         UUID playerUuid = event.getPlayer().getUniqueId();
-        DrunkState drunkState = drunksManager.getDrunkState(playerUuid);
+        DrunkStateImpl drunkState = drunksManager.getDrunkState(playerUuid);
         if (drunkState == null) {
             return;
         }

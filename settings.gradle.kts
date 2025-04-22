@@ -9,3 +9,5 @@ pluginManagement {
     }
 }
 include("datagenerator")
+
+include("api")

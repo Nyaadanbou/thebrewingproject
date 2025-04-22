@@ -1,16 +1,17 @@
 package dev.jsinco.brewery.bukkit.brew;
 
-import dev.jsinco.brewery.brew.Brew;
-import dev.jsinco.brewery.brew.BrewingStep;
+import dev.jsinco.brewery.brew.*;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.recipe.Recipe;
+import dev.jsinco.brewery.recipe.RecipeResult;
 import dev.jsinco.brewery.recipes.*;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
-import dev.jsinco.brewery.recipes.ingredient.IngredientManager;
+import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.IngredientManager;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -38,7 +39,7 @@ public class BrewAdapter {
     public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
-        RecipeRegistry<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
+        RecipeRegistryImpl<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();
         Optional<Recipe<ItemStack>> recipe = brew.closestRecipe(recipeRegistry);
         Optional<BrewScore> score = recipe.map(brew::score);
         Optional<BrewQuality> quality = score.flatMap(brewScore -> Optional.ofNullable(brewScore.brewQuality()));
@@ -46,7 +47,7 @@ public class BrewAdapter {
         if (quality.isEmpty()) {
             RecipeResult<ItemStack> randomDefault = recipeRegistry.getRandomDefaultRecipe();
             //TODO Refactor this weird implementation for default recipes
-            itemStack = randomDefault.newBrewItem(BrewScore.EXCELLENT, brew, state);
+            itemStack = randomDefault.newBrewItem(BrewScoreImpl.EXCELLENT, brew, state);
         } else if (!score.map(BrewScore::completed).get()) {
             itemStack = incompletePotion(brew);
         } else {
@@ -59,7 +60,7 @@ public class BrewAdapter {
             }
             itemStack.setItemMeta(meta);
         }
-        if (!(state instanceof Brew.State.Seal)) {
+        if (!(state instanceof BrewImpl.State.Seal)) {
             ItemMeta itemMeta = itemStack.getItemMeta();
             fillPersistentData(itemMeta, brew);
             itemStack.setItemMeta(itemMeta);
@@ -118,6 +119,6 @@ public class BrewAdapter {
             return Optional.empty();
         }
         return Optional.ofNullable(data.get(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST))
-                .map(Brew::new);
+                .map(BrewImpl::new);
     }
 }

@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
 import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.brew.BrewingStep;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
@@ -12,11 +13,11 @@ import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipes.Recipe;
-import dev.jsinco.brewery.recipes.ingredient.Ingredient;
+import dev.jsinco.brewery.recipe.Recipe;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.util.moment.Interval;
-import dev.jsinco.brewery.util.vector.BreweryLocation;
+import dev.jsinco.brewery.moment.Interval;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -63,8 +64,8 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         this.cauldronType = findCauldronType(block);
         this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
         this.brew = hot ?
-                new Brew(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType))
-                : new Brew(new BrewingStep.Mix(new Interval(brewStart, brewStart), ingredients));
+                new BrewImpl(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType))
+                : new BrewImpl(new BrewingStep.Mix(new Interval(brewStart, brewStart), ingredients));
     }
 
     public BukkitCauldron(Brew brew, Block block) {

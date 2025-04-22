@@ -3,7 +3,7 @@ package dev.jsinco.brewery.bukkit.effect;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.effect.DrunkState;
+import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.util.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,10 +30,10 @@ class DrunkStateDataTypeTest {
     @Test
     void checkPersistence() throws PersistenceException {
         UUID uuid = UUID.randomUUID();
-        DrunkState drunkState = new DrunkState(10, 20, 0, 11, 22);
+        DrunkStateImpl drunkState = new DrunkStateImpl(10, 20, 0, 11, 22);
         database.insertValue(SqlDrunkStateDataType.INSTANCE, new Pair<>(drunkState, uuid));
         assertTrue(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));
-        DrunkState drunkState2 = new DrunkState(20, 30, 0, 22, 33);
+        DrunkStateImpl drunkState2 = new DrunkStateImpl(20, 30, 0, 22, 33);
         database.updateValue(SqlDrunkStateDataType.INSTANCE, new Pair<>(drunkState2, uuid));
         assertTrue(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState2, uuid)));
         assertFalse(database.retrieveAllNow(SqlDrunkStateDataType.INSTANCE).contains(new Pair<>(drunkState, uuid)));

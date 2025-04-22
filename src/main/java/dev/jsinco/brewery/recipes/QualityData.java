@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.recipes;
 
+import dev.jsinco.brewery.brew.BrewQuality;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
