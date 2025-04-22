@@ -47,7 +47,7 @@ public class NamedDrunkEventExecutor {
                 Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::doPuke, 0, 1);
             }
             case PASS_OUT -> {
-                DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+                DrunksManager<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
                 player.kick(MessageUtil.compilePlayerMessage(Config.KICK_EVENT_MESSAGE == null ? TranslationsConfig.KICK_EVENT_MESSAGE : Config.KICK_EVENT_MESSAGE, player, drunksManager, 0));
                 if (Config.KICK_EVENT_SERVER_MESSAGE != null) {
                     Component message = MessageUtil.compilePlayerMessage(Config.KICK_EVENT_SERVER_MESSAGE, player, drunksManager, 0);
@@ -56,7 +56,7 @@ public class NamedDrunkEventExecutor {
                 drunksManager.registerPassedOut(player.getUniqueId());
             }
             case STUMBLE -> {
-                DrunksManager drunksManager = TheBrewingProject.getInstance().getDrunksManager();
+                DrunksManager<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
                 StumbleHandler stumbleHandler = new StumbleHandler(RANDOM.nextInt(STUMBLE_DURATION / 2, STUMBLE_DURATION * 3 / 2 + 1), player, drunksManager);
                 Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), stumbleHandler::doStumble, 0, 1);
             }
@@ -161,7 +161,7 @@ public class NamedDrunkEventExecutor {
         private final Player player;
         private final Vector pushDirection1;
 
-        public StumbleHandler(int duration, Player player, DrunksManager drunksManager) {
+        public StumbleHandler(int duration, Player player, DrunksManager<?> drunksManager) {
             this.countDown = duration;
             this.duration = duration;
             this.player = player;

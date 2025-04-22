@@ -37,7 +37,7 @@ public class MessageUtil {
 
     private static final char SKULL = '\u2620';
 
-    public static Component compilePlayerMessage(String message, Player player, DrunksManager drunksManager, int alcohol) {
+    public static Component compilePlayerMessage(String message, Player player, DrunksManager<?> drunksManager, int alcohol) {
         DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return MiniMessage.miniMessage().deserialize(
                 message,

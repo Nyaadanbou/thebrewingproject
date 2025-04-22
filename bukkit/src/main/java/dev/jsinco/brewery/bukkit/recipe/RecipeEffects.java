@@ -135,7 +135,7 @@ public class RecipeEffects {
         return Optional.of(builder.build());
     }
 
-    public void applyTo(Player player, DrunksManager drunksManager) {
+    public void applyTo(Player player, DrunksManager<?> drunksManager) {
         drunksManager.consume(player.getUniqueId(), alcohol, toxins);
         if (title != null) {
             player.showTitle(Title.title(MessageUtil.compilePlayerMessage(title, player, drunksManager, this.alcohol), Component.empty()));
@@ -155,7 +155,7 @@ public class RecipeEffects {
         TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
     }
 
-    private String compileUnparsedEffectMessage(String message, Player player, DrunksManager drunksManager) {
+    private String compileUnparsedEffectMessage(String message, Player player, DrunksManager<?> drunksManager) {
         DrunkState drunkState = drunksManager.getDrunkState(player.getUniqueId());
         return message
                 .replace("<player_name>", player.getName())
