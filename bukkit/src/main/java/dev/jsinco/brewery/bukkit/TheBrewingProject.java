@@ -56,7 +56,7 @@ import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectApi{
+public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectApi {
 
     @Getter
     private static TheBrewingProject instance;
@@ -196,7 +196,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Override
     public void onDisable() {
         try {
-            database.setSingleton(BreweryTimeDataType.INSTANCE, time);
+            database.setSingleton(BreweryTimeDataType.INSTANCE, time).join();
+            database.flush().join();
         } catch (PersistenceException e) {
             e.printStackTrace();
         }

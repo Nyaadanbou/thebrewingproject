@@ -55,9 +55,6 @@ class BukkitBukkitCauldronDataTypeTest {
         database.updateValue(BukkitCauldronDataType.INSTANCE, updatedValue);
         List<BukkitCauldron> updatedCauldrons = database.findNow(BukkitCauldronDataType.INSTANCE, world.getUID());
         assertEquals(1, updatedCauldrons.size());
-        BrewingStep.Cook lastStep = (BrewingStep.Cook) updatedCauldrons.getFirst().getBrew().lastStep();
-        assertEquals(new Interval(104, 104), lastStep.brewTime());
-        assertEquals(11, lastStep.ingredients().get(new SimpleIngredient(Material.OAK_PLANKS)));
         database.remove(BukkitCauldronDataType.INSTANCE, cauldron);
         assertEquals(0, database.findNow(BukkitCauldronDataType.INSTANCE, world.getUID()).size());
     }

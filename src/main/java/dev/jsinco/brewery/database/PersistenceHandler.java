@@ -20,11 +20,11 @@ public interface PersistenceHandler<C> {
     <T> CompletableFuture<List<T>> retrieveAll(RetrievableStoredData<T, C> dataType) throws
             PersistenceException;
 
-    <T> void remove(RemovableStoredData<T, C> dataType, T toRemove) throws PersistenceException;
+    <T> CompletableFuture<Void> remove(RemovableStoredData<T, C> dataType, T toRemove) throws PersistenceException;
 
-    <T> void updateValue(UpdateableStoredData<T, C> dataType, T newValue) throws PersistenceException;
+    <T> CompletableFuture<Void> updateValue(UpdateableStoredData<T, C> dataType, T newValue) throws PersistenceException;
 
-    <T> void insertValue(InsertableStoredData<T, C> dataType, T value) throws PersistenceException;
+    <T> CompletableFuture<Void> insertValue(InsertableStoredData<T, C> dataType, T value) throws PersistenceException;
 
     default <T, U> List<T> findNow(FindableStoredData<T, U, C> dataType, U searchObject) throws
             PersistenceException {
@@ -54,5 +54,7 @@ public interface PersistenceHandler<C> {
 
     <T> CompletableFuture<T> getSingleton(SingletonStoredData<T, C> dataType) throws PersistenceException;
 
-    <T> void setSingleton(SingletonStoredData<T, C> dataType, T t) throws PersistenceException;
+    <T> CompletableFuture<Void> setSingleton(SingletonStoredData<T, C> dataType, T t) throws PersistenceException;
+
+    CompletableFuture<Void> flush();
 }

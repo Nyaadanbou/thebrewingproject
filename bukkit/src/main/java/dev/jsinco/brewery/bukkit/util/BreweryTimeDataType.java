@@ -28,7 +28,7 @@ public class BreweryTimeDataType implements SqlStoredData.Singleton<Long> {
     }
 
     @Override
-    public void update(Long time, Connection connection) throws PersistenceException {
+    public void set(Long time, Connection connection) throws PersistenceException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(FileUtil.readInternalResource("/database/generic/update_time.sql"))) {
             preparedStatement.setLong(1, time);
             preparedStatement.execute();

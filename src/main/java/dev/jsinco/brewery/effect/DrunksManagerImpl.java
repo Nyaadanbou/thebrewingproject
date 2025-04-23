@@ -5,11 +5,11 @@ import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.PersistenceHandler;
 import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.event.DrunkEvent;
+import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Pair;
-import dev.jsinco.brewery.util.Registry;
-import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.RandomUtil;
+import dev.jsinco.brewery.util.Registry;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -170,7 +170,11 @@ public class DrunksManagerImpl<C> implements DrunksManager {
     }
 
     private boolean isPassedOut(DrunkStateImpl drunkState) {
-        return drunkState.kickedTimestamp() + (long) Config.PASS_OUT_TIME * Moment.MINUTE > timeSupplier.getAsLong();
+        long passOutTimeStamp = drunkState.kickedTimestamp();
+        if (passOutTimeStamp == -1) {
+            return false;
+        }
+        return passOutTimeStamp + (long) Config.PASS_OUT_TIME * Moment.MINUTE > timeSupplier.getAsLong();
     }
 
     public @Nullable Pair<DrunkEvent, Long> getPlannedEvent(UUID playerUUID) {

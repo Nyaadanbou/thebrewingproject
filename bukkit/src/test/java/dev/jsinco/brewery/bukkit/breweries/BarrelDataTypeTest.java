@@ -10,10 +10,10 @@ import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
 import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.structure.StructureType;
-import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.moment.PassedMoment;
+import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.Pair;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +80,7 @@ class BarrelDataTypeTest {
                 )
         ));
         database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
+        database.flush().join();
         List<BukkitBarrel> retrievedBarrels = database.findNow(BukkitBarrelDataType.INSTANCE, world.getUID());
         assertEquals(1, retrievedBarrels.size());
         BukkitBarrel retrievedBarrel = retrievedBarrels.get(0);
