@@ -1,0 +1,2 @@
+INSERT INTO distillery_brews
+VALUES(?,?,?,?,?,?,?);

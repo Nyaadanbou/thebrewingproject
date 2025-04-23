@@ -1,8 +1,8 @@
 {
-  "schemFile": "small_barrel.schem",
-  "origin": [0, 1, 0],
-  "materialReplacements" : {
-    "excludedPattern": "_planks$",
-    "materials": "#planks"
+  "schem_file": "small_barrel.schem",
+  "meta": {
+    "inventory_size": 9,
+    "type": "barrel",
+    "use_barrel_substitution": true
   }
 }

@@ -1,0 +1,4 @@
+INSERT OR
+REPLACE
+INTO time
+VALUES (?, 0);

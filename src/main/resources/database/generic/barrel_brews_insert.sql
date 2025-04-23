@@ -1,0 +1,2 @@
+INSERT INTO barrel_brews
+VALUES (?, ?, ?, ?, ?, ?);

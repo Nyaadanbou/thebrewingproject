@@ -4,7 +4,17 @@
  */
 package dev.jsinco.brewery.configuration;
 
+import dev.jsinco.brewery.util.Logging;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.comments.CommentType;
+import org.simpleyaml.configuration.file.YamlConfiguration;
+import org.simpleyaml.configuration.file.YamlFile;
+import org.simpleyaml.exceptions.InvalidConfigurationException;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,28 +24,26 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import dev.jsinco.brewery.util.Logging;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.simpleyaml.configuration.ConfigurationSection;
-import org.simpleyaml.configuration.comments.CommentType;
-import org.simpleyaml.configuration.file.YamlFile;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
-
 public abstract class AbstractConfig {
     private YamlFile config;
+    private YamlConfiguration backup;
 
     public @NotNull YamlFile getConfig() {
         return this.config;
     }
 
-    protected void reload(@NotNull Path path, @NotNull Class<? extends @NotNull AbstractConfig> clazz) {
+    protected void reload(@NotNull Path path, String defaultLocation, @NotNull Class<? extends @NotNull AbstractConfig> clazz) {
         // read yaml from file
         this.config = new YamlFile(path.toFile());
+        try (InputStream inputStream = AbstractConfig.class.getResourceAsStream("/" + defaultLocation)) {
+            this.backup = YamlConfiguration.loadConfiguration(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try {
             getConfig().createOrLoadWithComments();
         } catch (InvalidConfigurationException e) {
-            Logging.logError("Could not load " + path.getFileName() + ", please correct your syntax errors", e);
+            Logging.error("Could not load " + path.getFileName() + ", please correct your syntax errors");
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -49,14 +57,14 @@ public abstract class AbstractConfig {
                 return;
             }
             try {
-                Object obj = getClassObject();
-                Object value = getValue(key.value(), field.get(obj));
-                field.set(obj, value);
+                Object value = getValue(key.value(), field.get(null));
+                field.set(null, value);
                 if (comment != null) {
                     setComment(key.value(), comment.value());
                 }
             } catch (Throwable e) {
-                Logging.logError("Failed to load " + key.value() + " from " + path.getFileName().toString(), e);
+                Logging.error("Failed to load " + key.value() + " from " + path.getFileName().toString());
+                e.printStackTrace();
             }
         });
 
@@ -72,11 +80,10 @@ public abstract class AbstractConfig {
         }
     }
 
-    protected @Nullable Object getClassObject() {
-        return null;
-    }
-
     protected @Nullable Object getValue(@NotNull String path, @Nullable Object def) {
+        if (def == null) {
+            def = backup.get(path);
+        }
         if (getConfig().get(path) == null) {
             set(path, def);
         }
@@ -99,17 +106,13 @@ public abstract class AbstractConfig {
         }
         Map<String, Object> map = new LinkedHashMap<>();
         for (String key : section.getKeys(false)) {
-            String rawValue = section.getString(key);
+            Object rawValue = get(path + "." + key);
             if (rawValue == null) {
                 continue;
             }
-            map.put(key, addToMap(rawValue));
+            map.put(key, rawValue);
         }
         return map;
-    }
-
-    protected @NotNull Object addToMap(@NotNull String rawValue) {
-        return rawValue;
     }
 
     protected void set(@NotNull String path, @Nullable Object value) {

@@ -1,0 +1,62 @@
+[
+  {
+    "from" : "a",
+    "to" : "b",
+    "text" : "Absinthe",
+    "expected" : "Bbsinthe"
+  },
+  {
+    "from" : "(hello\\s+)world!",
+    "to" : "life!",
+    "text" : "Hello world!",
+    "expected" : "Hello life!"
+  },
+  {
+    "from" : "goodbye(\\s+world!)",
+    "to" : "Hello",
+    "text" : "Goodbye world!",
+    "expected" : "hello world!"
+  },
+  {
+    "from" : "(hello)\\s+(world!)",
+    "to" : " *hic* ",
+    "text" : "Hello world!",
+    "expected" : "Hello *hic* world!"
+  },
+  {
+    "from" : "^",
+    "to" : "*hic* ",
+    "text" : "abcdefghijklmnop",
+    "expected" : "*hic* abcdefghijklmnop"
+  },
+  {
+    "from" : "$",
+    "to" : " *hic*",
+    "text" : "abcdefghijklmnop",
+    "expected" : "abcdefghijklmnop *hic*"
+  },
+  {
+    "from" : ".{1}",
+    "to" : "b",
+    "text" : "aaaaaaaaaaaaa",
+    "expected" : "bbbbbbbbbbbbb"
+  },
+  {
+    "from" : "(a)bcd(e)",
+    "to" : "fghij",
+    "text" : "abcdefghijkabcde",
+    "expected" : "afghijefghijkafghije"
+  },
+  {
+    "from" : "recursion\\?",
+    "to" : "recursion\\?",
+    "text" : "recursion\\?",
+    "expected" : "recursion\\?"
+  },
+  {
+    "from" : "aa",
+    "to" : "bb",
+    "text" : "aaccccaaaa",
+    "expected" : "bbccccbbbb"
+  }
+]

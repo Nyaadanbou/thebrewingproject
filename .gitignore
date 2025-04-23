@@ -41,3 +41,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+## jpenilla runServer
+bukkit/run/
+
+neoforge/runs/

@@ -1,0 +1,88 @@
+package dev.jsinco.brewery.bukkit.ingredient;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import dev.jsinco.brewery.bukkit.ingredient.external.ItemsAdderPluginIngredient;
+import dev.jsinco.brewery.bukkit.ingredient.external.NexoPluginIngredient;
+import dev.jsinco.brewery.bukkit.ingredient.external.OraxenPluginIngredient;
+import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.IngredientManager;
+import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Pair;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+
+public class BukkitIngredientManager implements IngredientManager<ItemStack> {
+
+    public static final BukkitIngredientManager INSTANCE = new BukkitIngredientManager();
+
+    public Ingredient getIngredient(@NotNull ItemStack itemStack) {
+        return OraxenPluginIngredient.from(itemStack)
+                .or(() -> NexoPluginIngredient.from(itemStack))
+                .or(() -> ItemsAdderPluginIngredient.from(itemStack))
+                .or(() -> BreweryIngredient.from(itemStack))
+                .orElse(SimpleIngredient.from(itemStack));
+    }
+
+
+    public Optional<Ingredient> getIngredient(@NotNull String ingredientStr) {
+        String id = ingredientStr.toLowerCase(Locale.ROOT);
+        return OraxenPluginIngredient.from(id)
+                .or(() -> NexoPluginIngredient.from(id))
+                .or(() -> ItemsAdderPluginIngredient.from(id))
+                .or(() -> BreweryIngredient.from(id))
+                .or(() -> SimpleIngredient.from(id));
+    }
+
+    /**
+     * @param ingredientStr A string with the format [ingredient-name]/[runs]. Allows not specifying runs, where it will default to 1
+     * @return An ingredient/runs pair
+     * @throws IllegalArgumentException if the ingredients string is invalid
+     */
+    public Pair<@NotNull Ingredient, @NotNull Integer> getIngredientWithAmount(String ingredientStr) throws IllegalArgumentException {
+        String[] ingredientSplit = ingredientStr.split("/");
+        if (ingredientSplit.length > 2) {
+            throw new IllegalArgumentException("To many '/' separators for ingredientString, was: " + ingredientStr);
+        }
+        int amount;
+        if (ingredientSplit.length == 1) {
+            amount = 1;
+        } else {
+            amount = Integer.parseInt(ingredientSplit[1]);
+        }
+        return getIngredient(ingredientSplit[0])
+                .map(ingredient -> new Pair<>(ingredient, amount))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ingredient string '" + ingredientStr + "' could not parse type"));
+    }
+
+    /**
+     * Parse a list of strings into a map of ingredients with runs
+     *
+     * @param stringList A list of strings with valid formatting, see {@link #getIngredientWithAmount(String)}
+     * @return A map representing ingredients with runs
+     * @throws IllegalArgumentException if there's any invalid ingredient string
+     */
+    public Map<Ingredient, Integer> getIngredientsWithAmount(List<String> stringList) throws IllegalArgumentException {
+        if (stringList == null || stringList.isEmpty()) {
+            return new HashMap<>();
+        }
+        Map<Ingredient, Integer> ingredientMap = new HashMap<>();
+        stringList.stream()
+                .map(this::getIngredientWithAmount)
+                .forEach(ingredientAmountPair -> IngredientManager.insertIngredientIntoMap(ingredientMap, ingredientAmountPair));
+        return ingredientMap;
+    }
+
+    public boolean isValidIngredient(@NotNull String ingredientWithAmount) {
+        try {
+            this.getIngredientWithAmount(ingredientWithAmount);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+}
