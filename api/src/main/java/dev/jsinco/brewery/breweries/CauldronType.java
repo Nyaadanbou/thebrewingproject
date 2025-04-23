@@ -27,10 +27,6 @@ public enum CauldronType {
         return BreweryKey.parse(name().toLowerCase(Locale.ROOT));
     }
 
-    public String translationKey() {
-        return "cauldron.type." + this.name().toLowerCase(Locale.ROOT);
-    }
-
     public static @Nullable CauldronType from(String materialType) {
         for (CauldronType cauldronType : Registry.CAULDRON_TYPE.values()) {
             if (cauldronType.materialKey().equals(materialType)) {

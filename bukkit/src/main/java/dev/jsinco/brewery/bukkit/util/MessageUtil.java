@@ -65,7 +65,7 @@ public class MessageUtil {
         TagResolver resolver = switch (brewingStep) {
             case BrewingStep.Age age -> TagResolver.resolver(
                     Formatter.number("aging_years", age.age().agingYears()),
-                    Placeholder.parsed("barrel_type", TranslationsConfig.BARREL_TYPE.get(age.barrelType().translationKey()))
+                    Placeholder.parsed("barrel_type", TranslationsConfig.BARREL_TYPE.get(age.barrelType().name().toLowerCase(Locale.ROOT)))
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
                     Formatter.number("cooking_time", cook.brewTime().minutes()),
@@ -74,7 +74,7 @@ public class MessageUtil {
                             .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
                             .collect(Collectors.joining(", "))
                     ),
-                    Placeholder.parsed("cauldron_type", TranslationsConfig.CAULDRON_TYPE.get(cook.cauldronType().translationKey()))
+                    Placeholder.parsed("cauldron_type", TranslationsConfig.CAULDRON_TYPE.get(cook.cauldronType().name().toLowerCase(Locale.ROOT)))
             );
             case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
             case BrewingStep.Mix mix -> TagResolver.resolver(

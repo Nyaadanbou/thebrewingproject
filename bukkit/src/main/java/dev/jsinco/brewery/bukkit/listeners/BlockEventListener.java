@@ -10,7 +10,7 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.structure.MultiBlockStructure;
-import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 public class BlockEventListener implements Listener {
 
     private final StructureRegistry structureRegistry;
-    private final PlacedStructureRegistry placedStructureRegistry;
+    private final PlacedStructureRegistryImpl placedStructureRegistry;
     private final Database database;
     private final BreweryRegistry breweryRegistry;
     private final Set<Material> trackedDistilleryBlocks;
 
-    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistry placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
+    public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistryImpl placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
         this.database = database;

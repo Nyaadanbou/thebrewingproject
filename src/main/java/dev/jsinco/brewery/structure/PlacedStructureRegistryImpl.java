@@ -6,7 +6,7 @@ import dev.jsinco.brewery.vector.BreweryVector;
 
 import java.util.*;
 
-public class PlacedStructureRegistry {
+public class PlacedStructureRegistryImpl implements PlacedStructureRegistry {
 
     private final Map<UUID, Map<BreweryVector, MultiBlockStructure<? extends StructureHolder<?>>>> structures = new HashMap<>();
 

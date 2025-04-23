@@ -3,7 +3,7 @@ package dev.jsinco.brewery.bukkit.listeners;
 import dev.jsinco.brewery.bukkit.breweries.*;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -17,10 +17,10 @@ import java.util.List;
 public class WorldEventListener implements Listener {
 
     private final Database database;
-    private final PlacedStructureRegistry placedStructureRegistry;
+    private final PlacedStructureRegistryImpl placedStructureRegistry;
     private final BreweryRegistry registry;
 
-    public WorldEventListener(Database database, PlacedStructureRegistry placedStructureRegistry, BreweryRegistry registry) {
+    public WorldEventListener(Database database, PlacedStructureRegistryImpl placedStructureRegistry, BreweryRegistry registry) {
         this.database = database;
         this.placedStructureRegistry = placedStructureRegistry;
         this.registry = registry;

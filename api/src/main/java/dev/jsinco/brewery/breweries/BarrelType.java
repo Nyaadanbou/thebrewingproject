@@ -26,8 +26,4 @@ public enum BarrelType {
     public BreweryKey key() {
         return BreweryKey.parse(name().toLowerCase(Locale.ROOT));
     }
-
-    public String translationKey() {
-        return "barrel.type." + this.name().toLowerCase(Locale.ROOT);
-    }
 }

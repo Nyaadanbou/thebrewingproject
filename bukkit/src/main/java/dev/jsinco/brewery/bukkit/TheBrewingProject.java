@@ -1,9 +1,12 @@
 package dev.jsinco.brewery.bukkit;
 
+import dev.jsinco.brewery.TheBrewingProjectApi;
+import dev.jsinco.brewery.brew.BrewManager;
 import dev.jsinco.brewery.breweries.Barrel;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.Distillery;
 import dev.jsinco.brewery.breweries.Tickable;
+import dev.jsinco.brewery.bukkit.brew.BukkitBrewManager;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.BukkitDistillery;
@@ -30,11 +33,11 @@ import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.database.sql.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
-import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
+import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
-import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.BreweryKey;
@@ -42,6 +45,7 @@ import dev.jsinco.brewery.util.Util;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -52,14 +56,14 @@ import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TheBrewingProject extends JavaPlugin {
+public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectApi{
 
     @Getter
     private static TheBrewingProject instance;
     @Getter
     private StructureRegistry structureRegistry;
     @Getter
-    private PlacedStructureRegistry placedStructureRegistry;
+    private PlacedStructureRegistryImpl placedStructureRegistry;
     @Getter
     private RecipeRegistryImpl<ItemStack> recipeRegistry;
     @Getter
@@ -77,6 +81,8 @@ public class TheBrewingProject extends JavaPlugin {
     private DrunkEventExecutor drunkEventExecutor;
     @Getter
     private long time;
+    @Getter
+    private BrewManager<ItemStack> brewManager = new BukkitBrewManager();
 
     @Override
     public void onLoad() {
@@ -84,7 +90,7 @@ public class TheBrewingProject extends JavaPlugin {
         Config.reload(this.getDataFolder());
         TranslationsConfig.reload(this.getDataFolder());
         this.structureRegistry = new StructureRegistry();
-        this.placedStructureRegistry = new PlacedStructureRegistry();
+        this.placedStructureRegistry = new PlacedStructureRegistryImpl();
         this.breweryRegistry = new BreweryRegistry();
         loadStructures();
         this.recipeRegistry = new RecipeRegistryImpl<>();
@@ -184,6 +190,7 @@ public class TheBrewingProject extends JavaPlugin {
         }
         StructureAccessHook.initiate(this);
         ChestShopHook.initiate(this);
+        Bukkit.getServicesManager().register(TheBrewingProjectApi.class, this, this, ServicePriority.Normal);
     }
 
     @Override

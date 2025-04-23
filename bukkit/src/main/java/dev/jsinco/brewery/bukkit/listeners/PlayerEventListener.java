@@ -23,7 +23,7 @@ import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
-import dev.jsinco.brewery.structure.PlacedStructureRegistry;
+import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -49,7 +49,7 @@ import java.util.UUID;
 
 public class PlayerEventListener implements Listener {
 
-    private final PlacedStructureRegistry placedStructureRegistry;
+    private final PlacedStructureRegistryImpl placedStructureRegistry;
     private final BreweryRegistry breweryRegistry;
     private final Database database;
     private final DrunksManagerImpl<?> drunksManager;
@@ -57,7 +57,7 @@ public class PlayerEventListener implements Listener {
     private final RecipeRegistryImpl<ItemStack> recipeRegistry;
     private final DrunkEventExecutor drunkEventExecutor;
 
-    public PlayerEventListener(PlacedStructureRegistry placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManagerImpl<?> drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistryImpl<ItemStack> recipeRegistry, DrunkEventExecutor drunkEventExecutor) {
+    public PlayerEventListener(PlacedStructureRegistryImpl placedStructureRegistry, BreweryRegistry breweryRegistry, Database database, DrunksManagerImpl<?> drunksManager, DrunkTextRegistry drunkTextRegistry, RecipeRegistryImpl<ItemStack> recipeRegistry, DrunkEventExecutor drunkEventExecutor) {
         this.placedStructureRegistry = placedStructureRegistry;
         this.breweryRegistry = breweryRegistry;
         this.database = database;

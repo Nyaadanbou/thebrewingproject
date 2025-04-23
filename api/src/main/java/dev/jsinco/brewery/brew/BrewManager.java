@@ -11,7 +11,7 @@ public interface BrewManager<I> {
 
     Brew createBrew(BrewingStep.Mix mixStep);
 
-    I toItem(Brew brew);
+    I toItem(Brew brew, Brew.State state);
 
     Optional<Brew> fromItem(I item);
 }
