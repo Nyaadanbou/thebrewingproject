@@ -233,9 +233,6 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
-        if (!(event.getItem().getItemMeta() instanceof PotionMeta potionMeta)) {
-            return;
-        }
         RecipeEffects.fromItem(event.getItem())
                 .ifPresent(effect -> effect.applyTo(event.getPlayer(), drunksManager));
     }
