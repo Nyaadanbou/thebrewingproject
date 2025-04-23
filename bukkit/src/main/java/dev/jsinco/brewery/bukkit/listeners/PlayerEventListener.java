@@ -29,6 +29,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -183,7 +184,7 @@ public class PlayerEventListener implements Listener {
     }
 
     private BukkitCauldron initCauldron(Block block) {
-        BukkitCauldron newCauldron = new BukkitCauldron(block);
+        BukkitCauldron newCauldron = new BukkitCauldron(BukkitAdapter.toBreweryLocation(block), BukkitCauldron.isHeatSource(block.getRelative(BlockFace.DOWN)));
         try {
             database.insertValue(BukkitCauldronDataType.INSTANCE, newCauldron);
         } catch (PersistenceException e) {

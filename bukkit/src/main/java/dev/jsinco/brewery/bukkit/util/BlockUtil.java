@@ -1,5 +1,7 @@
 package dev.jsinco.brewery.bukkit.util;
 
+import dev.jsinco.brewery.brew.Brew;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
@@ -7,11 +9,9 @@ import org.bukkit.block.data.Lightable;
 
 public class BlockUtil {
 
-    // Check if a chunk/block is loaded without loading it
-    public static boolean isChunkLoaded(Block block) {
-        return block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4);
+    public static boolean isChunkLoaded(BreweryLocation block) {
+        return BukkitAdapter.toLocation(block).isChunkLoaded();
     }
-
 
     public static boolean isLitCampfire(Block block) {
         if (block.getType() == Material.CAMPFIRE || block.getType() == Material.SOUL_CAMPFIRE) {

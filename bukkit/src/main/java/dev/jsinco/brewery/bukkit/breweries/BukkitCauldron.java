@@ -9,14 +9,15 @@ import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
 import dev.jsinco.brewery.bukkit.util.BlockUtil;
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.recipe.Recipe;
 import dev.jsinco.brewery.ingredient.Ingredient;
-import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.moment.Interval;
+import dev.jsinco.brewery.recipe.Recipe;
+import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,44 +35,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
 
     private static final Random RANDOM = new Random();
 
-    private final Block block;
-    @Getter
-    private final CauldronType cauldronType;
+    private final BreweryLocation location;
     @Getter
     @Setter
-    private boolean hot;
+    private boolean hot = false;
     @Getter
     private Brew brew;
     private Color particleColor = Color.AQUA;
     private boolean brewExtracted = false;
 
 
-    public BukkitCauldron(Block block) {
-        this(new HashMap<>(), block, TheBrewingProject.getInstance().getTime());
+    public BukkitCauldron(BreweryLocation location, boolean hot) {
+        this.location = location;
+        this.hot = hot;
+        this.brew = new BrewImpl(List.of());
     }
 
-    public BukkitCauldron(Map<Ingredient, Integer> ingredients, Block block, long brewStart) {
-        this.block = block;
-        this.cauldronType = findCauldronType(block);
-        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
-        this.brew = hot ?
-                new BrewImpl(new BrewingStep.Cook(new Interval(brewStart, brewStart), ingredients, cauldronType))
-                : new BrewImpl(new BrewingStep.Mix(new Interval(brewStart, brewStart), ingredients));
-    }
-
-    public BukkitCauldron(Brew brew, Block block) {
-        this.block = block;
-        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
-        this.cauldronType = findCauldronType(block);
+    public BukkitCauldron(Brew brew, BreweryLocation location) {
+        this.location = location;
         this.brew = brew;
     }
 
@@ -85,10 +72,10 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
 
     @Override
     public void tick() {
-        if (!BlockUtil.isChunkLoaded(block)) {
+        if (!BlockUtil.isChunkLoaded(location)) {
             return;
         }
-        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
+        this.hot = isHeatSource(getBlock().getRelative(BlockFace.DOWN));
         Optional<Recipe<ItemStack>> recipeOptional = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry());
         if (recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
             recalculateBrewTime();
@@ -118,7 +105,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
             player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CAULDRON_CANT_ADD_MORE_INGREDIENTS));
             return false;
         }
-        this.hot = isHeatSource(block.getRelative(BlockFace.DOWN));
+        this.hot = isHeatSource(getBlock().getRelative(BlockFace.DOWN));
         long time = TheBrewingProject.getInstance().getTime();
         Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(item);
         if (hot) {
@@ -129,7 +116,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
                         ingredients.put(ingredient, amount + 1);
                         return cook.withIngredients(ingredients);
                     },
-                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), cauldronType)
+                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1), findCauldronType(getBlock()))
             );
         } else {
             brew = brew.withLastStep(BrewingStep.Mix.class,
@@ -146,6 +133,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     }
 
     public void playBrewingEffects() {
+        Block block = getBlock();
         Location particleLoc = // Complex particle location based off BreweryX
                 block.getLocation().add(0.5 + (RANDOM.nextDouble() * 0.8 - 0.4), 0.9, 0.5 + (RANDOM.nextDouble() * 0.8 - 0.4));
 
@@ -189,7 +177,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
 
     @Override
     public BreweryLocation position() {
-        return new BreweryLocation(block.getX(), block.getY(), block.getZ(), block.getWorld().getUID());
+        return location;
     }
 
     public ItemStack extractBrew() {
@@ -203,13 +191,17 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         if (hot) {
             brew = brew.withLastStep(BrewingStep.Cook.class,
                     cook -> cook.withBrewTime(cook.brewTime().withLastStep(time)),
-                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(), this.cauldronType));
+                    () -> new BrewingStep.Cook(new Interval(time, time), Map.of(), findCauldronType(getBlock())));
         } else {
             brew = brew.withLastStep(BrewingStep.Mix.class,
                     mix -> mix.withTime(mix.time().withLastStep(time)),
                     () -> new BrewingStep.Mix(new Interval(time, time), Map.of())
             );
         }
+    }
+
+    private Block getBlock() {
+        return BukkitAdapter.toBlock(location);
     }
 
     public static void incrementLevel(Block block) {

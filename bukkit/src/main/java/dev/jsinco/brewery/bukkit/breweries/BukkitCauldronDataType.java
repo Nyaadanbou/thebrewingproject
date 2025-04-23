@@ -74,13 +74,12 @@ public class BukkitCauldronDataType implements SqlStoredData.Findable<BukkitCaul
             preparedStatement.setBytes(1, DecoderEncoder.asBytes(worldUuid));
             ResultSet resultSet = preparedStatement.executeQuery();
             List<BukkitCauldron> cauldrons = new ArrayList<>();
-            World world = Bukkit.getWorld(worldUuid);
             while (resultSet.next()) {
                 int x = resultSet.getInt("cauldron_x");
                 int y = resultSet.getInt("cauldron_y");
                 int z = resultSet.getInt("cauldron_z");
                 Brew brew = BrewImpl.SERIALIZER.deserialize(JsonParser.parseString(resultSet.getString("brew")).getAsJsonArray(), BukkitIngredientManager.INSTANCE);
-                cauldrons.add(new BukkitCauldron(brew, world.getBlockAt(x, y, z)));
+                cauldrons.add(new BukkitCauldron(brew, new BreweryLocation(x, y, z, worldUuid)));
             }
             return cauldrons;
         } catch (SQLException e) {

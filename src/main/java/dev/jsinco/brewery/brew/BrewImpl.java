@@ -29,7 +29,6 @@ public class BrewImpl implements Brew {
     }
 
     public BrewImpl(@NotNull List<BrewingStep> steps) {
-        Preconditions.checkArgument(!steps.isEmpty(), "Steps cannot be empty");
         this.steps = steps;
     }
 
