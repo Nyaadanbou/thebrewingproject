@@ -77,8 +77,8 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         }
         this.hot = isHeatSource(getBlock().getRelative(BlockFace.DOWN));
         Optional<Recipe<ItemStack>> recipeOptional = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry());
+        recalculateBrewTime();
         if (recipeOptional.isPresent() && recipeOptional.get().getSteps().get(brew.getSteps().size() - 1) instanceof BrewingStep.Cook recipeCook) {
-            recalculateBrewTime();
             if (hot) {
                 BrewingStep.Cook cook = (BrewingStep.Cook) brew.lastStep();
                 this.particleColor = ColorUtil.getNextColor(Color.AQUA, IngredientUtil.ingredientData(cook.ingredients()).first(), cook.brewTime().moment(), recipeCook.brewTime().moment());

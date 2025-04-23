@@ -45,7 +45,7 @@ public class BrewImpl implements Brew {
     }
 
     public <B extends BrewingStep> BrewImpl withLastStep(Class<B> bClass, Function<B, B> modifier, Supplier<B> stepSupplier) {
-        if (bClass.isInstance(lastStep())) {
+        if (!steps.isEmpty() && bClass.isInstance(lastStep())) {
             BrewingStep newStep = modifier.apply(bClass.cast(lastStep()));
             return new BrewImpl(Stream.concat(
                     steps.subList(0, steps.size() - 1).stream(),
