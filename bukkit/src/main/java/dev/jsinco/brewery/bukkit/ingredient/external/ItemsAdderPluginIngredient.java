@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderHook;
 import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.util.BreweryKey;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,11 +45,11 @@ public class ItemsAdderPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(String itemsAdderId) {
-        NamespacedKey namespacedKey = NamespacedKey.fromString(itemsAdderId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("itemsadder")) {
+        BreweryKey namespacedKey = BreweryKey.parse(itemsAdderId);
+        if (!namespacedKey.namespace().equals("itemsadder")) {
             return Optional.empty();
         }
-        return Optional.of(new ItemsAdderPluginIngredient(namespacedKey.getKey()));
+        return Optional.of(new ItemsAdderPluginIngredient(namespacedKey.key()));
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {

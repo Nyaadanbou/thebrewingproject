@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.ingredient.external;
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
 import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.util.BreweryKey;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +32,11 @@ public class OraxenPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(String oraxenId) {
-        NamespacedKey namespacedKey = NamespacedKey.fromString(oraxenId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("oraxen")) {
+        BreweryKey namespacedKey = BreweryKey.parse(oraxenId);
+        if (!namespacedKey.namespace().equals("oraxen")) {
             return Optional.empty();
         }
-        return Optional.of(new OraxenPluginIngredient(namespacedKey.getKey()));
+        return Optional.of(new OraxenPluginIngredient(namespacedKey.key()));
     }
 
     @Override

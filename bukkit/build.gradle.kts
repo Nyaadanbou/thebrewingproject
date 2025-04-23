@@ -24,6 +24,7 @@ repositories {
     maven("https://repo.minebench.de/")
     maven("https://repo.william278.net/releases")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://repo.momirealms.net/releases/")
 }
 
 dependencies {
@@ -43,6 +44,8 @@ dependencies {
     compileOnly("net.william278.huskclaims:huskclaims-bukkit:1.5.2")
     compileOnly("org.popcraft:bolt-bukkit:1.1.33")
     compileOnly("org.popcraft:bolt-common:1.1.33")
+    compileOnly("net.momirealms:craft-engine-core:0.0.48")
+    compileOnly("net.momirealms:craft-engine-bukkit:0.0.48")
 
     implementation(project(":"))
     api(project(":api"))

@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.ingredient.external;
 
 import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
 import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.util.BreweryKey;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,11 +45,11 @@ public class NexoPluginIngredient implements Ingredient {
     }
 
     public static Optional<Ingredient> from(String nexoId) {
-        NamespacedKey namespacedKey = NamespacedKey.fromString(nexoId);
-        if (namespacedKey == null || !namespacedKey.getNamespace().equals("nexo")) {
+        BreweryKey namespacedKey = BreweryKey.parse(nexoId);
+        if (!namespacedKey.namespace().equals("nexo")) {
             return Optional.empty();
         }
-        return Optional.of(new NexoPluginIngredient(namespacedKey.getKey()));
+        return Optional.of(new NexoPluginIngredient(namespacedKey.key()));
     }
 
     public static Optional<Ingredient> from(ItemStack itemStack) {

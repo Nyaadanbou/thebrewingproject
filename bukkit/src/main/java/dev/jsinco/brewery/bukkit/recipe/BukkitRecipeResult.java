@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.brew.*;
+import dev.jsinco.brewery.bukkit.integration.item.CraftEngineHook;
 import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderHook;
 import dev.jsinco.brewery.bukkit.integration.item.NexoHook;
 import dev.jsinco.brewery.bukkit.integration.item.OraxenHook;
@@ -9,6 +10,7 @@ import dev.jsinco.brewery.bukkit.util.MessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.recipe.RecipeResult;
 import dev.jsinco.brewery.recipes.*;
+import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Logging;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -43,7 +45,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
             .build();
     private final boolean glint;
     private final int customModelData;
-    private final @Nullable NamespacedKey customId;
+    private final @Nullable BreweryKey customId;
 
     @Getter
     private final QualityData<String> names;
@@ -56,7 +58,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
     private final Color color;
     private final boolean appendBrewInfoLore;
 
-    private BukkitRecipeResult(boolean glint, int customModelData, QualityData<RecipeEffects> recipeEffects, QualityData<String> names, QualityData<List<String>> lore, Color color, boolean appendBrewInfoLore, @Nullable NamespacedKey customId) {
+    private BukkitRecipeResult(boolean glint, int customModelData, QualityData<RecipeEffects> recipeEffects, QualityData<String> names, QualityData<List<String>> lore, Color color, boolean appendBrewInfoLore, @Nullable BreweryKey customId) {
         this.glint = glint;
         this.customModelData = customModelData;
         this.recipeEffects = recipeEffects;
@@ -71,10 +73,11 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
     public ItemStack newBrewItem(@NotNull BrewScore score, Brew brew, Brew.State state) {
         BrewQuality quality = score.brewQuality();
         if (customId != null) {
-            ItemStack itemStack = switch (customId.getNamespace()) {
-                case "oraxen" -> OraxenHook.build(customId.getKey());
-                case "itemsadder" -> ItemsAdderHook.build(customId.getKey());
-                case "nexo" -> NexoHook.build(customId.getKey());
+            ItemStack itemStack = switch (customId.namespace()) {
+                case "oraxen" -> OraxenHook.build(customId.key());
+                case "itemsadder" -> ItemsAdderHook.build(customId.key());
+                case "nexo" -> NexoHook.build(customId.key());
+                case "craftengine" -> CraftEngineHook.build(customId.key());
                 default -> throw new IllegalStateException("Namespace should be within the supported items plugins");
             };
             if (itemStack != null) {
@@ -179,7 +182,7 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         private QualityData<RecipeEffects> recipeEffects;
         private Color color = Color.BLUE;
         private boolean appendBrewInfoLore = true;
-        private NamespacedKey customId;
+        private BreweryKey customId;
 
         public Builder glint(boolean glint) {
             this.glint = glint;
@@ -221,12 +224,9 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
                 this.customId = null;
                 return this;
             }
-            NamespacedKey namespacedKey = NamespacedKey.fromString(customId.toLowerCase(Locale.ROOT));
-            if (namespacedKey == null) {
-                throw new IllegalArgumentException("Invalid namespace!");
-            }
-            switch (namespacedKey.getNamespace()) {
-                case "oraxen", "itemsadder", "nexo" -> {
+            BreweryKey namespacedKey = BreweryKey.parse(customId.toLowerCase(Locale.ROOT));
+            switch (namespacedKey.namespace()) {
+                case "oraxen", "itemsadder", "nexo", "craftengine" -> {
                     this.customId = namespacedKey;
                     return this;
                 }
