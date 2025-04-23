@@ -8,6 +8,7 @@ import dev.jsinco.brewery.database.sql.Database;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -27,8 +28,6 @@ public class InventoryEventListener implements Listener {
     private static final Set<InventoryAction> CLICKED_INVENTORY_ITEM_MOVE = Set.of(InventoryAction.PLACE_SOME,
             InventoryAction.PLACE_ONE, InventoryAction.PLACE_ALL, InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_HALF,
             InventoryAction.PICKUP_SOME, InventoryAction.PICKUP_ONE);
-    private static final Set<InventoryAction> TRANSFER_HOVERED_ITEM = Set.of(InventoryAction.MOVE_TO_OTHER_INVENTORY,
-            InventoryAction.HOTBAR_SWAP);
 
     public InventoryEventListener(BreweryRegistry registry, Database database) {
         this.registry = registry;
@@ -50,7 +49,13 @@ public class InventoryEventListener implements Listener {
             return;
         }
         InventoryView view = event.getView();
-        ItemStack hotbarItem = event.getHotbarButton() == -1 ? null : view.getBottomInventory().getItem(event.getHotbarButton());
+        // getHotbarButton also returns -1 for offhand clicks
+        ItemStack hotbarItem = event.getHotbarButton() == -1 ?
+                (event.getClick() == ClickType.SWAP_OFFHAND
+                        ? event.getWhoClicked().getInventory().getItemInOffHand()
+                        : null)
+                : view.getBottomInventory().getItem(event.getHotbarButton());
+
         ItemStack hoveredItem = event.getCurrentItem();
         Stream<ItemStack> relatedItems;
         if (upperInventoryIsClicked) {
@@ -62,8 +67,15 @@ public class InventoryEventListener implements Listener {
                         .orElse(initial));
             }
         }
-        if (TRANSFER_HOVERED_ITEM.contains(action)) {
+        if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            // player takes something out
             if (upperInventoryIsClicked && hotbarItem == null) {
+                return;
+            }
+            relatedItems = Stream.of(hotbarItem, hoveredItem);
+        } else if (action == InventoryAction.HOTBAR_SWAP) {
+            // barrel not involved
+            if (!upperInventoryIsClicked) {
                 return;
             }
             relatedItems = Stream.of(hotbarItem, hoveredItem);
