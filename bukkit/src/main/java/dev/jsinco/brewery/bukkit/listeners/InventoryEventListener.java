@@ -59,12 +59,11 @@ public class InventoryEventListener implements Listener {
         ItemStack hoveredItem = event.getCurrentItem();
         Stream<ItemStack> relatedItems;
         if (upperInventoryIsClicked) {
-            int slot = event.getRawSlot();
-            ItemStack initial = view.getItem(slot);
-            if (initial != null) {
-                view.setItem(slot, BrewAdapter.fromItem(initial)
+            if (hoveredItem != null) {
+                BrewAdapter.fromItem(hoveredItem)
                         .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Other()))
-                        .orElse(initial));
+                        .map(ItemStack::getItemMeta)
+                        .ifPresent(hoveredItem::setItemMeta);
             }
         }
         if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
