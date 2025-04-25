@@ -58,13 +58,11 @@ public class InventoryEventListener implements Listener {
 
         ItemStack hoveredItem = event.getCurrentItem();
         Stream<ItemStack> relatedItems;
-        if (upperInventoryIsClicked) {
-            if (hoveredItem != null) {
-                BrewAdapter.fromItem(hoveredItem)
-                        .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Other()))
-                        .map(ItemStack::getItemMeta)
-                        .ifPresent(hoveredItem::setItemMeta);
-            }
+        if (upperInventoryIsClicked && hoveredItem != null) {
+            BrewAdapter.fromItem(hoveredItem)
+                    .map(brew -> BrewAdapter.toItem(brew, new BrewImpl.State.Other()))
+                    .map(ItemStack::getItemMeta)
+                    .ifPresent(hoveredItem::setItemMeta);
         }
         if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             // player takes something out
