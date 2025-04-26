@@ -133,6 +133,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
 
     private void updateInventory() {
         ItemStack[] inventoryContents = getInventory().getContents();
+        long time = TheBrewingProject.getInstance().getTime();
         for (int i = 0; i < inventoryContents.length; i++) {
             ItemStack itemStack = inventoryContents[i];
             if (itemStack == null) {
@@ -149,7 +150,6 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
             Optional<Brew> brewOptional = BrewAdapter.fromItem(itemStack);
             final int iFinal = i;
             brewOptional.ifPresent(brew -> {
-                long time = TheBrewingProject.getInstance().getTime();
                 if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
                     brew = brew.withStep(new BrewingStep.Age(new Interval(time, time), type));
                 }
@@ -183,6 +183,13 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory>,
                 }
                 brews[iFinal] = brew;
             });
+        }
+        if (time % 32 == 0) {
+            getInventory().getViewers()
+                    .stream()
+                    .filter(Player.class::isInstance)
+                    .map(Player.class::cast)
+                    .forEach(Player::updateInventory);
         }
     }
 
