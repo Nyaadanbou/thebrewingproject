@@ -214,6 +214,9 @@ public class PlayerEventListener implements Listener {
             // Probably equipment
             return false;
         }
+        if (type == Material.CLOCK) {
+            return false;
+        }
         if (type == Material.BUCKET) {
             return false;
         }
