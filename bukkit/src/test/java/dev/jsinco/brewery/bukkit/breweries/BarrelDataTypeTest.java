@@ -14,6 +14,7 @@ import dev.jsinco.brewery.bukkit.structure.StructurePlacerUtils;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.moment.Interval;
+import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.moment.PassedMoment;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.Pair;
@@ -68,14 +69,14 @@ class BarrelDataTypeTest {
         inventory.set(new BrewImpl(
                 List.of(
                         new CookStepImpl(new PassedMoment(10), Map.of(), CauldronType.WATER),
-                        new AgeStepImpl(new Interval(10, 10), BarrelType.OAK)
+                        new AgeStepImpl(new Interval(10, 10 + Moment.AGING_YEAR), BarrelType.OAK)
                 )
         ), 4);
         inventory.set(
                 new BrewImpl(
                         List.of(
                                 new CookStepImpl(new PassedMoment(10), Map.of(), CauldronType.WATER),
-                                new AgeStepImpl(new Interval(10, 10), BarrelType.OAK)
+                                new AgeStepImpl(new Interval(10, 10 + Moment.AGING_YEAR), BarrelType.OAK)
                         )
                 ), 5
         );
