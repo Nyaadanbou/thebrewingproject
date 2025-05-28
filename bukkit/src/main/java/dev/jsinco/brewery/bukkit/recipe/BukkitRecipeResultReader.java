@@ -2,11 +2,11 @@ package dev.jsinco.brewery.bukkit.recipe;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.bukkit.util.ColorUtil;
+import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.recipes.QualityData;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeResultReader;
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.moment.Interval;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
@@ -71,11 +71,13 @@ public class BukkitRecipeResultReader implements RecipeResultReader<ItemStack> {
         String[] parts = string.split("/");
         PotionEffectType type = PotionEffectType.getByName(parts[0]);
         Preconditions.checkNotNull(type, "invalid effect type: " + parts[0]);
-        Interval durationBounds = Interval.parse(parts[1]);
+        Interval durationBounds;
         Interval amplifierBounds;
-        if (parts.length >= 3) {
-            amplifierBounds = Interval.parse(parts[2]);
+        if (parts.length == 3) {
+            durationBounds = Interval.parse(parts[2]);
+            amplifierBounds = Interval.parse(parts[1]);
         } else {
+            durationBounds = Interval.parse(parts[1]);
             amplifierBounds = new Interval(1, 1);
         }
         return new RecipeEffect(type, durationBounds, amplifierBounds);
