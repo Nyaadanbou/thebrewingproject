@@ -38,11 +38,11 @@ public class BrewingStepPdcType implements PersistentDataType<byte[], BrewingSte
             dataOutputStream.writeUTF(complex.stepType().name());
             switch (complex) {
                 case BrewingStep.Age age -> {
-                    encodeMoment(age.age(), dataOutputStream);
+                    encodeMoment(age.time(), dataOutputStream);
                     dataOutputStream.writeUTF(age.barrelType().key().toString());
                 }
                 case BrewingStep.Cook cook -> {
-                    encodeMoment(cook.brewTime(), dataOutputStream);
+                    encodeMoment(cook.time(), dataOutputStream);
                     encodeIngredients(cook.ingredients(), dataOutputStream);
                     dataOutputStream.writeUTF(cook.cauldronType().key().toString());
                 }

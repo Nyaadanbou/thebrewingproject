@@ -29,7 +29,7 @@ public class ItemsAdderIntegration implements ItemIntegration, Listener {
 
     public @Nullable Component displayName(String itemsAdderId) {
         CustomStack customStack = CustomStack.getInstance(itemsAdderId);
-        return customStack == null ? null : customStack.itemName();
+        return customStack == null ? null : customStack.getItemStack().effectiveName();
     }
 
     @Override

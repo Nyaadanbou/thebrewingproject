@@ -42,11 +42,11 @@ public class MessageUtil {
     public static @NotNull TagResolver getBrewStepTagResolver(BrewingStep brewingStep, List<PartialBrewScore> scores, double difficulty) {
         TagResolver resolver = switch (brewingStep) {
             case BrewingStep.Age age -> TagResolver.resolver(
-                    Formatter.number("aging_years", age.age().agingYears()),
+                    Formatter.number("aging_years", age.time().agingYears()),
                     Placeholder.parsed("barrel_type", TranslationsConfig.BARREL_TYPE.get(age.barrelType().name().toLowerCase(Locale.ROOT)))
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
-                    Formatter.number("cooking_time", cook.brewTime().minutes()),
+                    Formatter.number("cooking_time", cook.time().minutes()),
                     Placeholder.parsed("ingredients", cook.ingredients().entrySet()
                             .stream()
                             .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())

@@ -63,7 +63,7 @@ public class BrewImpl implements Brew {
     }
 
     private boolean isCompleted(BrewingStep step) {
-        return !(step instanceof BrewingStep.Age age) || age.age().moment() > Moment.AGING_YEAR / 2;
+        return !(step instanceof BrewingStep.Age age) || age.time().moment() > Moment.AGING_YEAR / 2;
     }
 
     public <I> Optional<Recipe<I>> closestRecipe(RecipeRegistry<I> registry) {

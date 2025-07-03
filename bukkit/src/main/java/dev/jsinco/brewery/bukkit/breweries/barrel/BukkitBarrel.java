@@ -115,11 +115,11 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
             }
             if (Objects.equals(previousBrews[i], brew)) {
                 brews[i] = brew.withLastStep(BrewingStep.Age.class,
-                        age -> age.withAge(age.age().withLastStep(time)),
+                        age -> age.withAge(age.time().withLastStep(time)),
                         () -> new AgeStepImpl(new Interval(time, time), this.type));
             } else {
                 brews[i] = brew.withLastStep(BrewingStep.Age.class,
-                        age -> age.withAge(age.age().withMovedEnding(time)),
+                        age -> age.withAge(age.time().withMovedEnding(time)),
                         () -> new AgeStepImpl(new Interval(time, time), this.type));
             }
 

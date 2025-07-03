@@ -5,7 +5,7 @@ import dev.jsinco.brewery.moment.Moment;
 
 import java.util.List;
 
-public record AgeStepImpl(Moment age, BarrelType barrelType) implements BrewingStep.Age {
+public record AgeStepImpl(Moment time, BarrelType barrelType) implements BrewingStep.Age {
 
     private static final List<PartialBrewScore> BREW_STEP_MISMATCH = List.of(
             new PartialBrewScore(0, PartialBrewScore.Type.TIME),
@@ -24,7 +24,7 @@ public record AgeStepImpl(Moment age, BarrelType barrelType) implements BrewingS
         double barrelTypeScore = barrelType.equals(BarrelType.ANY) || barrelType.equals(otherType) ? 1D : 0.9D;
 
         return List.of(
-                new PartialBrewScore(Math.sqrt(BrewingStepUtil.nearbyValueScore(this.age.moment(), otherAge.moment())), PartialBrewScore.Type.TIME),
+                new PartialBrewScore(Math.sqrt(BrewingStepUtil.nearbyValueScore(this.time.moment(), otherAge.moment())), PartialBrewScore.Type.TIME),
                 new PartialBrewScore(barrelTypeScore, PartialBrewScore.Type.BARREL_TYPE)
         );
     }
@@ -40,7 +40,7 @@ public record AgeStepImpl(Moment age, BarrelType barrelType) implements BrewingS
             return BREW_STEP_MISMATCH;
         }
         double barrelTypeScore = barrelType.equals(BarrelType.ANY) || barrelType.equals(otherType) ? 1D : 0.9D;
-        double timeScore = otherAge.moment() < this.age.moment() ? 1D : BrewingStepUtil.nearbyValueScore(this.age.moment(), otherAge.moment());
+        double timeScore = otherAge.moment() < this.time.moment() ? 1D : BrewingStepUtil.nearbyValueScore(this.time.moment(), otherAge.moment());
         return List.of(
                 new PartialBrewScore(timeScore, PartialBrewScore.Type.TIME),
                 new PartialBrewScore(barrelTypeScore, PartialBrewScore.Type.BARREL_TYPE)

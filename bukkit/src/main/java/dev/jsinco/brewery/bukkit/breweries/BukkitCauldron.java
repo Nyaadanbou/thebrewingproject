@@ -90,7 +90,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     private Color computeParticleColor(Color baseColor, Color resultColor, Recipe<ItemStack> recipe) {
         if (brew.lastStep() instanceof BrewingStep.Cook cook) {
             BrewingStep.Cook expectedCook = (BrewingStep.Cook) recipe.getSteps().get(brew.getCompletedSteps().size() - 1);
-            return ColorUtil.getNextColor(baseColor, resultColor, cook.brewTime().moment(), expectedCook.brewTime().moment());
+            return ColorUtil.getNextColor(baseColor, resultColor, cook.time().moment(), expectedCook.time().moment());
         } else if (brew.lastStep() instanceof BrewingStep.Mix mix) {
             BrewingStep.Mix expectedMix = (BrewingStep.Mix) recipe.getSteps().get(brew.getCompletedSteps().size() - 1);
             return ColorUtil.getNextColor(baseColor, resultColor, mix.time().moment(), expectedMix.time().moment());
@@ -250,7 +250,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         long time = TheBrewingProject.getInstance().getTime();
         if (hot) {
             brew = brew.withLastStep(BrewingStep.Cook.class,
-                    cook -> cook.withBrewTime(cook.brewTime().withLastStep(time)),
+                    cook -> cook.withBrewTime(cook.time().withLastStep(time)),
                     () -> new CookStepImpl(new Interval(time, time), Map.of(), findCauldronType(getBlock())));
         } else {
             brew = brew.withLastStep(BrewingStep.Mix.class,
@@ -298,7 +298,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
             return 0L;
         }
         if (brew.lastStep() instanceof BrewingStep.Cook cook) {
-            return cook.brewTime().moment();
+            return cook.time().moment();
         }
         if (brew.lastStep() instanceof BrewingStep.Mix mix) {
             return mix.time().moment();

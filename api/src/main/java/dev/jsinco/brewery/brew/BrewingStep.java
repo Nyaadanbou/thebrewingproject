@@ -24,10 +24,15 @@ public interface BrewingStep {
 
     List<PartialBrewScore> failedScores();
 
-    interface Cook extends BrewingStep {
-        Moment brewTime();
+    interface TimedStep {
+        Moment time();
+    }
 
+    interface IngredientsStep {
         Map<? extends Ingredient, Integer> ingredients();
+    }
+
+    interface Cook extends BrewingStep, TimedStep, IngredientsStep {
 
         CauldronType cauldronType();
 
@@ -42,20 +47,14 @@ public interface BrewingStep {
         Distill incrementAmount();
     }
 
-    interface Age extends BrewingStep {
-
-        Moment age();
+    interface Age extends BrewingStep, TimedStep {
 
         BarrelType barrelType();
 
         Age withAge(Moment age);
     }
 
-    interface Mix extends BrewingStep {
-
-        Moment time();
-
-        Map<? extends Ingredient, Integer> ingredients();
+    interface Mix extends BrewingStep, TimedStep, IngredientsStep {
 
         Mix withIngredients(Map<Ingredient, Integer> ingredients);
 

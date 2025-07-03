@@ -7,7 +7,7 @@ import dev.jsinco.brewery.moment.Moment;
 import java.util.List;
 import java.util.Map;
 
-public record CookStepImpl(Moment brewTime, Map<? extends Ingredient, Integer> ingredients,
+public record CookStepImpl(Moment time, Map<? extends Ingredient, Integer> ingredients,
                            CauldronType cauldronType) implements BrewingStep.Cook {
 
     private static final List<PartialBrewScore> BREW_STEP_MISMATCH = List.of(
@@ -22,7 +22,7 @@ public record CookStepImpl(Moment brewTime, Map<? extends Ingredient, Integer> i
 
     @Override
     public CookStepImpl withIngredients(Map<Ingredient, Integer> ingredients) {
-        return new CookStepImpl(this.brewTime, ingredients, this.cauldronType);
+        return new CookStepImpl(this.time, ingredients, this.cauldronType);
     }
 
     @Override
@@ -33,7 +33,7 @@ public record CookStepImpl(Moment brewTime, Map<? extends Ingredient, Integer> i
             return BREW_STEP_MISMATCH;
         }
         double cauldronTypeScore = cauldronType.equals(otherType) ? 1D : 0D;
-        double timeScore = Math.sqrt(BrewingStepUtil.nearbyValueScore(this.brewTime.moment(), otherTime.moment()));
+        double timeScore = Math.sqrt(BrewingStepUtil.nearbyValueScore(this.time.moment(), otherTime.moment()));
         double ingredientsScore = BrewingStepUtil.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients, (Map<Ingredient, Integer>) otherIngredients);
         return List.of(
                 new PartialBrewScore(cauldronTypeScore * timeScore, PartialBrewScore.Type.TIME),
@@ -52,7 +52,7 @@ public record CookStepImpl(Moment brewTime, Map<? extends Ingredient, Integer> i
             return BREW_STEP_MISMATCH;
         }
         double cauldronTypeScore = cauldronType().equals(cook.cauldronType()) ? 1D : 0D;
-        double maximumCookTimeScore = this.brewTime.moment() > cook.brewTime().moment() ? 1D : BrewingStepUtil.nearbyValueScore(this.brewTime.moment(), cook.brewTime().moment());
+        double maximumCookTimeScore = this.time.moment() > cook.time().moment() ? 1D : BrewingStepUtil.nearbyValueScore(this.time.moment(), cook.time().moment());
         double ingredientsScore = BrewingStepUtil.getIngredientsScore((Map<Ingredient, Integer>) this.ingredients(), (Map<Ingredient, Integer>) cook.ingredients());
         return List.of(
                 new PartialBrewScore(cauldronTypeScore * maximumCookTimeScore, PartialBrewScore.Type.TIME),
