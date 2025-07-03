@@ -4,7 +4,6 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.integration.ItemIntegration;
 import dev.jsinco.brewery.util.ClassUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.momirealms.craftengine.bukkit.api.event.CraftEngineReloadEvent;
 import net.momirealms.craftengine.bukkit.plugin.BukkitCraftEngine;
 import net.momirealms.craftengine.core.item.Item;
@@ -15,8 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -27,7 +24,8 @@ public class CraftEngineIntegration implements ItemIntegration, Listener {
     private CompletableFuture<Void> initializedFuture;
 
     public @Nullable String itemId(ItemStack itemStack) {
-        return BukkitCraftEngine.instance().itemManager().itemId(itemStack).toString();
+        Key customId = BukkitCraftEngine.instance().itemManager().customItemId(itemStack);
+        return customId == null ? null : customId.toString();
     }
 
     @Override
