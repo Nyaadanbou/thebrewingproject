@@ -11,7 +11,6 @@ import dev.jsinco.brewery.bukkit.breweries.BukkitCauldron;
 import dev.jsinco.brewery.bukkit.breweries.BukkitCauldronDataType;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
-import dev.jsinco.brewery.bukkit.ingredient.SimpleIngredient;
 import dev.jsinco.brewery.bukkit.integration.IntegrationType;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
@@ -25,6 +24,7 @@ import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
+import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.util.MessageUtil;
@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class PlayerEventListener implements Listener {
-    public static final Set<Material> DISALLOWED_INGREDIENT_MATERIALS = Set.of(Material.CLOCK, Material.BUCKET, Material.POTION, Material.GLASS_BOTTLE);
+    public static final Set<Material> DISALLOWED_INGREDIENT_MATERIALS = Set.of(Material.CLOCK, Material.BUCKET, Material.GLASS_BOTTLE);
     private static final Random RANDOM = new Random();
 
     private final PlacedStructureRegistryImpl placedStructureRegistry;
@@ -227,17 +227,14 @@ public class PlayerEventListener implements Listener {
             return false;
         }
         Material type = itemStack.getType();
-        if (type == Material.MILK_BUCKET) {
-            return true;
-        }
-        if (!(BukkitIngredientManager.INSTANCE.getIngredient(itemStack) instanceof SimpleIngredient)) {
-            return true;
-        }
-        if (1 == itemStack.getMaxStackSize()) {
-            // Probably equipment
+        if (DISALLOWED_INGREDIENT_MATERIALS.contains(type)) {
             return false;
         }
-        return !DISALLOWED_INGREDIENT_MATERIALS.contains(type);
+        if (Config.ALLOW_UNREGISTERED_INGREDIENTS) {
+            return true;
+        }
+        Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(itemStack);
+        return recipeRegistry.isRegisteredIngredient(ingredient);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)

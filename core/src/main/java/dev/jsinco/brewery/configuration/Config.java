@@ -91,6 +91,10 @@ public final class Config extends AbstractConfig {
     @Comment("How many ticks until toxin level decays by 1%")
     public static int TOXIN_DECAY_RATE = 400;
 
+    @Key("allow-unregistered-ingredients")
+    @Comment("Whether an ingredient can be added into a brew regardless if it's not in any of the recipes")
+    public static boolean ALLOW_UNREGISTERED_INGREDIENTS = false;
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {
