@@ -76,6 +76,10 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
         if (!BlockUtil.isChunkLoaded(location)) {
             return;
         }
+        if (!Tag.CAULDRONS.isTagged(getBlock().getType()) || getBlock().getType() == Material.CAULDRON) {
+            ListenerUtil.removeActiveSinglePositionStructure(this, TheBrewingProject.getInstance().getBreweryRegistry(), TheBrewingProject.getInstance().getDatabase());
+            return;
+        }
         this.hot = isHeatSource(getBlock().getRelative(BlockFace.DOWN));
         recalculateBrewTime();
         Color baseParticleColor = computeBaseParticleColor(getBlock());
