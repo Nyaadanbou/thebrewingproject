@@ -3,7 +3,6 @@ package dev.jsinco.brewery.util;
 import dev.jsinco.brewery.brew.*;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
-import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.recipe.RecipeRegistry;
 import dev.jsinco.brewery.recipes.BrewScoreImpl;
@@ -23,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MessageUtil {
@@ -47,20 +44,23 @@ public class MessageUtil {
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
                     Formatter.number("cooking_time", cook.time().minutes()),
-                    Placeholder.parsed("ingredients", cook.ingredients().entrySet()
+                    Placeholder.component("ingredients", cook.ingredients().entrySet()
                             .stream()
-                            .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
-                            .collect(Collectors.joining(", "))
+                            .map(entry -> entry.getKey().displayName()
+                                    .append(Component.text("/" + entry.getValue()))
+                            )
+                            .collect(Component.toComponent(Component.text(", ")))
                     ),
                     Placeholder.parsed("cauldron_type", TranslationsConfig.CAULDRON_TYPE.get(cook.cauldronType().name().toLowerCase(Locale.ROOT)))
             );
             case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
             case BrewingStep.Mix mix -> TagResolver.resolver(
                     Formatter.number("mixing_time", mix.time().minutes()),
-                    Placeholder.parsed("ingredients", mix.ingredients().entrySet()
+                    Placeholder.component("ingredients", mix.ingredients().entrySet()
                             .stream()
-                            .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
-                            .collect(Collectors.joining(", "))
+                            .map(entry -> entry.getKey().displayName()
+                                    .append(Component.text("/" + entry.getValue()))
+                            ).collect(Component.toComponent(Component.text(", ")))
                     )
             );
             default -> throw new IllegalStateException("Unexpected value: " + brewingStep);
@@ -76,21 +76,6 @@ public class MessageUtil {
 
     public static @NotNull StyleBuilderApplicable[] resolveQualityColor(@Nullable BrewQuality quality) {
         return quality != null ? new StyleBuilderApplicable[]{TextColor.color(quality.getColor())} : new StyleBuilderApplicable[]{NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH};
-    }
-
-    public static TagResolver recipeTagResolver(RecipeImpl<?> recipe) {
-        return TagResolver.resolver(
-                Placeholder.parsed("recipe_name", recipe.getRecipeName()),
-                Formatter.number("recipe_difficulty", recipe.getBrewDifficulty())
-        );
-    }
-
-    public static String formatIngredients(Map<Ingredient, Integer> ingredients) {
-        return ingredients
-                .entrySet()
-                .stream()
-                .map(entry -> entry.getKey().displayName() + "/" + entry.getValue())
-                .collect(Collectors.joining(","));
     }
 
     public static @NotNull Stream<Component> compileBrewInfo(Brew brew, BrewScore score, boolean detailed) {
