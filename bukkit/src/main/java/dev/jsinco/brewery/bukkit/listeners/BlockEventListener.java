@@ -44,19 +44,12 @@ public class BlockEventListener implements Listener {
     private final PlacedStructureRegistryImpl placedStructureRegistry;
     private final Database database;
     private final BreweryRegistry breweryRegistry;
-    private final Set<Material> trackedDistilleryBlocks;
 
     public BlockEventListener(StructureRegistry structureRegistry, PlacedStructureRegistryImpl placedStructureRegistry, Database database, BreweryRegistry breweryRegistry) {
         this.structureRegistry = structureRegistry;
         this.placedStructureRegistry = placedStructureRegistry;
         this.database = database;
         this.breweryRegistry = breweryRegistry;
-        this.trackedDistilleryBlocks = structureRegistry.getStructures(StructureType.DISTILLERY)
-                .stream()
-                .map(structure -> structure.getMeta(StructureMeta.TAGGED_MATERIAL))
-                .map(string -> string.toUpperCase(Locale.ROOT))
-                .map(Material::valueOf)
-                .collect(Collectors.toSet());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -97,21 +90,19 @@ public class BlockEventListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent placeEvent) {
         Block placed = placeEvent.getBlockPlaced();
-        if (trackedDistilleryBlocks.contains(placed.getType())) {
-            for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
-                Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), GenericBlockDataMatcher.INSTANCE, new Void[1]);
-                if (placedBreweryStructureOptional.isPresent()) {
-                    if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
-                        continue;
-                    }
-                    if (!placeEvent.getPlayer().hasPermission("brewery.distillery.create")) {
-                        placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE_DENIED));
-                        return;
-                    }
-                    registerDistillery(placedBreweryStructureOptional.get().first());
-                    placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
+        for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
+            Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), GenericBlockDataMatcher.INSTANCE, new Void[1]);
+            if (placedBreweryStructureOptional.isPresent()) {
+                if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
+                    continue;
+                }
+                if (!placeEvent.getPlayer().hasPermission("brewery.distillery.create")) {
+                    placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE_DENIED));
                     return;
                 }
+                registerDistillery(placedBreweryStructureOptional.get().first());
+                placeEvent.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.DISTILLERY_CREATE));
+                return;
             }
         }
     }
