@@ -25,6 +25,7 @@ import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.ingredient.Ingredient;
+import dev.jsinco.brewery.ingredient.ScoredIngredient;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.util.MessageUtil;
@@ -234,6 +235,9 @@ public class PlayerEventListener implements Listener {
             return true;
         }
         Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(itemStack);
+        if (ingredient instanceof ScoredIngredient scoredIngredient) {
+            ingredient = scoredIngredient.baseIngredient();
+        }
         return recipeRegistry.isRegisteredIngredient(ingredient);
     }
 
