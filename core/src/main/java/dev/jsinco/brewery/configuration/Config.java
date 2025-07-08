@@ -95,6 +95,10 @@ public final class Config extends AbstractConfig {
     @Comment("Whether an ingredient can be added into a brew regardless if it's not in any of the recipes")
     public static boolean ALLOW_UNREGISTERED_INGREDIENTS = false;
 
+    @Key("consume-items-in-creative")
+    @Comment("Whether items should be consumed when in creative mode when using it on tbp structures")
+    public static boolean CONSUME_ITEMS_IN_CREATIVE = false;
+
     private static final Config CONFIG = new Config();
 
     public static void reload(File dataFolder) {

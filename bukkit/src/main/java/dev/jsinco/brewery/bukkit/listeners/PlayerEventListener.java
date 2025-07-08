@@ -133,7 +133,7 @@ public class PlayerEventListener implements Listener {
     }
 
     private ItemStack decreaseItem(ItemStack itemStack, Player player) {
-        if (player.getGameMode() == GameMode.CREATIVE) {
+        if (player.getGameMode() == GameMode.CREATIVE && !Config.CONSUME_ITEMS_IN_CREATIVE) {
             return itemStack;
         }
         if (itemStack.getType() == Material.POTION) {
