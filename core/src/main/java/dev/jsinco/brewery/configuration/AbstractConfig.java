@@ -48,7 +48,10 @@ public abstract class AbstractConfig {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        @Nullable Header header = clazz.getDeclaredAnnotation(Header.class);
+        if (header != null) {
+            config.setHeader(header.value());
+        }
         // load data from yaml
         Arrays.stream(clazz.getDeclaredFields()).forEach(field -> {
             Key key = field.getDeclaredAnnotation(Key.class);
@@ -128,6 +131,12 @@ public abstract class AbstractConfig {
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Comment {
+        @NotNull String value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Header {
         @NotNull String value();
     }
 }
