@@ -42,7 +42,7 @@ public interface Brew {
         record Other() implements State {
         }
 
-        record Seal(@Nullable String volumeMessage) implements State {
+        record Seal(@Nullable String message) implements State {
         }
     }
 }

@@ -164,8 +164,8 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
                 addLastStepLore(brew, streamBuilder, score);
             }
             case Brew.State.Seal seal -> {
-                if (seal.volumeMessage() != null) {
-                    streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.BREW_TOOLTIP_VOLUME, Placeholder.parsed("volume", seal.volumeMessage())));
+                if (seal.message() != null) {
+                    streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.BREW_TOOLTIP_VOLUME, Placeholder.parsed("volume", seal.message())));
                 }
                 streamBuilder.add(MiniMessage.miniMessage().deserialize(TranslationsConfig.BREW_TOOLTIP_QUALITY_SEALED, MessageUtil.getScoreTagResolver(score)));
                 addLastStepLore(brew, streamBuilder, score);
