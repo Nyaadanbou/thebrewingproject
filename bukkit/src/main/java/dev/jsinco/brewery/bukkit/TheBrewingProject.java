@@ -220,7 +220,6 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     private void saveResources() {
         this.saveResourceIfNotExists("recipes.yml");
-        this.saveResourceIfNotExists("ingredients.yml");
         this.saveResourceIfNotExists("config.yml");
     }
 
