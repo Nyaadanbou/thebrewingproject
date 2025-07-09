@@ -52,9 +52,6 @@ cauldron.type:
   none: none
 cauldron.cant-add-more-ingredients: <red>Can't add more ingredients
 cauldron.clock-message: <gray>Brewed for <white><time></white> minutes.
-mixer.create: <gray>Successfully created a mixer
-mixer.create-denied: <gray>Successfully created a mixer
-mixer.access-denied: <gray>Successfully created a mixer
 command.unknown-player: <red>Unknown player <player_name>
 command.undefined-player: <red>You need to define a player
 command.illegal-argument-detailed: <red>Unknown argument(s) '<argument>'
