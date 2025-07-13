@@ -332,7 +332,7 @@ recipes:
     brew-difficulty: 6
     effects:
       - FIRE_RESISTANCE/1/20-100
-      - POISON/1-0/30-0
+      - POISON/0-1/0-30
     potion-attributes.color: DARK_RED
     potion-attributes.lore:
       - +<dark_gray>Too bitter to drink
@@ -357,8 +357,8 @@ recipes:
       - WEAKNESS/80
       - nausea/27
       - NIGHT_VISION/50-80
-      - BLINDNESS/12-2
-      - slowness/10-3
+      - BLINDNESS/2-12
+      - slowness/3-10
     potion-attributes.color: ff9999
     potion-attributes.lore:
       - +++<green>Glows in the dark
