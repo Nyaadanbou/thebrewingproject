@@ -1,11 +1,5 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.breweries.BarrelType;
-import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
-import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
-import dev.jsinco.brewery.structure.StructureMeta;
-import org.bukkit.Location;
-
 import java.util.regex.Pattern;
 
 public class BreweryFactory {
