@@ -9,7 +9,7 @@ import dev.jsinco.brewery.moment.PassedMoment;
 import dev.jsinco.brewery.recipe.Recipe;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.FutureUtil;
-import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.ConfigurationSection;
@@ -54,7 +54,7 @@ public class RecipeReader<I> {
                 .stream()
                 .map(key -> getRecipe(recipesSection.getConfigurationSection(key), key).handleAsync((recipe, exception) -> {
                             if (exception != null) {
-                                Logging.error("Exception when reading recipe: " + key);
+                                Logger.logErr("Exception when reading recipe: " + key);
                                 if (exception.getCause() != null) {
                                     exception.getCause().printStackTrace();
                                 } else {

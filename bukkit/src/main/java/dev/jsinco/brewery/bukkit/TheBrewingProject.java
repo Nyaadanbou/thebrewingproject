@@ -44,7 +44,7 @@ import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Holder;
-import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Util;
 import io.leangen.geantyref.TypeToken;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -173,7 +173,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                     try {
                         return Stream.of(StructureReader.fromJson(path));
                     } catch (IOException | StructureReadException e) {
-                        Logging.error("Could not load structure: " + path);
+                        Logger.logErr("Could not load structure: " + path);
                         e.printStackTrace();
                         return Stream.empty();
                     }
