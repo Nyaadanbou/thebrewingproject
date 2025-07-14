@@ -32,6 +32,7 @@ public final class FileUtil {
 
     public static String readInternalResource(String path) {
         try (InputStream inputStream = FileUtil.class.getResourceAsStream(path)) {
+            if (inputStream == null) return "";
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
