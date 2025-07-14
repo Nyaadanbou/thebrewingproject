@@ -56,9 +56,9 @@ public class RecipeReader<I> {
                             if (exception != null) {
                                 Logger.logErr("Exception when reading recipe: " + key);
                                 if (exception.getCause() != null) {
-                                    exception.getCause().printStackTrace();
+                                    Logger.logErr(exception.getCause());
                                 } else {
-                                    exception.printStackTrace();
+                                    Logger.logErr(exception);
                                 }
                                 return null;
                             }

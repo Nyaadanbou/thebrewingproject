@@ -16,6 +16,7 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.structure.StructureMeta;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
@@ -232,7 +233,7 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         try {
             TheBrewingProject.getInstance().getDatabase().updateValue(BukkitDistilleryDataType.INSTANCE, this);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 

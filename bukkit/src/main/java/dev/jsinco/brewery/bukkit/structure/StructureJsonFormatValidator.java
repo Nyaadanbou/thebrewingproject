@@ -81,7 +81,7 @@ public class StructureJsonFormatValidator {
             dump(jsonObject, jsonPath);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
             return false;
         }
     }

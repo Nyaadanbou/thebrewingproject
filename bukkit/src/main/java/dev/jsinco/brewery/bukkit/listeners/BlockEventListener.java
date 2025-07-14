@@ -18,6 +18,7 @@ import dev.jsinco.brewery.structure.MultiblockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -82,7 +83,7 @@ public class BlockEventListener implements Listener {
         try {
             database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -114,7 +115,7 @@ public class BlockEventListener implements Listener {
             database.insertValue(BukkitDistilleryDataType.INSTANCE, bukkitDistillery);
             breweryRegistry.registerInventory(bukkitDistillery);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -245,7 +246,7 @@ public class BlockEventListener implements Listener {
                 database.remove(BukkitDistilleryDataType.INSTANCE, distillery);
             }
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 }

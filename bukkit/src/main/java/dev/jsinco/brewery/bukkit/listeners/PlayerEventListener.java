@@ -28,6 +28,7 @@ import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.ingredient.ScoredIngredient;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
@@ -195,7 +196,7 @@ public class PlayerEventListener implements Listener {
             try {
                 database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
             } catch (PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }
         return addedIngredient;
@@ -216,7 +217,7 @@ public class PlayerEventListener implements Listener {
         try {
             database.insertValue(BukkitCauldronDataType.INSTANCE, newCauldron);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
         breweryRegistry.addActiveSinglePositionStructure(newCauldron);
         return newCauldron;

@@ -67,7 +67,7 @@ public abstract class AbstractConfig {
                 }
             } catch (Throwable e) {
                 Logger.logErr("Failed to load " + key.value() + " from " + path.getFileName().toString());
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         });
 

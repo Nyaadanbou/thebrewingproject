@@ -174,7 +174,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                         return Stream.of(StructureReader.fromJson(path));
                     } catch (IOException | StructureReadException e) {
                         Logger.logErr("Could not load structure: " + path);
-                        e.printStackTrace();
+                        Logger.logErr(e);
                         return Stream.empty();
                     }
                 })
@@ -231,7 +231,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
             database.setSingleton(BreweryTimeDataType.INSTANCE, time).join();
             database.flush().join();
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -266,7 +266,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                 database.setSingleton(BreweryTimeDataType.INSTANCE, time);
             }
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 }
