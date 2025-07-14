@@ -40,7 +40,7 @@ public final class FileUtil {
 
     public static JsonElement readJsonResource(String path) {
         try (InputStream inputStream = FileUtil.class.getResourceAsStream(path)) {
-            if(inputStream == null) {
+            if (inputStream == null) {
                 throw new FileNotFoundException(path);
             }
             return JsonParser.parseReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
