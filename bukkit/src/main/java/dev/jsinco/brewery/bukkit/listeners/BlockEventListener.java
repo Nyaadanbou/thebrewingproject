@@ -22,6 +22,7 @@ import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,7 +37,10 @@ import org.bukkit.event.inventory.HopperInventorySearchEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class BlockEventListener implements Listener {
 
@@ -154,6 +158,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK) {
+            return;
+        }
         onMultiBlockRemove(event.blockList().stream()
                 .map(Block::getLocation)
                 .toList()
@@ -162,6 +169,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
+        if (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK) {
+            return;
+        }
         onMultiBlockRemove(event.blockList().stream()
                 .map(Block::getLocation)
                 .toList()
