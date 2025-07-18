@@ -9,7 +9,7 @@ import java.util.List;
 
 public final class CustomEvent implements DrunkEvent {
 
-    private List<EventStep> steps;
+    private final List<EventStep> steps;
     private final int alcohol;
     private final int toxins;
     private final int probabilityWeight;
@@ -52,10 +52,6 @@ public final class CustomEvent implements DrunkEvent {
 
     public List<EventStep> getSteps() {
         return List.copyOf(steps);
-    }
-
-    public void setSteps(List<EventStep> steps) {
-        this.steps = steps;
     }
 
     @Override

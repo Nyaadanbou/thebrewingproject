@@ -5,7 +5,11 @@ import dev.jsinco.brewery.util.BreweryKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CustomEventRegistry {
 
@@ -27,12 +31,6 @@ public class CustomEventRegistry {
 
     public Collection<CustomEvent> events() {
         return customEvents.values();
-    }
-
-    public void setEvents(Collection<CustomEvent> events) {
-        Preconditions.checkNotNull(events);
-        customEvents.clear();
-        events.forEach(this::registerCustomEvent);
     }
 
     public void clear() {
