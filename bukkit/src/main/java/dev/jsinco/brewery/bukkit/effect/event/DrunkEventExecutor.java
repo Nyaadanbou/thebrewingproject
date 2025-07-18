@@ -27,8 +27,6 @@ public class DrunkEventExecutor {
         for (String pack : PACKS) {
             Registry.assignableClasses(EventStep.class, pack).forEach(eventStep -> {
                 eventStep.register(registry);
-                // debug
-                System.out.println("Registered event step: " + eventStep.getClass().getSimpleName());
             });
         }
     }
@@ -44,18 +42,11 @@ public class DrunkEventExecutor {
             final EventStep event = events.get(i);
 
             if (event instanceof CustomEvent customEvent) {
-                // Custom events are special
+                // Custom events are special <- TODO: This could use EventStepRegistry upgrading.
                 TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(playerUuid, customEvent.getSteps());
             } else {
-                try {
-                    EventStep upgradedEvent = registry.upgrade(event);
-                    upgradedEvent.execute(playerUuid, events, i);
-                    // debug
-                    System.out.println("step successful!" + event.getClass().getSimpleName() + " for player " + playerUuid);
-                } catch (Exception e) {
-                    TheBrewingProject.getInstance().getLogger().severe("Error executing drunk event for player " + playerUuid + ": " + e.getMessage());
-                    e.printStackTrace();
-                }
+                EventStep upgradedEvent = registry.upgrade(event);
+                upgradedEvent.execute(playerUuid, events, i);
             }
         }
     }
