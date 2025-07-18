@@ -8,7 +8,7 @@ import dev.jsinco.brewery.util.BreweryKeyed;
 import java.util.Locale;
 import java.util.Random;
 
-public sealed abstract class NamedDrunkEvent implements DrunkEvent, BreweryKeyed permits ChickenNamedDrunkEvent, DrunkMessageNamedDrunkEvent, DrunkenWalkNamedDrunkEvent, NauseaNamedDrunkEvent, PassOutNamedDrunkEvent, PukeNamedDrunkEvent, StumbleNamedDrunkEvent, TeleportNamedDrunkEvent {
+public sealed abstract class NamedDrunkEvent implements DrunkEvent, BreweryKeyed permits ChickenNamedDrunkEvent, DrunkMessageNamedDrunkEvent, DrunkenWalkNamedDrunkEvent, HallucinationNamedDrunkEvent, NauseaNamedDrunkEvent, PassOutNamedDrunkEvent, PukeNamedDrunkEvent, StumbleNamedDrunkEvent, TeleportNamedDrunkEvent {
 
     protected static final Random RANDOM = new Random();
 

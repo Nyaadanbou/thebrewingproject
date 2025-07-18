@@ -45,7 +45,8 @@ public class EventSection {
                                     new Interval(1, 1), new Interval(20 * Moment.SECOND, 20 * Moment.SECOND)
                             )).build()
             ).build();
-    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk");
+    // TODO: Registry.DRUNK_EVENT.stream().map(EventStep::getKey).forEach(key -> key.toLowerCase(Locale.ROOT)).toList();
+    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk", "hallucination");
     private List<Supplier<BreweryLocation>> teleportDestinations = List.of();
     private boolean drunkenJoinDeny = true;
 
