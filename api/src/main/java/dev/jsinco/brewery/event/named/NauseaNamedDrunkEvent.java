@@ -7,6 +7,12 @@ import dev.jsinco.brewery.event.IllegalEventStepCall;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Gives the player nausea.
+ * <p>
+ * Child modules should always upgrade to the implementation of this class sometime before execution,
+ * see {@link dev.jsinco.brewery.event.EventStepRegistry}
+ */
 public non-sealed class NauseaNamedDrunkEvent extends NamedDrunkEvent {
     public NauseaNamedDrunkEvent() {
         super(60, 50, 50, "NAUSEA");

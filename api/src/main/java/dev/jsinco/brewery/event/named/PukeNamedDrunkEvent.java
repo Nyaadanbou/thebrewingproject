@@ -7,6 +7,12 @@ import dev.jsinco.brewery.event.IllegalEventStepCall;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Causes the player to spew random items from their eye location.
+ * <p>
+ * Child modules should always upgrade to the implementation of this class sometime before execution,
+ * see {@link dev.jsinco.brewery.event.EventStepRegistry}
+ */
 public non-sealed class PukeNamedDrunkEvent extends NamedDrunkEvent {
 
     public PukeNamedDrunkEvent() {

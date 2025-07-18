@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Forces the player to walk around drunkenly in random directions.
+ * Creates a fake explosion that launches the player into the air and leaves then with a small amount of health.
  * <p>
  * Child modules should always upgrade to the implementation of this class sometime before execution,
  * see {@link dev.jsinco.brewery.event.EventStepRegistry}
  */
-public non-sealed class DrunkenWalkNamedDrunkEvent extends NamedDrunkEvent {
-    public DrunkenWalkNamedDrunkEvent() {
-        super(60, 20, 20, "DRUNKEN_WALK");
+public non-sealed class KaboomNamedDrunkEvent extends NamedDrunkEvent {
+
+    public KaboomNamedDrunkEvent() {
+        super(99, 60, 1, "KABOOM");
     }
 
     @Override

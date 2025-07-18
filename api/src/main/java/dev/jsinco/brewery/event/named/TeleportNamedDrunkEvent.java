@@ -7,6 +7,12 @@ import dev.jsinco.brewery.event.IllegalEventStepCall;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Teleports the player to a random location.
+ * <p>
+ * Child modules should always upgrade to the implementation of this class sometime before execution,
+ * see {@link dev.jsinco.brewery.event.EventStepRegistry}
+ */
 public non-sealed class TeleportNamedDrunkEvent extends NamedDrunkEvent {
     public TeleportNamedDrunkEvent() {
         super(90, 40, 2, "TELEPORT");

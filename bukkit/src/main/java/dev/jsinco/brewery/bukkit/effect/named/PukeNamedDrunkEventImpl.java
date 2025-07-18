@@ -52,7 +52,7 @@ public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
             this.player = player;
         }
 
-        @SuppressWarnings("removal") // FIXME: I just dont want to see the errors right now.
+
         public void tick(BukkitTask task) {
             if (!player.isOnline() || countDown-- <= 0) {
                 task.cancel();
@@ -74,7 +74,8 @@ public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
             item.getPersistentDataContainer().set(PUKE_ITEM, PersistentDataType.BOOLEAN, true);
 
             World world = loc.getWorld();
-            YamlConfiguration spigotConfig = Bukkit.spigot().getConfig();
+
+            YamlConfiguration spigotConfig = Bukkit.spigot().getConfig(); // Deprecated but no obvious replacement by paper yet?
             int worldDespawnRate = spigotConfig.getInt("world-settings." + world.getName() + ".item-despawn-rate", -1);
             if (worldDespawnRate < 0) {
                 worldDespawnRate = spigotConfig.getInt("world-settings.default.item-despawn-rate", 6000);

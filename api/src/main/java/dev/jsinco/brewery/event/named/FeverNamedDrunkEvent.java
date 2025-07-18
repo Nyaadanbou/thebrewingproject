@@ -7,6 +7,12 @@ import dev.jsinco.brewery.event.IllegalEventStepCall;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Causes the player to freeze for 10s and burn for 5s at the same time.
+ * <p>
+ * Child modules should always upgrade to the implementation of this class sometime before execution,
+ * see {@link dev.jsinco.brewery.event.EventStepRegistry}
+ */
 public non-sealed class FeverNamedDrunkEvent extends NamedDrunkEvent {
 
     public FeverNamedDrunkEvent() {
