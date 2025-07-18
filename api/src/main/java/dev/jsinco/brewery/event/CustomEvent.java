@@ -2,20 +2,21 @@ package dev.jsinco.brewery.event;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Holder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class CustomEvent implements DrunkEvent {
 
-    private final List<EventStep> steps;
+    private List<EventStep> steps;
     private final int alcohol;
     private final int toxins;
     private final int probabilityWeight;
     private final String displayName;
     private final BreweryKey key;
 
-    private CustomEvent(List<EventStep> steps, int alcohol, int toxins, int probabilityWeight, String displayName, BreweryKey key) {
+    public CustomEvent(List<EventStep> steps, int alcohol, int toxins, int probabilityWeight, String displayName, BreweryKey key) {
         this.steps = steps;
         this.alcohol = alcohol;
         this.toxins = toxins;
@@ -52,6 +53,16 @@ public final class CustomEvent implements DrunkEvent {
     public List<EventStep> getSteps() {
         return List.copyOf(steps);
     }
+
+    public void setSteps(List<EventStep> steps) {
+        this.steps = steps;
+    }
+
+    @Override
+    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
+        throw new UnsupportedOperationException("This method should not be called directly on this class. Your event executor should handle this logic.");
+    }
+
 
     public static class Builder {
         private final BreweryKey key;

@@ -1,9 +1,27 @@
-package dev.jsinco.brewery.event;
+package dev.jsinco.brewery.event.step;
 
+import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.util.Holder;
+
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record WaitStep(int durationTicks) implements EventStep {
+public class WaitStep implements EventStep {
+
+    private final int durationTicks;
+
+    public WaitStep(int durationTicks) {
+        this.durationTicks = durationTicks;
+    }
+
+    public WaitStep(String duration) {
+        this(parse(duration));
+    }
+
+    public int durationTicks() {
+        return durationTicks;
+    }
 
     private static final Pattern TICKS_PATTERN = Pattern.compile("(\\d+)t");
     private static final Pattern SECONDS_PATTERN = Pattern.compile("(\\d+)s");
@@ -22,12 +40,12 @@ public record WaitStep(int durationTicks) implements EventStep {
     private static final int WEEKS = DAYS * 7;
     private static final int YEARS = DAYS * 365;
 
-    public static EventStep parse(String duration) {
+    private static int parse(String duration) {
         if (!ALLOWED_CHARACTERS.matcher(duration).matches()) {
             throw new IllegalArgumentException("Invalid duration argument: " + duration);
         }
         // Could do some more argument validation, but meh
-        return new WaitStep(
+        return (
                 parseInteger(TICKS_PATTERN, duration)
                         + parseInteger(SECONDS_PATTERN, duration) * SECONDS
                         + parseInteger(MINUTES_PATTERN, duration) * MINUTES
@@ -44,5 +62,10 @@ public record WaitStep(int durationTicks) implements EventStep {
             return Integer.parseInt(matcher.group(1));
         }
         return 0;
+    }
+
+    @Override
+    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
+        throw new UnsupportedOperationException("This method should not be called on WaitStep directly. Use an implementation of this class instead.");
     }
 }

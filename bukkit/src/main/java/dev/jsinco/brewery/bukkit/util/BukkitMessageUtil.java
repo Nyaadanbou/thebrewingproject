@@ -7,7 +7,7 @@ import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.named.NamedDrunkEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter;
@@ -39,7 +39,7 @@ public class BukkitMessageUtil {
                 Placeholder.parsed("effect_action_bar", effects.getActionBar() == null ? "" : effects.getActionBar()),
                 Placeholder.parsed("effect_events", effects.getEvents().stream().map(drunkEvent -> {
                     if (drunkEvent instanceof NamedDrunkEvent namedDrunkEvent) {
-                        return TranslationsConfig.EVENT_TYPES.get(namedDrunkEvent.name().toLowerCase(Locale.ROOT));
+                        return TranslationsConfig.EVENT_TYPES.get(namedDrunkEvent.displayName().toLowerCase(Locale.ROOT));
                     }
                     return drunkEvent.displayName();
                 }).collect(Collectors.joining(",")))

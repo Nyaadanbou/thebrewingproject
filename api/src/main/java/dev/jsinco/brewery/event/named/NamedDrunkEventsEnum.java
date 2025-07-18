@@ -1,11 +1,16 @@
-package dev.jsinco.brewery.event;
+package dev.jsinco.brewery.event.named;
 
+import dev.jsinco.brewery.event.DrunkEvent;
+import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.BreweryKeyed;
+import dev.jsinco.brewery.util.Holder;
 
+import java.util.List;
 import java.util.Locale;
 
-public enum NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
+// todo: unused
+public enum NamedDrunkEventsEnum implements DrunkEvent, BreweryKeyed {
     PUKE(45, 45, 20),
     PASS_OUT(80, 80, 10),
     STUMBLE(25, 0, 100),
@@ -21,19 +26,19 @@ public enum NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
     private final int probabilityWeight;
     private final BreweryKey key;
 
-    NamedDrunkEvent(int alcoholRequirement, int toxinsRequirement, int probabilityWeight) {
+    NamedDrunkEventsEnum(int alcoholRequirement, int toxinsRequirement, int probabilityWeight) {
         this.alcoholRequirement = alcoholRequirement;
         this.toxinsRequirement = toxinsRequirement;
         this.probabilityWeight = probabilityWeight;
         this.key = BreweryKey.parse(this.name().toLowerCase(Locale.ROOT));
     }
 
-    @Override
+
     public int alcoholRequirement() {
         return alcoholRequirement;
     }
 
-    @Override
+
     public int toxinsRequirement() {
         return toxinsRequirement;
     }
@@ -43,13 +48,18 @@ public enum NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
         return this.key;
     }
 
-    @Override
+
     public String displayName() {
         return this.name().toLowerCase(Locale.ROOT);
     }
 
-    @Override
+
     public int probabilityWeight() {
         return probabilityWeight;
+    }
+
+    @Override
+    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
+        throw new UnsupportedOperationException();
     }
 }

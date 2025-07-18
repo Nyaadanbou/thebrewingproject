@@ -29,6 +29,12 @@ public class CustomEventRegistry {
         return customEvents.values();
     }
 
+    public void setEvents(Collection<CustomEvent> events) {
+        Preconditions.checkNotNull(events);
+        customEvents.clear();
+        events.forEach(this::registerCustomEvent);
+    }
+
     public void clear() {
         customEvents.clear();
     }

@@ -1,4 +1,10 @@
 package dev.jsinco.brewery.event;
 
-public sealed interface EventStep permits ApplyPotionEffect, ConditionalWaitStep, ConsumeStep, DrunkEvent, SendCommand, Teleport, WaitStep {
+import dev.jsinco.brewery.util.Holder;
+
+import java.util.List;
+
+public interface EventStep {
+
+    void execute(Holder.Player contextPlayer, List<EventStep> events, int index);
 }

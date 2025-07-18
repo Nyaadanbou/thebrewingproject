@@ -1,6 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
-import dev.jsinco.brewery.bukkit.effect.event.NamedDrunkEventExecutor;
+import dev.jsinco.brewery.bukkit.effect.named.ChickenNamedDrunkEventImpl;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,7 +14,7 @@ public class EntityEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity().getPersistentDataContainer().has(NamedDrunkEventExecutor.NO_DROPS)) {
+        if (event.getEntity().getPersistentDataContainer().has(ChickenNamedDrunkEventImpl.NO_DROPS)) {
             event.setDroppedExp(0);
             event.getDrops().clear();
         }

@@ -1,19 +1,27 @@
 package dev.jsinco.brewery.util;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.ClassPath;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.named.NamedDrunkEvent;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Registry<T extends BreweryKeyed> {
 
@@ -21,7 +29,7 @@ public class Registry<T extends BreweryKeyed> {
     public static final Registry<CauldronType> CAULDRON_TYPE = fromEnums(CauldronType.class);
     public static final Registry<StructureMeta<?>> STRUCTURE_META = (Registry<StructureMeta<?>>) fromFields(StructureMeta.class);
     public static final Registry<StructureType> STRUCTURE_TYPE = (Registry<StructureType>) fromFields(StructureType.class);
-    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromEnums(NamedDrunkEvent.class);
+    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromParent(NamedDrunkEvent.class);
 
     private final ImmutableMap<BreweryKey, T> backing;
 
@@ -43,6 +51,7 @@ public class Registry<T extends BreweryKeyed> {
         return backing.containsKey(key);
     }
 
+
     private static <E extends Enum<E> & BreweryKeyed> Registry<E> fromEnums(Class<E> enumClass) {
         return new Registry<>(Arrays.stream(enumClass.getEnumConstants()).toList());
     }
@@ -63,5 +72,38 @@ public class Registry<T extends BreweryKeyed> {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static <T extends BreweryKeyed> Registry<T> fromParent(Class<T> tClass) {
+        List<T> tList = new ArrayList<>();
+        String packageName = tClass.getPackageName();
+        ClassLoader classLoader = tClass.getClassLoader();
+
+        try {
+            Set<Class<?>> foundClasses = ClassPath.from(classLoader)
+                    .getTopLevelClasses(packageName)
+                    .stream()
+                    .map(ClassPath.ClassInfo::getName)
+                    .map(name -> {
+                        try {
+                            return Class.forName(name, false, classLoader);
+                        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .filter(clazz -> clazz != tClass && tClass.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers()))
+                    .collect(Collectors.toSet());
+
+            for (Class<?> clazz : foundClasses) {
+                T instance = tClass.cast(clazz.getDeclaredConstructor().newInstance());
+                tList.add(instance);
+            }
+        } catch (ReflectiveOperationException | IOException e) {
+            throw new RuntimeException("Failed to instantiate classes for registry: " + tClass.getName(), e);
+        }
+
+        return new Registry<>(tList);
     }
 }

@@ -1,14 +1,9 @@
 package dev.jsinco.brewery.bukkit.effect.event;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.bukkit.recipe.RecipeEffect;
-import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.event.*;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
+import dev.jsinco.brewery.event.CustomEvent;
+import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.util.Holder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,53 +19,20 @@ public class DrunkEventExecutor {
     }
 
     public void doDrunkEvents(UUID playerUuid, List<EventStep> events) {
-        Player player = Bukkit.getPlayer(playerUuid);
-        if (player == null) {
-            return;
-        }
-        for (int i = 0; i < events.size(); i++) {
-            EventStep event = events.get(i);
 
-            switch (event) {
-                case ApplyPotionEffect applyPotionEffect -> {
-                    PotionEffect potionEffect = new RecipeEffect(
-                            Registry.EFFECT.get(NamespacedKey.fromString(applyPotionEffect.potionEffectName())),
-                            applyPotionEffect.durationBounds(),
-                            applyPotionEffect.amplifierBounds()
-                    ).newPotionEffect();
-                    player.addPotionEffect(potionEffect);
-                }
-                case NamedDrunkEvent namedDrunkEvent ->
-                        NamedDrunkEventExecutor.doDrunkEvent(playerUuid, namedDrunkEvent);
-                case CustomEvent customEvent -> doDrunkEvents(playerUuid, customEvent.getSteps());
-                case SendCommand sendCommand -> {
-                    switch (sendCommand.senderType()) {
-                        case PLAYER -> player.performCommand(sendCommand.command());
-                        case SERVER ->
-                                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), sendCommand.command());
-                    }
-                }
-                case Teleport teleport -> player.teleport(BukkitAdapter.toLocation(teleport.location().get()));
-                case ConditionalWaitStep conditionalWaitStep -> {
-                    if (conditionalWaitStep.condition() == ConditionalWaitStep.Condition.JOIN && i + 1 < events.size()) {
-                        onJoinExecutions.put(playerUuid, events.subList(i + 1, events.size()));
-                    }
-                    return;
-                }
-                case WaitStep waitStep -> {
-                    if (i + 1 >= events.size()) {
-                        return;
-                    }
-                    final List<EventStep> eventsLeft = events.subList(i + 1, events.size());
-                    Bukkit.getScheduler().runTaskLater(
-                            TheBrewingProject.getInstance(),
-                            () -> doDrunkEvents(playerUuid, eventsLeft),
-                            waitStep.durationTicks()
-                    );
-                    return;
-                }
-                case ConsumeStep consumeStep -> {
-                    TheBrewingProject.getInstance().getDrunksManager().consume(playerUuid, consumeStep.alcohol(), consumeStep.toxins());
+        for (int i = 0; i < events.size(); i++) {
+            final EventStep event = events.get(i);
+
+            if (event instanceof CustomEvent customEvent) {
+                // Custom events are special
+                TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(playerUuid, customEvent.getSteps());
+            } else {
+                try {
+                    event.execute(new Holder.Player(playerUuid), events, i);
+                    System.out.println("step sucessful!" + event.getClass().getSimpleName() + " for player " + playerUuid);
+                } catch (Exception e) {
+                    TheBrewingProject.getInstance().getLogger().severe("Error executing drunk event for player " + playerUuid + ": " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -82,6 +44,10 @@ public class DrunkEventExecutor {
             return;
         }
         doDrunkEvents(playerUuid, eventSteps);
+    }
+
+    public void add(UUID playerUuid, List<EventStep> events) {
+        onJoinExecutions.put(playerUuid, events);
     }
 
     public void clear(UUID playerUuid) {

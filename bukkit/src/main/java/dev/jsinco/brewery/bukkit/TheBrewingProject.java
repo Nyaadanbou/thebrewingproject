@@ -12,20 +12,29 @@ import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.configuration.serializer.BreweryLocationSerializer;
+import dev.jsinco.brewery.bukkit.configuration.serializer.BukkitEventRegistrySerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.MaterialSerializer;
 import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
 import dev.jsinco.brewery.bukkit.effect.event.ActiveEventsRegistry;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.integration.IntegrationManager;
-import dev.jsinco.brewery.bukkit.listeners.*;
+import dev.jsinco.brewery.bukkit.listeners.BlockEventListener;
+import dev.jsinco.brewery.bukkit.listeners.EntityEventListener;
+import dev.jsinco.brewery.bukkit.listeners.InventoryEventListener;
+import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
+import dev.jsinco.brewery.bukkit.listeners.PlayerWalkListener;
+import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
-import dev.jsinco.brewery.bukkit.structure.*;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
+import dev.jsinco.brewery.bukkit.structure.StructureJsonFormatValidator;
+import dev.jsinco.brewery.bukkit.structure.StructureReadException;
+import dev.jsinco.brewery.bukkit.structure.StructureReader;
+import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.BreweryTimeDataType;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
-import dev.jsinco.brewery.configuration.serializers.EventRegistrySerializer;
 import dev.jsinco.brewery.configuration.serializers.IntervalSerializer;
 import dev.jsinco.brewery.configuration.serializers.SoundDefinitionSerializer;
 import dev.jsinco.brewery.database.PersistenceException;
@@ -99,9 +108,14 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Getter
     private PlayerWalkListener playerWalkListener;
 
+    @Getter
+    private BukkitEventRegistrySerializer bukkitEventRegistrySerializer;
+
     @Override
     public void onLoad() {
         instance = this;
+        // TODO: I will move/remove this variable when I am done testing at runtime
+        this.bukkitEventRegistrySerializer = new BukkitEventRegistrySerializer();
         Config.load(this.getDataFolder(), serializers());
         TranslationsConfig.reload(this.getDataFolder());
         this.structureRegistry = new StructureRegistry();
@@ -118,7 +132,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         return TypeSerializerCollection.builder()
                 .register(new TypeToken<>() {
                 }, new BreweryLocationSerializer())
-                .register(CustomEventRegistry.class, new EventRegistrySerializer())
+                .register(CustomEventRegistry.class, this.getBukkitEventRegistrySerializer())
                 .register(SoundDefinition.class, new SoundDefinitionSerializer())
                 .register(Interval.class, new IntervalSerializer())
                 .register(Holder.Material.class, new MaterialSerializer())
@@ -135,7 +149,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.drunkTextRegistry.clear();
         this.customDrunkEventRegistry.clear();
         this.drunkEventExecutor.clear();
-        customDrunkEventRegistry = Config.config().events().customEvents();
+        this.customDrunkEventRegistry = Config.config().events().customEvents();
         saveResources();
         this.database = new Database(DatabaseDriver.SQLITE);
         try {
@@ -270,3 +284,4 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         }
     }
 }
+

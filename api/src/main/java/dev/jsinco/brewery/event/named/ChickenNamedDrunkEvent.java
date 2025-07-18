@@ -1,0 +1,17 @@
+package dev.jsinco.brewery.event.named;
+
+import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.util.Holder;
+
+import java.util.List;
+
+public non-sealed class ChickenNamedDrunkEvent extends NamedDrunkEvent {
+    public ChickenNamedDrunkEvent() {
+        super(99, 50, 1, "CHICKEN");
+    }
+
+    @Override
+    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
+        throw new UnsupportedOperationException();
+    }
+}
