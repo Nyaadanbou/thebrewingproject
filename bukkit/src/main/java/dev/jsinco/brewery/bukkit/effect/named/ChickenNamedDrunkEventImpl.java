@@ -3,8 +3,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.ChickenNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -13,14 +13,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ChickenNamedDrunkEventImpl extends ChickenNamedDrunkEvent {
 
     public static final NamespacedKey NO_DROPS = new NamespacedKey("brewery", "no_drops");
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -33,5 +34,10 @@ public class ChickenNamedDrunkEventImpl extends ChickenNamedDrunkEvent {
             chicken.setBreed(false);
         });
         player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CHICKEN_MESSAGE, BukkitMessageUtil.getPlayerTagResolver(player)));
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(ChickenNamedDrunkEvent.class, original -> new ChickenNamedDrunkEventImpl());
     }
 }

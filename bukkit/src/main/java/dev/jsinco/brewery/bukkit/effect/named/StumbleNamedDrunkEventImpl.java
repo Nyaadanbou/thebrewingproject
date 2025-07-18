@@ -2,8 +2,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.StumbleNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -11,14 +11,15 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class StumbleNamedDrunkEventImpl extends StumbleNamedDrunkEvent {
 
     private static final int STUMBLE_DURATION = 10;
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -27,6 +28,11 @@ public class StumbleNamedDrunkEventImpl extends StumbleNamedDrunkEvent {
         StumbleHandler stumbleHandler = new StumbleHandler(duration, player);
         TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), StumbleNamedDrunkEvent.class, duration);
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), stumbleHandler::doStumble, 0, 1);
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(StumbleNamedDrunkEvent.class, original -> new StumbleNamedDrunkEventImpl());
     }
 
     static class StumbleHandler {

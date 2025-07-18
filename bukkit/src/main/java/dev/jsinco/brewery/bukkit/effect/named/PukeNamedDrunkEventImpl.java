@@ -3,8 +3,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.PukeNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,15 +19,15 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 
 public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
 
     public static final NamespacedKey PUKE_ITEM = new NamespacedKey("brewery", "puke");
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -37,6 +37,11 @@ public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::tick, 0, 1);
     }
 
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(PukeNamedDrunkEvent.class, original -> new PukeNamedDrunkEventImpl());
+    }
 
     static class PukeHandler {
         private int countDown;

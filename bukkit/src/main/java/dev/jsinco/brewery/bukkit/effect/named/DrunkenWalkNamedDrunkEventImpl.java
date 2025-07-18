@@ -2,9 +2,9 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.DrunkenWalkNamedDrunkEvent;
 import dev.jsinco.brewery.event.named.StumbleNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import dev.jsinco.brewery.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,6 +14,7 @@ import org.bukkit.util.Vector;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
 
@@ -21,8 +22,8 @@ public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
 
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -31,6 +32,11 @@ public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
         DrunkenWalkHandler drunkenWalkHandler = new DrunkenWalkHandler(duration, player);
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), drunkenWalkHandler::tick, 0, 1);
         TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), DrunkenWalkNamedDrunkEvent.class, duration);
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(DrunkenWalkNamedDrunkEvent.class, original -> new DrunkenWalkNamedDrunkEventImpl());
     }
 
     static class DrunkenWalkHandler {

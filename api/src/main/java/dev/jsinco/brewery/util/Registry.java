@@ -9,17 +9,14 @@ import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +30,7 @@ public class Registry<T extends BreweryKeyed> {
 
     private final ImmutableMap<BreweryKey, T> backing;
 
-    private Registry(List<T> values) {
+    private Registry(Collection<T> values) {
         ImmutableMap.Builder<BreweryKey, T> registryBacking = ImmutableMap.builder();
         values.forEach(value -> registryBacking.put(value.key(), value));
         this.backing = registryBacking.build();
@@ -75,12 +72,24 @@ public class Registry<T extends BreweryKeyed> {
     }
 
     private static <T extends BreweryKeyed> Registry<T> fromParent(Class<T> tClass) {
-        List<T> tList = new ArrayList<>();
         String packageName = tClass.getPackageName();
+        return new Registry<>(assignableClasses(tClass, packageName));
+    }
+
+    // FIXME: This is okay for testing, but should not be a permanent solution.
+    /**
+     * Finds all classes in a specified package that are assignable to a given class.
+     * This method will try to instantiate the class even if it has constructors with parameters.
+     * @param tClass the class to check assignability against
+     * @param packageName the package to search for classes
+     * @return a set of instances of classes that are assignable to tClass
+     * @param <T> the type of the class to check assignability against
+     */
+    public static <T> Set<T> assignableClasses(Class<T> tClass, String packageName) {
         ClassLoader classLoader = tClass.getClassLoader();
 
         try {
-            Set<Class<?>> foundClasses = ClassPath.from(classLoader)
+            return ClassPath.from(classLoader)
                     .getTopLevelClasses(packageName)
                     .stream()
                     .map(ClassPath.ClassInfo::getName)
@@ -88,22 +97,62 @@ public class Registry<T extends BreweryKeyed> {
                         try {
                             return Class.forName(name, false, classLoader);
                         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                            e.printStackTrace();
-                            return null;
+                            throw new RuntimeException("Failed to load class: " + name, e);
                         }
                     })
-                    .filter(Objects::nonNull)
-                    .filter(clazz -> clazz != tClass && tClass.isAssignableFrom(clazz) && !Modifier.isAbstract(clazz.getModifiers()))
+                    .filter(clazz -> clazz != tClass &&
+                            tClass.isAssignableFrom(clazz) &&
+                            !Modifier.isAbstract(clazz.getModifiers()))
+                    .map(clazz -> {
+                        try {
+                            // Try no-arg constructor first
+                            Constructor<?> ctor = clazz.getDeclaredConstructor();
+                            ctor.setAccessible(true);
+                            return tClass.cast(ctor.newInstance());
+                        } catch (NoSuchMethodException e) {
+                            // No no-arg constructor, try other constructors
+                            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+                            if (constructors.length == 0) {
+                                throw new RuntimeException("No constructors found for class: " + clazz.getName());
+                            }
+                            Constructor<?> chosen = constructors[0]; // pick the first
+                            chosen.setAccessible(true);
+
+                            Class<?>[] paramTypes = chosen.getParameterTypes();
+                            Object[] args = new Object[paramTypes.length];
+
+                            for (int i = 0; i < paramTypes.length; i++) {
+                                args[i] = getDefaultValue(paramTypes[i]);
+                            }
+
+                            try {
+                                return tClass.cast(chosen.newInstance(args));
+                            } catch (ReflectiveOperationException inner) {
+                                throw new RuntimeException("Failed to instantiate class: " + clazz.getName(), inner);
+                            }
+                        } catch (ReflectiveOperationException e) {
+                            throw new RuntimeException("Failed to instantiate class: " + clazz.getName(), e);
+                        }
+                    })
                     .collect(Collectors.toSet());
-
-            for (Class<?> clazz : foundClasses) {
-                T instance = tClass.cast(clazz.getDeclaredConstructor().newInstance());
-                tList.add(instance);
-            }
-        } catch (ReflectiveOperationException | IOException e) {
-            throw new RuntimeException("Failed to instantiate classes for registry: " + tClass.getName(), e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read classes from package: " + packageName, e);
         }
-
-        return new Registry<>(tList);
     }
+
+    private static Object getDefaultValue(Class<?> type) {
+        if (!type.isPrimitive()) {
+            return null;
+        }
+        if (type == boolean.class) return false;
+        if (type == byte.class) return (byte) 0;
+        if (type == short.class) return (short) 0;
+        if (type == int.class) return 0;
+        if (type == long.class) return 0L;
+        if (type == float.class) return 0f;
+        if (type == double.class) return 0d;
+        if (type == char.class) return '\0';
+        throw new IllegalArgumentException("Unhandled primitive type: " + type.getName());
+    }
+
 }

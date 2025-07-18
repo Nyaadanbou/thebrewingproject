@@ -12,7 +12,6 @@ import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.configuration.serializer.BreweryLocationSerializer;
-import dev.jsinco.brewery.bukkit.configuration.serializer.BukkitEventRegistrySerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.MaterialSerializer;
 import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
 import dev.jsinco.brewery.bukkit.effect.event.ActiveEventsRegistry;
@@ -35,6 +34,7 @@ import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.BreweryTimeDataType;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.configuration.serializers.EventRegistrySerializer;
 import dev.jsinco.brewery.configuration.serializers.IntervalSerializer;
 import dev.jsinco.brewery.configuration.serializers.SoundDefinitionSerializer;
 import dev.jsinco.brewery.database.PersistenceException;
@@ -43,6 +43,7 @@ import dev.jsinco.brewery.database.sql.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
@@ -96,6 +97,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     private CustomEventRegistry customDrunkEventRegistry;
     private WorldEventListener worldEventListener;
     @Getter
+    private EventStepRegistry eventStepRegistry;
+    @Getter
     private DrunkEventExecutor drunkEventExecutor;
     @Getter
     private long time;
@@ -108,14 +111,9 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Getter
     private PlayerWalkListener playerWalkListener;
 
-    @Getter
-    private BukkitEventRegistrySerializer bukkitEventRegistrySerializer;
-
     @Override
     public void onLoad() {
         instance = this;
-        // TODO: I will move/remove this variable when I am done testing at runtime
-        this.bukkitEventRegistrySerializer = new BukkitEventRegistrySerializer();
         Config.load(this.getDataFolder(), serializers());
         TranslationsConfig.reload(this.getDataFolder());
         this.structureRegistry = new StructureRegistry();
@@ -125,6 +123,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.recipeRegistry = new RecipeRegistryImpl<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
         this.customDrunkEventRegistry = new CustomEventRegistry();
+        this.eventStepRegistry = new EventStepRegistry();
         this.drunkEventExecutor = new DrunkEventExecutor();
     }
 
@@ -132,7 +131,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         return TypeSerializerCollection.builder()
                 .register(new TypeToken<>() {
                 }, new BreweryLocationSerializer())
-                .register(CustomEventRegistry.class, this.getBukkitEventRegistrySerializer())
+                .register(CustomEventRegistry.class, new EventRegistrySerializer())
                 .register(SoundDefinition.class, new SoundDefinitionSerializer())
                 .register(Interval.class, new IntervalSerializer())
                 .register(Holder.Material.class, new MaterialSerializer())

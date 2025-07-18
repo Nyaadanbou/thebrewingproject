@@ -2,18 +2,19 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.DrunkMessageNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DrunkMessageNamedDrunkEventImpl extends DrunkMessageNamedDrunkEvent {
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -32,5 +33,10 @@ public class DrunkMessageNamedDrunkEventImpl extends DrunkMessageNamedDrunkEvent
         }
         Player randomPlayer = onlinePlayers.get(RANDOM.nextInt(onlinePlayers.size()));
         player.chat(drunkMessages.get(RANDOM.nextInt(drunkMessages.size())).replace("<random_player_name>", randomPlayer.getName()));
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(DrunkMessageNamedDrunkEvent.class, original -> new DrunkMessageNamedDrunkEventImpl());
     }
 }

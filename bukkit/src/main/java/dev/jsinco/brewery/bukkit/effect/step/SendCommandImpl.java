@@ -1,12 +1,13 @@
 package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.step.SendCommand;
-import dev.jsinco.brewery.util.Holder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public class SendCommandImpl extends SendCommand {
     
@@ -15,8 +16,8 @@ public class SendCommandImpl extends SendCommand {
     }
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -25,5 +26,13 @@ public class SendCommandImpl extends SendCommand {
             case PLAYER -> player.performCommand(getCommand());
             case SERVER -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), getCommand());
         }
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(SendCommand.class, original -> {
+            SendCommand event = (SendCommand) original;
+            return new SendCommandImpl(event.getCommand(), event.getSenderType());
+        });
     }
 }

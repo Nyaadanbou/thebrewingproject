@@ -1,11 +1,12 @@
 package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.util.Holder;
+import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ConditionalWaitStepImpl extends ConditionalWaitStep {
 
@@ -18,9 +19,17 @@ public class ConditionalWaitStepImpl extends ConditionalWaitStep {
     }
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
         if (getCondition() == ConditionalWaitStep.Condition.JOIN && index + 1 < events.size()) {
-            TheBrewingProject.getInstance().getDrunkEventExecutor().add(contextPlayer.value(), events.subList(index + 1, events.size()));
+            TheBrewingProject.getInstance().getDrunkEventExecutor().add(contextPlayer, events.subList(index + 1, events.size()));
         }
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(ConditionalWaitStep.class, original -> {
+            ConditionalWaitStep event = (ConditionalWaitStep) original;
+            return new ConditionalWaitStepImpl(event.getCondition());
+        });
     }
 }

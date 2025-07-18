@@ -1,9 +1,11 @@
 package dev.jsinco.brewery.event.step;
 
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.util.Holder;
+import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.IllegalEventStepCall;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +21,18 @@ public class WaitStep implements EventStep {
         this(parse(duration));
     }
 
-    public int durationTicks() {
+    public int getDurationTicks() {
         return durationTicks;
+    }
+
+    @Override
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        throw new IllegalEventStepCall();
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        throw new IllegalEventStepCall();
     }
 
     private static final Pattern TICKS_PATTERN = Pattern.compile("(\\d+)t");
@@ -62,10 +74,5 @@ public class WaitStep implements EventStep {
             return Integer.parseInt(matcher.group(1));
         }
         return 0;
-    }
-
-    @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        throw new UnsupportedOperationException("This method should not be called on WaitStep directly. Use an implementation of this class instead.");
     }
 }

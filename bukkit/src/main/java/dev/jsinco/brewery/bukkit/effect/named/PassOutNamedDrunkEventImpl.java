@@ -7,19 +7,20 @@ import dev.jsinco.brewery.configuration.EventSection;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.named.PassOutNamedDrunkEvent;
-import dev.jsinco.brewery.util.Holder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PassOutNamedDrunkEventImpl extends PassOutNamedDrunkEvent {
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        Player player = Bukkit.getPlayer(contextPlayer.value());
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        Player player = Bukkit.getPlayer(contextPlayer);
         if (player == null) {
             return;
         }
@@ -32,5 +33,10 @@ public class PassOutNamedDrunkEventImpl extends PassOutNamedDrunkEvent {
             Bukkit.getOnlinePlayers().forEach(player1 -> player1.sendMessage(message));
         }
         drunksManager.registerPassedOut(player.getUniqueId());
+    }
+
+    @Override
+    public void register(EventStepRegistry registry) {
+        registry.register(PassOutNamedDrunkEvent.class, original -> new PassOutNamedDrunkEventImpl());
     }
 }

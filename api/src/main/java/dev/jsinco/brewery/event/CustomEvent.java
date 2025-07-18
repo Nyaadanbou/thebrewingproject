@@ -2,10 +2,10 @@ package dev.jsinco.brewery.event;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.util.Holder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class CustomEvent implements DrunkEvent {
 
@@ -55,10 +55,14 @@ public final class CustomEvent implements DrunkEvent {
     }
 
     @Override
-    public void execute(Holder.Player contextPlayer, List<EventStep> events, int index) {
-        throw new UnsupportedOperationException("This method should not be called directly on this class. Your event executor should handle this logic.");
+    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
+        throw new IllegalEventStepCall("This method should not be called directly on this class. Your event executor should handle this logic.");
     }
 
+    @Override
+    public void register(EventStepRegistry registry) {
+        throw new IllegalEventStepCall("This method should not be called on this class.");
+    }
 
     public static class Builder {
         private final BreweryKey key;

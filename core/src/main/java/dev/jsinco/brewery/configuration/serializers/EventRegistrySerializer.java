@@ -1,7 +1,9 @@
 package dev.jsinco.brewery.configuration.serializers;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.event.*;
+import dev.jsinco.brewery.event.CustomEvent;
+import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.named.NamedDrunkEvent;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
@@ -23,12 +25,17 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class EventRegistrySerializer implements TypeSerializer<CustomEventRegistry> {
+public class EventRegistrySerializer implements TypeSerializer<CustomEventRegistry> {
     @Override
     public CustomEventRegistry deserialize(@NotNull Type type, ConfigurationNode node) throws SerializationException {
         CustomEventRegistry output = new CustomEventRegistry();
@@ -101,7 +108,7 @@ public abstract class EventRegistrySerializer implements TypeSerializer<CustomEv
         Preconditions.checkArgument(stepType != null, "Step has to have a type");
         NamedDrunkEvent namedDrunkEvent = Registry.DRUNK_EVENT.get(BreweryKey.parse(stepType));
         if (namedDrunkEvent != null) {
-            return List.of(getChildImpl(namedDrunkEvent.getClass()));
+            return List.of(namedDrunkEvent);
         } else if (stepType.equals("event")) {
             Preconditions.checkArgument(step.containsKey("event"), "Event step has to have a defined event");
             return List.of(readEvent(customEvents, step.get("event").getString(), Stream.concat(banned.stream(), Stream.of(eventName)).collect(Collectors.toSet())));
@@ -112,18 +119,18 @@ public abstract class EventRegistrySerializer implements TypeSerializer<CustomEv
             String command = step.get("command").getString();
             Preconditions.checkArgument(command != null, "Command can not be empty");
             Preconditions.checkNotNull(command, "Command can not be null in event step for event: " + eventName);
-            return List.of(getChildImpl(SendCommand.class, command, senderType));
+            return List.of(new SendCommand(command, senderType));
         } else if (stepType.equals("wait")) {
             List<EventStep> output = new ArrayList<>();
             if (step.containsKey("condition")) {
                 String condition = step.get("condition").getString();
                 Preconditions.checkArgument(condition != null, "Condition can not be empty");
-                output.add(getChildImpl(ConditionalWaitStep.class, condition));
+                output.add(new ConditionalWaitStep(condition));
             }
             if (step.containsKey("duration")) {
                 String duration = step.get("duration").getString();
                 Preconditions.checkArgument(duration != null, "Duration can not be empty");
-                output.add(getChildImpl(WaitStep.class, duration));
+                output.add(new WaitStep(duration));
             }
             Preconditions.checkArgument(step.containsKey("duration") || step.containsKey("condition"), "Expected duration or condition to be specified");
             return output;
@@ -133,7 +140,7 @@ public abstract class EventRegistrySerializer implements TypeSerializer<CustomEv
             Preconditions.checkArgument(effect != null, "Effect can not be empty");
             Interval amplifier = readWithDefault(step, "amplifier", node -> node.get(Interval.class), new Interval(1, 1));
             Interval duration = readWithDefault(step, "duration", node -> node.get(Interval.class), new Interval(10 * Moment.SECOND, 10 * Moment.SECOND));
-            return List.of(getChildImpl(ApplyPotionEffect.class, effect, amplifier, duration));
+            return List.of(new ApplyPotionEffect(effect, amplifier, duration));
         } else if (stepType.equals("consume")) {
             int alcohol = 0;
             if (step.containsKey("alcohol")) {
@@ -143,13 +150,13 @@ public abstract class EventRegistrySerializer implements TypeSerializer<CustomEv
             if (step.containsKey("toxins")) {
                 toxins = step.get("toxins").getInt();
             }
-            return List.of(getChildImpl(ConsumeStep.class, alcohol, toxins));
+            return List.of(new ConsumeStep(alcohol, toxins));
         } else if (stepType.equals("teleport")) {
             Preconditions.checkArgument(step.containsKey("location"), "Expected a location");
             Supplier<BreweryLocation> breweryLocation = step.get("location").get(new TypeToken<>() {
             });
             Preconditions.checkArgument(breweryLocation != null, "Expected a non empty location");
-            return List.of(getChildImpl(Teleport.class, breweryLocation));
+            return List.of(new Teleport(breweryLocation));
         }
         throw new IllegalArgumentException("Unknown step type");
     }
@@ -188,22 +195,14 @@ public abstract class EventRegistrySerializer implements TypeSerializer<CustomEv
                     "location", teleport.getLocation()
             );
             case WaitStep waitStep -> Map.of("type", "wait",
-                    "duration", waitStep.durationTicks() + "t");
+                    "duration", waitStep.getDurationTicks() + "t");
             default -> throw new IllegalArgumentException("Unsupported event step: " + step);
         };
     }
 
+    @FunctionalInterface
     private interface FunctionThatThrows<T, U, E extends Throwable> {
         U apply(T t) throws E;
     }
 
-    public record ConstructorKey(Class<? extends EventStep> parent, List<Class<?>> paramTypes) {
-        // This is used to uniquely identify a constructor for a specific EventStep class
-    }
-
-    protected static ConstructorKey key(Class<? extends EventStep> cls, Class<?>... params) {
-        return new ConstructorKey(cls, List.of(params));
-    }
-
-    public abstract <T extends EventStep> T getChildImpl(Class<? extends EventStep> parent, Object... arguments);
 }
