@@ -2,6 +2,7 @@ package dev.jsinco.brewery.configuration;
 
 import dev.jsinco.brewery.event.CustomEvent;
 import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.named.NamedDrunkEvent;
 import dev.jsinco.brewery.event.named.PassOutNamedDrunkEvent;
 import dev.jsinco.brewery.event.named.TeleportNamedDrunkEvent;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
@@ -10,12 +11,14 @@ import dev.jsinco.brewery.event.step.ConsumeStep;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 @ConfigSerializable
@@ -45,8 +48,8 @@ public class EventSection {
                                     new Interval(1, 1), new Interval(20 * Moment.SECOND, 20 * Moment.SECOND)
                             )).build()
             ).build();
-    // TODO: Registry.DRUNK_EVENT.stream().map(EventStep::getKey).forEach(key -> key.toLowerCase(Locale.ROOT)).toList();
-    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk", "hallucination");
+
+    private List<String> enabledRandomEvents = Registry.DRUNK_EVENT.values().stream().map(NamedDrunkEvent::key).map(key -> key.key().toLowerCase(Locale.ROOT)).toList();
     private List<Supplier<BreweryLocation>> teleportDestinations = List.of();
     private boolean drunkenJoinDeny = true;
 

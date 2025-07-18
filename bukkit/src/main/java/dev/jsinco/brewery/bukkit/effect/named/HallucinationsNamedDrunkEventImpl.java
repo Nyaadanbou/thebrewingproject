@@ -15,7 +15,6 @@ import java.util.UUID;
 
 public class HallucinationsNamedDrunkEventImpl extends HallucinationNamedDrunkEvent {
 
-    private static final int BLOCK_RADIUS = 1;
     private static final int BLOCK_RANGE = 20;
 
     @Override
