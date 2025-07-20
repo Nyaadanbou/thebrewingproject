@@ -98,8 +98,11 @@ public class DrunkEventExecutor {
         for (int i = 0; i < events.size(); i++) {
             final EventStep event = events.get(i);
 
-            ExecutableEventStep upgradedEvent = registry.upgrade(event);
-            upgradedEvent.execute(playerUuid, events, i);
+            ExecutableEventStep executableEventStep = registry.upgrade(event);
+            if (executableEventStep == null) {
+                throw new IllegalStateException("No ExecutableEventStep found for EventStep: " + event.getClass().getName());
+            }
+            executableEventStep.execute(playerUuid, events, i);
         }
     }
 
