@@ -71,12 +71,8 @@ public class Registry<T extends BreweryKeyed> {
         }
     }
 
-    private static <T extends BreweryKeyed> Registry<T> fromParent(Class<T> tClass) {
-        String packageName = tClass.getPackageName();
-        return new Registry<>(assignableClasses(tClass, packageName));
-    }
 
-    // FIXME: This is okay for testing, but should not be a permanent solution.
+    // TODO: Remove this method or move it to bukkit module
     /**
      * Finds all classes in a specified package that are assignable to a given class.
      * This method will try to instantiate the class even if it has constructors with parameters.
