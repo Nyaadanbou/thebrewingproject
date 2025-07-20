@@ -2,7 +2,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.KaboomNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -13,7 +14,7 @@ import org.bukkit.util.Vector;
 import java.util.List;
 import java.util.UUID;
 
-public class KaboomNamedDrunkEventImpl extends KaboomNamedDrunkEvent {
+public class KaboomNamedExecutable implements ExecutableEventStep {
 
     private static final Vector UPWARDS = new Vector(0, 1, 0);
 
@@ -42,6 +43,6 @@ public class KaboomNamedDrunkEventImpl extends KaboomNamedDrunkEvent {
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(KaboomNamedDrunkEvent.class, original -> new KaboomNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.KABOOM, KaboomNamedExecutable::new);
     }
 }

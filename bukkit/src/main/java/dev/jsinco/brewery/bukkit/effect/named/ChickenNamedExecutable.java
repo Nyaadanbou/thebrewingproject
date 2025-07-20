@@ -4,7 +4,8 @@ import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.ChickenNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -15,7 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.List;
 import java.util.UUID;
 
-public class ChickenNamedDrunkEventImpl extends ChickenNamedDrunkEvent {
+public class ChickenNamedExecutable implements ExecutableEventStep {
 
     public static final NamespacedKey NO_DROPS = new NamespacedKey("brewery", "no_drops");
 
@@ -38,6 +39,6 @@ public class ChickenNamedDrunkEventImpl extends ChickenNamedDrunkEvent {
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(ChickenNamedDrunkEvent.class, original -> new ChickenNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.CHICKEN, ChickenNamedExecutable::new);
     }
 }

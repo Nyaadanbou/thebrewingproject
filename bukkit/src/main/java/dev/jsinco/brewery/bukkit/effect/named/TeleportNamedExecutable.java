@@ -6,7 +6,8 @@ import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.TeleportNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class TeleportNamedDrunkEventImpl extends TeleportNamedDrunkEvent {
+public class TeleportNamedExecutable implements ExecutableEventStep {
 
 
     @Override
@@ -39,6 +40,6 @@ public class TeleportNamedDrunkEventImpl extends TeleportNamedDrunkEvent {
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(TeleportNamedDrunkEvent.class, original -> new TeleportNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.TELEPORT, TeleportNamedExecutable::new);
     }
 }

@@ -2,6 +2,7 @@ package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.SendCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -9,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
-public class SendCommandImpl extends SendCommand {
+public class SendCommandImpl extends SendCommand implements ExecutableEventStep {
     
     public SendCommandImpl(String command, CommandSenderType senderType) {
         super(command, senderType);

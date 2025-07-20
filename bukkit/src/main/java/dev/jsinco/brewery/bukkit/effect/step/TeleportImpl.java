@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.Teleport;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Bukkit;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class TeleportImpl extends Teleport {
+public class TeleportImpl extends Teleport implements ExecutableEventStep {
 
     public TeleportImpl(Supplier<BreweryLocation> location) {
         super(location);
@@ -25,7 +26,7 @@ public class TeleportImpl extends Teleport {
             return;
         }
 
-        player.teleport(BukkitAdapter.toLocation(getLocation().get()));
+        player.teleportAsync(BukkitAdapter.toLocation(getLocation().get()));
     }
 
     @Override

@@ -3,8 +3,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.DrunkenWalkNamedDrunkEvent;
-import dev.jsinco.brewery.event.named.StumbleNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
+public class DrunkenWalkNamedExecutable implements ExecutableEventStep {
 
     private static final int DRUNKEN_WALK_DURATION = 400;
 
@@ -31,12 +31,12 @@ public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
         int duration = RANDOM.nextInt(DRUNKEN_WALK_DURATION / 2, DRUNKEN_WALK_DURATION * 3 / 2);
         DrunkenWalkHandler drunkenWalkHandler = new DrunkenWalkHandler(duration, player);
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), drunkenWalkHandler::tick, 0, 1);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), DrunkenWalkNamedDrunkEvent.class, duration);
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.DRUNKEN_WALK, duration);
     }
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(DrunkenWalkNamedDrunkEvent.class, original -> new DrunkenWalkNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.DRUNKEN_WALK, DrunkenWalkNamedExecutable::new);
     }
 
     static class DrunkenWalkHandler {
@@ -85,7 +85,7 @@ public class DrunkenWalkNamedDrunkEventImpl extends DrunkenWalkNamedDrunkEvent {
             }
             Vector walk = TheBrewingProject.getInstance().getPlayerWalkListener().getRegisteredMovement(player.getUniqueId());
             if (!player.isOnline() || !player.isOnGround() || walk == null || walk.lengthSquared() == 0D
-                    || TheBrewingProject.getInstance().getActiveEventsRegistry().hasActiveEvent(player.getUniqueId(), StumbleNamedDrunkEvent.class)
+                    || TheBrewingProject.getInstance().getActiveEventsRegistry().hasActiveEvent(player.getUniqueId(), NamedDrunkEvent.STUMBLE)
             ) {
                 return;
             }

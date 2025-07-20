@@ -3,14 +3,15 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.DrunkMessageNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
 
-public class DrunkMessageNamedDrunkEventImpl extends DrunkMessageNamedDrunkEvent {
+public class DrunkMessageNamedExecutable implements ExecutableEventStep {
 
     @Override
     public void execute(UUID contextPlayer, List<EventStep> events, int index) {
@@ -37,6 +38,6 @@ public class DrunkMessageNamedDrunkEventImpl extends DrunkMessageNamedDrunkEvent
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(DrunkMessageNamedDrunkEvent.class, original -> new DrunkMessageNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.DRUNK_MESSAGE, DrunkMessageNamedExecutable::new);
     }
 }

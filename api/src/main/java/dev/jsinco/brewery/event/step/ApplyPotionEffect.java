@@ -1,12 +1,7 @@
 package dev.jsinco.brewery.event.step;
 
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.IllegalEventStepCall;
 import dev.jsinco.brewery.moment.Interval;
-
-import java.util.List;
-import java.util.UUID;
 
 public class ApplyPotionEffect implements EventStep {
 
@@ -30,16 +25,6 @@ public class ApplyPotionEffect implements EventStep {
 
     public Interval getDurationBounds() {
         return durationBounds;
-    }
-
-    @Override
-    public void execute(UUID contextPlayer, List<EventStep> events, int index) {
-        throw new IllegalEventStepCall();
-    }
-
-    @Override
-    public void register(EventStepRegistry registry) {
-        throw new IllegalEventStepCall();
     }
 }
 

@@ -4,6 +4,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.CustomEvent;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.util.Registry;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class DrunkEventExecutor {
     public DrunkEventExecutor() {
         EventStepRegistry registry = TheBrewingProject.getInstance().getEventStepRegistry();
         for (String pack : PACKS) {
-            Registry.assignableClasses(EventStep.class, pack).forEach(eventStep -> {
+            Registry.assignableClasses(ExecutableEventStep.class, pack).forEach(eventStep -> {
                 eventStep.register(registry);
             });
         }
@@ -45,7 +46,7 @@ public class DrunkEventExecutor {
                 // Custom events are special <- TODO: This could use EventStepRegistry upgrading.
                 TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(playerUuid, customEvent.getSteps());
             } else {
-                EventStep upgradedEvent = registry.upgrade(event);
+                ExecutableEventStep upgradedEvent = registry.upgrade(event);
                 upgradedEvent.execute(playerUuid, events, i);
             }
         }

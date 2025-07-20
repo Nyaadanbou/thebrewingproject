@@ -2,7 +2,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.HallucinationNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -13,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.UUID;
 
-public class HallucinationsNamedDrunkEventImpl extends HallucinationNamedDrunkEvent {
+public class HallucinationNamedExecutable implements ExecutableEventStep {
 
     private static final int BLOCK_RANGE = 20;
 
@@ -37,6 +38,6 @@ public class HallucinationsNamedDrunkEventImpl extends HallucinationNamedDrunkEv
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(HallucinationNamedDrunkEvent.class, original -> new HallucinationsNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.HALLUCINATION, HallucinationNamedExecutable::new);
     }
 }

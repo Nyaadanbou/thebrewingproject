@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.ClassPath;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
-import dev.jsinco.brewery.event.named.NamedDrunkEvent;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ public class Registry<T extends BreweryKeyed> {
     public static final Registry<CauldronType> CAULDRON_TYPE = fromEnums(CauldronType.class);
     public static final Registry<StructureMeta<?>> STRUCTURE_META = (Registry<StructureMeta<?>>) fromFields(StructureMeta.class);
     public static final Registry<StructureType> STRUCTURE_TYPE = (Registry<StructureType>) fromFields(StructureType.class);
-    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromParent(NamedDrunkEvent.class);
+    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromEnums(NamedDrunkEvent.class);
 
     private final ImmutableMap<BreweryKey, T> backing;
 

@@ -4,7 +4,8 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.PukeNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ import org.bukkit.util.Vector;
 import java.util.List;
 import java.util.UUID;
 
-public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
+public class PukeNamedExecutable implements ExecutableEventStep {
 
     public static final NamespacedKey PUKE_ITEM = new NamespacedKey("brewery", "puke");
 
@@ -33,14 +34,14 @@ public class PukeNamedDrunkEventImpl extends PukeNamedDrunkEvent {
         }
 
         PukeHandler pukeHandler = new PukeHandler(Config.config().puke().pukeTime(), player);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), PukeNamedDrunkEvent.class, Config.config().puke().pukeTime());
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.PUKE, Config.config().puke().pukeTime());
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::tick, 0, 1);
     }
 
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(PukeNamedDrunkEvent.class, original -> new PukeNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.PUKE, PukeNamedExecutable::new);
     }
 
     static class PukeHandler {

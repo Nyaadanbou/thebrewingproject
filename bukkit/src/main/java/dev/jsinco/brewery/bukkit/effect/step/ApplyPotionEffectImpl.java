@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffect;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.moment.Interval;
 import org.bukkit.Bukkit;
@@ -14,7 +15,7 @@ import org.bukkit.potion.PotionEffect;
 import java.util.List;
 import java.util.UUID;
 
-public class ApplyPotionEffectImpl extends ApplyPotionEffect {
+public class ApplyPotionEffectImpl extends ApplyPotionEffect implements ExecutableEventStep {
 
     public ApplyPotionEffectImpl(String potionEffectName, Interval amplifierBounds, Interval durationBounds) {
         super(potionEffectName, amplifierBounds, durationBounds);

@@ -1,5 +1,6 @@
 package dev.jsinco.brewery.event;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,12 @@ public final class EventStepRegistry {
         T create(EventStep original);
     }
 
+    public interface NamedEventStepFactory<T extends EventStep> {
+        T create();
+    }
+
     private final Map<Class<? extends EventStep>, EventStepFactory<? extends EventStep>> factories = new HashMap<>();
+    private final EnumMap<NamedDrunkEvent, NamedEventStepFactory<? extends EventStep>> enumFactories = new EnumMap<>(NamedDrunkEvent.class);
 
     public <T extends EventStep> void register(Class<T> baseClass, EventStepFactory<T> factory) {
         if (factories.containsKey(baseClass)) {
@@ -24,10 +30,23 @@ public final class EventStepRegistry {
         factories.put(baseClass, factory);
     }
 
+    public <T extends EventStep> void register(NamedDrunkEvent event, NamedEventStepFactory<T> factory) {
+        if (enumFactories.containsKey(event)) {
+            throw new IllegalArgumentException("Factory for " + event.name() + " is already registered.");
+        }
+        enumFactories.put(event, factory);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends EventStep> T upgrade(T original) {
+    public <T extends ExecutableEventStep> T upgrade(EventStep original) {
         EventStepFactory<T> factory = (EventStepFactory<T>) factories.get(original.getClass());
-        return factory != null ? factory.create(original) : original;
+        return factory != null ? factory.create(original) : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends EventStep> T upgrade(NamedDrunkEvent event) {
+        NamedEventStepFactory<T> factory = (NamedEventStepFactory<T>) enumFactories.get(event);
+        return factory != null ? factory.create() : null;
     }
 }
 

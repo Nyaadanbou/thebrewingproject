@@ -3,7 +3,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
-import dev.jsinco.brewery.event.named.FeverNamedDrunkEvent;
+import dev.jsinco.brewery.event.ExecutableEventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -11,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 import java.util.UUID;
 
-public class FeverNamedDrunkEventImpl extends FeverNamedDrunkEvent {
+public class FeverNamedExecutable implements ExecutableEventStep {
 
     private static final int AFFECT_DURATION = 200; // 10 seconds
 
@@ -38,6 +39,6 @@ public class FeverNamedDrunkEventImpl extends FeverNamedDrunkEvent {
 
     @Override
     public void register(EventStepRegistry registry) {
-        registry.register(FeverNamedDrunkEvent.class, original -> new FeverNamedDrunkEventImpl());
+        registry.register(NamedDrunkEvent.FEVER, FeverNamedExecutable::new);
     }
 }

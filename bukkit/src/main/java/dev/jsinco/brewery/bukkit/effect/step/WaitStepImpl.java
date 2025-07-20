@@ -3,13 +3,14 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.WaitStep;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.UUID;
 
-public class WaitStepImpl extends WaitStep {
+public class WaitStepImpl extends WaitStep implements ExecutableEventStep {
 
     public WaitStepImpl(int durationTicks) {
         super(durationTicks);

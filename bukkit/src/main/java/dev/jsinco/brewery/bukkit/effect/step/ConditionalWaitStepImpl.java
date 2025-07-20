@@ -3,12 +3,13 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
+import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 
 import java.util.List;
 import java.util.UUID;
 
-public class ConditionalWaitStepImpl extends ConditionalWaitStep {
+public class ConditionalWaitStepImpl extends ConditionalWaitStep implements ExecutableEventStep {
 
     public ConditionalWaitStepImpl(Condition condition) {
         super(condition);
