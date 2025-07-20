@@ -2,7 +2,6 @@ package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.WaitStep;
 import org.bukkit.Bukkit;
@@ -34,11 +33,4 @@ public class WaitStepImpl extends WaitStep implements ExecutableEventStep {
         );
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(WaitStep.class, original -> {
-            WaitStep event = (WaitStep) original;
-            return new WaitStepImpl(event.getDurationTicks());
-        });
-    }
 }

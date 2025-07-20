@@ -7,9 +7,7 @@ import dev.jsinco.brewery.configuration.EventSection;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -36,8 +34,4 @@ public class PassOutNamedExecutable implements ExecutableEventStep {
         drunksManager.registerPassedOut(player.getUniqueId());
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.PASS_OUT, PassOutNamedExecutable::new);
-    }
 }

@@ -1,14 +1,14 @@
 package dev.jsinco.brewery.configuration.serializers;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.event.CustomEvent;
 import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.SendCommand;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 import dev.jsinco.brewery.event.step.ConsumeStep;
-import dev.jsinco.brewery.event.step.SendCommand;
+import dev.jsinco.brewery.event.step.CustomEvent;
 import dev.jsinco.brewery.event.step.Teleport;
 import dev.jsinco.brewery.event.step.WaitStep;
 import dev.jsinco.brewery.moment.Interval;

@@ -10,5 +10,4 @@ public interface ExecutableEventStep extends EventStep {
 
     void execute(UUID contextPlayer, List<EventStep> events, int index);
 
-    void register(EventStepRegistry registry);
 }

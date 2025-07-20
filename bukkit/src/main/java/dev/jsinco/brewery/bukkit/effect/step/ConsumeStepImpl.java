@@ -2,7 +2,6 @@ package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.ConsumeStep;
 
@@ -20,11 +19,4 @@ public class ConsumeStepImpl extends ConsumeStep implements ExecutableEventStep 
         TheBrewingProject.getInstance().getDrunksManager().consume(contextPlayer, getAlcohol(), getToxins());
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(ConsumeStep.class, original -> {
-            ConsumeStep event = (ConsumeStep) original;
-            return new ConsumeStepImpl(event.getAlcohol(), event.getToxins());
-        });
-    }
 }

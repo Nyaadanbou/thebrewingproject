@@ -3,9 +3,7 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.util.BukkitMessageUtil;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -37,8 +35,4 @@ public class ChickenNamedExecutable implements ExecutableEventStep {
         player.sendMessage(MiniMessage.miniMessage().deserialize(TranslationsConfig.CHICKEN_MESSAGE, BukkitMessageUtil.getPlayerTagResolver(player)));
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.CHICKEN, ChickenNamedExecutable::new);
-    }
 }

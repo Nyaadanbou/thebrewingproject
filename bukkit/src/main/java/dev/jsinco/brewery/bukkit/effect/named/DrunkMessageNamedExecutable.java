@@ -2,9 +2,7 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -36,8 +34,4 @@ public class DrunkMessageNamedExecutable implements ExecutableEventStep {
         player.chat(drunkMessages.get(RANDOM.nextInt(drunkMessages.size())).replace("<random_player_name>", randomPlayer.getName()));
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.DRUNK_MESSAGE, DrunkMessageNamedExecutable::new);
-    }
 }

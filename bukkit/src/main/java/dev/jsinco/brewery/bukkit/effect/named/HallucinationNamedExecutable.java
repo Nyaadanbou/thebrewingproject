@@ -1,9 +1,7 @@
 package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,8 +34,4 @@ public class HallucinationNamedExecutable implements ExecutableEventStep {
         player.spawnParticle(Particle.DUST, block.getLocation().toCenterLocation(), 10, 0.5, 0.5, 0.5, new Particle.DustOptions(blockData.getMapColor(), 1f));
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.HALLUCINATION, HallucinationNamedExecutable::new);
-    }
 }

@@ -10,17 +10,17 @@ import java.util.UUID;
 // Potential memory leak, probably not that large though
 public class ActiveEventsRegistry {
 
-    private Map<UUID, Map<NamedDrunkEvent, Long>> events = new HashMap<>();
+    private Map<UUID, Map<Class<? extends NamedDrunkEvent>, Long>> events = new HashMap<>();
 
-    public boolean hasActiveEvent(UUID playerUuid, NamedDrunkEvent event) {
-        Map<NamedDrunkEvent, Long> playerEvents = events.get(playerUuid);
+    public boolean hasActiveEvent(UUID playerUuid, Class<? extends NamedDrunkEvent> event) {
+        Map<Class<? extends NamedDrunkEvent>, Long> playerEvents = events.get(playerUuid);
         if (playerEvents == null) {
             return false;
         }
         return playerEvents.containsKey(event) && playerEvents.get(event) > TheBrewingProject.getInstance().getTime();
     }
 
-    public void registerActiveEvent(UUID playerUuid, NamedDrunkEvent event, int duration) {
+    public void registerActiveEvent(UUID playerUuid, Class<? extends NamedDrunkEvent> event, int duration) {
         events.computeIfAbsent(playerUuid, ignored -> new HashMap<>())
                 .put(event, TheBrewingProject.getInstance().getTime() + duration);
     }

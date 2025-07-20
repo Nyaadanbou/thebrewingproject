@@ -2,9 +2,8 @@ package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.named.StumbleNamedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -27,13 +26,8 @@ public class StumbleNamedExecutable implements ExecutableEventStep {
 
         int duration = RANDOM.nextInt(STUMBLE_DURATION / 2, STUMBLE_DURATION * 3 / 2 + 1);
         StumbleHandler stumbleHandler = new StumbleHandler(duration, player);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.STUMBLE, duration);
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), StumbleNamedEvent.class, duration);
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), stumbleHandler::doStumble, 0, 1);
-    }
-
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.STUMBLE, StumbleNamedExecutable::new);
     }
 
     static class StumbleHandler {

@@ -1,9 +1,8 @@
 package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.step.SendCommand;
+import dev.jsinco.brewery.event.SendCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -29,11 +28,4 @@ public class SendCommandImpl extends SendCommand implements ExecutableEventStep 
         }
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(SendCommand.class, original -> {
-            SendCommand event = (SendCommand) original;
-            return new SendCommandImpl(event.getCommand(), event.getSenderType());
-        });
-    }
 }

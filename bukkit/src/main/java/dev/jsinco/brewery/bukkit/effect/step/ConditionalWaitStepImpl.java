@@ -2,7 +2,6 @@ package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 
@@ -24,13 +23,5 @@ public class ConditionalWaitStepImpl extends ConditionalWaitStep implements Exec
         if (getCondition() == ConditionalWaitStep.Condition.JOIN && index + 1 < events.size()) {
             TheBrewingProject.getInstance().getDrunkEventExecutor().add(contextPlayer, events.subList(index + 1, events.size()));
         }
-    }
-
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(ConditionalWaitStep.class, original -> {
-            ConditionalWaitStep event = (ConditionalWaitStep) original;
-            return new ConditionalWaitStepImpl(event.getCondition());
-        });
     }
 }

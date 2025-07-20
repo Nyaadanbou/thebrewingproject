@@ -1,9 +1,7 @@
 package dev.jsinco.brewery.bukkit.effect.named;
 
 import dev.jsinco.brewery.event.EventStep;
-import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.moment.Moment;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,8 +23,4 @@ public class NauseaNamedExecutable implements ExecutableEventStep {
         player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, RANDOM.nextInt(Moment.MINUTE / 2, Moment.MINUTE * 3 / 2), 1));
     }
 
-    @Override
-    public void register(EventStepRegistry registry) {
-        registry.register(NamedDrunkEvent.NAUSEA, NauseaNamedExecutable::new);
-    }
 }
