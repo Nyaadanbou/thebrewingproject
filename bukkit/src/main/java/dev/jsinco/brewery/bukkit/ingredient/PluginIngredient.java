@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.ingredient;
 import dev.jsinco.brewery.bukkit.integration.ItemIntegration;
 import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Logger;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +29,7 @@ public class PluginIngredient implements Ingredient {
         return displayName == null ? Component.text(key.key()) : displayName;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -36,7 +38,12 @@ public class PluginIngredient implements Ingredient {
             return false;
         }
         PluginIngredient that = (PluginIngredient) o;
-        return Objects.equals(key, that.key) && itemIntegration == that.itemIntegration;
+
+        // remove optional plugin namespaces before checking for equality
+        String thisKey = key.key().contains(":") ? key.key().split(":", 2)[1] : key.key();
+        String thatKey = that.key.key().contains(":") ? that.key.key().split(":", 2)[1] : that.key.key();
+
+        return Objects.equals(thisKey, thatKey) && itemIntegration == that.itemIntegration;
     }
 
     @Override
