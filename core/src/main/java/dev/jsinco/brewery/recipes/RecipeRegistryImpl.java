@@ -6,6 +6,7 @@ import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.recipe.Recipe;
 import dev.jsinco.brewery.recipe.RecipeRegistry;
 import dev.jsinco.brewery.recipe.RecipeResult;
+import dev.jsinco.brewery.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -100,7 +101,7 @@ public class RecipeRegistryImpl<I> implements RecipeRegistry<I> {
 
     @Override
     public boolean isRegisteredIngredient(Ingredient ingredient) {
-        return allIngredients.contains(ingredient);
+        return allIngredients.stream().anyMatch(ingredient::equals);
     }
 
     @Override
