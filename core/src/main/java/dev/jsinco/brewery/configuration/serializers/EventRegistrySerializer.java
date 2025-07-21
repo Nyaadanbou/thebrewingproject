@@ -14,7 +14,7 @@ import dev.jsinco.brewery.event.step.WaitStep;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
-import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Registry;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import io.leangen.geantyref.TypeToken;
@@ -97,7 +97,7 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
 
             return new CustomEvent(eventSteps, alcohol, toxin, probabilityWeight, eventName, BreweryKey.parse(eventName));
         } catch (IllegalArgumentException e) {
-            Logging.error("Exception when reading custom event: " + eventName);
+            Logger.logErr("Exception when reading custom event: " + eventName);
             throw new SerializationException(e);
         }
     }

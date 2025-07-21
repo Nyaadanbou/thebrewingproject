@@ -28,6 +28,7 @@ import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.ingredient.ScoredIngredient;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.MessageUtil;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.GameMode;
@@ -41,7 +42,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -195,7 +200,7 @@ public class PlayerEventListener implements Listener {
             try {
                 database.updateValue(BukkitCauldronDataType.INSTANCE, cauldron);
             } catch (PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }
         return addedIngredient;
@@ -216,7 +221,7 @@ public class PlayerEventListener implements Listener {
         try {
             database.insertValue(BukkitCauldronDataType.INSTANCE, newCauldron);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
         breweryRegistry.addActiveSinglePositionStructure(newCauldron);
         return newCauldron;

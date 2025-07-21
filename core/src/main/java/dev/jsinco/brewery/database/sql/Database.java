@@ -2,8 +2,16 @@ package dev.jsinco.brewery.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import dev.jsinco.brewery.database.*;
+import dev.jsinco.brewery.database.FindableStoredData;
+import dev.jsinco.brewery.database.InsertableStoredData;
+import dev.jsinco.brewery.database.PersistenceException;
+import dev.jsinco.brewery.database.PersistenceHandler;
+import dev.jsinco.brewery.database.RemovableStoredData;
+import dev.jsinco.brewery.database.RetrievableStoredData;
+import dev.jsinco.brewery.database.SingletonStoredData;
+import dev.jsinco.brewery.database.UpdateableStoredData;
 import dev.jsinco.brewery.util.FileUtil;
+import dev.jsinco.brewery.util.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -121,7 +129,7 @@ public class Database implements PersistenceHandler<Connection> {
             try (Connection connection = hikariDataSource.getConnection()) {
                 dataType.remove(toRemove, connection);
             } catch (SQLException | PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }, executor);
     }
@@ -135,7 +143,7 @@ public class Database implements PersistenceHandler<Connection> {
             try (Connection connection = hikariDataSource.getConnection()) {
                 dataType.update(newValue, connection);
             } catch (SQLException | PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }, executor);
     }
@@ -149,7 +157,7 @@ public class Database implements PersistenceHandler<Connection> {
             try (Connection connection = hikariDataSource.getConnection()) {
                 dataType.insert(value, connection);
             } catch (SQLException | PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }, executor);
     }
@@ -199,7 +207,7 @@ public class Database implements PersistenceHandler<Connection> {
             try (Connection connection = hikariDataSource.getConnection()) {
                 dataType.set(t, connection);
             } catch (SQLException | PersistenceException e) {
-                e.printStackTrace();
+                Logger.logErr(e);
             }
         }, executor);
     }

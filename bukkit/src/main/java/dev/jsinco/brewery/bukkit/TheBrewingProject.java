@@ -54,7 +54,7 @@ import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.Holder;
-import dev.jsinco.brewery.util.Logging;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Util;
 import io.leangen.geantyref.TypeToken;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -111,8 +111,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Getter
     private PlayerWalkListener playerWalkListener;
 
-    @Override
-    public void onLoad() {
+    public void initialize() {
         instance = this;
         Config.load(this.getDataFolder(), serializers());
         TranslationsConfig.reload(this.getDataFolder());
@@ -186,8 +185,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                     try {
                         return Stream.of(StructureReader.fromJson(path));
                     } catch (IOException | StructureReadException e) {
-                        Logging.error("Could not load structure: " + path);
-                        e.printStackTrace();
+                        Logger.logErr("Could not load structure: " + path);
+                        Logger.logErr(e);
                         return Stream.empty();
                     }
                 })
@@ -202,6 +201,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     @Override
     public void onEnable() {
+        initialize();
         integrationManager.init();
         saveResources();
         this.database = new Database(DatabaseDriver.SQLITE);
@@ -244,7 +244,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
             database.setSingleton(BreweryTimeDataType.INSTANCE, time).join();
             database.flush().join();
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -279,7 +279,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                 database.setSingleton(BreweryTimeDataType.INSTANCE, time);
             }
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 }

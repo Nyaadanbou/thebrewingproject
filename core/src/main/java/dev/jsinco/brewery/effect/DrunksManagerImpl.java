@@ -7,6 +7,7 @@ import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.event.DrunkEvent;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.util.RandomUtil;
 import dev.jsinco.brewery.util.Registry;
@@ -14,7 +15,13 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.LongSupplier;
 import java.util.function.Predicate;
@@ -49,7 +56,7 @@ public class DrunksManagerImpl<C> implements DrunksManager {
             persistenceHandler.retrieveAllNow(drunkStateDataType)
                     .forEach(pair -> drunks.put(pair.second(), pair.first()));
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -73,7 +80,7 @@ public class DrunksManagerImpl<C> implements DrunksManager {
                 try {
                     persistenceHandler.remove(drunkStateDataType, playerUuid);
                 } catch (PersistenceException e) {
-                    e.printStackTrace();
+                    Logger.logErr(e);
                 }
             }
             return null;
@@ -87,7 +94,7 @@ public class DrunksManagerImpl<C> implements DrunksManager {
                 persistenceHandler.insertValue(drunkStateDataType, new Pair<>(drunkState, playerUuid));
             }
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
         return drunkState;
     }
@@ -114,7 +121,7 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         try {
             persistenceHandler.remove(drunkStateDataType, playerUuid);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
         if (plannedEventTime == null) {
             return;

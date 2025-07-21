@@ -8,7 +8,11 @@ import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrelDataType;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistilleryDataType;
-import dev.jsinco.brewery.bukkit.structure.*;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
+import dev.jsinco.brewery.bukkit.structure.BreweryStructure;
+import dev.jsinco.brewery.bukkit.structure.GenericBlockDataMatcher;
+import dev.jsinco.brewery.bukkit.structure.PlacedBreweryStructure;
+import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
@@ -18,9 +22,11 @@ import dev.jsinco.brewery.structure.MultiblockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
+import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.vector.BreweryLocation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,14 +34,23 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.HopperInventorySearchEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class BlockEventListener implements Listener {
 
@@ -82,7 +97,7 @@ public class BlockEventListener implements Listener {
         try {
             database.insertValue(BukkitBarrelDataType.INSTANCE, barrel);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -114,7 +129,7 @@ public class BlockEventListener implements Listener {
             database.insertValue(BukkitDistilleryDataType.INSTANCE, bukkitDistillery);
             breweryRegistry.registerInventory(bukkitDistillery);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 
@@ -153,6 +168,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK) {
+            return;
+        }
         onMultiBlockRemove(event.blockList().stream()
                 .map(Block::getLocation)
                 .toList()
@@ -161,6 +179,9 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockExplode(BlockExplodeEvent event) {
+        if (event.getExplosionResult() == ExplosionResult.TRIGGER_BLOCK) {
+            return;
+        }
         onMultiBlockRemove(event.blockList().stream()
                 .map(Block::getLocation)
                 .toList()
@@ -245,7 +266,7 @@ public class BlockEventListener implements Listener {
                 database.remove(BukkitDistilleryDataType.INSTANCE, distillery);
             }
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
         }
     }
 }

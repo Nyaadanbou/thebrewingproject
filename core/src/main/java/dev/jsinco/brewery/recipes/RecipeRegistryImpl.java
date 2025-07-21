@@ -8,7 +8,15 @@ import dev.jsinco.brewery.recipe.RecipeRegistry;
 import dev.jsinco.brewery.recipe.RecipeResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RecipeRegistryImpl<I> implements RecipeRegistry<I> {
@@ -100,7 +108,7 @@ public class RecipeRegistryImpl<I> implements RecipeRegistry<I> {
 
     @Override
     public boolean isRegisteredIngredient(Ingredient ingredient) {
-        return allIngredients.contains(ingredient);
+        return allIngredients.stream().anyMatch(ingredient::equals);
     }
 
     @Override

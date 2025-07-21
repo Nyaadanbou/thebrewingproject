@@ -1,12 +1,27 @@
 package dev.jsinco.brewery.bukkit.structure;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
-import dev.jsinco.brewery.util.*;
+import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.BreweryKeyed;
+import dev.jsinco.brewery.util.Logger;
+import dev.jsinco.brewery.util.Pair;
+import dev.jsinco.brewery.util.Registry;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +48,7 @@ public class StructureJsonFormatValidator {
                     .map(entry -> {
                         StructureMeta<?> meta = Registry.STRUCTURE_META.get(BreweryKey.parse(entry.getKey()));
                         if (meta == null) {
-                            Logging.warning("Unknown meta key in structure '" + fileName + "': " + entry.getKey());
+                            Logger.logErr("Unknown meta key in structure '" + fileName + "': " + entry.getKey());
                             return null;
                         }
                         try {
@@ -46,7 +61,7 @@ public class StructureJsonFormatValidator {
                     .collect(Collectors.toMap(Pair::first, Pair::second));
             StructureType structureType = get(structureMeta, StructureMeta.TYPE);
             if (structureType == null) {
-                Logging.warning("Missing meta key in structure '" + fileName + "': type");
+                Logger.logErr("Missing meta key in structure '" + fileName + "': type");
                 return false;
             }
             for (StructureMeta<?> meta : structureType.mandatoryMeta()) {
@@ -56,7 +71,7 @@ public class StructureJsonFormatValidator {
             for (Map.Entry<StructureMeta<?>, Object> entry : structureMeta.entrySet()) {
                 Object value = entry.getValue();
                 if (!entry.getKey().validator().test(value)) {
-                    Logging.warning("Invalid value for meta type in structure '" + fileName + "':" + entry.getKey().key().key());
+                    Logger.logErr("Invalid value for meta type in structure '" + fileName + "':" + entry.getKey().key().key());
                     value = entry.getKey().defaultValue();
                 }
                 if (entry.getKey().equals(StructureMeta.TYPE)) {
@@ -64,7 +79,7 @@ public class StructureJsonFormatValidator {
                     continue;
                 }
                 if (Arrays.stream(structureType.mandatoryMeta()).noneMatch(entry.getKey()::equals)) {
-                    Logging.warning("Illegal meta in structure '" + fileName + "':" + entry.getKey().key().key());
+                    Logger.logErr("Illegal meta in structure '" + fileName + "':" + entry.getKey().key().key());
                     continue;
                 }
                 switch (value) {
@@ -81,7 +96,7 @@ public class StructureJsonFormatValidator {
             dump(jsonObject, jsonPath);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.logErr(e);
             return false;
         }
     }

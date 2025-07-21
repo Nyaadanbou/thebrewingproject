@@ -12,7 +12,12 @@ import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.SqlStatements;
 import dev.jsinco.brewery.database.sql.SqlStoredData;
-import dev.jsinco.brewery.util.*;
+import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.DecoderEncoder;
+import dev.jsinco.brewery.util.FutureUtil;
+import dev.jsinco.brewery.util.Logger;
+import dev.jsinco.brewery.util.Pair;
+import dev.jsinco.brewery.util.Registry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.joml.Matrix3d;
@@ -89,14 +94,14 @@ public class BukkitBarrelDataType implements SqlStoredData.Findable<BukkitBarrel
                 String format = resultSet.getString("format");
                 BarrelType type = Registry.BARREL_TYPE.get(BreweryKey.parse(resultSet.getString("barrel_type")));
                 if (type == null) {
-                    Logging.warning("Unknown barrel type '" + resultSet.getString("barrel_type") + "' for structure at: " + uniqueLocation);
+                    Logger.logErr("Unknown barrel type '" + resultSet.getString("barrel_type") + "' for structure at: " + uniqueLocation);
                     continue;
                 }
                 int size = resultSet.getInt("size");
 
                 Optional<BreweryStructure> breweryStructureOptional = TheBrewingProject.getInstance().getStructureRegistry().getStructure(format);
                 if (breweryStructureOptional.isEmpty()) {
-                    Logging.warning("Could not find format '" + format + "' skipping barrel at: " + uniqueLocation);
+                    Logger.logErr("Could not find format '" + format + "' skipping barrel at: " + uniqueLocation);
                     continue;
                 }
                 PlacedBreweryStructure<BukkitBarrel> structure = new PlacedBreweryStructure<>(breweryStructureOptional.get(), transform, worldOrigin);

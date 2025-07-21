@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class ItemsAdderIntegration implements ItemIntegration, Listener {
@@ -57,7 +58,13 @@ public class ItemsAdderIntegration implements ItemIntegration, Listener {
     public void initialize() {
         Bukkit.getPluginManager().registerEvents(this, TheBrewingProject.getInstance());
         this.initializedFuture = new CompletableFuture<>();
-        Bukkit.getScheduler().runTask(TheBrewingProject.getInstance(), () -> initializedFuture.completeExceptionally(new TimeoutException()));
+
+        //Bukkit.getScheduler().runTask(TheBrewingProject.getInstance(), () -> initializedFuture.completeExceptionally(new TimeoutException()));
+        CompletableFuture.delayedExecutor(60, TimeUnit.SECONDS).execute(() -> {
+            if (!initializedFuture.isDone()) {
+                initializedFuture.completeExceptionally(new TimeoutException("ItemsAdderLoadDataEvent wasn't fired in time"));
+            }
+        });
     }
 
     @EventHandler
