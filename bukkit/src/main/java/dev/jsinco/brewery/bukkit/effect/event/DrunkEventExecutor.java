@@ -17,22 +17,12 @@ import dev.jsinco.brewery.bukkit.effect.step.CustomEventImpl;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.SendCommand;
-import dev.jsinco.brewery.event.named.ChickenNamedEvent;
-import dev.jsinco.brewery.event.named.DrunkMessageNamedEvent;
-import dev.jsinco.brewery.event.named.DrunkenWalkNamedEvent;
-import dev.jsinco.brewery.event.named.FeverNamedEvent;
-import dev.jsinco.brewery.event.named.HallucinationNamedEvent;
-import dev.jsinco.brewery.event.named.KaboomNamedEvent;
-import dev.jsinco.brewery.event.named.NauseaNamedEvent;
-import dev.jsinco.brewery.event.named.PassOutNamedEvent;
-import dev.jsinco.brewery.event.named.PukeNamedEvent;
-import dev.jsinco.brewery.event.named.StumbleNamedEvent;
-import dev.jsinco.brewery.event.named.TeleportNamedEvent;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 import dev.jsinco.brewery.event.step.ConsumeStep;
 import dev.jsinco.brewery.event.step.CustomEvent;
+import dev.jsinco.brewery.event.step.SendCommand;
 import dev.jsinco.brewery.event.step.Teleport;
 import dev.jsinco.brewery.event.step.WaitStep;
 
@@ -47,17 +37,17 @@ public class DrunkEventExecutor {
 
     public DrunkEventExecutor() {
         EventStepRegistry registry = TheBrewingProject.getInstance().getEventStepRegistry();
-        registry.register(ChickenNamedEvent.class, o -> new ChickenNamedExecutable());
-        registry.register(DrunkenWalkNamedEvent.class, o -> new DrunkenWalkNamedExecutable());
-        registry.register(DrunkMessageNamedEvent.class, o -> new DrunkMessageNamedExecutable());
-        registry.register(FeverNamedEvent.class, o -> new FeverNamedExecutable());
-        registry.register(HallucinationNamedEvent.class, o -> new HallucinationNamedExecutable());
-        registry.register(KaboomNamedEvent.class, o -> new KaboomNamedExecutable());
-        registry.register(NauseaNamedEvent.class, o -> new NauseaNamedExecutable());
-        registry.register(PassOutNamedEvent.class, o -> new PassOutNamedExecutable());
-        registry.register(PukeNamedEvent.class, o -> new PukeNamedExecutable());
-        registry.register(StumbleNamedEvent.class, o -> new StumbleNamedExecutable());
-        registry.register(TeleportNamedEvent.class, o -> new TeleportNamedExecutable());
+        registry.register(NamedDrunkEvent.fromKey("chicken"), ChickenNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("drunken_walk"), DrunkenWalkNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("drunk_message"), DrunkMessageNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("fever"), FeverNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("hallucination"), HallucinationNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("kaboom"), KaboomNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("nausea"), NauseaNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("pass_out"), PassOutNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("puke"), PukeNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("stumble"), StumbleNamedExecutable::new);
+        registry.register(NamedDrunkEvent.fromKey("teleport"), TeleportNamedExecutable::new);
         registry.register(ApplyPotionEffect.class, o -> {
             ApplyPotionEffect e = (ApplyPotionEffect) o;
             return new ApplyPotionEffectImpl(e.getPotionEffectName(), e.getAmplifierBounds(), e.getDurationBounds());

@@ -1,8 +1,7 @@
 package dev.jsinco.brewery.configuration;
 
 import dev.jsinco.brewery.event.CustomEventRegistry;
-import dev.jsinco.brewery.event.named.PassOutNamedEvent;
-import dev.jsinco.brewery.event.named.TeleportNamedEvent;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.event.step.ConditionalWaitStep;
 import dev.jsinco.brewery.event.step.ConsumeStep;
@@ -34,9 +33,9 @@ public class EventSection {
                     .alcoholRequirement(60)
                     .toxinsRequirement(90)
                     .probabilityWeight(5)
-                    .addStep(new PassOutNamedEvent())
+                    .addStep(NamedDrunkEvent.fromKey("pass_out")) // new PassOutNamedEvent()
                     .addStep(new ConditionalWaitStep(ConditionalWaitStep.Condition.JOIN))
-                    .addStep(new TeleportNamedEvent())
+                    .addStep(NamedDrunkEvent.fromKey("teleport")) // new TeleportNamedEvent()
                     .addStep(new ConsumeStep(-30, -15))
                     .build()
             ).addEvent(

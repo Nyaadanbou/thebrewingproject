@@ -1,5 +1,7 @@
-package dev.jsinco.brewery.event;
+package dev.jsinco.brewery.event.step;
 
+
+import dev.jsinco.brewery.event.EventStep;
 
 public class SendCommand implements EventStep {
 

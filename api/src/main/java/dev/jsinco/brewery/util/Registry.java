@@ -1,27 +1,22 @@
 package dev.jsinco.brewery.util;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import dev.jsinco.brewery.breweries.BarrelType;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.event.NamedDrunkEvent;
-import dev.jsinco.brewery.event.named.ChickenNamedEvent;
-import dev.jsinco.brewery.event.named.DrunkMessageNamedEvent;
-import dev.jsinco.brewery.event.named.DrunkenWalkNamedEvent;
-import dev.jsinco.brewery.event.named.FeverNamedEvent;
-import dev.jsinco.brewery.event.named.HallucinationNamedEvent;
-import dev.jsinco.brewery.event.named.KaboomNamedEvent;
-import dev.jsinco.brewery.event.named.NauseaNamedEvent;
-import dev.jsinco.brewery.event.named.PassOutNamedEvent;
-import dev.jsinco.brewery.event.named.PukeNamedEvent;
-import dev.jsinco.brewery.event.named.StumbleNamedEvent;
-import dev.jsinco.brewery.event.named.TeleportNamedEvent;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,7 +28,7 @@ public class Registry<T extends BreweryKeyed> {
     public static final Registry<CauldronType> CAULDRON_TYPE = fromEnums(CauldronType.class);
     public static final Registry<StructureMeta<?>> STRUCTURE_META = (Registry<StructureMeta<?>>) fromFields(StructureMeta.class);
     public static final Registry<StructureType> STRUCTURE_TYPE = (Registry<StructureType>) fromFields(StructureType.class);
-    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromClasses(ChickenNamedEvent.class, DrunkenWalkNamedEvent.class, DrunkMessageNamedEvent.class, FeverNamedEvent.class, HallucinationNamedEvent.class, KaboomNamedEvent.class, NauseaNamedEvent.class, PassOutNamedEvent.class, PukeNamedEvent.class, StumbleNamedEvent.class, TeleportNamedEvent.class);
+    public static final Registry<NamedDrunkEvent> DRUNK_EVENT = fromJson("/named_drunk_events.json", NamedDrunkEvent.class);
 
     private final ImmutableMap<BreweryKey, T> backing;
 
@@ -54,7 +49,6 @@ public class Registry<T extends BreweryKeyed> {
     public boolean containsKey(BreweryKey key) {
         return backing.containsKey(key);
     }
-
 
     private static <E extends Enum<E> & BreweryKeyed> Registry<E> fromEnums(Class<E> enumClass) {
         return new Registry<>(Arrays.stream(enumClass.getEnumConstants()).toList());
@@ -78,19 +72,21 @@ public class Registry<T extends BreweryKeyed> {
         }
     }
 
-    private static <T extends BreweryKeyed> Registry<T> fromClasses(Class<? extends T>... classes) {
-        List<T> tList = new ArrayList<>();
-        for (Class<? extends T> clazz : classes) {
-            try {
-                Constructor<? extends T> constructor = clazz.getDeclaredConstructor();
-                constructor.setAccessible(true);
-                T instance = constructor.newInstance();
-                tList.add(instance);
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Failed to instantiate class: " + clazz.getName(), e);
-            }
-        }
-        return new Registry<>(tList);
-    }
 
+    public static <T extends BreweryKeyed> Registry<T> fromJson(String path, Class<T> tClass) {
+        Gson gson = new Gson(); // Make this static if this method is called multiple times
+
+        try (
+                InputStream inputStream = Registry.class.getResourceAsStream(path);
+                InputStreamReader reader = new InputStreamReader(
+                        Preconditions.checkNotNull(inputStream, "InputStream for path '" + path + "' cannot be null")
+                )
+        ) {
+            Type listType = TypeToken.getParameterized(List.class, tClass).getType();
+            List<T> tList = gson.fromJson(reader, listType);
+            return new Registry<>(tList);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read from JSON at path: " + path, e);
+        }
+    }
 }

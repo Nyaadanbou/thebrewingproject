@@ -3,8 +3,7 @@ package dev.jsinco.brewery.bukkit.effect.named;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.named.DrunkenWalkNamedEvent;
-import dev.jsinco.brewery.event.named.StumbleNamedEvent;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import dev.jsinco.brewery.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,7 +30,7 @@ public class DrunkenWalkNamedExecutable implements ExecutableEventStep {
         int duration = RANDOM.nextInt(DRUNKEN_WALK_DURATION / 2, DRUNKEN_WALK_DURATION * 3 / 2);
         DrunkenWalkHandler drunkenWalkHandler = new DrunkenWalkHandler(duration, player);
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), drunkenWalkHandler::tick, 0, 1);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), DrunkenWalkNamedEvent.class, duration);
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("drunken_walk"), duration);
     }
 
     static class DrunkenWalkHandler {
@@ -80,7 +79,7 @@ public class DrunkenWalkNamedExecutable implements ExecutableEventStep {
             }
             Vector walk = TheBrewingProject.getInstance().getPlayerWalkListener().getRegisteredMovement(player.getUniqueId());
             if (!player.isOnline() || !player.isOnGround() || walk == null || walk.lengthSquared() == 0D
-                    || TheBrewingProject.getInstance().getActiveEventsRegistry().hasActiveEvent(player.getUniqueId(), StumbleNamedEvent.class)
+                    || TheBrewingProject.getInstance().getActiveEventsRegistry().hasActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("stumble"))
             ) {
                 return;
             }

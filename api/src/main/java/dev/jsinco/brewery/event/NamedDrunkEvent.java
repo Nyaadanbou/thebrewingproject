@@ -1,25 +1,39 @@
 package dev.jsinco.brewery.event;
 
+import com.google.common.base.Preconditions;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.BreweryKeyed;
+import dev.jsinco.brewery.util.Registry;
 
 import java.util.Locale;
 
-public abstract class NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
+public class NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
 
-    private final int alcoholRequirement;
-    private final int toxinsRequirement;
-    private final int probabilityWeight;
+
     private final String name;
-    private final BreweryKey key;
+    @SerializedName("alcohol_requirement")
+    private final int alcoholRequirement;
+    @SerializedName("toxins_requirement")
+    private final int toxinsRequirement;
+    @SerializedName("probability_weight")
+    private final int probabilityWeight;
 
-    public NamedDrunkEvent(int alcoholRequirement, int toxinsRequirement, int probabilityWeight, String name) {
+    @Expose(serialize = false, deserialize = false)
+    private BreweryKey key;
+
+
+
+    public NamedDrunkEvent(String name, int alcoholRequirement, int toxinsRequirement, int probabilityWeight) {
+        this.name = name;
         this.alcoholRequirement = alcoholRequirement;
         this.toxinsRequirement = toxinsRequirement;
         this.probabilityWeight = probabilityWeight;
-        this.name = name;
+
         this.key = BreweryKey.parse(name.toLowerCase(Locale.ROOT));
     }
+
 
     @Override
     public int alcoholRequirement() {
@@ -33,6 +47,10 @@ public abstract class NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
 
     @Override
     public BreweryKey key() {
+        if (this.key == null) {
+            // TODO: I don't like this lazy init, GSON is forcing me to do it rn but I want to fix it later
+            this.key = BreweryKey.parse(this.name.toLowerCase(Locale.ROOT));
+        }
         return this.key;
     }
 
@@ -44,5 +62,11 @@ public abstract class NamedDrunkEvent implements DrunkEvent, BreweryKeyed {
     @Override
     public int probabilityWeight() {
         return probabilityWeight;
+    }
+
+
+    public static NamedDrunkEvent fromKey(String key) {
+        Preconditions.checkNotNull(key, "Key cannot be null");
+        return Registry.DRUNK_EVENT.get(BreweryKey.parse(key));
     }
 }

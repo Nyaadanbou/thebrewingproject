@@ -4,7 +4,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.named.PukeNamedEvent;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +33,7 @@ public class PukeNamedExecutable implements ExecutableEventStep {
         }
 
         PukeHandler pukeHandler = new PukeHandler(Config.config().puke().pukeTime(), player);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), PukeNamedEvent.class, Config.config().puke().pukeTime());
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("puke"), Config.config().puke().pukeTime());
         Bukkit.getScheduler().runTaskTimer(TheBrewingProject.getInstance(), pukeHandler::tick, 0, 1);
     }
 

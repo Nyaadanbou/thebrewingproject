@@ -2,7 +2,7 @@ package dev.jsinco.brewery.bukkit.effect.step;
 
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.SendCommand;
+import dev.jsinco.brewery.event.step.SendCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
