@@ -50,7 +50,6 @@ public class EventSection {
             ).build();
     @Comment("What events will be randomly chosen over time when the player is drunk")
     private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk");
-    private List<Supplier<BreweryLocation>> teleportDestinations = List.of();
     @Comment("Teleport destinations for the 'teleport' event")
     private List<Supplier<BreweryLocation>> teleportDestinations = List.of();
     @Comment("Deny joining the server if too drunk")
