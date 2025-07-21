@@ -1,6 +1,8 @@
-package dev.jsinco.brewery.event;
+package dev.jsinco.brewery.event.step;
 
 import com.google.common.base.Preconditions;
+import dev.jsinco.brewery.event.DrunkEvent;
+import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.util.BreweryKey;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public final class CustomEvent implements DrunkEvent {
     private final String displayName;
     private final BreweryKey key;
 
-    private CustomEvent(List<EventStep> steps, int alcohol, int toxins, int probabilityWeight, String displayName, BreweryKey key) {
+    public CustomEvent(List<EventStep> steps, int alcohol, int toxins, int probabilityWeight, String displayName, BreweryKey key) {
         this.steps = steps;
         this.alcohol = alcohol;
         this.toxins = toxins;

@@ -1,12 +1,27 @@
 package dev.jsinco.brewery.bukkit.structure;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
-import dev.jsinco.brewery.util.*;
+import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.BreweryKeyed;
+import dev.jsinco.brewery.util.Logger;
+import dev.jsinco.brewery.util.Pair;
+import dev.jsinco.brewery.util.Registry;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

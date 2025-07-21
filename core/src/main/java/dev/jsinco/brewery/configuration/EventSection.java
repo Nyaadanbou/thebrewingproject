@@ -1,6 +1,11 @@
 package dev.jsinco.brewery.configuration;
 
-import dev.jsinco.brewery.event.*;
+import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.step.ApplyPotionEffect;
+import dev.jsinco.brewery.event.step.ConditionalWaitStep;
+import dev.jsinco.brewery.event.step.ConsumeStep;
+import dev.jsinco.brewery.event.step.CustomEvent;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
@@ -32,9 +37,9 @@ public class EventSection {
                     .alcoholRequirement(60)
                     .toxinsRequirement(90)
                     .probabilityWeight(5)
-                    .addStep(NamedDrunkEvent.PASS_OUT)
+                    .addStep(NamedDrunkEvent.fromKey("pass_out"))
                     .addStep(new ConditionalWaitStep(ConditionalWaitStep.Condition.JOIN))
-                    .addStep(NamedDrunkEvent.TELEPORT)
+                    .addStep(NamedDrunkEvent.fromKey("teleport"))
                     .addStep(new ConsumeStep(-30, -15))
                     .build()
             ).addEvent(
@@ -44,14 +49,13 @@ public class EventSection {
                             )).build()
             ).build();
     @Comment("What events will be randomly chosen over time when the player is drunk")
-    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk");
+    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk", "hallucination", "fever", "kaboom");
     @Comment("Teleport destinations for the 'teleport' event")
     private List<Supplier<BreweryLocation>> teleportDestinations = List.of();
     @Comment("Deny joining the server if too drunk")
     private boolean drunkenJoinDeny = true;
     @Comment("Transform text with blurred speech if the player is drunk enough")
     private boolean blurredSpeech = true;
-
     @ConfigSerializable
     @Getter
     @Accessors(fluent = true)

@@ -1,4 +1,6 @@
-package dev.jsinco.brewery.event;
+package dev.jsinco.brewery.event.step;
+
+import dev.jsinco.brewery.event.EventStep;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +24,7 @@ public record WaitStep(int durationTicks) implements EventStep {
     private static final int WEEKS = DAYS * 7;
     private static final int YEARS = DAYS * 365;
 
-    public static EventStep parse(String duration) {
+    public static WaitStep parse(String duration) {
         if (!ALLOWED_CHARACTERS.matcher(duration).matches()) {
             throw new IllegalArgumentException("Invalid duration argument: " + duration);
         }

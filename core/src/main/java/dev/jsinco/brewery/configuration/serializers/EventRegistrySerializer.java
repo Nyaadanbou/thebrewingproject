@@ -1,7 +1,16 @@
 package dev.jsinco.brewery.configuration.serializers;
 
 import com.google.common.base.Preconditions;
-import dev.jsinco.brewery.event.*;
+import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.EventStep;
+import dev.jsinco.brewery.event.NamedDrunkEvent;
+import dev.jsinco.brewery.event.step.ApplyPotionEffect;
+import dev.jsinco.brewery.event.step.ConditionalWaitStep;
+import dev.jsinco.brewery.event.step.ConsumeStep;
+import dev.jsinco.brewery.event.step.CustomEvent;
+import dev.jsinco.brewery.event.step.SendCommand;
+import dev.jsinco.brewery.event.step.Teleport;
+import dev.jsinco.brewery.event.step.WaitStep;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.moment.Moment;
 import dev.jsinco.brewery.util.BreweryKey;
@@ -16,7 +25,12 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +61,7 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
                 eventData.put("probability-weight", event.probabilityWeight());
             }
             eventData.put("steps", event.getSteps().stream()
-                    .map(EventRegistrySerializer::stepToConfigSerializable)
+                    .map(this::stepToConfigSerializable)
                     .toList()
             );
             output.put(event.key().key(), eventData);
@@ -59,7 +73,7 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
         return data.containsKey(key) ? function.apply(data.get(key)) : defaultValue;
     }
 
-    private static CustomEvent readEvent(Map<Object, ? extends ConfigurationNode> customEvents, String eventName, Set<String> banned) throws SerializationException {
+    private CustomEvent readEvent(Map<Object, ? extends ConfigurationNode> customEvents, String eventName, Set<String> banned) throws SerializationException {
         try {
             Preconditions.checkArgument(eventName != null, "Undefined event name");
             if (banned.contains(eventName)) {
@@ -69,26 +83,26 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             int alcohol = readWithDefault(eventData, "alcohol", ConfigurationNode::getInt, 0);
             int toxin = readWithDefault(eventData, "toxins", ConfigurationNode::getInt, 0);
             int probabilityWeight = readWithDefault(eventData, "probability-weight", ConfigurationNode::getInt, 0);
-            CustomEvent.Builder builder = new CustomEvent.Builder(BreweryKey.parse(eventName))
-                    .alcoholRequirement(alcohol)
-                    .toxinsRequirement(toxin)
-                    .probabilityWeight(probabilityWeight);
-            List<? extends Map<Object, ? extends ConfigurationNode>> steps = EventRegistrySerializer.<List<ConfigurationNode>>readWithDefault(eventData, "steps", configurationNode ->
+
+            List<? extends Map<Object, ? extends ConfigurationNode>> rawSteps = EventRegistrySerializer.<List<ConfigurationNode>>readWithDefault(eventData, "steps", configurationNode ->
                                     configurationNode.getList(ConfigurationNode.class)
                             , List.of()).stream()
                     .map(ConfigurationNode::childrenMap)
                     .toList();
-            for (Map<Object, ? extends ConfigurationNode> step : steps) {
-                readEventStep(step, customEvents, banned, eventName).forEach(builder::addStep);
+
+            List<EventStep> eventSteps = new ArrayList<>();
+            for (Map<Object, ? extends ConfigurationNode> step : rawSteps) {
+                eventSteps.addAll(readEventStep(step, customEvents, banned, eventName));
             }
-            return builder.build();
+
+            return new CustomEvent(eventSteps, alcohol, toxin, probabilityWeight, eventName, BreweryKey.parse(eventName));
         } catch (IllegalArgumentException e) {
             Logger.logErr("Exception when reading custom event: " + eventName);
             throw new SerializationException(e);
         }
     }
 
-    private static List<EventStep> readEventStep(Map<Object, ? extends ConfigurationNode> step, Map<Object, ? extends ConfigurationNode> customEvents, Set<String> banned, String eventName) throws SerializationException {
+    private List<EventStep> readEventStep(Map<Object, ? extends ConfigurationNode> step, Map<Object, ? extends ConfigurationNode> customEvents, Set<String> banned, String eventName) throws SerializationException {
         Preconditions.checkArgument(step.containsKey("type"), "Step has to have a type");
         String stepType = step.get("type").getString();
         Preconditions.checkArgument(stepType != null, "Step has to have a type");
@@ -136,22 +150,18 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             if (step.containsKey("toxins")) {
                 toxins = step.get("toxins").getInt();
             }
-            return List.of(new ConsumeStep(
-                            alcohol,
-                            toxins
-                    )
-            );
+            return List.of(new ConsumeStep(alcohol, toxins));
         } else if (stepType.equals("teleport")) {
             Preconditions.checkArgument(step.containsKey("location"), "Expected a location");
             Supplier<BreweryLocation> breweryLocation = step.get("location").get(new TypeToken<>() {
             });
-            Preconditions.checkArgument(breweryLocation != null, "Expected a non empty locaiton");
+            Preconditions.checkArgument(breweryLocation != null, "Expected a non empty location");
             return List.of(new Teleport(breweryLocation));
         }
         throw new IllegalArgumentException("Unknown step type");
     }
 
-    private static Map<String, Object> stepToConfigSerializable(EventStep step) {
+    private Map<String, Object> stepToConfigSerializable(EventStep step) {
         return switch (step) {
             case ApplyPotionEffect applyPotionEffect -> Map.of(
                     "type", "potion",
@@ -161,7 +171,7 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             );
             case ConditionalWaitStep conditionalWaitStep -> Map.of(
                     "type", "wait",
-                    "condition", conditionalWaitStep.condition().toString().toLowerCase(Locale.ROOT)
+                    "condition", conditionalWaitStep.getCondition().toString().toLowerCase(Locale.ROOT)
             );
             case ConsumeStep consumeStep -> Map.of(
                     "type", "consume",
@@ -190,8 +200,9 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
         };
     }
 
+    @FunctionalInterface
     private interface FunctionThatThrows<T, U, E extends Throwable> {
-
         U apply(T t) throws E;
     }
+
 }

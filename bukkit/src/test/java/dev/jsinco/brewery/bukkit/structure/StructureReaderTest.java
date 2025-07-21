@@ -13,7 +13,7 @@ import org.mockbukkit.mockbukkit.world.WorldMock;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockBukkitExtension.class)
 class StructureReaderTest {

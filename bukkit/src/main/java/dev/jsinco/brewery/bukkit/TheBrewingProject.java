@@ -18,10 +18,19 @@ import dev.jsinco.brewery.bukkit.effect.event.ActiveEventsRegistry;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.integration.IntegrationManager;
-import dev.jsinco.brewery.bukkit.listeners.*;
+import dev.jsinco.brewery.bukkit.listeners.BlockEventListener;
+import dev.jsinco.brewery.bukkit.listeners.EntityEventListener;
+import dev.jsinco.brewery.bukkit.listeners.InventoryEventListener;
+import dev.jsinco.brewery.bukkit.listeners.PlayerEventListener;
+import dev.jsinco.brewery.bukkit.listeners.PlayerWalkListener;
+import dev.jsinco.brewery.bukkit.listeners.WorldEventListener;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
-import dev.jsinco.brewery.bukkit.structure.*;
+import dev.jsinco.brewery.bukkit.structure.BarrelBlockDataMatcher;
+import dev.jsinco.brewery.bukkit.structure.StructureJsonFormatValidator;
+import dev.jsinco.brewery.bukkit.structure.StructureReadException;
+import dev.jsinco.brewery.bukkit.structure.StructureReader;
+import dev.jsinco.brewery.bukkit.structure.StructureRegistry;
 import dev.jsinco.brewery.bukkit.util.BreweryTimeDataType;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
@@ -34,6 +43,7 @@ import dev.jsinco.brewery.database.sql.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.event.CustomEventRegistry;
+import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.moment.Interval;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
@@ -87,6 +97,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     private CustomEventRegistry customDrunkEventRegistry;
     private WorldEventListener worldEventListener;
     @Getter
+    private EventStepRegistry eventStepRegistry;
+    @Getter
     private DrunkEventExecutor drunkEventExecutor;
     @Getter
     private long time;
@@ -110,6 +122,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.recipeRegistry = new RecipeRegistryImpl<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
         this.customDrunkEventRegistry = new CustomEventRegistry();
+        this.eventStepRegistry = new EventStepRegistry();
         this.drunkEventExecutor = new DrunkEventExecutor();
     }
 
@@ -134,7 +147,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.drunkTextRegistry.clear();
         this.customDrunkEventRegistry.clear();
         this.drunkEventExecutor.clear();
-        customDrunkEventRegistry = Config.config().events().customEvents();
+        this.customDrunkEventRegistry = Config.config().events().customEvents();
         saveResources();
         this.database = new Database(DatabaseDriver.SQLITE);
         try {
@@ -270,3 +283,4 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         }
     }
 }
+
