@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.integration;
 import dev.jsinco.brewery.bukkit.ingredient.PluginIngredient;
 import dev.jsinco.brewery.ingredient.Ingredient;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.Logger;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,8 @@ public interface ItemIntegration extends Integration {
         return initialized()
                 .handleAsync((ignored1, exception) -> {
                             if (exception != null) {
+                                Logger.logErr("Couldn't create PluginIngredient for id '" + getId() + "'.");
+                                Logger.logErr(exception);
                                 return Optional.empty();
                             }
                             return Optional.of(new PluginIngredient(new BreweryKey(getId(), id), this));
