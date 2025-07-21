@@ -3,20 +3,17 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.step.WaitStep;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.UUID;
 
-public class WaitStepImpl extends WaitStep implements ExecutableEventStep {
+public class WaitStepExecutable implements ExecutableEventStep {
 
-    public WaitStepImpl(int durationTicks) {
-        super(durationTicks);
-    }
+    private final int durationTicks;
 
-    public WaitStepImpl(String duration) {
-        super(duration);
+    public WaitStepExecutable(int durationTicks) {
+        this.durationTicks = durationTicks;
     }
 
     @Override
@@ -29,7 +26,7 @@ public class WaitStepImpl extends WaitStep implements ExecutableEventStep {
         Bukkit.getScheduler().runTaskLater(
                 TheBrewingProject.getInstance(),
                 () -> TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(contextPlayer, eventsLeft),
-                getDurationTicks()
+                durationTicks
         );
     }
 

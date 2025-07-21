@@ -125,12 +125,12 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             if (step.containsKey("condition")) {
                 String condition = step.get("condition").getString();
                 Preconditions.checkArgument(condition != null, "Condition can not be empty");
-                output.add(new ConditionalWaitStep(condition));
+                output.add(ConditionalWaitStep.parse(condition));
             }
             if (step.containsKey("duration")) {
                 String duration = step.get("duration").getString();
                 Preconditions.checkArgument(duration != null, "Duration can not be empty");
-                output.add(new WaitStep(duration));
+                output.add(WaitStep.parse(duration));
             }
             Preconditions.checkArgument(step.containsKey("duration") || step.containsKey("condition"), "Expected duration or condition to be specified");
             return output;
@@ -165,9 +165,9 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
         return switch (step) {
             case ApplyPotionEffect applyPotionEffect -> Map.of(
                     "type", "potion",
-                    "effect", applyPotionEffect.getPotionEffectName(),
-                    "duration", applyPotionEffect.getDurationBounds().asString(),
-                    "amplifier", applyPotionEffect.getAmplifierBounds().asString()
+                    "effect", applyPotionEffect.potionEffectName(),
+                    "duration", applyPotionEffect.durationBounds().asString(),
+                    "amplifier", applyPotionEffect.amplifierBounds().asString()
             );
             case ConditionalWaitStep conditionalWaitStep -> Map.of(
                     "type", "wait",
@@ -175,8 +175,8 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             );
             case ConsumeStep consumeStep -> Map.of(
                     "type", "consume",
-                    "alcohol", consumeStep.getAlcohol(),
-                    "toxins", consumeStep.getToxins()
+                    "alcohol", consumeStep.alcohol(),
+                    "toxins", consumeStep.toxins()
             );
             case CustomEvent customEvent -> Map.of(
                     "type", "event",
@@ -187,15 +187,15 @@ public class EventRegistrySerializer implements TypeSerializer<CustomEventRegist
             );
             case SendCommand sendCommand -> Map.of(
                     "type", "command",
-                    "as", sendCommand.getSenderType().toString().toLowerCase(Locale.ROOT),
-                    "command", sendCommand.getCommand()
+                    "as", sendCommand.senderType().toString().toLowerCase(Locale.ROOT),
+                    "command", sendCommand.command()
             );
             case Teleport teleport -> Map.of(
                     "type", "teleport",
-                    "location", teleport.getLocation()
+                    "location", teleport.location()
             );
             case WaitStep waitStep -> Map.of("type", "wait",
-                    "duration", waitStep.getDurationTicks() + "t");
+                    "duration", waitStep.durationTicks() + "t");
             default -> throw new IllegalArgumentException("Unsupported event step: " + step);
         };
     }

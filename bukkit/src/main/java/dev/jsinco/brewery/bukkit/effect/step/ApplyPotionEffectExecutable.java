@@ -3,7 +3,6 @@ package dev.jsinco.brewery.bukkit.effect.step;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffect;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.step.ApplyPotionEffect;
 import dev.jsinco.brewery.moment.Interval;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -14,10 +13,17 @@ import org.bukkit.potion.PotionEffect;
 import java.util.List;
 import java.util.UUID;
 
-public class ApplyPotionEffectImpl extends ApplyPotionEffect implements ExecutableEventStep {
 
-    public ApplyPotionEffectImpl(String potionEffectName, Interval amplifierBounds, Interval durationBounds) {
-        super(potionEffectName, amplifierBounds, durationBounds);
+public class ApplyPotionEffectExecutable implements ExecutableEventStep {
+
+    private final String potionEffectName;
+    private final Interval amplifierBounds;
+    private final Interval durationBounds;
+
+    public ApplyPotionEffectExecutable(String potionEffectName, Interval amplifierBounds, Interval durationBounds) {
+        this.potionEffectName = potionEffectName;
+        this.amplifierBounds = amplifierBounds;
+        this.durationBounds = durationBounds;
     }
 
     @Override
@@ -28,9 +34,9 @@ public class ApplyPotionEffectImpl extends ApplyPotionEffect implements Executab
         }
 
         PotionEffect potionEffect = new RecipeEffect(
-                Registry.EFFECT.get(NamespacedKey.fromString(getPotionEffectName())),
-                getDurationBounds(),
-                getAmplifierBounds()
+                Registry.EFFECT.get(NamespacedKey.fromString(potionEffectName)),
+                durationBounds,
+                amplifierBounds
         ).newPotionEffect();
         player.addPotionEffect(potionEffect);
     }

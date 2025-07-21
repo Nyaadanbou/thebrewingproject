@@ -8,7 +8,7 @@ import dev.jsinco.brewery.util.BreweryKey;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomEvent implements DrunkEvent {
+public final class CustomEvent implements DrunkEvent {
 
     private final List<EventStep> steps;
     private final int alcohol;

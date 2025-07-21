@@ -5,21 +5,7 @@ import dev.jsinco.brewery.event.EventStep;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WaitStep implements EventStep {
-
-    private final int durationTicks;
-
-    public WaitStep(int durationTicks) {
-        this.durationTicks = durationTicks;
-    }
-
-    public WaitStep(String duration) {
-        this(parse(duration));
-    }
-
-    public int getDurationTicks() {
-        return durationTicks;
-    }
+public record WaitStep(int durationTicks) implements EventStep {
 
     private static final Pattern TICKS_PATTERN = Pattern.compile("(\\d+)t");
     private static final Pattern SECONDS_PATTERN = Pattern.compile("(\\d+)s");
@@ -38,12 +24,12 @@ public class WaitStep implements EventStep {
     private static final int WEEKS = DAYS * 7;
     private static final int YEARS = DAYS * 365;
 
-    private static int parse(String duration) {
+    public static WaitStep parse(String duration) {
         if (!ALLOWED_CHARACTERS.matcher(duration).matches()) {
             throw new IllegalArgumentException("Invalid duration argument: " + duration);
         }
         // Could do some more argument validation, but meh
-        return (
+        return new WaitStep(
                 parseInteger(TICKS_PATTERN, duration)
                         + parseInteger(SECONDS_PATTERN, duration) * SECONDS
                         + parseInteger(MINUTES_PATTERN, duration) * MINUTES

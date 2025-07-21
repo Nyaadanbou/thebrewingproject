@@ -4,16 +4,10 @@ import dev.jsinco.brewery.event.EventStep;
 
 import java.util.Locale;
 
-public class ConditionalWaitStep implements EventStep {
+public record ConditionalWaitStep(Condition condition) implements EventStep {
 
-    private final Condition condition;
-
-    public ConditionalWaitStep(Condition condition) {
-        this.condition = condition;
-    }
-
-    public ConditionalWaitStep(String condition) {
-        this.condition = Condition.valueOf(condition.toUpperCase(Locale.ROOT));
+    public static ConditionalWaitStep parse(String condition) {
+        return new ConditionalWaitStep(Condition.valueOf(condition.toUpperCase(Locale.ROOT)));
     }
 
     public Condition getCondition() {

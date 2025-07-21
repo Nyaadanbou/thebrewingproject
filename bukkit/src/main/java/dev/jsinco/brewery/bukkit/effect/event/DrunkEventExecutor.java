@@ -12,8 +12,13 @@ import dev.jsinco.brewery.bukkit.effect.named.PassOutNamedExecutable;
 import dev.jsinco.brewery.bukkit.effect.named.PukeNamedExecutable;
 import dev.jsinco.brewery.bukkit.effect.named.StumbleNamedExecutable;
 import dev.jsinco.brewery.bukkit.effect.named.TeleportNamedExecutable;
-import dev.jsinco.brewery.bukkit.effect.step.ApplyPotionEffectImpl;
-import dev.jsinco.brewery.bukkit.effect.step.CustomEventImpl;
+import dev.jsinco.brewery.bukkit.effect.step.ApplyPotionEffectExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.ConditionalWaitStepExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.ConsumeStepExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.CustomEventExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.SendCommandExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.TeleportExecutable;
+import dev.jsinco.brewery.bukkit.effect.step.WaitStepExecutable;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventStepRegistry;
 import dev.jsinco.brewery.event.ExecutableEventStep;
@@ -50,31 +55,31 @@ public class DrunkEventExecutor {
         registry.register(NamedDrunkEvent.fromKey("teleport"), TeleportNamedExecutable::new);
         registry.register(ApplyPotionEffect.class, o -> {
             ApplyPotionEffect e = (ApplyPotionEffect) o;
-            return new ApplyPotionEffectImpl(e.getPotionEffectName(), e.getAmplifierBounds(), e.getDurationBounds());
+            return new ApplyPotionEffectExecutable(e.potionEffectName(), e.amplifierBounds(), e.durationBounds());
         });
         registry.register(ConditionalWaitStep.class, o -> {
             ConditionalWaitStep e = (ConditionalWaitStep) o;
-            return new ConditionalWaitStep(e.getCondition());
+            return new ConditionalWaitStepExecutable(e.getCondition());
         });
         registry.register(ConsumeStep.class, o -> {
             ConsumeStep e = (ConsumeStep) o;
-            return new ConsumeStep(e.getAlcohol(), e.getToxins());
+            return new ConsumeStepExecutable(e.alcohol(), e.toxins());
         });
         registry.register(SendCommand.class, o -> {
             SendCommand e = (SendCommand) o;
-            return new SendCommand(e.getCommand(), e.getSenderType());
+            return new SendCommandExecutable(e.command(), e.senderType());
         });
         registry.register(Teleport.class, o -> {
             Teleport e = (Teleport) o;
-            return new Teleport(e.getLocation());
+            return new TeleportExecutable(e.location());
         });
         registry.register(WaitStep.class, o -> {
             WaitStep e = (WaitStep) o;
-            return new WaitStep(e.getDurationTicks());
+            return new WaitStepExecutable(e.durationTicks());
         });
         registry.register(CustomEvent.class, o -> {
             CustomEvent e = (CustomEvent) o;
-            return new CustomEventImpl(e.getSteps(), e.alcoholRequirement(), e.toxinsRequirement(), e.probabilityWeight(), e.displayName(), e.key());
+            return new CustomEventExecutable(e.getSteps());
         });
     }
 

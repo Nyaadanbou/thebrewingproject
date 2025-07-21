@@ -1,18 +1,22 @@
 package dev.jsinco.brewery.bukkit.effect.step;
 
+import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.ExecutableEventStep;
-import dev.jsinco.brewery.event.step.SendCommand;
+import dev.jsinco.brewery.vector.BreweryLocation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
-public class SendCommandImpl extends SendCommand implements ExecutableEventStep {
-    
-    public SendCommandImpl(String command, CommandSenderType senderType) {
-        super(command, senderType);
+public class TeleportExecutable implements ExecutableEventStep {
+
+    private final Supplier<BreweryLocation> location;
+
+    public TeleportExecutable(Supplier<BreweryLocation> location) {
+        this.location = location;
     }
 
     @Override
@@ -22,10 +26,7 @@ public class SendCommandImpl extends SendCommand implements ExecutableEventStep 
             return;
         }
 
-        switch (getSenderType()) {
-            case PLAYER -> player.performCommand(getCommand());
-            case SERVER -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), getCommand());
-        }
+        player.teleportAsync(BukkitAdapter.toLocation(location.get()));
     }
 
 }

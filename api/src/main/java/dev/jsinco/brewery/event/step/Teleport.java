@@ -5,16 +5,6 @@ import dev.jsinco.brewery.vector.BreweryLocation;
 
 import java.util.function.Supplier;
 
-public class Teleport implements EventStep {
-
-    private final Supplier<BreweryLocation> location;
-
-    public Teleport(Supplier<BreweryLocation> location) {
-        this.location = location;
-    }
-
-    public Supplier<BreweryLocation> getLocation() {
-        return location;
-    }
+public record Teleport(Supplier<BreweryLocation> location) implements EventStep {
 
 }
