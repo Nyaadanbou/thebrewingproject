@@ -16,24 +16,24 @@ You can download the latest release on [Hangar](https://hangar.papermc.io/Brewer
 ***
 
 ### Commands and Permissions
-| Command | Permission | Description |
-| :-------- | :------- | :------------------------- |
-| `/tbp reload` | `brewery.command.reload` | **Reloads the plugin.** |
-| `/tbp info [slot]` | `brewery.command.info` | **Displays information about a given brew.**|
+| Command                                    | Permission               | Description                                     |
+|:-------------------------------------------|:-------------------------|:------------------------------------------------|
+| `/tbp reload`                              | `brewery.command.reload` | **Reloads the plugin.**                         |
+| `/tbp info [slot]`                         | `brewery.command.info`   | **Displays information about a given brew.**    |
 | `/tbp create --cook/--distill/--age/--mix` | `brewery.command.create` | **Create a new brew with the given arguments.** |
-| `/tbp status info/set/clear/consume`| `brewery.command.status` | **Inspect or modify your drunkenness status.** |
-| `/tbp event <event_name>`| `brewery.command.event` | **Simmulate an event, such as `stumble`.** |
-| `/tbp seal [slot]/all`| `brewery.command.seal` | **Seal the given brew(s).** |
+| `/tbp status info/set/clear/consume`       | `brewery.command.status` | **Inspect or modify your drunkenness status.**  |
+| `/tbp event <event_name>`                  | `brewery.command.event`  | **Simulate an event, such as `stumble`.**      |
+| `/tbp seal [slot]/all`                     | `brewery.command.seal`   | **Seal the given brew(s).**                     |
 
-| Permission | Description |
-| :------- | :------------------------- |
-| `brewery.structure.create` | **Allows creating TBP structures such as a distillery.** |
-| `brewery.structure.access` | **Allows accessing and using structures from TBP.** |
-| `brewery.distillery.create` | **Allows creating new TBP distilleries.** |
-| `brewery.distillery.access` | **Allows accessing TBP distilleries.** |
-| `brewery.barrel.create` | **Allows creating TBP custom barrels.** |
-| `brewery.barrel.access` | **Allows accessing TBP custom barrels.**|
-| `brewery.cauldron.access` | **Allows brewing brews in cauldrons.** |
+| Permission                  | Description                                              |
+|:----------------------------|:---------------------------------------------------------|
+| `brewery.structure.create`  | **Allows creating TBP structures such as a distillery.** |
+| `brewery.structure.access`  | **Allows accessing and using structures from TBP.**      |
+| `brewery.distillery.create` | **Allows creating new TBP distilleries.**                |
+| `brewery.distillery.access` | **Allows accessing TBP distilleries.**                   |
+| `brewery.barrel.create`     | **Allows creating TBP custom barrels.**                  |
+| `brewery.barrel.access`     | **Allows accessing TBP custom barrels.**                 |
+| `brewery.cauldron.access`   | **Allows brewing brews in cauldrons.**                   |
 
 ***
 
