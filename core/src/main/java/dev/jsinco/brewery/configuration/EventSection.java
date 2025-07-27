@@ -32,7 +32,7 @@ public class EventSection extends OkaeriConfig {
     private int passOutTime = 5;
 
     @Comment("Drunken messages to send if the drunk_message event is enabled (not recommended to have enabled, gets a bit spammy)")
-    @CustomKey("drunk-messages")
+    @CustomKey("messages")
     private List<String> drunkMessages = List.of("I love you <random_player_name>, you're my best friend.",
             "I could do one more.",
             "Who is she?",
