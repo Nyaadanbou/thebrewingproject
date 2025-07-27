@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 public class PukeSection extends OkaeriConfig {
 
     @Comment("How many ticks should the puke items live")
-    @CustomKey("puke-despawn-time")
+    @CustomKey("despawn-rate")
     private int pukeDespawnTime = 6 * Moment.SECOND;
 
     @Comment("How many ticks the player will puke")
