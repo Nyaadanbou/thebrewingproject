@@ -96,7 +96,9 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
 
     public void close(boolean silent) {
         this.ticksUntilNextCheck = 0L;
+        Brew[] previousBrews = Arrays.copyOf(inventory.getBrews(), inventory.getBrews().length);
         this.inventory.updateBrewsFromInventory();
+        processBrews(previousBrews);
         if (!silent && uniqueLocation != null) {
             SoundPlayer.playSoundEffect(Config.config().sounds().barrelClose(), Sound.Source.BLOCK, uniqueLocation.toCenterLocation());
         }
@@ -121,6 +123,16 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
         ticksUntilNextCheck = RANDOM.nextLong(minAgingYearsTickUpdate, 2 * minAgingYearsTickUpdate);
         Brew[] previousBrews = Arrays.copyOf(inventory.getBrews(), inventory.getBrews().length);
         inventory.updateBrewsFromInventory();
+        processBrews(previousBrews);
+        inventory.updateInventoryFromBrews();
+        getInventory().getInventory().getViewers()
+                .stream()
+                .filter(Player.class::isInstance)
+                .map(Player.class::cast)
+                .forEach(Player::updateInventory);
+    }
+
+    private void processBrews(Brew[] previousBrews) {
         Brew[] brews = inventory.getBrews();
         long time = TheBrewingProject.getInstance().getTime();
         for (int i = 0; i < brews.length; i++) {
@@ -130,7 +142,6 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
             }
             if (!(brew.lastStep() instanceof BrewingStep.Age age) || age.barrelType() != type) {
                 brew = brew.withStep(new AgeStepImpl(new Interval(time, time), this.type));
-                inventory.store(brew, i);
             }
             if (Objects.equals(previousBrews[i], brew)) {
                 brews[i] = brew.withLastStep(BrewingStep.Age.class,
@@ -143,12 +154,6 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
             }
 
         }
-        inventory.updateInventoryFromBrews();
-        getInventory().getInventory().getViewers()
-                .stream()
-                .filter(Player.class::isInstance)
-                .map(Player.class::cast)
-                .forEach(Player::updateInventory);
     }
 
     @Override
