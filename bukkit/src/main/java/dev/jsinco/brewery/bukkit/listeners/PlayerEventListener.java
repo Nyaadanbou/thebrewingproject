@@ -266,40 +266,7 @@ public class PlayerEventListener implements Listener {
                 .ifPresent(effect -> effect.applyTo(event.getPlayer()));
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerLogin(PlayerConnectionValidateLoginEvent event) {
-        PlayerProfile profile = null;
-        if (event.getConnection() instanceof PlayerLoginConnection connection) {
-            profile = connection.getAuthenticatedProfile();
-        } else if (event.getConnection() instanceof PlayerConfigurationConnection connection) {
-            profile = connection.getProfile();
-        }
-        if (profile == null) {
-            return;
-        }
-        UUID playerUuid = profile.getId();
-        if (playerUuid == null) {
-            return;
-        }
-        DrunkState drunkState = drunksManager.getDrunkState(playerUuid);
-        String playerName = profile.getName();
-        if (drunksManager.isPassedOut(playerUuid)) {
-            String kickEventMessage = Config.config().events().kickEvent().kickEventMessage();
-            event.kickMessage(
-                    MiniMessage.miniMessage().deserialize(kickEventMessage == null ? TranslationsConfig.KICK_EVENT_MESSAGE : kickEventMessage,
-                            MessageUtil.getDrunkStateTagResolver(drunkState), Placeholder.unparsed("player_name", playerName == null ? "" : playerName)
-                    )
-            );
-            return;
-        }
-        if (Config.config().events().drunkenJoinDeny() && drunkState != null && drunkState.alcohol() >= 85 && RANDOM.nextInt(15) <= drunkState.alcohol() - 85) {
-            event.kickMessage(
-                    MiniMessage.miniMessage().deserialize(TranslationsConfig.DRUNKEN_JOIN_DENY_MESSAGE,
-                            MessageUtil.getDrunkStateTagResolver(drunkState), Placeholder.unparsed("player_name", playerName == null ? "" : playerName)
-                    )
-            );
-        }
-    }
+
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {

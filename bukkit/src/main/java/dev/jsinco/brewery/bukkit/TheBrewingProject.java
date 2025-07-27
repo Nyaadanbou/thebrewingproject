@@ -41,6 +41,7 @@ import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.structure.StructureMeta;
 import dev.jsinco.brewery.structure.StructureType;
 import dev.jsinco.brewery.util.BreweryKey;
+import dev.jsinco.brewery.util.ClassUtil;
 import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.Util;
 import eu.okaeri.configs.serdes.OkaeriSerdesPack;
@@ -212,6 +213,11 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         pluginManager.registerEvents(worldEventListener, this);
         pluginManager.registerEvents(playerWalkListener, this);
         pluginManager.registerEvents(new EntityEventListener(), this);
+        if (ClassUtil.exists("io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent")) {
+            pluginManager.registerEvents(new PlayerJoinListener(), this);
+        } else {
+            pluginManager.registerEvents(new LegacyPlayerJoinListener(), this);
+        }
 
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, this::updateStructures, 1, 1);
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, this::otherTicking, 1, 1);
