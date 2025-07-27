@@ -1,22 +1,13 @@
 package dev.jsinco.brewery.bukkit.breweries;
 
-import dev.jsinco.brewery.brew.Brew;
-import dev.jsinco.brewery.brew.BrewImpl;
-import dev.jsinco.brewery.brew.BrewScore;
-import dev.jsinco.brewery.brew.BrewingStep;
-import dev.jsinco.brewery.brew.CookStepImpl;
-import dev.jsinco.brewery.brew.MixStepImpl;
+import dev.jsinco.brewery.brew.*;
 import dev.jsinco.brewery.breweries.CauldronType;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.listeners.ListenerUtil;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
-import dev.jsinco.brewery.bukkit.util.BlockUtil;
-import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
-import dev.jsinco.brewery.bukkit.util.ColorUtil;
-import dev.jsinco.brewery.bukkit.util.IngredientUtil;
-import dev.jsinco.brewery.bukkit.util.SoundPlayer;
+import dev.jsinco.brewery.bukkit.util.*;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.ingredient.Ingredient;
@@ -29,12 +20,7 @@ import dev.jsinco.brewery.vector.BreweryLocation;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.sound.Sound;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Tag;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockType;
@@ -43,12 +29,9 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
 
@@ -65,7 +48,7 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
     private static final Color SNOW_COLOR = Color.fromRGB(Integer.parseInt("f8fdfd", 16));
     private boolean brewExtracted = false;
     private Color particleColor = Color.AQUA;
-    private Recipe<ItemStack> recipe;
+    private @Nullable Recipe<ItemStack> recipe;
 
 
     public BukkitCauldron(BreweryLocation location, boolean hot) {
@@ -183,6 +166,8 @@ public class BukkitCauldron implements dev.jsinco.brewery.breweries.Cauldron {
                     () -> new MixStepImpl(new Interval(time, time), Map.of(BukkitIngredientManager.INSTANCE.getIngredient(item), 1))
             );
         }
+        this.recipe = brew.closestRecipe(TheBrewingProject.getInstance().getRecipeRegistry())
+                .orElse(null);
 
         playIngredientAddedEffects(item);
         return true;

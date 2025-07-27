@@ -8,15 +8,7 @@ import dev.jsinco.brewery.recipe.RecipeRegistry;
 import dev.jsinco.brewery.recipe.RecipeResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.Collections;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -32,10 +24,10 @@ public class RecipeRegistryImpl<I> implements RecipeRegistry<I> {
 
     public void registerRecipes(@NotNull Map<String, Recipe<I>> recipes) {
         this.recipes = new HashMap<>(recipes);
-        allIngredients = recipes.values().stream()
+        recipes.values().stream()
                 .map(this::getRecipeIngredients)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+                .forEach(allIngredients::add);
 
     }
 
