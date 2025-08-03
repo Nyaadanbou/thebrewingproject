@@ -9,7 +9,6 @@ import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.event.CustomEventRegistry;
 import dev.jsinco.brewery.event.DrunkEvent;
-import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.MessageUtil;
 import dev.jsinco.brewery.util.Registry;
@@ -156,7 +155,7 @@ public class RecipeEffects {
                     )
             );
         }
-        TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvents(player.getUniqueId(), getEvents().stream().map(EventStep.class::cast).toList());
+        getEvents().forEach(drunkEvent -> TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(player.getUniqueId(), drunkEvent));
     }
 
     public void applyTo(Projectile projectile) {
