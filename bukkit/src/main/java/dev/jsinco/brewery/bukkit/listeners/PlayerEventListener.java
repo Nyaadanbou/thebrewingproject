@@ -259,8 +259,10 @@ public class PlayerEventListener implements Listener {
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         RecipeEffects.fromItem(event.getItem())
                 .ifPresent(effect -> effect.applyTo(event.getPlayer()));
+        Ingredient ingredient = BukkitIngredientManager.INSTANCE.getIngredient(event.getItem());
         for (ConsumableSerializer.Consumable consumable : Config.config().decayRate().consumables()) {
-            if (consumable.type().trim().equalsIgnoreCase(event.getItem().getType().toString())) {
+            String key = consumable.type().contains(":") ? consumable.type() : "minecraft:" + consumable.type();
+            if (ingredient.getKey().equalsIgnoreCase(key)) {
                 TheBrewingProject.getInstance().getDrunksManager()
                         .consume(event.getPlayer().getUniqueId(), consumable.alcohol(), consumable.toxins());
             }
