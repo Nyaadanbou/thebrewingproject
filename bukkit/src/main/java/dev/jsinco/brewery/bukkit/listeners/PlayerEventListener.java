@@ -1,7 +1,6 @@
 package dev.jsinco.brewery.bukkit.listeners;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
-import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jsinco.brewery.brew.BrewImpl;
 import dev.jsinco.brewery.breweries.InventoryAccessible;
 import dev.jsinco.brewery.breweries.StructureHolder;
@@ -17,9 +16,9 @@ import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
 import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
+import dev.jsinco.brewery.configuration.serializers.ConsumableSerializer;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.effect.DrunkState;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
@@ -30,12 +29,8 @@ import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.MessageUtil;
-import io.papermc.paper.connection.PlayerConfigurationConnection;
-import io.papermc.paper.connection.PlayerLoginConnection;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -264,9 +259,13 @@ public class PlayerEventListener implements Listener {
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         RecipeEffects.fromItem(event.getItem())
                 .ifPresent(effect -> effect.applyTo(event.getPlayer()));
+        for (ConsumableSerializer.Consumable consumable : Config.config().decayRate().consumables()) {
+            if (consumable.type().trim().equalsIgnoreCase(event.getItem().getType().toString())) {
+                TheBrewingProject.getInstance().getDrunksManager()
+                        .consume(event.getPlayer().getUniqueId(), consumable.alcohol(), consumable.toxins());
+            }
+        }
     }
-
-
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {

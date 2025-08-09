@@ -123,6 +123,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                 .add(new SoundDefinitionSerializer())
                 .add(new IntervalSerializer())
                 .add(new MaterialSerializer())
+                .add(new ConsumableSerializer())
                 .build();
     }
 
