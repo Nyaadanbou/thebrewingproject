@@ -28,9 +28,12 @@ brew.display-name.unfinished-fermented: Fermented <ingredient> mesh
 brew.display-name.unfinished-fermented-unknown: Fermented mesh
 brew.display-name.unfinished-mixed: <ingredient> mixture
 brew.display-name.unfinished-mixed-unknown: Mixture
+distillery.gui-title.mixture: <gray>Mixture
+distillery.gui-title.distillate: <gray>Distillate
 distillery.create: <gray>Created a distillery
 distillery.create-denied: <red>You don't have enough permissions to create a distillery
 distillery.access-denied: <red>You don't have enough permissions to access a distillery
+barrel.gui-title: <gray>Barrel
 barrel.create: <gray>Created a barrel
 barrel.create-denied: <red>You don't have enough permissions to create a barrel
 barrel.access-denied: <red>You don't have enough permissions to access a barrel

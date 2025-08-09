@@ -3,6 +3,7 @@ package dev.jsinco.brewery.bukkit.breweries;
 import dev.jsinco.brewery.brew.Brew;
 import dev.jsinco.brewery.bukkit.brew.BrewAdapter;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
@@ -22,7 +23,7 @@ public class BrewInventory implements InventoryHolder {
     private final Brew[] brews;
     private final BrewPersistenceHandler store;
 
-    public BrewInventory(String title, int size, BrewPersistenceHandler store) {
+    public BrewInventory(Component title, int size, BrewPersistenceHandler store) {
         this.inventory = Bukkit.createInventory(this, size, title);
         this.brews = new Brew[size];
         this.store = store;

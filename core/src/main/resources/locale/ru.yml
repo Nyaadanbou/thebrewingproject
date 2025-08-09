@@ -34,10 +34,14 @@ brew:
     unfinished-mixed: Котельная смесь (<ingredient>)
     unfinished-mixed-unknown: Котельная смесь
 distillery:
+  gui-title:
+    mixture: <gray>Смесь
+    distillate: <gray>Дистиллят
   create: <gray>Перегонный аппарат создан! # distillery - либо перегонный аппарат, либо куб. Куб звучит более компактно, а у нас тут 2х3 структура, так что аппарат.
   create-denied: <red>У вас недостаточно прав для создания перегонного аппарата!
   access-denied: <red>У вас недостаточно прав для использования перегонного аппарата!
 barrel:
+  gui-title: <gray>Бочка
   create: <gray>Бочка создана!
   create-denied: <red>У вас недостаточно прав для создания бочки!
   access-denied: <red>У вас недостаточно прав для использования бочки!

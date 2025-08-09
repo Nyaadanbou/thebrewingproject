@@ -50,7 +50,7 @@ public class BukkitBarrel implements Barrel<BukkitBarrel, ItemStack, Inventory> 
         this.size = size;
         this.type = Preconditions.checkNotNull(type);
         this.uniqueLocation = Preconditions.checkNotNull(uniqueLocation);
-        this.inventory = new BrewInventory("Barrel", size, new BarrelBrewPersistenceHandler(BukkitAdapter.toBreweryLocation(uniqueLocation)));
+        this.inventory = new BrewInventory(MessageUtil.miniMessage(TranslationsConfig.BARREL_GUI_TITLE), size, new BarrelBrewPersistenceHandler(BukkitAdapter.toBreweryLocation(uniqueLocation)));
     }
 
     @Override
