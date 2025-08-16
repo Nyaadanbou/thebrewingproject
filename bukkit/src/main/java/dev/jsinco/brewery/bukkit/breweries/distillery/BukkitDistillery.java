@@ -57,8 +57,8 @@ public class BukkitDistillery implements Distillery<BukkitDistillery, ItemStack,
         this.structure = structure;
         this.startTime = startTime;
         BreweryLocation unique = structure.getUnique();
-        this.mixture = new BrewInventory("Distillery Mixture", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, false));
-        this.distillate = new BrewInventory("Distillery Distillate", structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, true));
+        this.mixture = new BrewInventory(MessageUtil.miniMessage(TranslationsConfig.DISTILLERY_GUI_TITLE_MIXTURE), structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, false));
+        this.distillate = new BrewInventory(MessageUtil.miniMessage(TranslationsConfig.DISTILLERY_GUI_TITLE_DISTILLATE), structure.getStructure().getMeta(StructureMeta.INVENTORY_SIZE), new DistilleryBrewPersistenceHandler(unique, true));
     }
 
     public boolean open(@NotNull BreweryLocation location, @NotNull UUID playerUuid) {

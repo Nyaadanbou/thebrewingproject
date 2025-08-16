@@ -45,6 +45,7 @@
 #  steps:
 #    # There's also the mix step, which has a similar pattern
 #    - type: cook
+#      cook-time: 35
 #      cauldron-type: water
 #      ingredients:
 #        - wheat/6 # key/amount

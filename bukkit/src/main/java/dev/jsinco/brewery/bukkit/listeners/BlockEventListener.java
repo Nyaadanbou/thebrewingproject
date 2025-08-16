@@ -26,6 +26,7 @@ import dev.jsinco.brewery.util.Logger;
 import dev.jsinco.brewery.util.MessageUtil;
 import dev.jsinco.brewery.util.Pair;
 import dev.jsinco.brewery.vector.BreweryLocation;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,10 +49,8 @@ import org.bukkit.event.inventory.HopperInventorySearchEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlockEventListener implements Listener {
 
@@ -69,10 +68,13 @@ public class BlockEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSignChangeEvent(SignChangeEvent event) {
-        String[] lines = event.getLines();
-        if (!"barrel".equalsIgnoreCase(lines[0]) || !lines[1].isEmpty() || !lines[2].isEmpty() || !lines[3].isEmpty()) {
+
+        Set<String> keywords = Config.config().barrels().signKeywords().stream().map(String::toLowerCase).collect(Collectors.toSet());
+        String firstLine = PlainTextComponentSerializer.plainText().serialize(event.lines().getFirst()).toLowerCase();
+        if (Config.config().barrels().requireSignKeyword() && !keywords.contains(firstLine)) {
             return;
         }
+
         if (!(event.getBlock().getBlockData() instanceof WallSign wallSign)) {
             return;
         }

@@ -20,6 +20,7 @@ public enum BarrelType implements BreweryKeyed {
     WARPED,
     CHERRY,
     BAMBOO,
+    MANGROVE,
     PALE_OAK,
     COPPER;
 

@@ -20,17 +20,20 @@ brew.detailed-tooltip.distill: <quality_color_distill_amount>Distilled <distill_
 brew.detailed-tooltip.cook: <quality_color_ingredients><ingredients></quality_color_ingredients> <quality_color_time>cooked <cooking_time> minutes in a <cauldron_type> cauldron</quality_color_time>
 brew.detailed-tooltip.mix: <quality_color_ingredients><ingredients></quality_color_ingredients> <quality_color_time>mixed <mixing_time> minutes</quality_color_time>
 brew.tooltip.volume: "<gray><volume>"
-brew.display-name.unfinished-aged: Aged <ingredient> brew
-brew.display-name.unfinished-aged-unknown: Aged brew
-brew.display-name.unfinished-distilled: <ingredient> distillate
+brew.display-name.unfinished-aged: Aged <ingredient> Brew
+brew.display-name.unfinished-aged-unknown: Aged Brew
+brew.display-name.unfinished-distilled: <ingredient> Distillate
 brew.display-name.unfinished-distilled-unknown: Distillate
-brew.display-name.unfinished-fermented: Fermented <ingredient> mesh
-brew.display-name.unfinished-fermented-unknown: Fermented mesh
-brew.display-name.unfinished-mixed: <ingredient> mixture
+brew.display-name.unfinished-fermented: Fermented <ingredient> Wash
+brew.display-name.unfinished-fermented-unknown: Fermented Wash
+brew.display-name.unfinished-mixed: <ingredient> Mixture
 brew.display-name.unfinished-mixed-unknown: Mixture
+distillery.gui-title.mixture: <gray>Mixture
+distillery.gui-title.distillate: <gray>Distillate
 distillery.create: <gray>Created a distillery
 distillery.create-denied: <red>You don't have enough permissions to create a distillery
 distillery.access-denied: <red>You don't have enough permissions to access a distillery
+barrel.gui-title: <gray>Barrel
 barrel.create: <gray>Created a barrel
 barrel.create-denied: <red>You don't have enough permissions to create a barrel
 barrel.access-denied: <red>You don't have enough permissions to access a barrel
@@ -46,6 +49,7 @@ barrel.type:
   warped: warped
   cherry: cherry
   bamboo: bamboo
+  mangrove: mangrove
   pale_oak: pale_oak
   copper: copper
   none: none

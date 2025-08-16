@@ -64,6 +64,12 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("brew.display-name.unfinished-mixed-unknown")
     public static String BREW_DISPLAY_NAME_UNFINISHED_MIXED_UNKNOWN;
 
+    @Key("distillery.gui-title.mixture")
+    public static String DISTILLERY_GUI_TITLE_MIXTURE;
+
+    @Key("distillery.gui-title.distillate")
+    public static String DISTILLERY_GUI_TITLE_DISTILLATE;
+
     @Key("distillery.create")
     public static String DISTILLERY_CREATE;
 
@@ -72,6 +78,9 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("distillery.access-denied")
     public static String DISTILLERY_ACCESS_DENIED;
+
+    @Key("barrel.gui-title")
+    public static String BARREL_GUI_TITLE;
 
     @Key("barrel.create")
     public static String BARREL_CREATE;
