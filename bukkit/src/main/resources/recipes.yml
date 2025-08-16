@@ -333,7 +333,7 @@ recipes:
     brew-difficulty: 6
     effects:
       - FIRE_RESISTANCE/1/20-100
-      - POISON/0-1/0-30
+      - +POISON/0-1/0-30
     potion-attributes.color: DARK_RED
     potion-attributes.lore:
       - +<dark_gray>Too bitter to drink
