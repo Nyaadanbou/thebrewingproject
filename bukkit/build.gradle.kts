@@ -85,12 +85,11 @@ tasks {
         if (project.findProperty("testing.integrations")!! == "true") {
             downloadPlugins {
                 modrinth("worldedit", "DYf6XJqU")
-                modrinth("craftengine", "R9mbdAcD")
+                modrinth("craftengine", "0.0.61")
                 url("https://dev.bukkit.org/projects/chestshop/files/latest")
                 url("https://dev.bukkit.org/projects/vault/files/latest")
                 url("https://github.com/EssentialsX/Essentials/releases/download/2.21.1/EssentialsX-2.21.1.jar")
                 modrinth("bolt", "1f2gAAFO")
-                url("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/build/libs/ProtocolLib.jar")
             }
         }
     }

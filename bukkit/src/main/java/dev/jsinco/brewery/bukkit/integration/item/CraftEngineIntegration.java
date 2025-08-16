@@ -23,8 +23,10 @@ public class CraftEngineIntegration implements ItemIntegration, Listener {
     private CompletableFuture<Void> initializedFuture;
 
     public @Nullable String itemId(ItemStack itemStack) {
-        Key customId = BukkitCraftEngine.instance().itemManager().customItemId(itemStack);
-        return customId == null ? null : customId.toString();
+        Item<ItemStack> customItem = BukkitCraftEngine.instance().itemManager().wrap(itemStack);
+        return customItem.customId()
+                .map(Key::toString)
+                .orElse(null);
     }
 
     @Override
