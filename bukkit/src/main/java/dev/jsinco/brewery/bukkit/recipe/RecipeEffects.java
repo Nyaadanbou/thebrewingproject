@@ -139,7 +139,9 @@ public class RecipeEffects {
 
     public void applyTo(Player player) {
         DrunksManagerImpl<?> drunksManager = TheBrewingProject.getInstance().getDrunksManager();
-        drunksManager.consume(player.getUniqueId(), alcohol, toxins);
+        if (!player.hasPermission("brewery.override.drunk")) {
+            drunksManager.consume(player.getUniqueId(), alcohol, toxins);
+        }
         if (title != null) {
             player.showTitle(Title.title(BukkitMessageUtil.compilePlayerMessage(title, player, drunksManager, this.alcohol), Component.empty()));
         }
@@ -154,6 +156,9 @@ public class RecipeEffects {
                             MessageUtil.getDrunkStateTagResolver(drunksManager.getDrunkState(player.getUniqueId()))
                     )
             );
+        }
+        if (player.hasPermission("brewery.override.effect")) {
+            return;
         }
         getEvents().forEach(drunkEvent -> TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(player.getUniqueId(), drunkEvent));
     }

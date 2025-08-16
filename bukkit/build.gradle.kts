@@ -177,11 +177,24 @@ bukkit {
                 "brewery.command.seal" to true,
                 "brewery.command.other" to true,
                 "brewery.command.replicate" to true,
+                "brewery.command.version" to true,
             )
             default = BukkitPluginDescription.Permission.Default.OP
         }
+        register("brewery.override.kick") {
+            default = BukkitPluginDescription.Permission.Default.OP
+        }
+        register("brewery.override.effect") {
+            default = BukkitPluginDescription.Permission.Default.FALSE
+        }
+        register("brewery.override.drunk") {
+            default = BukkitPluginDescription.Permission.Default.FALSE
+        }
+        register("brewery.override") {
+            children = listOf("brewery.override.kick", "brewery.override.effect", "brewery.override.drunk")
+        }
         register("brewery") {
-            children = listOf("brewery.command", "brewery.structure.create")
+            children = listOf("brewery.command", "brewery.structure.create", "brewery.override")
         }
     }
     softDepend = listOf(

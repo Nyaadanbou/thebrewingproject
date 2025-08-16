@@ -6,8 +6,8 @@ import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.EventSection;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
-import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.event.EventPropertyExecutable;
+import dev.jsinco.brewery.event.EventStep;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,7 +21,7 @@ public class PassOutNamedExecutable implements EventPropertyExecutable {
     @Override
     public @NotNull ExecutionResult execute(UUID contextPlayer, List<? extends EventStep> events, int index) {
         Player player = Bukkit.getPlayer(contextPlayer);
-        if (player == null) {
+        if (player == null || player.hasPermission("brewery.override.kick")) {
             return ExecutionResult.CONTINUE;
         }
 
