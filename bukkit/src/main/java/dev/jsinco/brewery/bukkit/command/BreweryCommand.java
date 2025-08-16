@@ -16,6 +16,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -66,6 +67,13 @@ public class BreweryCommand {
                         .then(playerBranch(argument -> argument.then(ReplicateCommand.command())))
                         .then(ReplicateCommand.command())
                         .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("brewery.command.replicate"))
+                ).then(Commands.literal("version")
+                        .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("brewery.command.version"))
+                        .executes(commandContext -> {
+                            commandContext.getSource().getSender().sendMessage(MessageUtil.miniMessage(TranslationsConfig.COMMAND_VERSION,
+                                    Placeholder.unparsed("version", TheBrewingProject.getInstance().getPluginMeta().getVersion())));
+                            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+                        })
                 )
                 .build(), Config.config().commandAliases());
     }

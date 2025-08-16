@@ -166,6 +166,9 @@ public class TranslationsConfig extends AbstractConfig {
     @Key("command.seal-failure")
     public static String COMMAND_SEAL_FAILURE;
 
+    @Key("command.version")
+    public static String COMMAND_VERSION;
+
     @Key("events.default-kick-event-message")
     public static String KICK_EVENT_MESSAGE;
 
@@ -186,6 +189,7 @@ public class TranslationsConfig extends AbstractConfig {
 
     @Key("info.after-drink")
     public static String INFO_AFTER_DRINK;
+
 
     private static final TranslationsConfig TRANSLATIONS = new TranslationsConfig();
 

@@ -108,6 +108,7 @@ command:
   reload-message: <gold>The Brewing Project</gold> <green>перезагружен!
   seal-success: <gray>Успешно запечатан(-ы) предмет(-ы) для игрока <player_name>!
   seal-failure: <red>Не удалось найти подходящие для запечатывания напитки.
+  version: <gray>Вы используете The Brewing Project, версия <version>
 events:
   default-kick-event-message: <rainbow>Вы отрубились... ZZzzz</rainbow>
   drunken-join-deny-message: Вы <red>слишком пьяны</red>, чтобы попасть по кнопке подключения...

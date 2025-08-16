@@ -166,6 +166,7 @@ bukkit {
         register("brewery.command.seal")
         register("brewery.command.other")
         register("brewery.command.replicate")
+        register("brewery.command.version")
         register("brewery.command") {
             childrenMap = mapOf(
                 "brewery.command.create" to true,
