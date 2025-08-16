@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import java.io.File;
+import java.util.List;
 
 @Getter
 @Accessors(fluent = true)
@@ -63,6 +64,10 @@ public class Config extends OkaeriConfig {
     })
     @CustomKey("sounds")
     private SoundSection sounds = new SoundSection();
+
+
+    @CustomKey("command-aliases")
+    private List<String> commandAliases = List.of("brewery", "brew");
 
     @Exclude
     private static Config instance;

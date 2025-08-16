@@ -8,6 +8,7 @@ import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.command.argument.EventArgument;
 import dev.jsinco.brewery.bukkit.command.argument.OfflinePlayerArgument;
 import dev.jsinco.brewery.bukkit.command.argument.OnlinePlayerArgument;
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.locale.TranslationsConfig;
 import dev.jsinco.brewery.event.DrunkEvent;
 import dev.jsinco.brewery.util.MessageUtil;
@@ -19,7 +20,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class BreweryCommand {
@@ -67,7 +67,7 @@ public class BreweryCommand {
                         .then(ReplicateCommand.command())
                         .requires(commandSourceStack -> commandSourceStack.getSender().hasPermission("brewery.command.replicate"))
                 )
-                .build(), List.of("brew", "brewery"));
+                .build(), Config.config().commandAliases());
     }
 
     public static ArgumentBuilder<CommandSourceStack, ?> playerBranch(Consumer<ArgumentBuilder<CommandSourceStack, ?>> childAction) {
