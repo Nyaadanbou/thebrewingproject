@@ -128,6 +128,7 @@ bukkit {
     apiVersion = "1.21"
     authors = listOf("Jsinco", "Mitality", "Thorinwasher", "Nadwey")
     name = rootProject.name
+    defaultPermission = BukkitPluginDescription.Permission.Default.FALSE
     permissions {
         register("brewery.barrel.create") {
             children = listOf("brewery.barrel.access")
@@ -184,12 +185,8 @@ bukkit {
         register("brewery.override.kick") {
             default = BukkitPluginDescription.Permission.Default.OP
         }
-        register("brewery.override.effect") {
-            default = BukkitPluginDescription.Permission.Default.FALSE
-        }
-        register("brewery.override.drunk") {
-            default = BukkitPluginDescription.Permission.Default.FALSE
-        }
+        register("brewery.override.effect") {}
+        register("brewery.override.drunk") {}
         register("brewery.override") {
             children = listOf("brewery.override.kick", "brewery.override.effect", "brewery.override.drunk")
         }
