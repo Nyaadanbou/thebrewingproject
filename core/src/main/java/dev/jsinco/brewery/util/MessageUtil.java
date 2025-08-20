@@ -55,7 +55,7 @@ public class MessageUtil {
     public static @NotNull TagResolver getBrewStepTagResolver(BrewingStep brewingStep, List<PartialBrewScore> scores, double difficulty) {
         TagResolver resolver = switch (brewingStep) {
             case BrewingStep.Age age -> TagResolver.resolver(
-                    Placeholder.component("barrel_type", Component.translatable("barrel.type." + age.barrelType().name().toLowerCase(Locale.ROOT))),
+                    Placeholder.component("barrel_type", Component.translatable("tbp.barrel.type." + age.barrelType().name().toLowerCase(Locale.ROOT))),
                     Formatter.number("aging_years", age.time().moment() / Config.config().barrels().agingYearTicks())
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
