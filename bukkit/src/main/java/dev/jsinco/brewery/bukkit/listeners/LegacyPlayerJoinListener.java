@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.translation.Argument;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -32,13 +33,16 @@ public class LegacyPlayerJoinListener implements Listener {
             Component playerKickMessage = kickEventMessage == null ?
                     Component.translatable("tbp.events.default-kick-event-message", Argument.tagResolver(tagResolver))
                     : MessageUtil.miniMessage(kickEventMessage, tagResolver);
-            event.kickMessage(playerKickMessage);
+            event.kickMessage(GlobalTranslator.render(playerKickMessage, Config.config().language()));
             event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
             return;
         }
         if (Config.config().events().drunkenJoinDeny() && drunkState != null && drunkState.alcohol() >= 85 && RANDOM.nextInt(15) <= drunkState.alcohol() - 85) {
             event.kickMessage(
-                    Component.translatable("tbp.events.drunken-join-deny-message", Argument.tagResolver(Placeholder.unparsed("player_name", playerName == null ? "" : playerName)))
+                    GlobalTranslator.render(
+                            Component.translatable("tbp.events.drunken-join-deny-message", Argument.tagResolver(Placeholder.unparsed("player_name", playerName == null ? "" : playerName))),
+                            Config.config().language()
+                    )
             );
             event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
         }

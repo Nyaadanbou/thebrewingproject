@@ -9,6 +9,7 @@ import dev.jsinco.brewery.event.EventPropertyExecutable;
 import dev.jsinco.brewery.event.EventStep;
 import dev.jsinco.brewery.util.MessageUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ public class PassOutNamedExecutable implements EventPropertyExecutable {
         Component playerKickMessage = kickEventSection.kickEventMessage() == null ?
                 Component.translatable("tbp.events.default-kick-event-message")
                 : MessageUtil.miniMessage(kickEventSection.kickEventMessage(), BukkitMessageUtil.getPlayerTagResolver(player));
-        player.kick(playerKickMessage);
+        player.kick(GlobalTranslator.render(playerKickMessage, Config.config().language()));
         if (kickEventSection.kickServerMessage() != null) {
             Component message = MessageUtil.miniMessage(kickEventSection.kickServerMessage(), BukkitMessageUtil.getPlayerTagResolver(player));
             Bukkit.getOnlinePlayers().forEach(audience -> audience.sendMessage(message));
