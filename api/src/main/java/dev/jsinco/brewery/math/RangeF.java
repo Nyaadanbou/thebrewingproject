@@ -25,13 +25,11 @@ public record RangeF(float min, float max) {
      * <p>
      * Creates a RangeF object from a string, accepted formats are <code>&lt;min&gt;;&lt;max&gt;</code> or just <code>&lt;min_and_max&gt;</code>
      * </p>
-     * <p>
-     * Examples:
-     *     <ul>
-     *         <li><code>-3.5;6.1</code> min: -3.5, max: 6.1</li>
-     *         <li><code>1.0</code> min: 1.0, max: 1.0</li>
-     *     </ul>
-     * </p>
+     * <p>Examples:</p>
+     * <ul>
+     *     <li><code>-3.5;6.1</code> min: -3.5, max: 6.1</li>
+     *     <li><code>1.0</code> min: 1.0, max: 1.0</li>
+     * </ul>
      */
     public static RangeF fromString(String str) {
         String[] parts = str.trim().split(";");
@@ -40,8 +38,8 @@ public record RangeF(float min, float max) {
         }
 
         return new RangeF(
-Float.parseFloat(parts[0]),
-parts.length == 2 ? Float.parseFloat(parts[1]) : Float.parseFloat(parts[0])
-);
+            Float.parseFloat(parts[0]),
+            parts.length == 2 ? Float.parseFloat(parts[1]) : Float.parseFloat(parts[0])
+        );
     }
 }
