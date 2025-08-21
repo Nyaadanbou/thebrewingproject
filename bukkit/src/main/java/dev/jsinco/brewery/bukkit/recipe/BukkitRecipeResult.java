@@ -141,7 +141,6 @@ public class BukkitRecipeResult implements RecipeResult<ItemStack> {
         recipeEffects.withToxins(recipeEffects, (int) (recipeEffects.getAlcohol() * (1.5D - score.score()))).applyTo(itemStack);
         // After recipe effects, as both might modify potion contents
         itemStack.setData(DataComponentTypes.POTION_CONTENTS, PotionContents.potionContents()
-                .addCustomEffects(itemStack.getData(DataComponentTypes.POTION_CONTENTS).customEffects())
                 .customColor(color)
         );
     }

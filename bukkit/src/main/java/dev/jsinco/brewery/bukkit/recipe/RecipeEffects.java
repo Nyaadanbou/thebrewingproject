@@ -11,8 +11,6 @@ import dev.jsinco.brewery.event.DrunkEvent;
 import dev.jsinco.brewery.util.BreweryKey;
 import dev.jsinco.brewery.util.MessageUtil;
 import dev.jsinco.brewery.util.Registry;
-import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.PotionContents;
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -44,6 +42,7 @@ public class RecipeEffects {
     public static final NamespacedKey ALCOHOL = BukkitAdapter.toNamespacedKey(BreweryKey.parse("alcohol"));
     public static final NamespacedKey TOXINS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("toxins"));
     public static final NamespacedKey EVENTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("events"));
+    public static final NamespacedKey EFFECTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("effects"));
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL, TOXINS, EVENTS);
 
     public static final RecipeEffects GENERIC = new Builder()
@@ -84,9 +83,6 @@ public class RecipeEffects {
     }
 
     public void applyTo(ItemStack itemStack) {
-        itemStack.setData(DataComponentTypes.POTION_CONTENTS, PotionContents.potionContents().addCustomEffects(
-                effects.stream().map(RecipeEffect::newPotionEffect).toList()
-        ).build());
         itemStack.editPersistentDataContainer(this::applyTo);
     }
 
@@ -104,6 +100,7 @@ public class RecipeEffects {
         container.set(ALCOHOL, PersistentDataType.INTEGER, alcohol);
         container.set(TOXINS, PersistentDataType.INTEGER, toxins);
         container.set(EVENTS, ListPersistentDataType.STRING_LIST, events.stream().map(BreweryKey::toString).toList());
+        container.set(EFFECTS, RecipeEffectPersistentDataType.INSTANCE, effects);
     }
 
     public static Optional<RecipeEffects> fromEntity(Entity entity) {
@@ -131,6 +128,9 @@ public class RecipeEffects {
                 .map(BreweryKey::parse)
                 .collect(Collectors.toList())
         );
+        if (persistentDataContainer.has(EFFECTS, RecipeEffectPersistentDataType.INSTANCE)) {
+            builder.effects(persistentDataContainer.get(EFFECTS, RecipeEffectPersistentDataType.INSTANCE));
+        }
         return Optional.of(builder.build());
     }
 
@@ -174,6 +174,9 @@ public class RecipeEffects {
             return;
         }
         getEvents().forEach(drunkEvent -> TheBrewingProject.getInstance().getDrunkEventExecutor().doDrunkEvent(player.getUniqueId(), drunkEvent));
+        getEffects().stream()
+                .map(RecipeEffect::newPotionEffect)
+                .forEach(player::addPotionEffect);
     }
 
     public void applyTo(Projectile projectile) {
