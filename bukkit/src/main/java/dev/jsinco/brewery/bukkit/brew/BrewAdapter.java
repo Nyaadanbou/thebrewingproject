@@ -3,7 +3,6 @@ package dev.jsinco.brewery.bukkit.brew;
 import dev.jsinco.brewery.brew.*;
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResult;
-import dev.jsinco.brewery.bukkit.util.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.util.IngredientUtil;
 import dev.jsinco.brewery.bukkit.util.ListPersistentDataType;
 import dev.jsinco.brewery.ingredient.Ingredient;
@@ -42,11 +41,11 @@ public class BrewAdapter {
 
     private static final int DATA_VERSION = 0;
 
-    private static final NamespacedKey BREWING_STEPS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("steps"));
-    private static final NamespacedKey BREWERY_DATA_VERSION = BukkitAdapter.toNamespacedKey(BreweryKey.parse("version"));
-    public static final NamespacedKey BREWERY_TAG = BukkitAdapter.toNamespacedKey(BreweryKey.parse("tag"));
-    public static final NamespacedKey BREWERY_SCORE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("score"));
-    public static final NamespacedKey BREWERY_DISPLAY_NAME = BukkitAdapter.toNamespacedKey(BreweryKey.parse("display_name"));
+    private static final NamespacedKey BREWING_STEPS = TheBrewingProject.key("steps");
+    private static final NamespacedKey BREWERY_DATA_VERSION = TheBrewingProject.key("version");
+    public static final NamespacedKey BREWERY_TAG = TheBrewingProject.key("tag");
+    public static final NamespacedKey BREWERY_SCORE = TheBrewingProject.key("score");
+    public static final NamespacedKey BREWERY_DISPLAY_NAME = TheBrewingProject.key("display_name");
 
     public static ItemStack toItem(Brew brew, Brew.State state) {
         RecipeRegistryImpl<ItemStack> recipeRegistry = TheBrewingProject.getInstance().getRecipeRegistry();

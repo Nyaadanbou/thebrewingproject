@@ -35,14 +35,14 @@ import java.util.stream.Collectors;
 @Getter
 public class RecipeEffects {
 
-    public static final NamespacedKey COMMANDS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("commands"));
-    public static final NamespacedKey MESSAGE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("message"));
-    public static final NamespacedKey ACTION_BAR = BukkitAdapter.toNamespacedKey(BreweryKey.parse("action_bar"));
-    public static final NamespacedKey TITLE = BukkitAdapter.toNamespacedKey(BreweryKey.parse("titles"));
-    public static final NamespacedKey ALCOHOL = BukkitAdapter.toNamespacedKey(BreweryKey.parse("alcohol"));
-    public static final NamespacedKey TOXINS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("toxins"));
-    public static final NamespacedKey EVENTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("events"));
-    public static final NamespacedKey EFFECTS = BukkitAdapter.toNamespacedKey(BreweryKey.parse("effects"));
+    public static final NamespacedKey COMMANDS = TheBrewingProject.key("commands");
+    public static final NamespacedKey MESSAGE = TheBrewingProject.key("message");
+    public static final NamespacedKey ACTION_BAR = TheBrewingProject.key("action_bar");
+    public static final NamespacedKey TITLE = TheBrewingProject.key("titles");
+    public static final NamespacedKey ALCOHOL = TheBrewingProject.key("alcohol");
+    public static final NamespacedKey TOXINS = TheBrewingProject.key("toxins");
+    public static final NamespacedKey EVENTS = TheBrewingProject.key("events");
+    public static final NamespacedKey EFFECTS = TheBrewingProject.key("effects");
     private static final List<NamespacedKey> PDC_TYPES = List.of(COMMANDS, MESSAGE, ACTION_BAR, TITLE, ALCOHOL, TOXINS, EVENTS);
 
     public static final RecipeEffects GENERIC = new Builder()

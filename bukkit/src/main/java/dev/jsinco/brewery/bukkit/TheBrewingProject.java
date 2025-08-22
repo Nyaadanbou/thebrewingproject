@@ -50,6 +50,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
@@ -302,6 +303,10 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         } catch (PersistenceException e) {
             Logger.logErr(e);
         }
+    }
+
+    public static NamespacedKey key(String key) {
+        return new NamespacedKey("brewery", key);
     }
 }
 
