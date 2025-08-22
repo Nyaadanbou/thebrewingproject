@@ -87,3 +87,5 @@ tbp.events.types.puke=блевать
 tbp.events.types.stumble=споткнуться
 tbp.events.types.teleport=телепортация
 tbp.info.after-drink=Опьянение: <gray>[<alcohol_level>] Токсины: <red>[<toxins_level>]
+tbp.integration.lands.flag.barrel-access.name=Доступ к бочкам
+tbp.integration.lands.flag.barrel-access.description=<reset><gray>Позволяет открывать\n<reset><gray>бочки TBP.

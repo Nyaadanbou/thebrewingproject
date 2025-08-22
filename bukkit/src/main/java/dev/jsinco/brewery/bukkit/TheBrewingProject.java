@@ -18,6 +18,7 @@ import dev.jsinco.brewery.bukkit.effect.event.ActiveEventsRegistry;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.integration.IntegrationManager;
+import dev.jsinco.brewery.bukkit.integration.structure.LandsIntegration;
 import dev.jsinco.brewery.bukkit.listeners.*;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
@@ -104,7 +105,6 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     private BreweryTranslator translator;
 
     public void initialize() {
-        instance = this;
         EventSection.migrateEvents(getDataFolder());
         Config.load(this.getDataFolder(), serializers());
         EventSection.load(getDataFolder(), serializers());
@@ -123,7 +123,9 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     @Override
     public void onLoad() {
+        instance = this;
         Bukkit.getServicesManager().register(TheBrewingProjectApi.class, this, this, ServicePriority.Normal);
+        LandsIntegration.registerBarrelAccessFlag(); // This needs to be done onLoad
     }
 
     private OkaeriSerdesPack serializers() {

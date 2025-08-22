@@ -2,17 +2,21 @@ package dev.jsinco.brewery.bukkit.integration.structure;
 
 import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.bukkit.integration.StructureIntegration;
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.util.ClassUtil;
 import me.angeschossen.lands.api.flags.enums.FlagTarget;
 import me.angeschossen.lands.api.flags.enums.RoleFlagCategory;
 import me.angeschossen.lands.api.flags.type.RoleFlag;
 import me.angeschossen.lands.api.land.LandWorld;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class LandsIntegration implements StructureIntegration {
 
@@ -43,16 +47,24 @@ public class LandsIntegration implements StructureIntegration {
     }
 
     @Override
-    public void initialize() {
+    public void initialize() {}
+
+    // This is done onLoad, not when initialized by the IntegrationManager
+    // We could add a preInitialize or load method to all integrations for things like this
+    public static void registerBarrelAccessFlag() {
         if (!ENABLED) {
             return;
         }
-        landsIntegration = me.angeschossen.lands.api.LandsIntegration.of(
-                TheBrewingProject.getInstance()
-        );
+        landsIntegration = me.angeschossen.lands.api.LandsIntegration.of(TheBrewingProject.getInstance());
+        PlainTextComponentSerializer serializer = PlainTextComponentSerializer.plainText();
+        String name = serializer.serialize(GlobalTranslator.render(Component
+                .translatable("tbp.integration.lands.flag.barrel-access.name"), Config.config().language()));
+        String[] description = serializer.serialize(GlobalTranslator.render(Component
+                .translatable("tbp.integration.lands.flag.barrel-access.description"), Config.config().language()))
+                .split("\\\\n");
         barrelAccessFlag = RoleFlag.of(landsIntegration, FlagTarget.PLAYER, RoleFlagCategory.ACTION, "barrel_access")
-                .setDisplayName("Barrel Access")
-                .setDescription(List.of("§r§7Allows opening", "§r§7BreweryX barrels."))
+                .setDisplayName(name)
+                .setDescription(Arrays.stream(description).toList())
                 .setIcon(new ItemStack(Material.BARREL))
                 .setDisplay(true);
     }
