@@ -111,6 +111,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         Config.load(this.getDataFolder(), serializers());
         EventSection.load(getDataFolder(), serializers());
         this.translator = new BreweryTranslator(new File(this.getDataFolder(), "locale"));
+        translator.reload();
         GlobalTranslator.translator().addSource(translator);
         this.structureRegistry = new StructureRegistry();
         this.placedStructureRegistry = new PlacedStructureRegistryImpl();
@@ -151,8 +152,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         saveResources();
         Config.config().load(true);
         EventSection.events().load(true);
-        translator.syncLangFiles();
-        translator.loadLangFiles();
+        translator.reload();
         this.structureRegistry.clear();
         this.placedStructureRegistry.clear();
         this.breweryRegistry.clear();
@@ -278,7 +278,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     }
 
     private void saveResources() {
-        Stream.of("recipes.yml", "locale/en-US.lang", "locale/ru.lang", "locale/drunk_text_en-US.json")
+        Stream.of("recipes.yml", "locale/drunk_text_en-US.json")
                 .forEach(this::saveResourceIfNotExists);
     }
 

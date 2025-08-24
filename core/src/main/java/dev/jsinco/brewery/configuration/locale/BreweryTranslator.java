@@ -23,11 +23,14 @@ public class BreweryTranslator extends MiniMessageTranslator {
 
     public BreweryTranslator(File localeDirectory) {
         this.localeDirectory = localeDirectory;
+    }
+
+    public void reload() {
         syncLangFiles();
         loadLangFiles();
     }
 
-    public void syncLangFiles() {
+    private void syncLangFiles() {
         if (!localeDirectory.exists() && !localeDirectory.mkdirs()) { // shouldn't happen
             throw new IllegalStateException("Failed to create locale directory at " + localeDirectory.getAbsolutePath());
         }
@@ -76,15 +79,16 @@ public class BreweryTranslator extends MiniMessageTranslator {
 
         } else {
             merged.putAll(internalProps);
+            if (!externalFile.createNewFile()) {
+                throw new IOException("Could not create file: " + externalFile);
+            }
         }
-
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(externalFile), StandardCharsets.UTF_8)) {
             storeWithoutComments(merged, writer);
         }
     }
 
     private void storeWithoutComments(Properties props, Writer writer) throws IOException {
-
         List<String> keys = new ArrayList<>(props.stringPropertyNames());
         Collections.sort(keys);
 
@@ -93,7 +97,7 @@ public class BreweryTranslator extends MiniMessageTranslator {
         }
     }
 
-    public void loadLangFiles() {
+    private void loadLangFiles() {
         if (!localeDirectory.isDirectory()) {
             throw new IllegalArgumentException("Locale directory is not a directory!");
         }
