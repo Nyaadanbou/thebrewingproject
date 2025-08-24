@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.FileSystem;
 import java.util.*;
 
 public class BreweryTranslator extends MiniMessageTranslator {
@@ -32,7 +33,6 @@ public class BreweryTranslator extends MiniMessageTranslator {
         }
 
         try {
-            // load language files from inside the jar (can't use main class here, sadly)
             Enumeration<URL> resources = getClass().getClassLoader().getResources("locale");
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
@@ -41,40 +41,8 @@ public class BreweryTranslator extends MiniMessageTranslator {
 
                     Path internalLocaleDir = fs == null ? Paths.get(url.toURI()) : fs.getPath("locale");
                     try (DirectoryStream<Path> stream = Files.newDirectoryStream(internalLocaleDir, "*.lang")) {
-
-                        for (Path internalFile : stream) {
-
-                            String fileName = internalFile.getFileName().toString();
-                            File externalFile = new File(localeDirectory, fileName);
-
-                            // load the internal/default properties from within the jar
-                            Properties internalProps = new Properties();
-                            try (Reader reader = Files.newBufferedReader(internalFile, StandardCharsets.UTF_8)) {
-                                internalProps.load(reader);
-                            }
-
-                            Properties merged = new Properties();
-                            if (externalFile.exists()) {
-
-                                // load external file if it already exists
-                                Properties externalProps = new Properties();
-                                try (Reader reader = new InputStreamReader(new FileInputStream(externalFile), StandardCharsets.UTF_8)) {
-                                    externalProps.load(reader);
-                                }
-
-                                // keep set values, but add new ones from the internal file
-                                for (String key : internalProps.stringPropertyNames()) {
-                                    merged.setProperty(key, externalProps.getProperty(key, internalProps.getProperty(key)));
-                                }
-
-                            } else {
-                                merged.putAll(internalProps);
-                            }
-
-                            // save merged file
-                            try (Writer writer = new OutputStreamWriter(new FileOutputStream(externalFile), StandardCharsets.UTF_8)) {
-                                storeWithoutComments(merged, writer);
-                            }
+                        for (Path path : stream) {
+                            mergeAndStoreProperties(path);
                         }
                     }
                 }
@@ -85,11 +53,40 @@ public class BreweryTranslator extends MiniMessageTranslator {
         // special thanks to StackOverflow and other useful sites lol
     }
 
-    // Properties#store would automatically add the current date as a comment at the top of the file
+    private void mergeAndStoreProperties(Path internalFile) throws IOException {
+        String fileName = internalFile.getFileName().toString();
+        File externalFile = new File(localeDirectory, fileName);
+
+        Properties internalProps = new Properties();
+        try (Reader reader = Files.newBufferedReader(internalFile, StandardCharsets.UTF_8)) {
+            internalProps.load(reader);
+        }
+
+        Properties merged = new Properties();
+        if (externalFile.exists()) {
+
+            Properties externalProps = new Properties();
+            try (Reader reader = new InputStreamReader(new FileInputStream(externalFile), StandardCharsets.UTF_8)) {
+                externalProps.load(reader);
+            }
+
+            for (String key : internalProps.stringPropertyNames()) {
+                merged.setProperty(key, externalProps.getProperty(key, internalProps.getProperty(key)));
+            }
+
+        } else {
+            merged.putAll(internalProps);
+        }
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(externalFile), StandardCharsets.UTF_8)) {
+            storeWithoutComments(merged, writer);
+        }
+    }
+
     private void storeWithoutComments(Properties props, Writer writer) throws IOException {
 
         List<String> keys = new ArrayList<>(props.stringPropertyNames());
-        Collections.sort(keys); // alphabetically sort entries for consistency
+        Collections.sort(keys);
 
         for (String key : keys) {
             writer.write(key + "=" + props.getProperty(key) + "\n");
