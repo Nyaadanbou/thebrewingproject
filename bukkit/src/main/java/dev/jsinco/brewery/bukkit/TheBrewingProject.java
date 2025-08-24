@@ -151,7 +151,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         saveResources();
         Config.config().load(true);
         EventSection.events().load(true);
-        translator.load(new File(this.getDataFolder(), "locale"));
+        translator.syncLangFiles();
+        translator.loadLangFiles();
         this.structureRegistry.clear();
         this.placedStructureRegistry.clear();
         this.breweryRegistry.clear();

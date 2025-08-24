@@ -9,20 +9,94 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.nio.file.*;
+import java.util.*;
 
 public class BreweryTranslator extends MiniMessageTranslator {
 
     Map<Locale, Properties> translations;
+    File localeDirectory;
 
     public BreweryTranslator(File localeDirectory) {
-        load(localeDirectory);
+        this.localeDirectory = localeDirectory;
+        syncLangFiles();
+        loadLangFiles();
     }
 
-    public void load(File localeDirectory) {
+    public void syncLangFiles() {
+        if (!localeDirectory.exists() && !localeDirectory.mkdirs()) { // shouldn't happen
+            throw new IllegalStateException("Failed to create locale directory at " + localeDirectory.getAbsolutePath());
+        }
+
+        try {
+            // load language files from inside the jar (can't use main class here, sadly)
+            Enumeration<URL> resources = getClass().getClassLoader().getResources("locale");
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+
+                try (FileSystem fs = "jar".equals(url.getProtocol()) ? FileSystems.newFileSystem(url.toURI(), Collections.emptyMap()) : null) {
+
+                    Path internalLocaleDir = fs == null ? Paths.get(url.toURI()) : fs.getPath("locale");
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(internalLocaleDir, "*.lang")) {
+
+                        for (Path internalFile : stream) {
+
+                            String fileName = internalFile.getFileName().toString();
+                            File externalFile = new File(localeDirectory, fileName);
+
+                            // load the internal/default properties from within the jar
+                            Properties internalProps = new Properties();
+                            try (Reader reader = Files.newBufferedReader(internalFile, StandardCharsets.UTF_8)) {
+                                internalProps.load(reader);
+                            }
+
+                            Properties merged = new Properties();
+                            if (externalFile.exists()) {
+
+                                // load external file if it already exists
+                                Properties externalProps = new Properties();
+                                try (Reader reader = new InputStreamReader(new FileInputStream(externalFile), StandardCharsets.UTF_8)) {
+                                    externalProps.load(reader);
+                                }
+
+                                // keep set values, but add new ones from the internal file
+                                for (String key : internalProps.stringPropertyNames()) {
+                                    merged.setProperty(key, externalProps.getProperty(key, internalProps.getProperty(key)));
+                                }
+
+                            } else {
+                                merged.putAll(internalProps);
+                            }
+
+                            // save merged file
+                            try (Writer writer = new OutputStreamWriter(new FileOutputStream(externalFile), StandardCharsets.UTF_8)) {
+                                storeWithoutComments(merged, writer);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Failed to sync language files", e);
+        }
+        // special thanks to StackOverflow and other useful sites lol
+    }
+
+    // Properties#store would automatically add the current date as a comment at the top of the file
+    private void storeWithoutComments(Properties props, Writer writer) throws IOException {
+
+        List<String> keys = new ArrayList<>(props.stringPropertyNames());
+        Collections.sort(keys); // alphabetically sort entries for consistency
+
+        for (String key : keys) {
+            writer.write(key + "=" + props.getProperty(key) + "\n");
+        }
+    }
+
+    public void loadLangFiles() {
         if (!localeDirectory.isDirectory()) {
             throw new IllegalArgumentException("Locale directory is not a directory!");
         }
