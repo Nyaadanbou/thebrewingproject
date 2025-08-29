@@ -103,11 +103,7 @@ tasks {
     shadowJar {
         val publishing = project.gradle.startParameter.taskNames.any { it.contains("publish") }
         archiveBaseName.set(rootProject.name)
-        if (!publishing) {
-            archiveClassifier.unset()
-        } else {
-            archiveClassifier = "api"
-        }
+        archiveClassifier.unset()
 
         dependencies {
             if (!publishing) {
@@ -233,7 +229,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             artifactId = "thebrewingproject"
-            from(components["java"])
+            artifact(tasks["shadowJar"])
         }
     }
 }
