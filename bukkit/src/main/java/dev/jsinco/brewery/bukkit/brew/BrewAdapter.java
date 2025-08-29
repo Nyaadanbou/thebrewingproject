@@ -13,6 +13,7 @@ import dev.jsinco.brewery.api.ingredient.Ingredient;
 import dev.jsinco.brewery.api.ingredient.IngredientManager;
 import dev.jsinco.brewery.api.recipe.Recipe;
 import dev.jsinco.brewery.api.recipe.RecipeResult;
+import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.recipes.BrewScoreImpl;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.api.util.BreweryKey;
@@ -26,6 +27,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.translation.Argument;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -109,7 +111,8 @@ public class BrewAdapter {
                 ? Component.translatable(translationKey + "-unknown")
                 : Component.translatable(translationKey, Argument.tagResolver(Placeholder.component("ingredient", topIngredient.displayName())));
 
-        itemStack.setData(DataComponentTypes.CUSTOM_NAME, displayName.decoration(TextDecoration.ITALIC, false));
+        itemStack.setData(DataComponentTypes.CUSTOM_NAME, GlobalTranslator
+                .render(displayName, Config.config().language()).decoration(TextDecoration.ITALIC, false));
         itemStack.setData(DataComponentTypes.POTION_CONTENTS, PotionContents.potionContents()
                 .customColor(itemsInfo.first()).build());
         return itemStack;
