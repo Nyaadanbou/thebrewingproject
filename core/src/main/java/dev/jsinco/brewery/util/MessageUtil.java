@@ -4,6 +4,9 @@ import dev.jsinco.brewery.api.brew.*;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.api.effect.DrunkState;
 import dev.jsinco.brewery.api.recipe.RecipeRegistry;
+import dev.jsinco.brewery.format.TimeFormat;
+import dev.jsinco.brewery.format.TimeFormatter;
+import dev.jsinco.brewery.format.TimeModifier;
 import dev.jsinco.brewery.recipes.BrewScoreImpl;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -57,10 +60,10 @@ public class MessageUtil {
         TagResolver resolver = switch (brewingStep) {
             case BrewingStep.Age age -> TagResolver.resolver(
                     Placeholder.component("barrel_type", Component.translatable("tbp.barrel.type." + age.barrelType().name().toLowerCase(Locale.ROOT))),
-                    Formatter.number("aging_years", age.time().moment() / Config.config().barrels().agingYearTicks())
+                    Placeholder.parsed("aging_years", TimeFormatter.format(age.time().moment(), TimeFormat.AGING_YEARS, TimeModifier.AGING))
             );
             case BrewingStep.Cook cook -> TagResolver.resolver(
-                    Formatter.number("cooking_time", cook.time().moment() / Config.config().cauldrons().cookingMinuteTicks()),
+                    Placeholder.parsed("cooking_time", TimeFormatter.format(cook.time().moment(), TimeFormat.COOKING_TIME, TimeModifier.COOKING)),
                     Placeholder.component("ingredients", cook.ingredients().entrySet()
                             .stream()
                             .map(entry -> entry.getKey().displayName()
@@ -72,7 +75,7 @@ public class MessageUtil {
             );
             case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
             case BrewingStep.Mix mix -> TagResolver.resolver(
-                    Formatter.number("mixing_time", mix.time().moment() / Config.config().cauldrons().cookingMinuteTicks()),
+                    Placeholder.parsed("mixing_time", TimeFormatter.format(mix.time().moment(), TimeFormat.MIXING_TIME, TimeModifier.COOKING)),
                     Placeholder.component("ingredients", mix.ingredients().entrySet()
                             .stream()
                             .map(entry -> entry.getKey().displayName()

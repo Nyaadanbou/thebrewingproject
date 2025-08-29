@@ -36,6 +36,7 @@ import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.api.event.CustomEventRegistry;
 import dev.jsinco.brewery.api.event.EventStepRegistry;
+import dev.jsinco.brewery.format.TimeFormatRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.api.structure.MultiblockStructure;
@@ -84,6 +85,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Getter
     private DrunkTextRegistry drunkTextRegistry;
     @Getter
+    private TimeFormatRegistry timeFormatRegistry;
+    @Getter
     private DrunksManagerImpl<Connection> drunksManager;
     @Getter
     private CustomEventRegistry customDrunkEventRegistry;
@@ -118,6 +121,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.breweryRegistry = new BreweryRegistry();
         this.recipeRegistry = new RecipeRegistryImpl<>();
         this.drunkTextRegistry = new DrunkTextRegistry();
+        this.timeFormatRegistry = new TimeFormatRegistry();
         this.customDrunkEventRegistry = EventSection.events().customEvents();
         this.eventStepRegistry = new EventStepRegistry();
         this.drunkEventExecutor = new DrunkEventExecutor();
@@ -177,6 +181,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         recipeReader.readRecipes().forEach(recipeFuture -> recipeFuture.thenAcceptAsync(recipe -> recipeRegistry.registerRecipe(recipe)));
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
         loadDrunkenReplacements();
+        loadTimeFormats();
     }
 
     private void loadDrunkenReplacements() {
@@ -187,6 +192,20 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         }
         try (InputStream inputStream = new FileInputStream(file)) {
             drunkTextRegistry.load(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadTimeFormats() {
+        File file = new File(getDataFolder(), "/locale/time_format_" + Config.config().language().toLanguageTag() + ".properties");
+        if (!file.exists()) {
+            Logger.log("Could not find time formats for your language, using en-US");
+            file = new File(getDataFolder(), "/locale/time_format_en-US.properties");
+        }
+        try {
+            timeFormatRegistry.sync(file);
+            timeFormatRegistry.load(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -259,6 +278,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         this.recipeRegistry.registerDefaultRecipes(DefaultRecipeReader.readDefaultRecipes(this.getDataFolder()));
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, BreweryCommand::register);
         loadDrunkenReplacements();
+        loadTimeFormats();
     }
 
     @Override

@@ -14,7 +14,6 @@ import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.api.integration.IntegrationTypes;
 import dev.jsinco.brewery.bukkit.recipe.RecipeEffects;
-import dev.jsinco.brewery.bukkit.util.TimeUtil;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.configuration.serializers.ConsumableSerializer;
 import dev.jsinco.brewery.database.PersistenceException;
@@ -25,6 +24,9 @@ import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
 import dev.jsinco.brewery.effect.text.DrunkTextTransformer;
 import dev.jsinco.brewery.api.ingredient.Ingredient;
 import dev.jsinco.brewery.api.ingredient.ScoredIngredient;
+import dev.jsinco.brewery.format.TimeFormat;
+import dev.jsinco.brewery.format.TimeFormatter;
+import dev.jsinco.brewery.format.TimeModifier;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.api.util.BreweryKey;
@@ -204,7 +206,7 @@ public class PlayerEventListener implements Listener {
                 .filter(cauldron -> event.getPlayer().hasPermission("brewery.cauldron.time"))
                 .ifPresent(cauldron -> event.getPlayer().sendMessage(
                         GlobalTranslator.render(Component.translatable("tbp.cauldron.clock-message"), Config.config().language())
-                                .replaceText(builder -> builder.matchLiteral("<time>").replacement(TimeUtil.formatTime(cauldron.getTime())))
+                                .replaceText(builder -> builder.matchLiteral("<time>").replacement(TimeFormatter.format(cauldron.getTime(), TimeFormat.CLOCK_MECHANIC, TimeModifier.COOKING)))
                 ));
 
         cauldronOptional.ifPresent(ignored -> {
