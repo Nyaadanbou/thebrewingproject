@@ -36,6 +36,8 @@ import dev.jsinco.brewery.api.vector.BreweryLocation;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -205,8 +207,9 @@ public class PlayerEventListener implements Listener {
                 .filter(cauldron -> itemStack.getType() == Material.CLOCK)
                 .filter(cauldron -> event.getPlayer().hasPermission("brewery.cauldron.time"))
                 .ifPresent(cauldron -> event.getPlayer().sendMessage(
-                        GlobalTranslator.render(Component.translatable("tbp.cauldron.clock-message"), Config.config().language())
-                                .replaceText(builder -> builder.matchLiteral("<time>").replacement(TimeFormatter.format(cauldron.getTime(), TimeFormat.CLOCK_MECHANIC, TimeModifier.COOKING)))
+                        Component.translatable("tbp.cauldron.clock-message", Argument.tagResolver(
+                                Placeholder.parsed("time", TimeFormatter.format(cauldron.getTime(), TimeFormat.CLOCK_MECHANIC, TimeModifier.COOKING))
+                        ))
                 ));
 
         cauldronOptional.ifPresent(ignored -> {
