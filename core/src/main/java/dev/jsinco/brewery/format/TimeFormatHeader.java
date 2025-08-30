@@ -51,7 +51,7 @@ public class TimeFormatHeader {
              + "#    [text]<2-4>  ...Shown only if the last number before it is NOT in range 2-4\n"
              + "#    {text}<2-4>  ...Shown only if the last number before it IS in range 2-4\n"
              + "#\n"
-             + "#    Example: \"<ticks-total> {is in range}<2-4>[is not in range]<2-4>\" => 3 is in range / 3 is not in range\n"
+             + "#    Example: \"<ticks-total> {is in range}<2-4>[is not in range]<2-4>\" => 3 is in range / 5 is not in range\n"
              + "#\n"
              + "#  EXAMPLES:\n"
              + "#\n"
