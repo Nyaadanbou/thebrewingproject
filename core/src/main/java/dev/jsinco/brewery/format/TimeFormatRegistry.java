@@ -62,7 +62,7 @@ public class TimeFormatRegistry {
         timeFormats.clear();
     }
 
-    public String get(TimeFormat format) {
+    public static String get(TimeFormat format) {
         return timeFormats.getOrDefault(format, format.getKey());
     }
 

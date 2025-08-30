@@ -17,6 +17,6 @@ public enum TimeFormat {
     }
 
     public String get() {
-        return new TimeFormatRegistry().get(this);
+        return TimeFormatRegistry.get(this);
     }
 }
