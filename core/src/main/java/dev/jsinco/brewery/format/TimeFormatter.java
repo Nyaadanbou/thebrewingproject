@@ -1,5 +1,7 @@
 package dev.jsinco.brewery.format;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,95 +13,115 @@ public class TimeFormatter {
 
     public static String format(long timeTicks, TimeFormat format, TimeModifier modifier) {
 
+        Map<String, Long> placeholders = new LinkedHashMap<>();
         double tpm = modifier.getTicksPerMinute();
 
         long totalMinutes = (long) Math.floor(timeTicks / tpm);
+        placeholders.put("minutes-total", totalMinutes);
         long totalSeconds = (long) Math.floor(timeTicks * 60.0 / tpm);
+        placeholders.put("seconds-total", totalSeconds);
 
         long totalHours = totalMinutes / 60;
+        placeholders.put("hours-total", totalHours);
         long totalDays = totalHours / 24;
+        placeholders.put("days-total", totalDays);
         long totalYears = totalDays / 365;
+        placeholders.put("years-total", totalYears);
         long totalDecades = totalYears / 10;
+        placeholders.put("decades-total", totalDecades);
 
         long minutes = totalMinutes % 60;
+        placeholders.put("minutes", minutes);
         long hours = totalHours % 24;
+        placeholders.put("hours", hours);
         long days = totalDays % 365;
+        placeholders.put("days", days);
         long years = totalYears % 10;
+        placeholders.put("years", years);
 
         long ticks = (long) (timeTicks - Math.floor(totalMinutes * tpm));
+        placeholders.put("ticks", ticks);
         long seconds = (long) Math.floor((timeTicks - Math.floor(totalMinutes * tpm)) * 60.0 / tpm);
+        placeholders.put("seconds", seconds);
 
-        // totalTicks=timeTicks and decades=totalDecades
+        placeholders.put("ticks-total", timeTicks);
+        placeholders.put("decades", totalDecades);
 
         String result = format.get();
 
-        result = result
-                .replace("<ticks>", String.valueOf(ticks))
-                .replace("<ticks-total>", String.valueOf(timeTicks))
-                .replace("<seconds>", String.valueOf(seconds))
-                .replace("<seconds-total>", String.valueOf(totalSeconds))
-                .replace("<minutes>", String.valueOf(minutes))
-                .replace("<minutes-total>", String.valueOf(totalMinutes))
-                .replace("<hours>", String.valueOf(hours))
-                .replace("<hours-total>", String.valueOf(totalHours))
-                .replace("<days>", String.valueOf(days))
-                .replace("<days-total>", String.valueOf(totalDays))
-                .replace("<years>", String.valueOf(years))
-                .replace("<years-total>", String.valueOf(totalYears))
-                .replace("<decades>", String.valueOf(totalDecades))
-                .replace("<decades-total>", String.valueOf(totalDecades));
+        for (Map.Entry<String, Long> entry : placeholders.entrySet()) {
+            result = result.replace("<" + entry.getKey() + ">", String.valueOf(entry.getValue()));
+        }
 
-        result = result
-                .replaceAll("(?s)<if-ticks>(.*?)</if-ticks>", ticks > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-ticks-total>(.*?)</if-ticks-total>", timeTicks > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-seconds>(.*?)</if-seconds>", seconds > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-seconds-total>(.*?)</if-seconds-total>", totalSeconds > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-minutes>(.*?)</if-minutes>", minutes > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-minutes-total>(.*?)</if-minutes-total>", totalMinutes > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-hours>(.*?)</if-hours>", hours > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-hours-total>(.*?)</if-hours-total>", totalHours > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-days>(.*?)</if-days>", days > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-days-total>(.*?)</if-days-total>", totalDays > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-years>(.*?)</if-years>", years > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-years-total>(.*?)</if-years-total>", totalYears > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-decades>(.*?)</if-decades>", totalDecades > 0 ? "$1" : "")
-                .replaceAll("(?s)<if-decades-total>(.*?)</if-decades-total>", totalDecades > 0 ? "$1" : "");
+        for (Map.Entry<String, Long> entry : placeholders.entrySet()) {
 
-        result = result
-                .replaceAll("(?s)<if-!ticks>(.*?)</if-!ticks>", ticks > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!ticks-total>(.*?)</if-!ticks-total>", timeTicks > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!seconds>(.*?)</if-!seconds>", seconds > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!seconds-total>(.*?)</if-!seconds-total>", totalSeconds > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!minutes>(.*?)</if-!minutes>", minutes > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!minutes-total>(.*?)</if-!minutes-total>", totalMinutes > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!hours>(.*?)</if-!hours>", hours > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!hours-total>(.*?)</if-!hours-total>", totalHours > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!days>(.*?)</if-!days>", days > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!days-total>(.*?)</if-!days-total>", totalDays > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!years>(.*?)</if-!years>", years > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!years-total>(.*?)</if-!years-total>", totalYears > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!decades>(.*?)</if-!decades>", totalDecades > 0 ? "" : "$1")
-                .replaceAll("(?s)<if-!decades-total>(.*?)</if-!decades-total>", totalDecades > 0 ? "" : "$1");
+            boolean condition = entry.getValue() > 0;
+            String name = entry.getKey();
 
-        Pattern blockPattern = Pattern.compile("\\[(.*?)\\]|\\{(.*?)\\}");
-        Pattern numberPattern = Pattern.compile("(\\d+)");
+            result = result.replaceAll("(?s)<if-" + Pattern.quote(name) + ">(.*?)</if-" + Pattern.quote(name) + ">", condition ? "$1" : "");
+            result = result.replaceAll("(?s)<if-!" + Pattern.quote(name) + ">(.*?)</if-!" + Pattern.quote(name) + ">", condition ? "" : "$1");
+        }
+
+        Pattern blockPattern = Pattern.compile( // Madness ahead
+                "\\[(.*?)](?:<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?"+
+                        "|\\{(.*?)}(?:<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?",
+                Pattern.DOTALL // matches pluralization blocks
+        );
 
         Matcher matcher = blockPattern.matcher(result);
         StringBuilder sb = new StringBuilder();
 
         while (matcher.find()) {
             int blockStart = matcher.start();
-            long value = 2; // default
 
-            Matcher numberMatcher = numberPattern.matcher(result.substring(0, blockStart));
-            while (numberMatcher.find()) {
-                value = Long.parseLong(numberMatcher.group(1));
+            // Now the mission is finding the last number before this
+            // block, ignoring anything inside [], {}, and <> blocks.
+            String prefix = result.substring(0, blockStart);
+            StringBuilder outside = new StringBuilder(prefix.length());
+            boolean inSquare = false, inCurly = false, inAngle = false;
+
+            for (int i = 0; i < prefix.length(); i++) {
+                char c = prefix.charAt(i);
+
+                if (!inCurly && !inAngle && c == '[') { inSquare = true; outside.append(' '); continue; }
+                if (inSquare && c == ']') { inSquare = false; outside.append(' '); continue; }
+
+                if (!inSquare && !inAngle && c == '{') { inCurly = true; outside.append(' '); continue; }
+                if (inCurly && c == '}') { inCurly = false; outside.append(' '); continue; }
+
+                if (!inSquare && !inCurly && c == '<') { inAngle = true; outside.append(' '); continue; }
+                if (inAngle && c == '>') { inAngle = false; outside.append(' '); continue; }
+
+                if (inSquare || inCurly || inAngle) { outside.append(' '); continue; }
+                outside.append(c);
             }
 
-            boolean isCurly = matcher.group(2) != null;
-            String content = isCurly ? matcher.group(2) : matcher.group(1);
-            String replacement = isCurly == (value == 1) ? content : "";
+            Matcher num = Pattern.compile("(\\d+)").matcher(outside);
+            long value = 0; // default value if no prior number found
+            while (num.find()) value = Long.parseLong(num.group(1));
 
+            boolean isCurly = matcher.group(3) != null;
+            String content = isCurly ? matcher.group(3) : matcher.group(1);
+            String spec = isCurly ? matcher.group(4) : matcher.group(2);
+
+            boolean matches;
+            if (spec == null) {
+                matches = (value == 1); // default for missing <> block
+            } else {
+                String str = spec.replaceAll("\\s+", ""); // allow spaces like "2 - 4"
+                int dash = str.indexOf('-');
+                if (dash >= 0) {
+                    long a = Long.parseLong(str.substring(0, dash));
+                    long b = Long.parseLong(str.substring(dash + 1));
+                    if (a > b) { long temp = a; a = b; b = temp; } // normalize reversed ranges
+                    matches = (value >= a && value <= b);
+                } else {
+                    long n = Long.parseLong(str);
+                    matches = (value == n);
+                }
+            }
+
+            String replacement = (isCurly == matches) ? content : "";
             matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
         }
         matcher.appendTail(sb);
