@@ -62,70 +62,89 @@ public class TimeFormatter {
             result = result.replaceAll("(?s)<if-!" + Pattern.quote(name) + ">(.*?)</if-!" + Pattern.quote(name) + ">", condition ? "" : "$1");
         }
 
-        Pattern blockPattern = Pattern.compile( // Madness ahead
-                "\\[(.*?)](?:<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?"+
-                        "|\\{(.*?)}(?:<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?",
-                Pattern.DOTALL // matches pluralization blocks
-        );
+        Pattern[] blockPatterns = new Pattern[] { // Don't even try to understand this madness, it's not worth your time
+            Pattern.compile("\\[\\[\\[(.*?)\\]\\]\\](?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?"
+                + "|\\{\\{\\{(.*?)\\}\\}\\}(?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?", Pattern.DOTALL),
+            Pattern.compile("\\[\\[(.*?)\\]\\](?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?"
+                + "|\\{\\{(.*?)\\}\\}(?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?", Pattern.DOTALL),
+            Pattern.compile("\\[(.*?)](?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?"
+                + "|\\{(.*?)}(?:<<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>>|<\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*>)?", Pattern.DOTALL)
+        };
 
-        Matcher matcher = blockPattern.matcher(result);
-        StringBuilder sb = new StringBuilder();
+        for (Pattern blockPattern : blockPatterns) {
 
-        while (matcher.find()) {
-            int blockStart = matcher.start();
+            Matcher matcher = blockPattern.matcher(result);
+            StringBuilder sb = new StringBuilder();
 
-            // Now the mission is finding the last number before this
-            // block, ignoring anything inside [], {}, and <> blocks.
-            String prefix = result.substring(0, blockStart);
-            StringBuilder outside = new StringBuilder(prefix.length());
-            boolean inSquare = false, inCurly = false, inAngle = false;
+            while (matcher.find()) {
+                int blockStart = matcher.start();
 
-            for (int i = 0; i < prefix.length(); i++) {
-                char c = prefix.charAt(i);
+                String prefix = result.substring(0, blockStart);
+                StringBuilder outside = new StringBuilder(prefix.length());
+                boolean inSquare = false, inCurly = false, inAngle = false;
 
-                if (!inCurly && !inAngle && c == '[') { inSquare = true; outside.append(' '); continue; }
-                if (inSquare && c == ']') { inSquare = false; outside.append(' '); continue; }
+                // Get everything outside of pluralization blocks
+                for (int i = 0; i < prefix.length(); i++) {
+                    char c = prefix.charAt(i);
 
-                if (!inSquare && !inAngle && c == '{') { inCurly = true; outside.append(' '); continue; }
-                if (inCurly && c == '}') { inCurly = false; outside.append(' '); continue; }
+                    if (!inCurly && !inAngle && c == '[') { inSquare = true; outside.append(' '); continue; }
+                    if (inSquare && c == ']') { inSquare = false; outside.append(' '); continue; }
 
-                if (!inSquare && !inCurly && c == '<') { inAngle = true; outside.append(' '); continue; }
-                if (inAngle && c == '>') { inAngle = false; outside.append(' '); continue; }
+                    if (!inSquare && !inAngle && c == '{') { inCurly = true; outside.append(' '); continue; }
+                    if (inCurly && c == '}') { inCurly = false; outside.append(' '); continue; }
 
-                if (inSquare || inCurly || inAngle) { outside.append(' '); continue; }
-                outside.append(c);
-            }
+                    if (!inSquare && !inCurly && c == '<') { inAngle = true; outside.append(' '); continue; }
+                    if (inAngle && c == '>') { inAngle = false; outside.append(' '); continue; }
 
-            Matcher num = Pattern.compile("(\\d+)").matcher(outside);
-            long value = 0; // default value if no prior number found
-            while (num.find()) value = Long.parseLong(num.group(1));
-
-            boolean isCurly = matcher.group(3) != null;
-            String content = isCurly ? matcher.group(3) : matcher.group(1);
-            String spec = isCurly ? matcher.group(4) : matcher.group(2);
-
-            boolean matches;
-            if (spec == null) {
-                matches = (value == 1); // default for missing <> block
-            } else {
-                String str = spec.replaceAll("\\s+", ""); // allow spaces like "2 - 4"
-                int dash = str.indexOf('-');
-                if (dash >= 0) {
-                    long a = Long.parseLong(str.substring(0, dash));
-                    long b = Long.parseLong(str.substring(dash + 1));
-                    if (a > b) { long temp = a; a = b; b = temp; } // normalize reversed ranges
-                    matches = (value >= a && value <= b);
-                } else {
-                    long n = Long.parseLong(str);
-                    matches = (value == n);
+                    if (inSquare || inCurly || inAngle) { outside.append(' '); continue; }
+                    outside.append(c);
                 }
+
+                // Find the last prior number that is outside pluralization blocks
+                Matcher num = Pattern.compile("(\\d+)").matcher(outside);
+                long value = 0; // default value if no prior number found
+                while (num.find()) value = Long.parseLong(num.group(1));
+
+                boolean isCurly = matcher.group(4) != null;
+                String content, spec;
+                boolean digitMode;
+
+                if (isCurly) {
+                    content = matcher.group(4);
+                    if (matcher.group(5) != null) { spec = matcher.group(5); digitMode = true; }
+                    else { spec = matcher.group(6); digitMode = false; }
+                } else {
+                    content = matcher.group(1);
+                    if (matcher.group(2) != null) { spec = matcher.group(2); digitMode = true; }
+                    else { spec = matcher.group(3); digitMode = false; }
+                }
+
+                if (digitMode) value = value % 10; // only compare last digit
+
+                boolean matches;
+                if (spec == null) {
+                    matches = (value == 1); // default when no <> or <<>> provided
+                } else {
+                    String str = spec.replaceAll("\\s+", ""); // allow spaces like "2 - 4"
+                    int dash = str.indexOf('-');
+                    if (dash >= 0) {
+                        long a = Long.parseLong(str.substring(0, dash));
+                        long b = Long.parseLong(str.substring(dash + 1));
+                        if (a > b) { long temp = a; a = b; b = temp; } // normalize reversed ranges
+                        matches = (value >= a && value <= b);
+                    } else {
+                        long n = Long.parseLong(str);
+                        matches = (value == n);
+                    }
+                }
+
+                String replacement = (isCurly == matches) ? content : "";
+                matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
             }
 
-            String replacement = (isCurly == matches) ? content : "";
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+            matcher.appendTail(sb);
+            result = sb.toString();
         }
-        matcher.appendTail(sb);
-        result = sb.toString();
 
         return result;
     }
