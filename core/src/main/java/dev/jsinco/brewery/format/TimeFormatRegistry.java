@@ -74,6 +74,7 @@ public class TimeFormatRegistry {
     }
 
     private static Properties loadProperties(InputStream in) throws IOException {
+        if (in == null) return null;
         try (InputStream is = in; Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             Properties p = new Properties();
             p.load(reader);
