@@ -6,6 +6,13 @@ import dev.jsinco.brewery.api.breweries.Barrel;
 import dev.jsinco.brewery.api.breweries.BarrelType;
 import dev.jsinco.brewery.api.breweries.Distillery;
 import dev.jsinco.brewery.api.breweries.Tickable;
+import dev.jsinco.brewery.api.event.CustomEventRegistry;
+import dev.jsinco.brewery.api.event.EventStepRegistry;
+import dev.jsinco.brewery.api.structure.MultiblockStructure;
+import dev.jsinco.brewery.api.structure.StructureMeta;
+import dev.jsinco.brewery.api.structure.StructureType;
+import dev.jsinco.brewery.api.util.BreweryKey;
+import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.bukkit.api.TheBrewingProjectApi;
 import dev.jsinco.brewery.bukkit.brew.BukkitBrewManager;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
@@ -17,9 +24,9 @@ import dev.jsinco.brewery.bukkit.configuration.serializer.MaterialSerializer;
 import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
 import dev.jsinco.brewery.bukkit.effect.event.ActiveEventsRegistry;
 import dev.jsinco.brewery.bukkit.effect.event.DrunkEventExecutor;
+import dev.jsinco.brewery.bukkit.event.*;
 import dev.jsinco.brewery.bukkit.ingredient.BukkitIngredientManager;
 import dev.jsinco.brewery.bukkit.integration.IntegrationManagerImpl;
-import dev.jsinco.brewery.bukkit.event.*;
 import dev.jsinco.brewery.bukkit.recipe.BukkitRecipeResultReader;
 import dev.jsinco.brewery.bukkit.recipe.DefaultRecipeReader;
 import dev.jsinco.brewery.bukkit.structure.*;
@@ -34,18 +41,11 @@ import dev.jsinco.brewery.database.sql.Database;
 import dev.jsinco.brewery.database.sql.DatabaseDriver;
 import dev.jsinco.brewery.effect.DrunksManagerImpl;
 import dev.jsinco.brewery.effect.text.DrunkTextRegistry;
-import dev.jsinco.brewery.api.event.CustomEventRegistry;
-import dev.jsinco.brewery.api.event.EventStepRegistry;
 import dev.jsinco.brewery.format.TimeFormatRegistry;
 import dev.jsinco.brewery.recipes.RecipeReader;
 import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
-import dev.jsinco.brewery.api.structure.MultiblockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
-import dev.jsinco.brewery.api.structure.StructureMeta;
-import dev.jsinco.brewery.api.structure.StructureType;
-import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.util.ClassUtil;
-import dev.jsinco.brewery.api.util.Logger;
 import eu.okaeri.configs.serdes.OkaeriSerdesPack;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
@@ -154,6 +154,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     public void reload() {
         saveResources();
+        closeDatabase();
         Config.config().load(true);
         EventSection.events().load(true);
         translator.reload();
@@ -283,6 +284,10 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     @Override
     public void onDisable() {
+        closeDatabase();
+    }
+
+    private void closeDatabase() {
         try {
             breweryRegistry.<BukkitBarrel>getOpened(StructureType.BARREL).forEach(barrel -> barrel.close(true));
             breweryRegistry.<BukkitDistillery>getOpened(StructureType.DISTILLERY).forEach(distillery -> distillery.close(true));
