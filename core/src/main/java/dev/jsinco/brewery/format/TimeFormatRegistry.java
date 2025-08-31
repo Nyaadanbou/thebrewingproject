@@ -12,6 +12,7 @@ public class TimeFormatRegistry {
     public void sync(File externalFile) throws IOException {
         InputStream internalDefaultsStream = getClass().getClassLoader()
                 .getResourceAsStream("locale/" + externalFile.getName());
+        if (internalDefaultsStream == null) return; // not present internally
         Properties internal = loadProperties(internalDefaultsStream);
         sync(externalFile, internal);
     }
@@ -35,6 +36,7 @@ public class TimeFormatRegistry {
     public void load(File externalFile) throws IOException {
         InputStream internalDefaultsStream = getClass().getClassLoader()
                 .getResourceAsStream("locale/" + externalFile.getName());
+        if (internalDefaultsStream == null) return; // not present internally
         Properties internal = loadProperties(internalDefaultsStream);
         load(externalFile, internal);
     }
@@ -73,7 +75,6 @@ public class TimeFormatRegistry {
     }
 
     private static Properties loadProperties(InputStream in) throws IOException {
-        Objects.requireNonNull(in, "internalDefaultsStream");
         try (InputStream is = in; Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             Properties p = new Properties();
             p.load(reader);
