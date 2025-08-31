@@ -36,16 +36,13 @@ public class TimeFormatRegistry {
     public void load(File externalFile) throws IOException {
         InputStream internalDefaultsStream = getClass().getClassLoader()
                 .getResourceAsStream("locale/" + externalFile.getName());
-        if (internalDefaultsStream == null) return; // not present internally
         Properties internal = loadProperties(internalDefaultsStream);
         load(externalFile, internal);
     }
 
     public void load(File externalFile, Properties internalDefaults) throws IOException {
 
-        Objects.requireNonNull(internalDefaults, "internalDefaults");
         Objects.requireNonNull(externalFile, "externalFile");
-
         Properties external = loadExternalIfPresent(externalFile);
 
         timeFormats.clear();
@@ -53,7 +50,9 @@ public class TimeFormatRegistry {
             String key = tf.getKey();
             String value = firstNonEmpty(
                     external.getProperty(key),
-                    internalDefaults.getProperty(key),
+                    internalDefaults != null ?
+                            internalDefaults.getProperty(key)
+                            : null,
                     key // fallback: the key itself
             );
             timeFormats.put(tf, value);
