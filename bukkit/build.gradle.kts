@@ -27,6 +27,11 @@ repositories {
     maven("https://repo.extendedclip.com/releases/")
     maven("https://nexus.phoenixdevt.fr/repository/maven-public/")
     maven("https://storehouse.okaeri.eu/repository/maven-public/")
+    maven {
+        name = "nyaadanbouPrivate"
+        url = uri("https://repo.mewcraft.cc/private")
+        credentials(PasswordCredentials::class)
+    }
 }
 
 dependencies {
@@ -57,6 +62,7 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.towny)
     compileOnly(libs.worldguard.bukkit)
+    compileOnly("cc.mewcraft.koish:api:0.0.1-snapshot")
 
     // other
     compileOnly(libs.jetbrains.annotations)

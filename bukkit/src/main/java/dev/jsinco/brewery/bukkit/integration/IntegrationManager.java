@@ -1,18 +1,9 @@
 package dev.jsinco.brewery.bukkit.integration;
 
-import dev.jsinco.brewery.bukkit.integration.item.CraftEngineIntegration;
-import dev.jsinco.brewery.bukkit.integration.item.ItemsAdderIntegration;
-import dev.jsinco.brewery.bukkit.integration.item.MmoItemsIntegration;
-import dev.jsinco.brewery.bukkit.integration.item.NexoIntegration;
-import dev.jsinco.brewery.bukkit.integration.item.OraxenIntegration;
+import dev.jsinco.brewery.bukkit.integration.item.*;
 import dev.jsinco.brewery.bukkit.integration.placeholder.MiniPlaceholdersIntegration;
 import dev.jsinco.brewery.bukkit.integration.placeholder.PlaceholderApiIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.BoltIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.GriefPreventionIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.HuskClaimsIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.LandsIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.TownyIntegration;
-import dev.jsinco.brewery.bukkit.integration.structure.WorldGuardIntegration;
+import dev.jsinco.brewery.bukkit.integration.structure.*;
 import dev.jsinco.brewery.util.Logger;
 import lombok.Getter;
 
@@ -31,6 +22,7 @@ public class IntegrationManager {
         register(IntegrationType.STRUCTURE, new TownyIntegration());
         register(IntegrationType.ITEM, new CraftEngineIntegration());
         register(IntegrationType.ITEM, new ItemsAdderIntegration());
+        register(IntegrationType.ITEM, new KoishIntegration());
         register(IntegrationType.ITEM, new NexoIntegration());
         register(IntegrationType.ITEM, new OraxenIntegration());
         register(IntegrationType.ITEM, new MmoItemsIntegration());
