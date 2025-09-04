@@ -9,8 +9,8 @@ pipeline {
                 sh 'chmod +x gradlew'
                 sh './gradlew bukkit:shadowJar'
                 script {
-                    def sanitizedBranch = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9._-]/, '_')
-                    def shortHash = env.GIT_COMMIT.substring(0, 5)
+                    def sanitizedBranch = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9._]/, '_')
+                    def shortHash = env.GIT_COMMIT.substring(0, 6)
                     def jars = findFiles(glob: 'bukkit/build/libs/TheBrewingProject*.jar')
                     
                     jars.each { jar ->
