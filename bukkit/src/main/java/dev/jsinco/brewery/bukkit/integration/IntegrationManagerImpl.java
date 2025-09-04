@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.bukkit.integration;
 
 import dev.jsinco.brewery.bukkit.api.integration.IntegrationTypes;
+import dev.jsinco.brewery.bukkit.integration.chest_shop.QuickShopHikariIntegration;
 import dev.jsinco.brewery.bukkit.integration.item.*;
 import dev.jsinco.brewery.bukkit.integration.placeholder.MiniPlaceholdersIntegration;
 import dev.jsinco.brewery.bukkit.integration.placeholder.PlaceholderApiIntegration;
@@ -31,18 +32,21 @@ public class IntegrationManagerImpl implements IntegrationManager {
         register(IntegrationTypes.ITEM, new MmoItemsIntegration());
         register(IntegrationTypes.PLACEHOLDER, new PlaceholderApiIntegration());
         register(IntegrationTypes.PLACEHOLDER, new MiniPlaceholdersIntegration());
+        register(IntegrationTypes.CHEST_SHOP, new QuickShopHikariIntegration());
     }
 
     public void loadIntegrations() {
         integrationRegistry.getIntegrations(IntegrationTypes.ITEM).forEach(Integration::onLoad);
         integrationRegistry.getIntegrations(IntegrationTypes.STRUCTURE).forEach(Integration::onLoad);
         integrationRegistry.getIntegrations(IntegrationTypes.PLACEHOLDER).forEach(Integration::onLoad);
+        integrationRegistry.getIntegrations(IntegrationTypes.CHEST_SHOP).forEach(Integration::onLoad);
     }
 
     public void enableIntegrations() {
         integrationRegistry.getIntegrations(IntegrationTypes.ITEM).forEach(Integration::onEnable);
         integrationRegistry.getIntegrations(IntegrationTypes.STRUCTURE).forEach(Integration::onEnable);
         integrationRegistry.getIntegrations(IntegrationTypes.PLACEHOLDER).forEach(Integration::onEnable);
+        integrationRegistry.getIntegrations(IntegrationTypes.CHEST_SHOP).forEach(Integration::onEnable);
     }
 
     @Override

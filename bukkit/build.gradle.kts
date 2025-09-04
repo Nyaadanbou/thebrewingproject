@@ -58,6 +58,7 @@ dependencies {
     compileOnly(libs.placeholderapi)
     compileOnly(libs.towny)
     compileOnly(libs.worldguard.bukkit)
+    compileOnly(libs.quickshop.hikari)
 
     // other
     compileOnly(libs.jetbrains.annotations)
@@ -87,10 +88,10 @@ tasks {
             downloadPlugins {
                 modrinth("worldedit", "DYf6XJqU")
                 modrinth("craftengine", "0.0.61")
-                url("https://dev.bukkit.org/projects/chestshop/files/latest")
-                url("https://dev.bukkit.org/projects/vault/files/latest")
+                modrinth("vaultunlocked", "2.15.1")
                 url("https://github.com/EssentialsX/Essentials/releases/download/2.21.1/EssentialsX-2.21.1.jar")
                 modrinth("bolt", "1f2gAAFO")
+                modrinth("quickshop-hikari", "6.2.0.10")
             }
         }
     }
@@ -214,7 +215,6 @@ bukkit {
         "Lands",
         "GriefPrevention",
         "Towny",
-        "ChestShop",
         "HuskClaims",
         "Bolt",
         "CraftEngine",
@@ -222,7 +222,8 @@ bukkit {
         "PlaceholderAPI",
         "MythicLib",
         "MMOItems",
-        "MiniPlaceholders"
+        "MiniPlaceholders",
+        "QuickShop"
     )
 }
 
