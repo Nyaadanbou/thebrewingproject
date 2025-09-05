@@ -38,7 +38,7 @@ public class BukkitMessageUtil {
         TagResolver.Builder builder = TagResolver.builder()
                 .resolver(Placeholder.component("potion_effects", effects.getEffects().stream()
                         .map(RecipeEffect::displayName)
-                        .collect(Component.toComponent(Component.text(",")))
+                        .collect(Component.toComponent(Component.text(", ")))
                 ))
                 .resolver(Placeholder.parsed("effect_title_message", effects.getTitle() == null ? "" : effects.getTitle()))
                 .resolver(Placeholder.parsed("effect_message", effects.getMessage() == null ? "" : effects.getMessage()))

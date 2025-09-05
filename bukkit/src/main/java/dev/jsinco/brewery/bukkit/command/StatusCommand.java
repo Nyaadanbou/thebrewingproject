@@ -74,7 +74,7 @@ public class StatusCommand {
                                                 Formatter.number("modifier_value", consumption.value())
                                         )
                                 )
-                        ).collect(Component.toComponent(Component.text(",")))
+                        ).collect(Component.toComponent(Component.text(", ")))
         );
         return new TagResolver[]{
                 consumesResolver,
