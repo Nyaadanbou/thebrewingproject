@@ -75,7 +75,7 @@ public class MessageUtil {
                             )
                             .collect(Component.toComponent(Component.text(", ")))
                     ),
-                    Placeholder.component("cauldron_type", Component.translatable("cauldron.type." + cook.cauldronType().name().toLowerCase(Locale.ROOT)))
+                    Placeholder.component("cauldron_type", Component.translatable("tbp.cauldron.type." + cook.cauldronType().name().toLowerCase(Locale.ROOT)))
             );
             case BrewingStep.Distill distill -> Formatter.number("distill_runs", distill.runs());
             case BrewingStep.Mix mix -> TagResolver.resolver(
