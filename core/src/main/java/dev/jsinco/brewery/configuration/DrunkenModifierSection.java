@@ -72,16 +72,16 @@ public class DrunkenModifierSection extends OkaeriConfig {
             "Add some modifier change behavior to vanilla items"
     })
     private List<ConsumableSerializer.Consumable> consumables = List.of(
-            new ConsumableSerializer.Consumable("ROTTEN_FLESH", Map.of(
+            new ConsumableSerializer.Consumable("rotten_flesh", Map.of(
                     "toxins", 3D
             )),
-            new ConsumableSerializer.Consumable("SPIDER_EYE", Map.of(
+            new ConsumableSerializer.Consumable("spider_eye", Map.of(
                     "toxins", 2D
             )),
-            new ConsumableSerializer.Consumable("MILK_BUCKET", Map.of(
+            new ConsumableSerializer.Consumable("milk_bucket", Map.of(
                     "alcohol", -3D
             )),
-            new ConsumableSerializer.Consumable("BREAD", Map.of(
+            new ConsumableSerializer.Consumable("bread", Map.of(
                     "alcohol", -2D,
                     "toxins", -1D
             ))
