@@ -63,7 +63,7 @@ public class BrewAdapter {
         if (quality.isEmpty()) {
             RecipeResult<ItemStack> randomDefault = recipeRegistry.getRandomDefaultRecipe();
             //TODO Refactor this weird implementation for default recipes
-            itemStack = randomDefault.newBrewItem(BrewScoreImpl.EXCELLENT, brew, state);
+            itemStack = randomDefault.newBrewItem(BrewScoreImpl.PLACEHOLDER, brew, state);
         } else if (!score.map(BrewScore::completed).get()) {
             itemStack = incompletePotion(brew);
         } else {
@@ -79,7 +79,7 @@ public class BrewAdapter {
         }
         if (!(state instanceof BrewImpl.State.Seal)) {
             itemStack.editPersistentDataContainer(pdc ->
-                    fillPersistentData(pdc, brew)
+                    applyBrewStepsData(pdc, brew)
             );
         }
         return itemStack;
@@ -119,12 +119,13 @@ public class BrewAdapter {
         return itemStack;
     }
 
-    private static void fillPersistentData(PersistentDataContainer pdc, Brew brew) {
+    public static void applyBrewStepsData(PersistentDataContainer pdc, Brew brew) {
         pdc.set(BREWERY_DATA_VERSION, PersistentDataType.INTEGER, DATA_VERSION);
         if (Config.config().encryptSensitiveData()) {
             pdc.set(BREWERY_CIPHERED, PersistentDataType.BOOLEAN, true);
             pdc.set(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_CIPHERED_LIST, brew.getSteps());
         } else {
+            pdc.remove(BREWERY_CIPHERED);
             pdc.set(BREWING_STEPS, ListPersistentDataType.BREWING_STEP_LIST, brew.getSteps());
         }
     }

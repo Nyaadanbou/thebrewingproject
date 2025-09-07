@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class BrewScoreImpl implements BrewScore {
 
-    public static final BrewScoreImpl EXCELLENT = new BrewScoreImpl(1D);
+    public static final BrewScoreImpl PLACEHOLDER = new BrewScoreImpl(1D);
 
     private final List<Map<PartialBrewScore.Type, PartialBrewScore>> scores;
     private final boolean completed;

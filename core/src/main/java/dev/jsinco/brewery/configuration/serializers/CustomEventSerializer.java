@@ -24,7 +24,9 @@ public class CustomEventSerializer implements ObjectSerializer<CustomEvent> {
         if (object.probability() != EventProbability.NONE) {
             data.add("probability", object.probability());
         }
-        data.add("display-name", object.displayName());
+        if (!object.displayName().equals(Component.text("?"))) {
+            data.add("display-name", object.displayName());
+        }
         data.add("steps", object.getSteps());
     }
 
