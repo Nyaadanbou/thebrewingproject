@@ -41,6 +41,6 @@ bukkit {
     foliaSupported = false
     apiVersion = "1.21"
     authors = listOf("Thorinwasher")
-    name = "TBPMigratorPlugin"
+    name = "TbpMigratorPlugin"
     depend = listOf("TheBrewingProject", "BreweryX")
 }
