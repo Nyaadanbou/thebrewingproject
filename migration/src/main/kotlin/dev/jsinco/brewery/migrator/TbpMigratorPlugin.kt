@@ -22,6 +22,7 @@ class TbpMigratorPlugin : JavaPlugin() {
             logger.severe { "The migration has already been run, shutting down the server!" }
             logger.info { "You need to remove both BreweryX and this migrator plugin from your server." }
             Bukkit.getServer().shutdown()
+            return
         }
         RecipeMigration.migrateRecipes(
             File(dataFolder.parent, "BreweryX"),
