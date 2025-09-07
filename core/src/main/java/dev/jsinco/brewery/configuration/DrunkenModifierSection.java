@@ -36,11 +36,11 @@ public class DrunkenModifierSection extends OkaeriConfig {
     @CustomKey("drunken-modifiers")
     @Comment({"This is where you define all modifiers that can affect the player, used in drunken events.",
             "Avoid names with arithmetic operators included and names that clashes with other configuration keys,",
-            "MODIFY AT YOUR OWN RISK!"})
+    })
     private List<DrunkenModifier> drunkenModifiers = List.of(
-            new DrunkenModifier("alcohol", new ModifierExpression("consumed_alcohol * (110 - alcohol_addiction) / 110"), new ModifierExpression("200"), 0D, 100D, Component.text("Alcohol")),
+            new DrunkenModifier("alcohol", new ModifierExpression("consumed_alcohol * (110 - alcohol_addiction) / 110"), new ModifierExpression("400"), 0D, 100D, Component.text("Alcohol")),
             new DrunkenModifier("alcohol_addiction", new ModifierExpression("0.001 * consumed_alcohol"), new ModifierExpression("10000"), 0D, 100D, Component.text("Alcohol addiction")),
-            new DrunkenModifier("toxins", new ModifierExpression("0"), new ModifierExpression("-1"), 0D, 100D, Component.text("Toxins"))
+            new DrunkenModifier("toxins", new ModifierExpression("0"), new ModifierExpression("800"), 0D, 100D, Component.text("Toxins"))
     );
 
     @CustomKey("drunken-displays")

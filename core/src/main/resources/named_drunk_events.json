@@ -91,7 +91,7 @@
       },
       "allowed_ranges": {
         "alcohol": {
-          "min": 99,
+          "min": 30,
           "max": 100
         }
       }
