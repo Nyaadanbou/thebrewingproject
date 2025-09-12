@@ -227,9 +227,6 @@ public class DrunksManagerImpl<C> implements DrunksManager {
 
     @Override
     public void planEvent(@NotNull UUID playerUuid) {
-        if (plannedEvents.containsKey(playerUuid)) {
-            return;
-        }
         DrunkState drunkState = getDrunkState(playerUuid);
         if (drunkState == null) {
             return;
@@ -252,6 +249,12 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         DrunkEvent drunkEvent = RandomUtil.randomWeighted(drunkEvents, Pair::second).first();
         double value = (double) 20 / cumulativeSum;
         long time = (long) (timeSupplier.getAsLong() + Math.max(1, RANDOM.nextGaussian(value, value / 2)));
+        if (plannedEvents.containsKey(playerUuid)) {
+            if (plannedEvents.get(playerUuid) < time) {
+                return;
+            }
+            events.get(plannedEvents.get(playerUuid)).remove(playerUuid);
+        }
         events.computeIfAbsent(time, ignored -> new HashMap<>()).put(playerUuid, drunkEvent);
         plannedEvents.put(playerUuid, time);
     }
