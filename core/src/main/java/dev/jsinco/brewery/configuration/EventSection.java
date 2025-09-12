@@ -135,7 +135,12 @@ public class EventSection extends OkaeriConfig {
     @Getter
     @Accessors(fluent = true)
     public static class KickEventSection extends OkaeriConfig {
+        @CustomKey("kick-event-message")
+        @Comment("The message to send to the player when getting kicked through the passout event")
         private String kickEventMessage = null;
+
+        @CustomKey("kick-server-message")
+        @Comment("THe message to send to all players when a player gets kicked through the passout event")
         private String kickServerMessage = null;
     }
 
