@@ -51,7 +51,7 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("custom-events")
     private CustomEventRegistry customEvents = CustomEventRegistry.builder()
             .addEvent(new CustomEvent.Builder()
-                    .probability(new EventProbability(new ModifierExpression("0.02 / (110 - alcohol)"), Map.of("alcohol", new RangeD(90D, null))))
+                    .probability(new EventProbability(new ModifierExpression("0.5 * probabilityWeight(alcohol)"), Map.of("alcohol", new RangeD(90D, null))))
                     .displayName(Component.text("loose memory"))
                     .addStep(new EventStep.Builder().addProperty(NamedDrunkEvent.fromKey("pass_out")).build())
                     .addStep(new EventStep.Builder()
@@ -63,7 +63,7 @@ public class EventSection extends OkaeriConfig {
                     .build(BreweryKey.parse("memory_loss"))
             ).addEvent(new CustomEvent.Builder()
                     .displayName(Component.text("get tunnel vision"))
-                    .probability(new EventProbability(new ModifierExpression("0.04 / (110 - alcohol)"), Map.of("alcohol", new RangeD(40D, null))))
+                    .probability(new EventProbability(new ModifierExpression("probabilityWeight(alcohol)"), Map.of("alcohol", new RangeD(40D, null))))
                     .addStep(new EventStep.Builder().addProperty(new ApplyPotionEffect("darkness",
                                     new Interval(1, 1), new Interval(20, 20)
                             )).build()
@@ -71,7 +71,7 @@ public class EventSection extends OkaeriConfig {
                     .build(BreweryKey.parse("tunnel_vision"))
             ).addEvent(new CustomEvent.Builder()
                     .displayName(Component.text("feel alcohol withdrawal"))
-                    .probability(new EventProbability(new ModifierExpression("0.16 / (110 - alcohol_addiction)"),
+                    .probability(new EventProbability(new ModifierExpression("probabilityWeight(alcohol_addiction)"),
                             Map.of("alcohol", new RangeD(null, 20D),
                                     "alcohol_addiction", new RangeD(50D, null)))
                     ).addStep(

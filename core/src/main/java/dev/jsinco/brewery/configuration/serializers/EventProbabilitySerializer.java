@@ -10,6 +10,7 @@ import eu.okaeri.configs.serdes.SerializationData;
 import lombok.NonNull;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EventProbabilitySerializer implements ObjectSerializer<EventProbability> {
     @Override
@@ -30,6 +31,14 @@ public class EventProbabilitySerializer implements ObjectSerializer<EventProbabi
     @Override
     public EventProbability deserialize(@NonNull DeserializationData data, @NonNull GenericsDeclaration generics) {
         ModifierExpression expression = data.get("probability-expression", ModifierExpression.class);
+        Map<String, Double> simplifiedProbability = data.getAsMap("simplified-probability", String.class, Double.class);
+        if (expression == null && simplifiedProbability != null) {
+            expression = new ModifierExpression(simplifiedProbability.entrySet()
+                    .stream()
+                    .map(entry -> entry.getValue() + "*probabilityWeight(" + entry.getKey() + ")")
+                    .collect(Collectors.joining(" + "))
+            );
+        }
         Map<String, RangeD> allowedRanges = data.getAsMap("allowed-ranges", String.class, RangeD.class);
         return new EventProbability(
                 expression == null ? ModifierExpression.ZERO : expression,
