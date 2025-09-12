@@ -3,7 +3,7 @@
     "name": "chicken",
     "probability": {
       "probability_expression": {
-        "function": "1/250"
+        "function": "0.1*probabilityWeight(alcohol)"
       },
       "allowed_ranges": {
         "alcohol": {
@@ -45,10 +45,10 @@
     "name": "fever",
     "probability": {
       "probability_expression": {
-        "function": "probabilityWeight(alcohol)"
+        "function": "probabilityWeight(toxins)"
       },
       "allowed_ranges": {
-        "alcohol": {
+        "toxins": {
           "min": 60,
           "max": 100
         }
@@ -87,10 +87,10 @@
     "name": "nausea",
     "probability": {
       "probability_expression": {
-        "function": "10*probabilityWeight(alcohol)"
+        "function": "10*probabilityWeight(toxins)"
       },
       "allowed_ranges": {
-        "alcohol": {
+        "toxins": {
           "min": 30,
           "max": 100
         }
@@ -115,10 +115,10 @@
     "name": "puke",
     "probability": {
       "probability_expression": {
-        "function": "4*probabilityWeight(alcohol)"
+        "function": "4*probabilityWeight(toxins)"
       },
       "allowed_ranges": {
-        "alcohol": {
+        "toxins": {
           "min": 45,
           "max": 100
         }
