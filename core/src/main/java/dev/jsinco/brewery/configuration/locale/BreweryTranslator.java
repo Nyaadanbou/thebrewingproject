@@ -73,8 +73,9 @@ public class BreweryTranslator extends MiniMessageTranslator {
                 externalProps.load(reader);
             }
 
+            merged.putAll(externalProps);
             for (String key : internalProps.stringPropertyNames()) {
-                merged.setProperty(key, externalProps.getProperty(key, internalProps.getProperty(key)));
+                merged.putIfAbsent(key, internalProps.getProperty(key));
             }
 
         } else {
