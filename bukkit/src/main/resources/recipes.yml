@@ -60,7 +60,9 @@
 
 recipes:
   absinthe:
-    modifiers.alcohol: 42
+    modifiers:
+      alcohol: 42
+      toxins: 32/16/8
     brew-difficulty: 8
     effects:
       - POISON/15-25
@@ -77,7 +79,9 @@ recipes:
       - runs: 6
         type: distill
   ap_mead:
-    modifiers.alcohol: 11
+    modifiers:
+      alcohol: 11
+      toxins: 8/4/2
     brew-difficulty: 4
     effects:
       - WATER_BREATHING/1-2/150
@@ -98,7 +102,9 @@ recipes:
         barrel-type: oak
         type: age
   apple_liquor:
-    modifiers.alcohol: 14
+    modifiers:
+      alcohol: 14
+      toxins: 8/4/2
     brew-difficulty: 5
     potion-attributes.color: BRIGHT_RED
     potion-attributes.lore:
@@ -117,7 +123,9 @@ recipes:
         barrel-type: acacia
         type: age
   beer:
-    modifiers.alcohol: 6
+    modifiers:
+      alcohol: 6
+      toxins: 3/2/1
     brew-difficulty: 1
     potion-attributes.color: ffd333
     potion-attributes.lore:
@@ -133,7 +141,9 @@ recipes:
         barrel-type: any
         type: age
   cidre:
-    modifiers.alcohol: 7
+    modifiers:
+      alcohol: 7
+      toxins: 3/2/1
     brew-difficulty: 4
     potion-attributes.color: f86820
     potion-attributes.name: Poor Cidre/Apple Cider/Great Apple Cider
@@ -147,7 +157,9 @@ recipes:
         barrel-type: any
         type: age
   coffee:
-    modifiers.alcohol: -6
+    modifiers:
+      alcohol: -6
+      toxins: -2/-3/-4
     brew-difficulty: 3
     effects:
       - REGENERATION/1/2-5
@@ -164,7 +176,9 @@ recipes:
           - Milk_Bucket/2
         type: cook
   darkbeer:
-    modifiers.alcohol: 7
+    modifiers:
+      alcohol: 7
+      toxins: 3/2/1
     brew-difficulty: 2
     potion-attributes.color: '650013'
     potion-attributes.lore:
@@ -179,7 +193,9 @@ recipes:
       - runs: 3
         type: distill
   eggnog:
-    modifiers.alcohol: 10
+    modifiers:
+      alcohol: 10
+      toxins: 6/3/1
     brew-difficulty: 4
     potion-attributes.color: ffe680
     potion-attributes.lore:
@@ -197,7 +213,9 @@ recipes:
         barrel-type: any
         type: age
   fire_whiskey:
-    modifiers.alcohol: 28
+    modifiers:
+      alcohol: 28
+      toxins: 20/10/5
     brew-difficulty: 7
     messages.message: You get a burning feeling in your mouth
     potion-attributes.color: ORANGE
@@ -215,7 +233,9 @@ recipes:
         barrel-type: spruce
         type: age
   g_vodka:
-    modifiers.alcohol: 20
+    modifiers:
+      alcohol: 20
+      toxins: 15/5/3
     brew-difficulty: 6
     effects:
       - WEAKNESS/28
@@ -233,7 +253,9 @@ recipes:
       - runs: 3
         type: distill
   gin:
-    modifiers.alcohol: 20
+    modifiers:
+      alcohol: 20
+      toxins: 15/5/3
     brew-difficulty: 6
     potion-attributes.color: 99ddff
     potion-attributes.lore:
@@ -253,7 +275,9 @@ recipes:
       - runs: 2
         type: distill
   gr_absinthe:
-    modifiers.alcohol: 46
+    modifiers:
+      alcohol: 46
+      toxins: 40/30/20
     brew-difficulty: 9
     effects:
       - POISON/25-40
@@ -285,7 +309,9 @@ recipes:
           - cookie/3
         type: cook
   iced_coffee:
-    modifiers.alcohol: -8
+    modifiers:
+      alcohol: -8
+      toxins: -4/-5/-7
     brew-difficulty: 4
     effects:
       - REGENERATION/30
@@ -300,7 +326,9 @@ recipes:
           - snowball/4
           - milk_bucket/1
   mead:
-    modifiers.alcohol: 9
+    modifiers:
+      alcohol: 9
+      toxins: 6/3/2
     brew-difficulty: 2
     potion-attributes.color: ORANGE
     potion-attributes.lore:
@@ -329,7 +357,9 @@ recipes:
           - Short_Grass/3
         type: cook
   rum:
-    modifiers.alcohol: 30
+    modifiers:
+      alcohol: 30
+      toxins: 20/10/5
     brew-difficulty: 6
     effects:
       - FIRE_RESISTANCE/1/20-100
@@ -352,7 +382,9 @@ recipes:
         barrel-type: oak
         type: age
   shroom_vodka:
-    modifiers.alcohol: 18
+    modifiers:
+      alcohol: 18
+      toxins:
     brew-difficulty: 7
     effects:
       - WEAKNESS/80
@@ -375,7 +407,9 @@ recipes:
       - runs: 5
         type: distill
   tequila:
-    modifiers.alcohol: 20
+    modifiers:
+      alcohol: 20
+      toxins: 12/6/3
     brew-difficulty: 5
     potion-attributes.color: f5f07e
     potion-attributes.lore:
@@ -393,7 +427,9 @@ recipes:
         barrel-type: birch
         type: age
   vodka:
-    modifiers.alcohol: 20
+    modifiers:
+      alcohol: 20
+      toxins: 12/6/2
     brew-difficulty: 4
     effects:
       - WEAKNESS/15
@@ -411,7 +447,9 @@ recipes:
       - runs: 3
         type: distill
   wheatbeer:
-    modifiers.alcohol: 5
+    modifiers:
+      alcohol: 5
+      toxins: 3/2/1
     brew-difficulty: 1
     potion-attributes.color: ffb84d
     potion-attributes.lore:
@@ -427,7 +465,9 @@ recipes:
         barrel-type: birch
         type: age
   whiskey:
-    modifiers.alcohol: 26
+    modifiers:
+      alcohol: 26
+      toxins: 20/10/5
     brew-difficulty: 7
     potion-attributes.color: ORANGE
     potion-attributes.lore:
@@ -445,7 +485,9 @@ recipes:
         barrel-type: spruce
         type: age
   wine:
-    modifiers.alcohol: 8
+    modifiers:
+      alcohol: 8
+      toxins: 6/3/1
     brew-difficulty: 4
     potion-attributes.color: RED
     potion-attributes.lore:
@@ -464,7 +506,9 @@ recipes:
         barrel-type: any
         type: age
   brandy:
-    modifiers.alcohol: 35
+    modifiers:
+      alcohol: 35
+      toxins: 20/10/5
     brew-difficulty: 8
     potion-attributes.color: cc7241
     potion-attributes.lore:
@@ -494,7 +538,9 @@ recipes:
           - sugar/6
   # Some mixed drinks
   gin_and_tonic:
-    modifiers.alcohol: 16
+    modifiers:
+      alcohol: 16
+      toxins: 10/5/3
     brew-difficulty: 1
     potion-attributes.color: 70a0b8
     potion-attributes.name: Pale Gin With Tonic/Gin And Tonic/Old Tom Gin With Tonic
@@ -505,7 +551,9 @@ recipes:
           - brewery:gin/3
           - chorus_fruit/6
   red_sangria:
-    modifiers.alcohol: 25
+    modifiers:
+      alcohol: 25
+      toxins: 12/6/3
     brew-difficulty: 5
     potion-attributes.color: 4a0408
     potion-attributes.name: Red Sangria
@@ -522,7 +570,9 @@ recipes:
         age-years: 1
         barrel-type: copper
   french_75:
-    modifiers.alcohol: 20
+    modifiers:
+      alcohol: 20
+      toxins: 12/6/3
     brew-difficulty: 3
     potion-attributes.color: ffe491
     potion-attributes.name: French 75
