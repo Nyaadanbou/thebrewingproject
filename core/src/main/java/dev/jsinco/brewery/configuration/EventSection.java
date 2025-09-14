@@ -37,7 +37,7 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("kick-event")
     private KickEventSection kickEvent = new KickEventSection();
 
-    @Comment("How many long will a player be passed out?")
+    @Comment("How long will a player be passed out?")
     @CustomKey("pass-out-time")
     private Duration.Minutes passOutTime = new Duration.Minutes(TimeUtil.parse("5min"));
 
