@@ -20,7 +20,7 @@ public class TimeUtil {
     private static final Pattern ALLOWED_PATTERN = Pattern.compile(
             "^((\\d+t)|(\\d+s)|(\\d+min)|(\\d+h)|(\\d+d)|(\\d+w)|(\\d+y)|\\d+cmin|\\d+ay| )+$"
     );
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+(|.\\d+)");
 
     public static long parse(String duration) {
         return parse(duration, TimeUnit.MINUTES);
@@ -28,7 +28,7 @@ public class TimeUtil {
 
     public static long parse(String duration, TimeUnit prioritizedUnit) {
         if (NUMBER_PATTERN.matcher(duration).matches()) {
-            return Long.parseLong(duration) * prioritizedUnit.value();
+            return (long) (Double.parseDouble(duration) * prioritizedUnit.value());
         }
         if (!ALLOWED_PATTERN.matcher(duration).matches()) {
             throw new IllegalArgumentException("Invalid duration argument: " + duration);
@@ -42,6 +42,10 @@ public class TimeUtil {
 
     public static String minimalString(long aLong) {
         return minimalString(aLong, null, Set.of(TimeUnit.AGING_YEARS, TimeUnit.COOKING_MINUTES));
+    }
+
+    public static boolean validTime(String time) {
+        return ALLOWED_PATTERN.matcher(time).matches() || NUMBER_PATTERN.matcher(time).matches();
     }
 
     public static String minimalString(long aLong, @Nullable TimeUnit prioritizedUnit, Set<TimeUnit> banned) {
