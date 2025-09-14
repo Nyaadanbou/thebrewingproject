@@ -59,9 +59,6 @@ public class Config extends OkaeriConfig {
     @CustomKey("barrels")
     private BarrelSection barrels = new BarrelSection();
 
-    @CustomKey("puke")
-    private PukeSection puke = new PukeSection();
-
     @Comment({"This field accepts either a single sound definition or a list of definitions.",
             "If a list is provided, one sound will be chosen randomly.",
             "",

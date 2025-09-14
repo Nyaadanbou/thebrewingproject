@@ -8,7 +8,6 @@ import dev.jsinco.brewery.api.effect.modifier.DrunkenModifier;
 import dev.jsinco.brewery.api.event.CustomEventRegistry;
 import dev.jsinco.brewery.api.event.DrunkEvent;
 import dev.jsinco.brewery.api.event.NamedDrunkEvent;
-import dev.jsinco.brewery.api.moment.Moment;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.BreweryRegistry;
 import dev.jsinco.brewery.api.util.Logger;
@@ -274,7 +273,7 @@ public class DrunksManagerImpl<C> implements DrunksManager {
         if (passOutTimeStamp == -1) {
             return false;
         }
-        return passOutTimeStamp + (long) EventSection.events().passOutTime() * Moment.MINUTE > timeSupplier.getAsLong();
+        return passOutTimeStamp + EventSection.events().passOutTime().durationTicks() > timeSupplier.getAsLong();
     }
 
     @Override

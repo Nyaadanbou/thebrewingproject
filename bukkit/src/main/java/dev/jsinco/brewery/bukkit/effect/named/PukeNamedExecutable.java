@@ -1,10 +1,10 @@
 package dev.jsinco.brewery.bukkit.effect.named;
 
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
-import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.api.event.EventPropertyExecutable;
 import dev.jsinco.brewery.api.event.EventStep;
 import dev.jsinco.brewery.api.event.NamedDrunkEvent;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.configuration.EventSection;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -28,9 +28,9 @@ public class PukeNamedExecutable implements EventPropertyExecutable {
         if (player == null) {
             return ExecutionResult.CONTINUE;
         }
-
-        PukeHandler pukeHandler = new PukeHandler(Config.config().puke().pukeTime(), player);
-        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("puke"), Config.config().puke().pukeTime());
+        int pukeTimeTicks = (int) EventSection.events().puke().pukeTime().durationTicks();
+        PukeHandler pukeHandler = new PukeHandler(pukeTimeTicks, player);
+        TheBrewingProject.getInstance().getActiveEventsRegistry().registerActiveEvent(player.getUniqueId(), NamedDrunkEvent.fromKey("puke"), pukeTimeTicks);
         player.getScheduler().runAtFixedRate(TheBrewingProject.getInstance(), pukeHandler::tick, () -> {
         }, 1, 1);
         return ExecutionResult.CONTINUE;
@@ -73,7 +73,7 @@ public class PukeNamedExecutable implements EventPropertyExecutable {
             if (worldDespawnRate < 0) {
                 worldDespawnRate = spigotConfig.getInt("world-settings.default.item-despawn-rate", 6000);
             }
-            int despawnRate = Math.max(Config.config().puke().pukeDespawnTime(), 4);
+            int despawnRate = Math.max((int) EventSection.events().puke().pukeDespawnTime().durationTicks(), 4);
             item.setTicksLived(worldDespawnRate - despawnRate + RANDOM.nextInt(-despawnRate / 2, despawnRate / 2 + 1));
         }
     }

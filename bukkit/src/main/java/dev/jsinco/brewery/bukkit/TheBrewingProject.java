@@ -165,6 +165,8 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                 .add(new RangeDSerializer())
                 .add(new ConditionSerializer())
                 .add(new SecretKeySerializer())
+                .add(new MinutesDurationSerializer())
+                .add(new TicksDurationSerializer())
                 .build();
     }
 

@@ -11,6 +11,8 @@ import dev.jsinco.brewery.api.util.BreweryRegistry;
 import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
 import dev.jsinco.brewery.effect.DrunkStateImpl;
+import dev.jsinco.brewery.time.Duration;
+import dev.jsinco.brewery.time.TimeUtil;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Comment;
@@ -35,9 +37,9 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("kick-event")
     private KickEventSection kickEvent = new KickEventSection();
 
-    @Comment("How many game minutes will a player be passed out?")
+    @Comment("How many long will a player be passed out?")
     @CustomKey("pass-out-time")
-    private int passOutTime = 5;
+    private Duration.Minutes passOutTime = new Duration.Minutes(TimeUtil.parse("5min"));
 
     @Comment("Drunken messages to send if the drunk_message event is enabled (not recommended to have enabled, gets a bit spammy)")
     @CustomKey("messages")
@@ -46,6 +48,9 @@ public class EventSection extends OkaeriConfig {
             "Who is she?",
             "Watch this!",
             "I'm not drunk. You're drunk.");
+
+    @CustomKey("puke")
+    private PukeSection puke = new PukeSection();
 
     @Comment("Make your own events, see the wiki at https://hangar.papermc.io/BreweryTeam/TheBrewingProject/pages/Wiki/Configuration#-events")
     @CustomKey("custom-events")

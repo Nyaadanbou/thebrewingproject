@@ -1,4 +1,4 @@
-package dev.jsinco.brewery.util;
+package dev.jsinco.brewery.time;
 
 import dev.jsinco.brewery.configuration.Config;
 import org.intellij.lang.annotations.RegExp;
@@ -31,7 +31,7 @@ public class TimeUtil {
             return (long) (Double.parseDouble(duration) * prioritizedUnit.value());
         }
         if (!ALLOWED_PATTERN.matcher(duration).matches()) {
-            throw new IllegalArgumentException("Invalid duration argument: " + duration);
+            return 0L;
         }
         // Could do some more argument validation, but meh
         return TimeUnit.ALL.stream()

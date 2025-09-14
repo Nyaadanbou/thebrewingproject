@@ -1,6 +1,7 @@
 package dev.jsinco.brewery.configuration;
 
 import dev.jsinco.brewery.api.moment.Moment;
+import dev.jsinco.brewery.time.Duration;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.Comment;
 import eu.okaeri.configs.annotation.CustomKey;
@@ -11,11 +12,11 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public class PukeSection extends OkaeriConfig {
 
-    @Comment("How many ticks should the puke items live")
+    @Comment("How long should the puke items live")
     @CustomKey("despawn-rate")
-    private int pukeDespawnTime = 6 * Moment.SECOND;
+    private Duration.Ticks pukeDespawnTime = new Duration.Ticks(6 * Moment.SECOND);
 
-    @Comment("How many ticks the player will puke")
+    @Comment("How long should the player puke")
     @CustomKey("puke-time")
-    private int pukeTime = 4 * Moment.SECOND;
+    private Duration.Ticks pukeTime = new Duration.Ticks(4 * Moment.SECOND);
 }
