@@ -8,7 +8,7 @@ import dev.jsinco.brewery.api.structure.StructureMeta;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.BreweryRegistry;
 import dev.jsinco.brewery.api.util.Pair;
-import dev.jsinco.brewery.util.Util;
+import dev.jsinco.brewery.util.FileUtil;
 import dev.thorinwasher.schem.Schematic;
 import dev.thorinwasher.schem.SchematicReader;
 import org.bukkit.*;
@@ -34,7 +34,7 @@ public class StructureReader {
     private static final Pattern SCHEM_FILE_PATTERN = Pattern.compile("[a-zA-Z_0-9\\-]+");
 
     public static BreweryStructure fromInternalResourceJson(String string) throws IOException, StructureReadException {
-        URL url = Util.class.getResource(string);
+        URL url = FileUtil.class.getResource(string);
         URI uri;
         try {
             uri = url.toURI();

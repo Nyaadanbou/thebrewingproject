@@ -12,6 +12,7 @@ import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.BreweryRegistry;
 import dev.jsinco.brewery.api.vector.BreweryLocation;
 import dev.jsinco.brewery.configuration.DrunkenModifierSection;
+import dev.jsinco.brewery.util.TimeUtil;
 import eu.okaeri.configs.schema.GenericsDeclaration;
 import eu.okaeri.configs.serdes.DeserializationData;
 import eu.okaeri.configs.serdes.ObjectSerializer;
@@ -63,7 +64,8 @@ public class EventStepSerializer implements ObjectSerializer<EventStep> {
                 case Teleport teleport -> Map.of(
                         "location", teleport.location()
                 );
-                case WaitStep waitStep -> Map.of("wait-duration", waitStep.durationTicks() + "t");
+                case WaitStep waitStep ->
+                        Map.of("wait-duration", TimeUtil.minimalString(waitStep.durationTicks()));
                 default -> throw new IllegalArgumentException("Unsupported event step: " + property);
             });
         }
@@ -117,12 +119,12 @@ public class EventStepSerializer implements ObjectSerializer<EventStep> {
         if (data.containsKey("duration") && !data.containsKey("effect")) {
             String duration = data.get("duration", String.class);
             Preconditions.checkArgument(duration != null, "Duration can not be empty");
-            eventStepBuilder.addProperty(WaitStep.parse(duration));
+            eventStepBuilder.addProperty(new WaitStep((int) TimeUtil.parse(duration, TimeUtil.TimeUnit.SECONDS)));
         }
         if (data.containsKey("wait-duration")) {
             String duration = data.get("wait-duration", String.class);
             Preconditions.checkArgument(duration != null, "Duration can not be empty");
-            eventStepBuilder.addProperty(WaitStep.parse(duration));
+            eventStepBuilder.addProperty(new WaitStep((int) TimeUtil.parse(duration, TimeUtil.TimeUnit.SECONDS)));
         }
         if (data.containsKey("effect")) {
             String effect = data.get("effect", String.class);
