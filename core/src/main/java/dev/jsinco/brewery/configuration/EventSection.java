@@ -52,6 +52,26 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("puke")
     private PukeSection puke = new PukeSection();
 
+    @Comment("What events will be randomly chosen over time when the player is drunk")
+    @CustomKey("enabled-random-events")
+    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk", "hallucination", "fever", "kaboom");
+
+    @Comment("Teleport destinations for the 'teleport' event")
+    @CustomKey("teleport-destinations")
+    private List<BreweryLocation.Uncompiled> teleportDestinations = List.of(new BreweryLocation.Uncompiled(0, 70, 0, "world"));
+
+    @Comment("Deny joining the server if too drunk")
+    @CustomKey("drunken-join-deny-event")
+    private DrunkenJoinEvent drunkenJoinDeny = new DrunkenJoinEvent();
+
+    @Comment("Transform text with blurred speech if the player is drunk enough")
+    @CustomKey("blurred-speech")
+    private boolean blurredSpeech = true;
+
+    @Comment("What upwards velocity the player will get in the kaboom event")
+    @CustomKey("kaboom-velocity")
+    private double kaboomVelocity = 0.2;
+
     @Comment("Make your own events, see the wiki at https://hangar.papermc.io/BreweryTeam/TheBrewingProject/pages/Wiki/Configuration#-events")
     @CustomKey("custom-events")
     private CustomEventRegistry customEvents = CustomEventRegistry.builder()
@@ -86,29 +106,12 @@ public class EventSection extends OkaeriConfig {
                     ).build(BreweryKey.parse("drinking_addiction"))
             ).build();
 
-    @Comment("What events will be randomly chosen over time when the player is drunk")
-    @CustomKey("enabled-random-events")
-    private List<String> enabledRandomEvents = List.of("puke", "memory_loss", "stumble", "chicken", "nausea", "tunnel_vision", "drunken_walk", "hallucination", "fever", "kaboom");
-
-    @Comment("Teleport destinations for the 'teleport' event")
-    @CustomKey("teleport-destinations")
-    private List<BreweryLocation.Uncompiled> teleportDestinations = List.of(new BreweryLocation.Uncompiled(0, 70, 0, "world"));
-
-    @Comment("Deny joining the server if too drunk")
-    @CustomKey("drunken-join-deny-event")
-    private DrunkenJoinEvent drunkenJoinDeny = new DrunkenJoinEvent();
-
-    @Comment("Transform text with blurred speech if the player is drunk enough")
-    @CustomKey("blurred-speech")
-    private boolean blurredSpeech = true;
-
-    @Comment("What upwards velocity the player will get in the kaboom event")
-    @CustomKey("kaboom-velocity")
-    private double kaboomVelocity = 0.2;
-
     @Comment("Change the properties of premade events")
     @CustomKey("named-drunk-event-overrides")
     private List<NamedDrunkEvent> namedDrunkEventsOverride = BreweryRegistry.DRUNK_EVENT.values().stream().toList();
+
+    @Exclude
+    private static EventSection instance;
 
     public static void validate() {
         Preconditions.checkState(instance != null, "Instance can not be null");
@@ -155,10 +158,6 @@ public class EventSection extends OkaeriConfig {
         private boolean enabled = true;
         private EventProbability probability = new EventProbability(new ModifierExpression("85 - alcohol"), Map.of("alcohol", new RangeD(85D, null)));
     }
-
-
-    @Exclude
-    private static EventSection instance;
 
     public static EventSection events() {
         return instance;
