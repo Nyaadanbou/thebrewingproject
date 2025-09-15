@@ -20,7 +20,7 @@ public class TimeUtil {
     private static final Pattern ALLOWED_PATTERN = Pattern.compile(
             "^((\\d+t)|(\\d+s)|(\\d+min)|(\\d+h)|(\\d+d)|(\\d+w)|(\\d+y)|\\d+cmin|\\d+ay| )+$"
     );
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+(|.\\d+)");
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+(|\\.\\d+)");
 
     public static long parse(String duration) {
         return parse(duration, TimeUnit.MINUTES);
