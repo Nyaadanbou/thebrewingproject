@@ -1,10 +1,10 @@
 package dev.jsinco.brewery.bukkit.api.integration;
 
-import dev.jsinco.brewery.bukkit.api.ingredient.PluginIngredient;
 import dev.jsinco.brewery.api.ingredient.Ingredient;
 import dev.jsinco.brewery.api.integration.Integration;
 import dev.jsinco.brewery.api.util.BreweryKey;
 import dev.jsinco.brewery.api.util.Logger;
+import dev.jsinco.brewery.bukkit.api.ingredient.PluginIngredient;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -21,14 +21,23 @@ public interface ItemIntegration extends Integration {
     Optional<ItemStack> createItem(String id);
 
     /**
+     * @return True if the id is a valid ingredient key to this item integration
+     */
+    boolean isIngredient(String id);
+
+    /**
      * Creates an Ingredient from the given item identifier
      */
     default CompletableFuture<Optional<Ingredient>> createIngredient(String id) {
         return initialized()
                 .handleAsync((ignored1, exception) -> {
                             if (exception != null) {
-                                Logger.logErr("Couldn't create PluginIngredient for id '" + getId() + "'.");
+                                Logger.logErr("Couldn't create PluginIngredient '" + id + "' for item integration " + getId());
                                 Logger.logErr(exception);
+                                return Optional.empty();
+                            }
+                            if (!isIngredient(id)) {
+                                Logger.logErr("Couldn't create PluginIngredient '" + id + "' for item integration " + getId());
                                 return Optional.empty();
                             }
                             return Optional.of(new PluginIngredient(new BreweryKey(getId(), id), this));

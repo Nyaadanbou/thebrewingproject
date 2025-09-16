@@ -22,8 +22,13 @@ public class ItemsAdderIntegration implements ItemIntegration, Listener {
 
     @Override
     public Optional<ItemStack> createItem(String id) {
-        return Optional.of(CustomStack.getInstance(id))
+        return Optional.ofNullable(CustomStack.getInstance(id))
                 .map(CustomStack::getItemStack);
+    }
+
+    @Override
+    public boolean isIngredient(String id) {
+        return CustomStack.getInstance(id) != null;
     }
 
     public @Nullable Component displayName(String itemsAdderId) {

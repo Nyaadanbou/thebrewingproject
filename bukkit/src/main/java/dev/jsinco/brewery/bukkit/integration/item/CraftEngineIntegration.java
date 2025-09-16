@@ -40,6 +40,12 @@ public class CraftEngineIntegration implements ItemIntegration, Listener {
                 .map(Item::getItem);
     }
 
+    @Override
+    public boolean isIngredient(String id) {
+        return Optional.ofNullable(BukkitCraftEngine.instance().itemManager().createWrappedItem(Key.from(id), null))
+                .isPresent();
+    }
+
     public @Nullable Component displayName(String id) {
         return BukkitCraftEngine.instance().itemManager().buildItemStack(Key.from(id), null).effectiveName();
     }

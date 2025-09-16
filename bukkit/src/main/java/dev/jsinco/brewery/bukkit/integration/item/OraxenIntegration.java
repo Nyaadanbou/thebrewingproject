@@ -27,6 +27,11 @@ public class OraxenIntegration implements ItemIntegration, Listener {
                 .map(ItemBuilder::build);
     }
 
+    @Override
+    public boolean isIngredient(String id) {
+        return OraxenItems.getItemById(id) != null;
+    }
+
     public @Nullable Component displayName(String oraxenId) {
         return OraxenItems.getOptionalItemById(oraxenId)
                 .map(ItemBuilder::getDisplayName)

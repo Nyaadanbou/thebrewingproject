@@ -33,6 +33,11 @@ public class MmoItemsIntegration implements ItemIntegration, Listener {
     }
 
     @Override
+    public boolean isIngredient(String id) {
+        return getMmoItem(id).isPresent();
+    }
+
+    @Override
     public @Nullable Component displayName(String id) {
         return createItem(id)
                 .map(ItemStack::displayName)

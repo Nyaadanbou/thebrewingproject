@@ -30,6 +30,11 @@ public class NexoIntegration implements ItemIntegration, Listener {
         return Optional.of(itemBuilder.build());
     }
 
+    @Override
+    public boolean isIngredient(String id) {
+        return NexoItems.itemFromId(id) != null;
+    }
+
     public @Nullable Component displayName(String itemsAdderId) {
         if (!ENABLED) {
             return null;
