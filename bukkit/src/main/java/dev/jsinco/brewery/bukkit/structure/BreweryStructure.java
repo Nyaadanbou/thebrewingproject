@@ -22,7 +22,7 @@ public class BreweryStructure {
     private final List<Vector3i> entryPoints;
     @Getter
     private final String name;
-    private final Map<StructureMeta< ?>, Object> structureMeta;
+    private final Map<StructureMeta<?>, Object> structureMeta;
 
     /**
      * Construct a schem structure where all blocks can finalize the structure (less performant)
@@ -31,7 +31,7 @@ public class BreweryStructure {
      * @param name
      * @param structureMeta
      */
-    public BreweryStructure(@NotNull Schematic schem, @NotNull String name, Map<StructureMeta< ?>, Object> structureMeta) {
+    public BreweryStructure(@NotNull Schematic schem, @NotNull String name, Map<StructureMeta<?>, Object> structureMeta) {
         this(schem, computeOrigins(schem), name, structureMeta);
     }
 
@@ -43,7 +43,7 @@ public class BreweryStructure {
      * @param name
      * @param structureMeta
      */
-    public BreweryStructure(@NotNull Schematic schem, @NotNull List<Vector3i> origins, @NotNull String name, Map<StructureMeta< ?>, Object> structureMeta) {
+    public BreweryStructure(@NotNull Schematic schem, @NotNull List<Vector3i> origins, @NotNull String name, Map<StructureMeta<?>, Object> structureMeta) {
         this.schem = Objects.requireNonNull(schem);
         this.entryPoints = origins;
         this.name = Objects.requireNonNull(name);
@@ -51,8 +51,8 @@ public class BreweryStructure {
         structureMeta.forEach((key, value) -> Preconditions.checkArgument(key.validator().test(value), "Invalid structure '" + name + "': value '" + value + "' is not allowed for meta: " + structureMeta));
         StructureType type = getMeta(StructureMeta.TYPE);
         Preconditions.checkArgument(type != null, "Invalid structure '" + name + "', missing meta: " + StructureMeta.TYPE);
-        List<StructureMeta< ?>> missing = type.getMissingMandatory(structureMeta.keySet());
-        Preconditions.checkArgument(missing.isEmpty(), "Invalid structure '" + name + "', missing meta: " + missing);
+        List<StructureMeta<?>> missing = type.getMissingMandatory(structureMeta.keySet());
+        missing.forEach(missing1 -> structureMeta.put(missing1, missing1.defaultValue()));
     }
 
     private static List<Vector3i> computeOrigins(Schematic schem) {
@@ -109,7 +109,7 @@ public class BreweryStructure {
         return Arrays.asList(schem.palette());
     }
 
-    public <V> @Nullable V getMeta(StructureMeta< V> meta) {
+    public <V> @Nullable V getMeta(StructureMeta<V> meta) {
         return (V) structureMeta.get(meta);
     }
 

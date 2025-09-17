@@ -271,7 +271,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                     if (structure.getMetaOrDefault(StructureMeta.USE_BARREL_SUBSTITUTION, false)) {
                         structureRegistry.addStructure(structure, BarrelBlockDataMatcher.INSTANCE, BarrelType.PLACEABLE_TYPES);
                     } else {
-                        structureRegistry.addStructure(structure);
+                        structureRegistry.addStructure(structure, new GenericBlockDataMatcher(structure.getMetaOrDefault(StructureMeta.BLOCK_REPLACEMENTS, List.of())), new Void[1]);
                     }
                 });
     }

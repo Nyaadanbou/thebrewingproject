@@ -3,24 +3,24 @@ package dev.jsinco.brewery.bukkit.event;
 import dev.jsinco.brewery.api.breweries.BarrelType;
 import dev.jsinco.brewery.api.breweries.InventoryAccessible;
 import dev.jsinco.brewery.api.breweries.StructureHolder;
+import dev.jsinco.brewery.api.structure.MultiblockStructure;
+import dev.jsinco.brewery.api.structure.StructureMeta;
+import dev.jsinco.brewery.api.structure.StructureType;
+import dev.jsinco.brewery.api.util.Logger;
+import dev.jsinco.brewery.api.util.Pair;
+import dev.jsinco.brewery.api.vector.BreweryLocation;
+import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrelDataType;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistillery;
 import dev.jsinco.brewery.bukkit.breweries.distillery.BukkitDistilleryDataType;
 import dev.jsinco.brewery.bukkit.structure.*;
-import dev.jsinco.brewery.bukkit.api.BukkitAdapter;
 import dev.jsinco.brewery.configuration.Config;
 import dev.jsinco.brewery.database.PersistenceException;
 import dev.jsinco.brewery.database.sql.Database;
-import dev.jsinco.brewery.api.structure.MultiblockStructure;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
-import dev.jsinco.brewery.api.structure.StructureMeta;
-import dev.jsinco.brewery.api.structure.StructureType;
-import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.util.MessageUtil;
-import dev.jsinco.brewery.api.util.Pair;
-import dev.jsinco.brewery.api.vector.BreweryLocation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.ExplosionResult;
 import org.bukkit.Location;
@@ -100,7 +100,12 @@ public class BlockEventListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent placeEvent) {
         Block placed = placeEvent.getBlockPlaced();
         for (BreweryStructure breweryStructure : structureRegistry.getPossibleStructures(placed.getType(), StructureType.DISTILLERY)) {
-            Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(breweryStructure, placed.getLocation(), GenericBlockDataMatcher.INSTANCE, new Void[1]);
+            Optional<Pair<PlacedBreweryStructure<BukkitDistillery>, Void>> placedBreweryStructureOptional = PlacedBreweryStructure.findValid(
+                    breweryStructure,
+                    placed.getLocation(),
+                    new GenericBlockDataMatcher(breweryStructure.getMetaOrDefault(StructureMeta.BLOCK_REPLACEMENTS, List.of())),
+                    new Void[1]
+            );
             if (placedBreweryStructureOptional.isPresent()) {
                 if (!placedStructureRegistry.getStructures(placedBreweryStructureOptional.get().first().positions()).isEmpty()) {
                     continue;
