@@ -27,6 +27,7 @@ public class IntegrationManagerImpl implements IntegrationManager {
         register(IntegrationTypes.STRUCTURE, new TownyIntegration());
         register(IntegrationTypes.ITEM, new CraftEngineIntegration());
         register(IntegrationTypes.ITEM, new ItemsAdderIntegration());
+        register(IntegrationTypes.ITEM, new KoishIntegration());
         register(IntegrationTypes.ITEM, new NexoIntegration());
         register(IntegrationTypes.ITEM, new OraxenIntegration());
         register(IntegrationTypes.ITEM, new MmoItemsIntegration());
