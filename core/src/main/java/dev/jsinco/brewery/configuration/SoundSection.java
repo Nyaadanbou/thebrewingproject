@@ -37,6 +37,9 @@ public class SoundSection extends OkaeriConfig {
     @CustomKey("kaboom")
     private SoundDefinition kaboom = parseSoundSetting("minecraft:entity.generic.explode/1.0;1.0");
 
+    @CustomKey("empty-failed-drink")
+    private SoundDefinition emptyFailedDrink = parseSoundSetting("minecraft:item.bottle.empty");
+
     private static SoundDefinition parseSoundSetting(String string) {
         return new SoundDefinition(List.of(SoundDefinitionSerializer.parseSoundSetting(string)));
     }
