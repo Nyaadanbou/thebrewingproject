@@ -36,6 +36,7 @@ import dev.jsinco.brewery.recipes.RecipeRegistryImpl;
 import dev.jsinco.brewery.structure.PlacedStructureRegistryImpl;
 import dev.jsinco.brewery.util.MessageUtil;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -58,6 +59,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -159,6 +161,20 @@ public class PlayerEventListener implements Listener {
             event.setUseItemInHand(Event.Result.DENY);
             decreaseItem(offHand, event.getPlayer());
             inventory.setItemInOffHand(offHand);
+        }
+        if (block.getType() == Material.HOPPER && event.getItem() != null) {
+            PersistentDataContainerView view = event.getItem().getPersistentDataContainer();
+            Double score = view.get(BrewAdapter.BREWERY_SCORE, PersistentDataType.DOUBLE);
+            if ((Config.config().emptyAnyDrinkUsingHopper() || (score != null && score == 0))
+                    && BrewAdapter.fromItem(event.getItem()).isPresent() && event.getItem().getType() == Material.POTION) {
+                event.getItem().setAmount(event.getItem().getAmount() - 1);
+                ItemStack emptyBottle = new ItemStack(Material.GLASS_BOTTLE);
+                if (!event.getPlayer().getInventory().addItem(emptyBottle).isEmpty()) {
+                    event.getPlayer().getWorld().dropItemNaturally(event.getPlayer().getLocation(), emptyBottle);
+                }
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.DENY);
+            }
         }
 
     }

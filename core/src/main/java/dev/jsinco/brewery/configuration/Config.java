@@ -53,6 +53,10 @@ public class Config extends OkaeriConfig {
     @Comment("The key that is going to be used for the encryption, this is unique per server")
     private SecretKey encryptionKey = generateKey();
 
+    @CustomKey("empty-any-drink-using-hopper")
+    @Comment("Empty any drink when right-clicking a hopper. If false, only applies to failed brews")
+    private boolean emptyAnyDrinkUsingHopper = false;
+
     @CustomKey("cauldrons")
     private CauldronSection cauldrons = new CauldronSection();
 

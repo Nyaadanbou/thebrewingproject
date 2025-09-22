@@ -62,6 +62,9 @@ public class BrewAdapter {
         ItemStack itemStack;
         if (quality.isEmpty()) {
             itemStack = fromDefaultRecipe(recipe, recipeRegistry, brew, state);
+            itemStack.editPersistentDataContainer(pdc -> {
+                pdc.set(BREWERY_SCORE, PersistentDataType.DOUBLE, 0D);
+            });
         } else if (!score.map(BrewScore::completed).get()) {
             Optional<DefaultRecipe<ItemStack>> defaultRecipeOptional = recipeRegistry.getDefaultRecipes().stream()
                     .filter(defaultRecipe -> !defaultRecipe.onlyRuinedBrews())
