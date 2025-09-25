@@ -72,6 +72,15 @@ public class EventSection extends OkaeriConfig {
     @CustomKey("kaboom-velocity")
     private double kaboomVelocity = 0.2;
 
+
+    @Comment("The duration where player freezes for the fever event")
+    @CustomKey("fever-freezing-time")
+    private Duration.Ticks feverFreezingTime = new Duration.Ticks(200);
+
+    @Comment("The duration where player freezes for the fever event")
+    @CustomKey("fever-burning-time")
+    private Duration.Ticks feverBurnTime = new Duration.Ticks(100);
+
     @Comment("Make your own events, see the wiki at https://hangar.papermc.io/BreweryTeam/TheBrewingProject/pages/Wiki/Configuration#-events")
     @CustomKey("custom-events")
     private CustomEventRegistry customEvents = CustomEventRegistry.builder()

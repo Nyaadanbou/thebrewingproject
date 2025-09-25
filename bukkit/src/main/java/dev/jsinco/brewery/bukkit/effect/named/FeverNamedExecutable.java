@@ -1,8 +1,9 @@
 package dev.jsinco.brewery.bukkit.effect.named;
 
-import dev.jsinco.brewery.bukkit.TheBrewingProject;
 import dev.jsinco.brewery.api.event.EventPropertyExecutable;
 import dev.jsinco.brewery.api.event.EventStep;
+import dev.jsinco.brewery.bukkit.TheBrewingProject;
+import dev.jsinco.brewery.configuration.EventSection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class FeverNamedExecutable implements EventPropertyExecutable {
-
-    private static final int AFFECT_DURATION = 200; // 10 seconds
 
     @Override
     public @NotNull ExecutionResult execute(UUID contextPlayer, List<? extends EventStep> events, int index) {
@@ -27,14 +26,17 @@ public class FeverNamedExecutable implements EventPropertyExecutable {
 
             @Override
             public void run() {
-                if (ticksRan++ >= AFFECT_DURATION) {
+                if (ticksRan++ >= EventSection.events().feverFreezingTime().durationTicks()) {
                     cancel();
+                    return;
+                }
+                if (!player.isOnline()) {
                     return;
                 }
                 player.setFreezeTicks(player.getMaxFreezeTicks());
             }
         }.runTaskTimer(TheBrewingProject.getInstance(), 0, 1);
-        player.setFireTicks(AFFECT_DURATION / 2);
+        player.setFireTicks((int) EventSection.events().feverBurnTime().durationTicks());
         return ExecutionResult.CONTINUE;
     }
 
