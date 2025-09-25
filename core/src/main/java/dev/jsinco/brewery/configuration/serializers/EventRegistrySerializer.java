@@ -36,7 +36,7 @@ public class EventRegistrySerializer implements ObjectSerializer<CustomEventRegi
                 output.registerCustomEvent(new CustomEvent.Keyed(data.get(child, CustomEvent.class), BreweryKey.parse(child)));
             } catch (Exception e) {
                 Logger.logErr("Exception when reading custom event: " + child);
-                Logger.logErr(e);
+                throw e;
             }
         }
         return output;
