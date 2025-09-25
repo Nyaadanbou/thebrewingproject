@@ -56,7 +56,7 @@ public class DrunkTextRegistry {
 
     public List<DrunkTextElement> getTextTransformers(Map<DrunkenModifier, Double> alcohol) {
         return drunkenTexts.stream()
-                .filter(drunkTextElement -> alcohol.get(drunkTextElement.modifier()) < drunkTextElement.minValue())
+                .filter(drunkTextElement -> alcohol.containsKey(drunkTextElement.modifier()) && alcohol.get(drunkTextElement.modifier()) > drunkTextElement.minValue())
                 .toList();
     }
 
