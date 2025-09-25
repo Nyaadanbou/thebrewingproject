@@ -16,4 +16,10 @@ public sealed interface Condition {
 
     record HasPermission(String permission) implements Condition {
     }
+
+    record ModifierAbove(String modifier, double value) implements Condition {
+    }
+
+    record NotCondition(Condition toInvert) implements Condition {
+    }
 }

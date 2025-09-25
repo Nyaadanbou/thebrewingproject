@@ -8,6 +8,7 @@ import eu.okaeri.configs.serdes.ObjectSerializer;
 import eu.okaeri.configs.serdes.SerializationData;
 import lombok.NonNull;
 
+import java.util.Map;
 import java.util.Set;
 
 public class ConditionSerializer implements ObjectSerializer<Condition> {
@@ -24,6 +25,13 @@ public class ConditionSerializer implements ObjectSerializer<Condition> {
             case Condition.JoinedServer joinedServer -> data.setValue("joined-server");
             case Condition.JoinedWorld joinedWorld -> data.add("joined-world", joinedWorld.worldName());
             case Condition.TookDamage tookDamage -> data.setValue("took-damage");
+            case Condition.ModifierAbove modifierAbove -> {
+                data.add("modifier-above", Map.of(
+                        "modifier", modifierAbove.modifier(),
+                        "value", modifierAbove.value())
+                );
+            }
+            case Condition.NotCondition notCondition -> data.add("not", notCondition.toInvert());
         }
     }
 
@@ -45,6 +53,15 @@ public class ConditionSerializer implements ObjectSerializer<Condition> {
         }
         if (data.containsKey("joined-world")) {
             return new Condition.JoinedWorld(data.get("joined-world", String.class));
+        }
+        if (data.containsKey("modifier-above")) {
+            Map<String, Object> modifierAbove = data.getAsMap("modifier-above", String.class, Object.class);
+            Preconditions.checkArgument(modifierAbove.get("modifier") instanceof String, "Expected a modifier string definition");
+            Preconditions.checkArgument(modifierAbove.get("value") instanceof Number, "Expected a value number definition");
+            return new Condition.ModifierAbove(modifierAbove.get("modifier").toString(), ((Number) modifierAbove.get("value")).doubleValue());
+        }
+        if (data.containsKey("not")) {
+            return new Condition.NotCondition(data.get("not", Condition.class));
         }
         throw new IllegalArgumentException("Could not serialize from key: " + keys.stream().findAny().get());
     }

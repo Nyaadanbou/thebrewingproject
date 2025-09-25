@@ -75,9 +75,6 @@ public class DrunkEventExecutor {
         switch (condition) {
             case Condition.Died died ->
                     onDeathExecutions.computeIfAbsent(playerUuid, ignored -> new ArrayList<>()).add(events);
-            case Condition.HasPermission hasPermission -> {
-                throw new IllegalStateException("Can not schedule 'has permission' conditions");
-            }
             case Condition.JoinedServer joinedServer -> {
                 if (Bukkit.getPlayer(playerUuid) != null) {
                     doDrunkEvents(playerUuid, events);
@@ -95,6 +92,7 @@ public class DrunkEventExecutor {
             }
             case Condition.TookDamage tookDamage ->
                     onDamageExecutions.computeIfAbsent(playerUuid, ignored -> new ArrayList<>()).add(events);
+            default -> throw new IllegalStateException("Can not schedule condition: " + condition);
         }
     }
 
