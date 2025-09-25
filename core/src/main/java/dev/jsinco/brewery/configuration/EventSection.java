@@ -176,7 +176,7 @@ public class EventSection extends OkaeriConfig {
         EventSection.instance = ConfigManager.create(EventSection.class, it -> {
             it.withConfigurer(new YamlSnakeYamlConfigurer(), packs);
             it.withBindFile(new File(dataFolder, "events.yml"));
-            it.withRemoveOrphans(true);
+            it.withRemoveOrphans(false);
             it.saveDefaults();
             it.load(true);
         });

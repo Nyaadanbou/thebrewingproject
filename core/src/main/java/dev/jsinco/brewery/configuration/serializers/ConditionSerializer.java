@@ -2,6 +2,7 @@ package dev.jsinco.brewery.configuration.serializers;
 
 import com.google.common.base.Preconditions;
 import dev.jsinco.brewery.api.event.step.Condition;
+import dev.jsinco.brewery.configuration.DrunkenModifierSection;
 import eu.okaeri.configs.schema.GenericsDeclaration;
 import eu.okaeri.configs.serdes.DeserializationData;
 import eu.okaeri.configs.serdes.ObjectSerializer;
@@ -58,7 +59,9 @@ public class ConditionSerializer implements ObjectSerializer<Condition> {
             Map<String, Object> modifierAbove = data.getAsMap("modifier-above", String.class, Object.class);
             Preconditions.checkArgument(modifierAbove.get("modifier") instanceof String, "Expected a modifier string definition");
             Preconditions.checkArgument(modifierAbove.get("value") instanceof Number, "Expected a value number definition");
-            return new Condition.ModifierAbove(modifierAbove.get("modifier").toString(), ((Number) modifierAbove.get("value")).doubleValue());
+            String modifierName = modifierAbove.get("modifier").toString();
+            Preconditions.checkArgument(DrunkenModifierSection.modifiers().optionalModifier(modifierName).isPresent(), "Unknown modifier: " + modifierName);
+            return new Condition.ModifierAbove(modifierName, ((Number) modifierAbove.get("value")).doubleValue());
         }
         if (data.containsKey("not")) {
             return new Condition.NotCondition(data.get("not", Condition.class));
