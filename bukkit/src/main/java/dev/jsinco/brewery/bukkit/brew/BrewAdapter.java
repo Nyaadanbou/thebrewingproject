@@ -68,7 +68,7 @@ public class BrewAdapter {
         } else if (!score.map(BrewScore::completed).get()) {
             Optional<DefaultRecipe<ItemStack>> defaultRecipeOptional = recipeRegistry.getDefaultRecipes().stream()
                     .filter(defaultRecipe -> !defaultRecipe.onlyRuinedBrews())
-                    .filter(defaultRecipe -> defaultRecipe.recipeCondition().matches(recipe.get().getSteps(), brew.getSteps()))
+                    .filter(defaultRecipe -> defaultRecipe.recipeCondition().matches(recipe.get().getSteps(), brew.getCompletedSteps()))
                     .findAny();
             itemStack = defaultRecipeOptional.map(DefaultRecipe::result).map(result -> result.newBrewItem(score.get(), brew, state)).orElse(
                     incompletePotion(brew)
@@ -130,14 +130,14 @@ public class BrewAdapter {
         List<DefaultRecipe<ItemStack>> defaultRecipes = recipeRegistry.getDefaultRecipes()
                 .stream().filter(DefaultRecipe::onlyRuinedBrews)
                 .filter(defaultRecipe ->
-                        defaultRecipe.recipeCondition().complexity() > 1 && defaultRecipe.recipeCondition().matches(recipe.map(Recipe::getSteps).orElse(null), brew.getSteps())
+                        defaultRecipe.recipeCondition().complexity() > 1 && defaultRecipe.recipeCondition().matches(recipe.map(Recipe::getSteps).orElse(null), brew.getCompletedSteps())
                 )
                 .toList();
         if (defaultRecipes.isEmpty()) {
             defaultRecipes = recipeRegistry.getDefaultRecipes()
                     .stream().filter(DefaultRecipe::onlyRuinedBrews)
                     .filter(defaultRecipe ->
-                            defaultRecipe.recipeCondition().complexity() > 0 && defaultRecipe.recipeCondition().matches(recipe.map(Recipe::getSteps).orElse(null), brew.getSteps())
+                            defaultRecipe.recipeCondition().complexity() > 0 && defaultRecipe.recipeCondition().matches(recipe.map(Recipe::getSteps).orElse(null), brew.getCompletedSteps())
                     )
                     .toList();
         }

@@ -37,7 +37,7 @@ public class RecipeConditions {
                 return false;
             }
             return conditions().stream()
-                    .allMatch(scoreCondition -> scoreCondition.matches(expected == null ? null : expected.get(actual.size() - 1), actual.getLast()));
+                    .allMatch(scoreCondition -> scoreCondition.matches(expected == null ? null : expected.get(Math.min(actual.size(), expected.size()) - 1), actual.getLast()));
         }
 
         @Override
