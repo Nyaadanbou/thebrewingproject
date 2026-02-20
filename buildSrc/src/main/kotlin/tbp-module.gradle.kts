@@ -3,7 +3,18 @@ plugins {
 }
 
 group = "dev.jsinco.brewery"
-version = project.findProperty("version")!!
+version = System.getenv("VERSION")?.let {
+    if (!it.matches("v{0,1}\\d+\\.\\d+\\.\\d+".toRegex())) {
+        throw IllegalArgumentException("Invalid version name")
+    }
+    it.replace("^v".toRegex(), "")
+} ?: getGitHash()
+
+fun getGitHash(): String {
+    return providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }
+        .standardOutput
+        .asText.get().trim()
+}
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
