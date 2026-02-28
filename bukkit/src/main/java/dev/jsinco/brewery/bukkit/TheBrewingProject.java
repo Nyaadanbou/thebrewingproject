@@ -127,7 +127,6 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     private boolean successfullLoad = false;
 
     public void initialize() {
-        instance = this;
         EventSection.migrateEvents(getDataFolder());
         Config.load(this.getDataFolder(), serializers());
         DrunkenModifierSection.load(this.getDataFolder(), serializers());
@@ -152,6 +151,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
 
     @Override
     public void onLoad() {
+        instance = this;
         saveResources();
         Migrations.migrateAllConfigFiles(this.getDataFolder());
         integrationManager.registerIntegrations();
