@@ -20,6 +20,7 @@ import dev.jsinco.brewery.api.structure.StructureType;
 import dev.jsinco.brewery.api.util.Logger;
 import dev.jsinco.brewery.bukkit.api.TheBrewingProjectApi;
 import dev.jsinco.brewery.bukkit.api.event.TBPReloadEvent;
+import dev.jsinco.brewery.bukkit.api.integration.IntegrationTypes;
 import dev.jsinco.brewery.bukkit.brew.BukkitBrewManager;
 import dev.jsinco.brewery.bukkit.breweries.BreweryRegistry;
 import dev.jsinco.brewery.bukkit.breweries.barrel.BukkitBarrel;
@@ -28,6 +29,7 @@ import dev.jsinco.brewery.bukkit.command.BreweryCommand;
 import dev.jsinco.brewery.bukkit.configuration.serializer.BreweryLocationSerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.ColorSerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.IngredientInputSerializer;
+import dev.jsinco.brewery.bukkit.configuration.serializer.IntegrationEventSerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.MaterialSerializer;
 import dev.jsinco.brewery.bukkit.configuration.serializer.UncheckedIngredientSerializer;
 import dev.jsinco.brewery.bukkit.effect.SqlDrunkStateDataType;
@@ -181,7 +183,6 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
         saveResources();
         Migrations.migrateAllConfigFiles(this.getDataFolder());
         integrationManager.registerIntegrations();
-        initialize();
         integrationManager.loadIntegrations();
         Bukkit.getServicesManager().register(TheBrewingProjectApi.class, this, this, ServicePriority.Normal);
         this.successfullLoad = true;
@@ -213,6 +214,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
                 .add(new ColorSerializer())
                 .add(new UncheckedIngredientSerializer())
                 .add(new IngredientInputSerializer())
+                .add(new IntegrationEventSerializer(() -> integrationManager.retrieve(IntegrationTypes.EVENT)))
                 .build();
     }
 
@@ -337,6 +339,7 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     @Override
     public void onEnable() {
         Preconditions.checkState(successfullLoad, "Plugin loading failed, see above exception in load stage");
+        initialize();
         loadStructures();
         integrationManager.enableIntegrations();
         this.database = new Database(DatabaseDriver.SQLITE);
@@ -390,6 +393,9 @@ public class TheBrewingProject extends JavaPlugin implements TheBrewingProjectAp
     }
 
     private void closeDatabase() {
+        if (breweryRegistry == null || database == null) {
+            return;
+        }
         try {
             breweryRegistry.<BukkitBarrel>getOpened(StructureType.BARREL).forEach(barrel -> barrel.close(true));
             breweryRegistry.<BukkitDistillery>getOpened(StructureType.DISTILLERY).forEach(distillery -> distillery.close(true));
